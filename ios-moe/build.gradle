@@ -46,8 +46,9 @@ task copyNatives  {
 configurations { natives }
 
 dependencies {
+
   implementation "io.github.berstanio:gdx-backend-moe:$gdxVersion"
-  implementation project(':core')
+  implementation project(":core")
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-ios"
 
 }
@@ -69,3 +70,4 @@ moeMainDebugIphonesimulatorXcodeBuild.dependsOn copyNatives
 if (System.getenv('PLATFORM_NAME') != null) {
   moeXcodeInternal.dependsOn copyNatives
 }
+

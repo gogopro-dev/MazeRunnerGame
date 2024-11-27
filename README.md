@@ -28,8 +28,8 @@ Useful Gradle tasks and flags:
 - `clean`: removes `build` folders, which store compiled classes and built archives.
 - `eclipse`: generates Eclipse project data.
 - `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
+- `desktop:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
+- `desktop:run`: starts the application.
 - `test`: runs unit tests (if any).
 
 Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
