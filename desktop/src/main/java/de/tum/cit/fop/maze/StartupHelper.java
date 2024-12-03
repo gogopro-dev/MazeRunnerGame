@@ -14,7 +14,7 @@
  */
 //Note, the above license and copyright applies to this file only.
 
-package de.tum.cit.fop.maze.lwjgl3;
+package de.tum.cit.fop.maze;
 
 import org.lwjgl.system.macosx.LibC;
 
@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 
 /**
@@ -100,7 +101,7 @@ public class StartupHelper {
 
         // Restart the JVM with -XstartOnFirstThread
         ArrayList<String> jvmArgs = new ArrayList<>();
-        String separator = System.getProperty("file.separator");
+        String separator = FileSystems.getDefault().getSeparator();
         // The following line is used assuming you target Java 8, the minimum for LWJGL3.
         String javaExecPath = System.getProperty("java.home") + separator + "bin" + separator + "java";
         // If targeting Java 9 or higher, you could use the following instead of the above line:

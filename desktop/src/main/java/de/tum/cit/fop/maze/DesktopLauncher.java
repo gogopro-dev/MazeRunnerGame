@@ -6,7 +6,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 /** Launches the desktop (LWJGL3) application. */
 public class DesktopLauncher {
     public static void main(String[] args) {
-        if (de.tum.cit.fop.maze.lwjgl3.StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
+        if (de.tum.cit.fop.maze.StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
         createApplication();
     }
 
