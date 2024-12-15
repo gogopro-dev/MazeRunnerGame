@@ -18,7 +18,7 @@ public class FirstScreen implements Screen {
 
         this.game = game;
         gameCam = new OrthographicCamera();
-        hud = new HUD(game.batch, game.player);
+        hud = new HUD(game.batch);
         gamePort = new StretchViewport(800, 480, gameCam);
     }
 

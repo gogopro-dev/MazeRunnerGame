@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
-public interface commonFunctions {
+public class commonFunctions {
     public static Drawable getColoredDrawable(int width, int height, Color color) {
         // create simple font for Stamina Bar
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);

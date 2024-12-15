@@ -9,18 +9,18 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import de.tum.cit.fop.maze.Entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HUD implements commonFunctions {
+public class HUD {
 
-    Player player;
+    private int health;
+    private int maxHealth;
+    private int stamina;
+
     Stage stage;
     Skin skin;
-    // In order for skins to load create heart dir in assets and put the textures there
-    //    String assetsPath = "C:\\Users\\Legion\\Desktop\\Game proj\\Test\\assets";
 
     List<Image> hpBar;
     Button takeDmgButton;
@@ -40,28 +40,26 @@ public class HUD implements commonFunctions {
     float hitElapsedTime;
 
 
-    public HUD(SpriteBatch sb, Player player) {
+    public HUD(SpriteBatch sb) {
 
-        this.player = player;
+        health = 14;
+        maxHealth = 14;
         hpBar = new ArrayList<Image>();
         elapsedTime = 0;
+        /// @param currentSeconds for the stamina bar testing
         currentSeconds = 0;
         staminaBarIsEmpty = false;
+
         heartsAnimationFrameDuration = 0.25f;
         animations = sb;
-        create();
-    }
-
-    public void create() {
-
         this.stage = new Stage();
         Gdx.input.setInputProcessor(this.stage);
+
         initSkins();
         setAnimations();
         createHPBar(stage);
         createDamageButton(stage);
         createStaminaBar();
-
     }
 
     public void disposeHPBar(Stage stage) {
@@ -74,17 +72,15 @@ public class HUD implements commonFunctions {
 
     public boolean hpCheck_heartIsHalf(){
 
-        return player.getHp() % 2 != 0;
+        return health % 2 != 0;
     }
-
 
     public void createHPBar(Stage stage) {
 
-        // should not be possible later with impl. of Player class
-        int playerHP = player.getHp();
-        int hearts = player.getHp() / 2;
-        int emptyHearts = (this.player.getFullHP()-playerHP)/2;
-        if (playerHP<0){
+        int hearts = health / 2;
+
+        int emptyHearts = (maxHealth-health)/2;
+        if (health<0){
             return;
         }
 
@@ -92,7 +88,7 @@ public class HUD implements commonFunctions {
 
         // create full hearts
 
-        Texture heart = skin.get("fhp", Texture.class);
+        Texture heart = skin.get("full", Texture.class);
         for (int i = 0; i < hearts; i++) {
             Image eachHeart = new Image(heart);
             hpBar.add(eachHeart);
@@ -106,7 +102,7 @@ public class HUD implements commonFunctions {
 
         if (hpCheck_heartIsHalf()) {
 
-            Image halfHeartImg = new Image(skin.get("hhp", Texture.class));
+            Image halfHeartImg = new Image(skin.get("half", Texture.class));
             this.hpBar.add(halfHeartImg);
             halfHeartImg.setPosition(offset, Gdx.graphics.getHeight() - halfHeartImg.getHeight());
             stage.addActor(halfHeartImg);
@@ -118,7 +114,7 @@ public class HUD implements commonFunctions {
 
         if(emptyHearts!=0){
 
-            heart = skin.get("lhp", Texture.class);
+            heart = skin.get("empty", Texture.class);
             for (int i = 0; i < emptyHearts; i++) {
                 Image eachHeart = new Image(heart);
                 hpBar.add(eachHeart);
@@ -131,19 +127,6 @@ public class HUD implements commonFunctions {
 
     }
 
-
-    //!Important I stole getColoredDrawable from the internet)))
-
-//    public static Drawable getColoredDrawable(int width, int height, Color color) {
-//        // create simple font for Stamina Bar
-//        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
-//        pixmap.setColor(color);
-//        pixmap.fill();
-//        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture(pixmap)));
-//        pixmap.dispose();
-//
-//        return drawable;
-//    }
     //Initializes the stamina bar
     public void createStaminaBar(){
 
@@ -168,13 +151,12 @@ public class HUD implements commonFunctions {
         stage.addActor(staminaBar);
     }
 
+    public void animateHeartsFullToEmpty(){
 
-    public void animate_heartsFullToEmpty(){
-        int hp = this.player.getHp();
         int dmg = this.receivedDmg;
-        int even = (dmg % 2 + (hp + dmg) % 2) % 2;
+        int even = (dmg % 2 + (health + dmg) % 2) % 2;
 
-        for(int i = hp/2+even; i < (player.getHp() + this.receivedDmg)/2; i++){
+        for(int i = health/2+even; i < (health + this.receivedDmg)/2; i++){
             TextureRegion currentFrame = (TextureRegion) animation_heartFullToEmpty.getKeyFrame(hitElapsedTime);
             Image currentHeart = hpBar.get(i);
             int frameWidth = currentFrame.getRegionWidth();
@@ -184,10 +166,8 @@ public class HUD implements commonFunctions {
     }
 
 //TODO: merge functions to one & change register to camelCase
-    public void animate_heartFullToHalf(int indexOfHeartToAnimate){
-//        if(player.getHp() <= 0){
-//            return;
-//        }
+    public void animateHeartFullToHalf(int indexOfHeartToAnimate){
+
         TextureRegion currentFrame = (TextureRegion) animation_heartFullToHalf.getKeyFrame(hitElapsedTime);
         Image currentHeart = hpBar.get(indexOfHeartToAnimate);
         int frameWidth = currentFrame.getRegionWidth();
@@ -195,26 +175,25 @@ public class HUD implements commonFunctions {
         animations.draw(currentFrame, currentHeart.getX(), currentHeart.getY(), frameWidth, frameHeight);
     }
 
+    public void animateHeartHalfToEmpty(int indexOfHeartToAnimate){
 
-    public void animate_heartHalfToEmpty(int indexOfHeartToAnimate){
-//        if(player.getHp() <= 0){
-//            return;
-//        }
         TextureRegion currentFrame = (TextureRegion) animation_heartHalfToEmpty.getKeyFrame(hitElapsedTime);
         Image currentHeart = hpBar.get(indexOfHeartToAnimate);
         int frameWidth = currentFrame.getRegionWidth();
         int frameHeight = currentFrame.getRegionHeight();
         animations.draw(currentFrame, currentHeart.getX(), currentHeart.getY(), frameWidth, frameHeight);
     }
+
     public boolean getAllAnimationsFinished(){
         return animation_heartHalfToEmpty.isAnimationFinished(hitElapsedTime) && animation_heartFullToHalf.isAnimationFinished(hitElapsedTime) && animation_heartFullToEmpty.isAnimationFinished(hitElapsedTime);
     }
 
 
     public void takeDmg(Stage stage) {
-        player.setHp(player.getHp() - this.receivedDmg);
-        if (player.isDead()){
-            player.setHp(0);
+        health -= receivedDmg;
+        /// health must be >= 0 in order for hpBar to work properly
+        if (health < 0){
+            health = 0;
         }
         disposeHPBar(stage);
         createHPBar(stage);
@@ -223,30 +202,29 @@ public class HUD implements commonFunctions {
 
     public void drawHeartsAnimations() {
         int dmg = this.receivedDmg;
-        int hp = this.player.getHp();
         if (dmg == 0) {
             return;
         }
-        if(hp == 0){
-            animate_heartsFullToEmpty();
+        if(health == 0){
+            animateHeartsFullToEmpty();
             return;
         }
         // If the player's prev health was odd, then the last heart was half
-        if((player.getHp() + dmg) % 2 != 0){
-            animate_heartHalfToEmpty((dmg + hp) / 2);
+        if((health + dmg) % 2 != 0){
+            animateHeartHalfToEmpty((dmg + health) / 2);
         }
         // if the player's current health is odd, then the last heart is half
-        if(hp%2!=0){
-            animate_heartFullToHalf(hp/2);
+        if(health % 2 != 0){
+            animateHeartFullToHalf(health / 2);
         }
-        animate_heartsFullToEmpty();
+        animateHeartsFullToEmpty();
 
         if (getAllAnimationsFinished()) {
             hitElapsedTime = 0f;
         }
     }
 
-    // create damage button to check how health bar works
+    /// to test how health works
     public void createDamageButton(Stage stage) {
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.fontColor = Color.WHITE;
@@ -271,31 +249,31 @@ public class HUD implements commonFunctions {
 
     public void initSkins(){
         skin = new Skin();
-        skin.add("fhp", new Texture(Gdx.files.internal("heart/Health1.png")));
-        skin.add("hhp", new Texture(Gdx.files.internal("heart/Health3.png")));
-        skin.add("lhp", new Texture(Gdx.files.internal("heart/Health7.png")));
+        skin.add("full", new Texture(Gdx.files.internal("temporary/heart/Health1.png")));
+        skin.add("half", new Texture(Gdx.files.internal("temporary/heart/Health3.png")));
+        skin.add("empty", new Texture(Gdx.files.internal("temporary/heart/Health7.png")));
     }
-    // initialize animations
+
     public void setAnimations(){
 
-        TextureAtlas health_fullToHalf = new TextureAtlas(Gdx.files.internal("heart/"+"health_full.atlas"));
+        TextureAtlas health_fullToHalf = new TextureAtlas(Gdx.files.internal("temporary/heart/health_full.atlas"));
         animation_heartFullToHalf = new Animation<>(heartsAnimationFrameDuration, health_fullToHalf.getRegions());
         animation_heartFullToHalf.setPlayMode(Animation.PlayMode.LOOP);
 
 
-        TextureAtlas health_halfToEmpty = new TextureAtlas(Gdx.files.internal("heart/"+"health_half.atlas"));
+        TextureAtlas health_halfToEmpty = new TextureAtlas(Gdx.files.internal("temporary/heart/health_half.atlas"));
         animation_heartHalfToEmpty = new Animation<>(heartsAnimationFrameDuration, health_halfToEmpty.getRegions());
         animation_heartHalfToEmpty.setPlayMode(Animation.PlayMode.LOOP);
 
 
-        TextureAtlas health_fullToEmpty = new TextureAtlas(Gdx.files.internal("heart/"+"fullToEmpty.atlas"));
+        TextureAtlas health_fullToEmpty = new TextureAtlas(Gdx.files.internal("temporary/heart/fullToEmpty.atlas"));
         animation_heartFullToEmpty = new Animation<>(heartsAnimationFrameDuration, health_fullToEmpty.getRegions());
         animation_heartFullToEmpty.setPlayMode(Animation.PlayMode.LOOP);
 
         hitElapsedTime = Math.max(animation_heartFullToHalf.getAnimationDuration(), animation_heartFullToEmpty.getAnimationDuration());
         System.out.println(hitElapsedTime);
     }
-    // I used HUD file as main so you should check if some of the stuff here is already initialized in project main file
+
     public void render() {
         stage.act();
         stage.draw();
@@ -333,9 +311,6 @@ public class HUD implements commonFunctions {
         return pixmap;
     }
 
-//    public void draw(Stage stage) {
-//    }
-
     public void resize (int width, int height) {
         stage.getViewport().update(width, height, true);
     }
@@ -345,135 +320,6 @@ public class HUD implements commonFunctions {
         stage.dispose();
         skin.dispose();
     }
-    // I used HUD file as main so you should check if some of the stuff here is already initialized in project main file
-    //TODO : check if this is needed in the project
 
-    public Player getPlayer() {
-        return player;
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
-    public Stage getStage() {
-        return stage;
-    }
-
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
-
-    public Skin getSkin() {
-        return skin;
-    }
-
-    public void setSkin(Skin skin) {
-        this.skin = skin;
-    }
-
-    public List<Image> getHpBar() {
-        return hpBar;
-    }
-
-    public void setHpBar(List<Image> hpBar) {
-        this.hpBar = hpBar;
-    }
-
-    public Button getTakeDmgButton() {
-        return takeDmgButton;
-    }
-
-    public void setTakeDmgButton(Button takeDmgButton) {
-        this.takeDmgButton = takeDmgButton;
-    }
-
-    public int getReceivedDmg() {
-        return receivedDmg;
-    }
-
-    public void setReceivedDmg(int receivedDmg) {
-        this.receivedDmg = receivedDmg;
-    }
-
-    public Animation getAnimation_heartFullToHalf() {
-        return animation_heartFullToHalf;
-    }
-
-    public void setAnimation_heartFullToHalf(Animation animation_heartFullToHalf) {
-        this.animation_heartFullToHalf = animation_heartFullToHalf;
-    }
-
-    public Animation getAnimation_heartHalfToEmpty() {
-        return animation_heartHalfToEmpty;
-    }
-
-    public void setAnimation_heartHalfToEmpty(Animation animation_heartHalfToEmpty) {
-        this.animation_heartHalfToEmpty = animation_heartHalfToEmpty;
-    }
-
-    public Animation getAnimation_heartFullToEmpty() {
-        return animation_heartFullToEmpty;
-    }
-
-    public void setAnimation_heartFullToEmpty(Animation animation_heartFullToEmpty) {
-        this.animation_heartFullToEmpty = animation_heartFullToEmpty;
-    }
-
-    public float getHeartsAnimationFrameDuration() {
-        return heartsAnimationFrameDuration;
-    }
-
-    public void setHeartsAnimationFrameDuration(float heartsAnimationFrameDuration) {
-        this.heartsAnimationFrameDuration = heartsAnimationFrameDuration;
-    }
-
-    public SpriteBatch getAnimations() {
-        return animations;
-    }
-
-    public void setAnimations(SpriteBatch animations) {
-        this.animations = animations;
-    }
-
-    public ProgressBar getStaminaBar() {
-        return staminaBar;
-    }
-
-    public void setStaminaBar(ProgressBar staminaBar) {
-        this.staminaBar = staminaBar;
-    }
-
-    public boolean isStaminaBarIsEmpty() {
-        return staminaBarIsEmpty;
-    }
-
-    public void setStaminaBarIsEmpty(boolean staminaBarIsEmpty) {
-        this.staminaBarIsEmpty = staminaBarIsEmpty;
-    }
-
-    public int getCurrentSeconds() {
-        return currentSeconds;
-    }
-
-    public void setCurrentSeconds(int currentSeconds) {
-        this.currentSeconds = currentSeconds;
-    }
-
-    public float getElapsedTime() {
-        return elapsedTime;
-    }
-
-    public void setElapsedTime(float elapsedTime) {
-        this.elapsedTime = elapsedTime;
-    }
-
-    public float getHitElapsedTime() {
-        return hitElapsedTime;
-    }
-
-    public void setHitElapsedTime(float hitElapsedTime) {
-        this.hitElapsedTime = hitElapsedTime;
-    }
 }
 

@@ -1,0 +1,11 @@
+fullToEmpty.png
+size:128,32
+repeat:none
+Health1
+bounds:20,2,16,16
+Health6
+bounds:38,2,16,16
+Health7
+bounds:2,2,16,16
+Health8
+bounds:56,2,16,16

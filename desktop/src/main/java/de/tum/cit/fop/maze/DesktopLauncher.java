@@ -13,7 +13,7 @@ public class DesktopLauncher {
 
     private static Lwjgl3Application createApplication() {
 //        return new Lwjgl3Application(new Main(), getDefaultConfiguration());
-        return  new Lwjgl3Application(new MazeRunnerGame(), getDefaultConfiguration());
+        return  new Lwjgl3Application(new Main(), getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
