@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze.Essentials;
+package de.tum.cit.fop.maze.essentials;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
