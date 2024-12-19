@@ -17,7 +17,7 @@ public class HUD {
 
     private int health;
     private int maxHealth;
-    private int stamina;
+    private int maxStamina;
 
     Stage stage;
     Skin skin;
@@ -305,11 +305,11 @@ public class HUD {
 
     }
 
-    public Pixmap takeScreenShot(){
-        /// Potential memory leak
-        Pixmap pixmap = Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        return pixmap;
-    }
+//    public Pixmap takeScreenShot(){
+//        /// Potential memory leak
+//        Pixmap pixmap = Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+//        return pixmap;
+//    }
 
     public void resize (int width, int height) {
         stage.getViewport().update(width, height, true);
