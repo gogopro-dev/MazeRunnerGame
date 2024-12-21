@@ -1,0 +1,17 @@
+settings.png
+size:512,512
+repeat:none
+drop_down_menu
+bounds:2,38,71,11
+exit
+bounds:2,16,18,20
+knob
+bounds:22,21,5,15
+settings_container
+bounds:2,51,290,360
+slider
+bounds:294,404,62,7
+off
+bounds:2,2,13,12
+on
+bounds:294,390,16,12
