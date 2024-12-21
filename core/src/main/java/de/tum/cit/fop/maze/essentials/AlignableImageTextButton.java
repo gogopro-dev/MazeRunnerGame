@@ -4,10 +4,11 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Null;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A button with an image positioned to the left and text positioned in the center of the button.
@@ -18,8 +19,10 @@ public class AlignableImageTextButton extends Button {
     private final Label label;
     private final float imageScale;
     private float imagePadding = 0f;
+    private float imageTopPadding = 0f;
     private float labelPadding = 0f;
-    private AlignableImageTextButtonStyle style;
+    private float labelTopPadding = 0f;
+    private ImageTextButtonStyle style;
 
     /**
      * Creates a new button with the provided text, style and image scale.
@@ -27,19 +30,19 @@ public class AlignableImageTextButton extends Button {
      * @param style The style of the image on the button.
      * @param imageScale The scale of the image on the button.
      */
-    public AlignableImageTextButton(@Null String text, AlignableImageTextButtonStyle style, @Null float imageScale) {
+    public AlignableImageTextButton(@Null String text, @NotNull ImageTextButtonStyle style, Image image, @Null float imageScale) {
         super(style);
         this.style = style;
         this.imageScale = imageScale;
 
         defaults().space(3);
-        image = new Image();
+        this.image = image;
         label = new Label(text, new Label.LabelStyle(style.font, style.fontColor));
 
-        image.setPosition(imagePadding, (getHeight() - image.getHeight())/2);
-        label.setPosition(getWidth()/2 + labelPadding, (getHeight() - label.getHeight())/2);
+        this.image.setPosition(imagePadding, (getHeight() - image.getHeight())/2 + imageTopPadding);
+        label.setPosition(getWidth()/2 + labelPadding, (getHeight() - label.getHeight())/2 + labelTopPadding);
 
-        add(image);
+        add(this.image);
         add(label);
 
         setStyle(style);
@@ -49,14 +52,14 @@ public class AlignableImageTextButton extends Button {
 
     @Override
     public void setStyle(ButtonStyle style){
-        if (!(style instanceof AlignableImageTextButtonStyle)) throw new IllegalArgumentException("style must be a ImageTextButtonStyle.");
-        this.style = (AlignableImageTextButtonStyle)style;
+        if (!(style instanceof ImageTextButtonStyle)) throw new IllegalArgumentException("style must be a ImageTextButtonStyle.");
+        this.style = (ImageTextButtonStyle)style;
         super.setStyle(style);
 
         if (image != null) updateImage();
 
         if (label != null) {
-            AlignableImageTextButtonStyle textButtonStyle = (AlignableImageTextButtonStyle)style;
+            ImageTextButtonStyle textButtonStyle = (ImageTextButtonStyle)style;
             Label.LabelStyle labelStyle = label.getStyle();
             labelStyle.font = textButtonStyle.font;
             labelStyle.fontColor = getFontColor();
@@ -78,10 +81,9 @@ public class AlignableImageTextButton extends Button {
      * Sets the image height and width based on the {@code imageScale} attribute.
      */
     protected void updateImage(){
-        image.setDrawable(getImageDrawable());
         image.setHeight(image.getDrawable().getMinHeight() * imageScale);
         image.setWidth(image.getDrawable().getMinWidth() * imageScale);
-        image.setPosition(imagePadding, (getHeight() - image.getHeight())/2);
+        image.setPosition(imagePadding, (getHeight() - image.getHeight())/2 + imageTopPadding);
     }
 
     /**
@@ -89,15 +91,23 @@ public class AlignableImageTextButton extends Button {
      */
     protected void updateLabel(){
         //label.getPrefWidth() returns the width of the label text, which allows to center the label in the button
-        label.setPosition((getWidth() - label.getPrefWidth())/2 + labelPadding, (getHeight() - label.getHeight())/2);
+        label.setPosition((getWidth() - label.getPrefWidth())/2 + labelPadding, (getHeight() - label.getHeight())/2 + labelTopPadding);
     }
 
     public void setImagePadding(float imagePadding){
         this.imagePadding = imagePadding;
     }
 
+    public void setImageTopPadding(float imagePadding){
+        this.imageTopPadding = imagePadding;
+    }
+
     public void setLabelPadding(float labelPadding){
         this.labelPadding = labelPadding;
+    }
+
+    public void setLabelTopPadding(float labelPadding){
+        this.labelTopPadding = labelPadding;
     }
 
     public void setText (CharSequence text) {
@@ -120,20 +130,6 @@ public class AlignableImageTextButton extends Button {
         return style.fontColor;
     }
     protected @Null Drawable getImageDrawable(){
-        return style.image;
-    }
-
-    /**
-     * The style for an {@link AlignableImageTextButton}.
-     */
-    static public class AlignableImageTextButtonStyle extends TextButtonStyle {
-
-        public @Null Drawable image;
-        public AlignableImageTextButtonStyle() {
-        }
-        public AlignableImageTextButtonStyle (AlignableImageTextButtonStyle style){
-            super(style);
-            image = style.image;
-        }
+        return image.getDrawable();
     }
 }
