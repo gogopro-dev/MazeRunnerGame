@@ -1,21 +1,33 @@
-package de.tum.cit.fop.maze.WorldGenerator.Rooms;
+package de.tum.cit.fop.maze.level.worldgen.rooms;
 
-import de.tum.cit.fop.maze.WorldGenerator.CellType;
-import de.tum.cit.fop.maze.WorldGenerator.GeneratorStrategy;
-import de.tum.cit.fop.maze.WorldGenerator.MazeCell;
+import de.tum.cit.fop.maze.level.worldgen.CellType;
+import de.tum.cit.fop.maze.level.worldgen.GeneratorStrategy;
+import de.tum.cit.fop.maze.level.worldgen.MazeCell;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+/**
+ * <p>Represents a room in the maze.</p>
+ * <p>Rooms are used to generate the maze. They are placed inside maze and filled with walls and paths.</p>
+ */
 public abstract class Room {
+    ///  The height of the room
     public final int height;
+    ///  The width of the room
     public final int width;
+
+    /// The row index of the room
     protected int i = -1;
+    /// The column index of the room
     protected int j = -1;
+
+    /// The {@link GeneratorStrategy} to generate the room
     public final GeneratorStrategy generatorStrategy;
 
+    /// The list of cells that are part of the room
     protected List<MazeCell> roomCells = null;
 
     protected Room(int height, int width, GeneratorStrategy generatorStrategy) {
@@ -28,11 +40,21 @@ public abstract class Room {
         return roomCells;
     }
 
+    /**
+     * Sets the location of the room
+     * @param i row index
+     * @param j column index
+     */
     public void setLocation(int i, int j) {
         this.i = i;
         this.j = j;
     }
 
+
+    /**
+     * Sets the list of cells that are part of the room
+     * @param roomCells the list of cells that are part of the room
+     */
     public void setRoomCells(List<MazeCell> roomCells) {
         this.roomCells = roomCells;
     }
@@ -41,11 +63,16 @@ public abstract class Room {
 
     }
 
+    /**
+     * Generates a door for the room
+     * @param maze the maze
+     * @param random the random instance to use
+     */
     public void generateDoor(List<List<MazeCell>> maze, Random random) {
         if (i == -1 || j == -1) {
             throw new IllegalStateException("Room location is not set");
         }
-        // Door can't be generated at corners so we chose only walls and filter out the corner cells
+        /// Door can't be generated at corners so we chose only walls and filter out the corner cells
         List<MazeCell> candidates = this.roomCells.stream().filter(
             cell -> (
                 cell.getCellType() == CellType.ROOM_WALL && (
@@ -78,7 +105,7 @@ public abstract class Room {
             }
         }
 
-        // Remove a wall next to the door as well if there is no other options to generate a reachable door
+        /// Remove a wall next to the door as well if there is no other options to generate a reachable door
         for (MazeCell candidate : candidates) {
             int cellI = candidate.i;
             int cellJ = candidate.j;

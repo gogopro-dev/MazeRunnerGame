@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze.WorldGenerator;
+package de.tum.cit.fop.maze.level.worldgen;
 
 /**
  * <p>Enum for the different strategies for generating rooms.</p>

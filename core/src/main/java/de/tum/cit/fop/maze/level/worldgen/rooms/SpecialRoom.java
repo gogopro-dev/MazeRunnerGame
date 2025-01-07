@@ -1,7 +1,7 @@
-package de.tum.cit.fop.maze.WorldGenerator.Rooms;
+package de.tum.cit.fop.maze.level.worldgen.rooms;
 
 
-import de.tum.cit.fop.maze.WorldGenerator.GeneratorStrategy;
+import de.tum.cit.fop.maze.level.worldgen.GeneratorStrategy;
 
 public class SpecialRoom extends Room {
     public SpecialRoom() {

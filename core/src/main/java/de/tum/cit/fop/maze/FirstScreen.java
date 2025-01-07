@@ -18,7 +18,7 @@ public class FirstScreen implements Screen {
 
         this.game = game;
         gameCam = new OrthographicCamera();
-        hud = new HUD(game.batch);
+        /*hud = new HUD(game.batch);*/
         gamePort = new StretchViewport(800, 480, gameCam);
     }
 
@@ -32,10 +32,10 @@ public class FirstScreen implements Screen {
         // Draw your screen here. "delta" is the time since last render in seconds.
         Gdx.gl.glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
         Gdx.gl.glClear(16384);
-        game.batch.setProjectionMatrix(gameCam.combined);
+        /*game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
         hud.render();
-        game.batch.end();
+        game.batch.end();*/
 
     }
 

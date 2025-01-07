@@ -1,10 +1,10 @@
-package de.tum.cit.fop.maze.WorldGenerator;
+package de.tum.cit.fop.maze.level.worldgen;
 
 /**
  * <p>Represents a possible passage between two disjoint components in the maze.</p>
- * @param a - first cell
- * @param wall - wall we can break to get to the other cell
- * @param b - second cell
+ * @param a first cell
+ * @param wall wall we can break to get to the other cell
+ * @param b second cell
  */
 public record PassagePossibility (MazeCell a, MazeCell wall, MazeCell b) {
     public PassagePossibility {
