@@ -2,7 +2,6 @@ package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import de.tum.cit.fop.maze.temporary.MazeRunnerGame;
 
 /** Launches the desktop (LWJGL3) application. */
 public class DesktopLauncher {
@@ -12,8 +11,7 @@ public class DesktopLauncher {
     }
 
     private static Lwjgl3Application createApplication() {
-//        return new Lwjgl3Application(new Main(), getDefaultConfiguration());
-        return  new Lwjgl3Application(new Main(), getDefaultConfiguration());
+        return new Lwjgl3Application(new LoadMenu(), getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {

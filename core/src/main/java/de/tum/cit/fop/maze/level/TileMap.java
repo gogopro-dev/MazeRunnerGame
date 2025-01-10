@@ -24,6 +24,8 @@ public class TileMap implements Disposable {
     private final TiledMap map;
     public final int width;
     public final int height;
+    public final int widthPX;
+    public final int heightPX;
     private final TextureLoader textures;
 
     /**
@@ -40,6 +42,9 @@ public class TileMap implements Disposable {
         this.height = generator.height * 3;
         textures = new TextureLoader("assets/tiles/tiles.atlas", generator.getRandom());
         createDebugLayer();
+
+        widthPX = this.width * Globals.CELL_SIZE * SCALING_RATIO;
+        heightPX = this.height * Globals.CELL_SIZE * SCALING_RATIO;
 
         generator.generateMazeWalls();
         generator.generateRooms(List.of(
