@@ -4,11 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.*;
+import de.tum.cit.fop.maze.Collectable;
 
 /**
  * Represents the player character in the game.
  */
 public class Player extends Entity {
+    private final HUD hud;
     private final OrthographicCamera camera;
     private final SpriteBatch spriteBatch;
     private final Animation<TextureRegion> playerAnimation;
@@ -55,13 +57,20 @@ public class Player extends Entity {
         TextureAtlas hitAtlas = new TextureAtlas(Gdx.files.internal("anim/player/character_hit.atlas"));
         hitAnimation = new Animation<>(1f / 30f, hitAtlas.getRegions());
         hitAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        hud = new HUD(health, maxHealth);
+        // To test the HUD, uncomment the following line
+//        hud.forTesting();
+
     }
     /**
      * Renders the player character.
      * @param deltaTime The time since the last frame in seconds
      */
     public void render(float deltaTime) {
-
+        // Stamina regeneration?
+        hud.restoreStamina(1f/60f);
+        hud.render();
         elapsedTime += deltaTime;
         if (isHitting) {
             hitElapsedTime += deltaTime;
@@ -74,6 +83,7 @@ public class Player extends Entity {
 
         // Begin rendering
         spriteBatch.begin();
+        //if hud.render(); is c
         // Get the current animation frame
         TextureRegion currentFrame = (isHitting ? hitAnimation : currentAnimation)
             .getKeyFrame(isHitting ? hitElapsedTime : elapsedTime, true);
@@ -90,7 +100,6 @@ public class Player extends Entity {
         float frameHeight = currentFrame.getRegionHeight() * scale;
         spriteBatch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
 
-        spriteBatch.end();
 
         // Check if hit animation is finished
         if (isHitting && hitAnimation.isAnimationFinished(hitElapsedTime)) {
@@ -98,6 +107,8 @@ public class Player extends Entity {
             canHit = true; // Reset hit cooldownI
             hitElapsedTime = 0f; // Reset hit animation time
         }
+        spriteBatch.end();
+
     }
 
     /**
@@ -208,7 +219,42 @@ public class Player extends Entity {
         camera.position.y = newCameraY;
     }
 
+    @Override
+    public void takeDamage(int damage) {
+        super.takeDamage(damage);
+        hud.takeDmg(damage);
+    }
+
+    @Override
+    public void heal(int amount) {
+        super.heal(amount);
+        hud.heal(amount);
+    }
+
+    @Override
+    public void useStamina(int amount) {
+        super.useStamina(amount);
+        hud.useStamina(amount);
+    }
+
+    @Override
+    public void restoreStamina(int amount) {
+        super.restoreStamina(amount);
+        hud.restoreStamina(amount);
+    }
+
+    public void collectItem(Collectable item) {
+        //TODO: implement item collection
+    }
+    public void collectBuff(Collectable buff) {
+        // TODO: animation when collecting buff
+
+        hud.addStatus(buff.getTextureName());
+    }
+
+
     public void dispose() {
         spriteBatch.dispose();
+        hud.dispose();
     }
 }
