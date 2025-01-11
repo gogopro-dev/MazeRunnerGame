@@ -16,7 +16,7 @@ public abstract class Entity {
     protected int health;
     protected int maxHealth;
     protected int stamina;
-    protected final float scale = 5 * Globals.MPP;
+    protected final float scale = 4 * Globals.MPP;
     /// Entity movement speed (in chicken per second)
     protected float entitySpeed = 8f;
     protected Body body;

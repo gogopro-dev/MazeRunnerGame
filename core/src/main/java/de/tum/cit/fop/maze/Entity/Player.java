@@ -34,6 +34,7 @@ public class Player extends Entity {
         super(mapWidth, mapHeight);
         this.camera = camera;
 
+        System.out.println("Player created at x: " + body.getPosition());
         spriteBatch = new SpriteBatch(); // Create SpriteBatch
         // Load idle animation
         TextureAtlas idleAtlas = new TextureAtlas(Gdx.files.internal("anim/player/Character_stay.atlas"));
@@ -150,22 +151,35 @@ public class Player extends Entity {
         float cameraY = camera.position.y;
         float cameraWidth = camera.viewportWidth;
         float cameraHeight = camera.viewportHeight;
-        // System.out.println("cameraX: " + cameraX + " cameraY: " + cameraY + " cameraWidth: " + cameraWidth + " cameraHeight: " + cameraHeight);
-        // System.out.println("mapWidth: " + mapWidth + " mapHeight: " + mapHeight);
-        /// Move camera with player
-        if (getSpriteX() > cameraX + cameraWidth / 8) {
-            camera.position.x += entitySpeed * deltaTime;
+
+        /// Move camera with the player
+
+        // Calculate screen boundaries with consistent ratios
+        /// 0.3f is a constant that can be adjusted to change the camera movement threshold
+        /// Less than 0.2f: Player can go out ob bounds of the screen
+        /// More than 0.4f: Camera moves too early
+        float boundaryLeft = cameraX - cameraWidth * 0.3f;
+        float boundaryRight = cameraX + cameraWidth * 0.3f;
+        float boundaryBottom = cameraY - cameraHeight * 0.3f;
+        float boundaryTop = cameraY + cameraHeight * 0.3f;
+
+        // Get player's position
+        float playerX = body.getPosition().x;
+        float playerY = body.getPosition().y;
+
+        // Move camera only when player crosses boundaries
+        if (playerX < boundaryLeft) {
+            camera.position.x = playerX + cameraWidth * 0.3f;
+        } else if (playerX > boundaryRight) {
+            camera.position.x = playerX - cameraWidth * 0.3f;
         }
-        if (getSpriteX() < cameraX - cameraWidth / 6) {
-            camera.position.x -= entitySpeed * deltaTime;
+
+        if (playerY < boundaryBottom) {
+            camera.position.y = playerY + cameraHeight * 0.3f;
+        } else if (playerY > boundaryTop) {
+            camera.position.y = playerY - cameraHeight * 0.3f;
         }
-        if (getSpriteY() > cameraY + cameraHeight / 8) {
-            camera.position.y += entitySpeed * deltaTime;
-        }
-        if (getSpriteY() < cameraY - cameraHeight / 6) {
-            camera.position.y -= entitySpeed * deltaTime;
-        }
-        // Todo: Reimplement camera bounds (@Erik)
+
     }
 
     public void dispose() {

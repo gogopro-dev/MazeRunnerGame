@@ -64,7 +64,7 @@ public class LevelScreen implements Screen {
 
     @Override
     public void show() {
-        //camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
+
     }
 
     @Override
@@ -103,13 +103,15 @@ public class LevelScreen implements Screen {
         camera.setToOrtho(false, w / 2, h / 2);
 
         viewport = new FitViewport(w, h, camera);
-        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
-        camera.zoom = 1.25f;
         viewport.apply();
-        camera.update();
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);
         player = new Player(camera, map.widthMeters, map.heightMeters);
+
+        /// Set camera at the center of the players position in Box2D world
+        camera.position.set(player.getSpriteX(),player.getSpriteY(), 0);
+        camera.zoom = 1.25f;
+        camera.update();
 
     }
 
