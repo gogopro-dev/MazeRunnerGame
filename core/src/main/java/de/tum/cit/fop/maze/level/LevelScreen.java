@@ -8,10 +8,9 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.tum.cit.fop.maze.Entity.Enemy;
 import de.tum.cit.fop.maze.Entity.EntityContactListener;
 import de.tum.cit.fop.maze.Entity.Player;
 import de.tum.cit.fop.maze.Globals;
@@ -27,6 +26,8 @@ public class LevelScreen implements Screen {
     OrthographicCamera camera;
     TiledMapRenderer tiledMapRenderer;
     Player player;
+    Enemy enemy;
+    Enemy enemy2;
     /// Box2D world
     public final World world;
     Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
@@ -53,8 +54,10 @@ public class LevelScreen implements Screen {
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
         //TODO: render player
-        player.render(delta);
         debugRenderer.render(world, camera.combined);
+//        enemy.render(delta);
+//        enemy2.render(delta);
+        player.render(delta);
     }
 
     @Override
@@ -86,6 +89,8 @@ public class LevelScreen implements Screen {
     public void dispose() {
         map.dispose();
         player.dispose();
+        enemy.dispose();
+        enemy2.dispose();
     }
 
     public LevelScreen() {
@@ -112,6 +117,9 @@ public class LevelScreen implements Screen {
         camera.position.set(player.getSpriteX(),player.getSpriteY(), 0);
         camera.zoom = 1.25f;
         camera.update();
+
+//        enemy = new Enemy(map.widthMeters, map.heightMeters, EnemyType.SKELETON, camera);
+//        enemy2 = new Enemy(map.widthMeters, map.heightMeters, EnemyType.ZOMBIE, camera);
 
     }
 
