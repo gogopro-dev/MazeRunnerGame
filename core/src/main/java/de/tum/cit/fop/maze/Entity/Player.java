@@ -18,11 +18,12 @@ public class Player extends Entity {
     private float elapsedTime = 0f;
     private boolean isHitting = false;    // Track if the hit animation is active
     private float hitElapsedTime = 0f;    // Tracks time for hit animation
-    // Scale factor for player sprite
     private boolean isMoving = false;     // Flag to track movement state
 
     private boolean facingRight = true;
     private boolean canHit = true;
+    private final float mapWidth;
+    private final float mapHeight;
 
     /**
      * Creates a new player character.
@@ -32,9 +33,13 @@ public class Player extends Entity {
      */
     public Player(OrthographicCamera camera, float mapWidth, float mapHeight) {
         super(mapWidth, mapHeight);
+
+        /// Real map size is twice as big
+        this.mapWidth = mapWidth * 2;
+        this.mapHeight = mapHeight * 2;
+
         this.camera = camera;
 
-        System.out.println("Player created at x: " + body.getPosition());
         spriteBatch = new SpriteBatch(); // Create SpriteBatch
         // Load idle animation
         TextureAtlas idleAtlas = new TextureAtlas(Gdx.files.internal("anim/player/Character_stay.atlas"));
@@ -62,7 +67,7 @@ public class Player extends Entity {
             hitElapsedTime += deltaTime;
         }
         // Handle player input and movement
-        handleInput(deltaTime);
+        handleInput();
 
         camera.update();
         spriteBatch.setProjectionMatrix(camera.combined);
@@ -75,7 +80,7 @@ public class Player extends Entity {
 
         // Flip the frame if needed
         if (facingRight && currentFrame.isFlipX()) {
-            currentFrame.flip(true, false); // Unflip horizontally if facing right
+            currentFrame.flip(true, false); // Flip horizontally if facing right
         } else if (!facingRight && !currentFrame.isFlipX()) {
             currentFrame.flip(true, false); // Flip horizontally if facing left
         }
@@ -97,9 +102,8 @@ public class Player extends Entity {
 
     /**
      * Handles player input and updates the player's position.
-     * @param deltaTime The time since the last frame in seconds
      */
-    private void handleInput(float deltaTime) {
+    private void handleInput() {
         isMoving = false;
 
         // Only update facing direction if not in hit animation
@@ -147,14 +151,14 @@ public class Player extends Entity {
             currentAnimation = isMoving ? movementAnimation : playerAnimation;
         }
 
+        /// Move camera with the player
+
         float cameraX = camera.position.x;
         float cameraY = camera.position.y;
         float cameraWidth = camera.viewportWidth;
         float cameraHeight = camera.viewportHeight;
 
-        /// Move camera with the player
-
-        // Calculate screen boundaries with consistent ratios
+        /// Calculate screen boundaries with consistent ratios
         /// 0.3f is a constant that can be adjusted to change the camera movement threshold
         /// Less than 0.2f: Player can go out ob bounds of the screen
         /// More than 0.4f: Camera moves too early
@@ -163,23 +167,45 @@ public class Player extends Entity {
         float boundaryBottom = cameraY - cameraHeight * 0.3f;
         float boundaryTop = cameraY + cameraHeight * 0.3f;
 
-        // Get player's position
-        float playerX = body.getPosition().x;
-        float playerY = body.getPosition().y;
+        float playerX = getSpriteX();
+        float playerY = getSpriteY();
 
-        // Move camera only when player crosses boundaries
+        /// Calculate new camera position based on player position
+
+        float newCameraX = camera.position.x;
+        float newCameraY = camera.position.y;
+
+        /// Handle X-axis camera movement
         if (playerX < boundaryLeft) {
-            camera.position.x = playerX + cameraWidth * 0.3f;
+            newCameraX = playerX + cameraWidth * 0.3f;
         } else if (playerX > boundaryRight) {
-            camera.position.x = playerX - cameraWidth * 0.3f;
+            newCameraX = playerX - cameraWidth * 0.3f;
         }
 
+        /// Handle Y-axis camera movement
         if (playerY < boundaryBottom) {
-            camera.position.y = playerY + cameraHeight * 0.3f;
+            newCameraY = playerY + cameraHeight * 0.3f;
         } else if (playerY > boundaryTop) {
-            camera.position.y = playerY - cameraHeight * 0.3f;
+            newCameraY = playerY - cameraHeight * 0.3f;
         }
 
+        /// Clamp camera position to map boundaries, accounting for zoom
+        float effectiveViewportWidth = cameraWidth * camera.zoom;
+        float effectiveViewportHeight = cameraHeight * camera.zoom;
+
+        /// Prevent showing area beyond left and right edges
+        float minX = effectiveViewportWidth / 2;
+        float maxX = mapWidth - effectiveViewportWidth / 2;
+        newCameraX = Math.min(maxX, Math.max(minX, newCameraX));
+
+        /// Prevent showing area beyond top and bottom edges
+        float minY = effectiveViewportHeight / 2;
+        float maxY = mapHeight - effectiveViewportHeight / 2;
+        newCameraY = Math.min(maxY, Math.max(minY, newCameraY));
+
+        /// Update camera position
+        camera.position.x = newCameraX;
+        camera.position.y = newCameraY;
     }
 
     public void dispose() {
