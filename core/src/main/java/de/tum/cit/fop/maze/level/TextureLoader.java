@@ -4,10 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import de.tum.cit.fop.maze.Globals;
-import de.tum.cit.fop.maze.essentials.TexturePreprocessor;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Singleton class, preprocessing and scaling textures, necessary
@@ -35,7 +33,6 @@ public class TextureLoader {
             return;
         }
         TextureAtlas atlas = new TextureAtlas(Gdx.files.internal(texturePath));
-        TexturePreprocessor.processAtlas(atlas, Globals.SCALING_RATIO);
         atlas.getRegions().forEach(region -> {
             var val = textures.putIfAbsent(region.name, new ArrayList<>(List.of(region)));
             if (val != null) {

@@ -5,25 +5,56 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.tum.cit.fop.maze.Entity.EntityContactListener;
 import de.tum.cit.fop.maze.Entity.Player;
+import de.tum.cit.fop.maze.Globals;
+
+import static de.tum.cit.fop.maze.Globals.MPP;
+import static de.tum.cit.fop.maze.Globals.PPM;
 
 public class LevelScreen implements Screen {
+    private static LevelScreen instance = null;
+    public final float w, h;
     Viewport viewport;
     TileMap map;
     OrthographicCamera camera;
     TiledMapRenderer tiledMapRenderer;
-
     Player player;
+    /// Box2D world
+    public final World world;
+    Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
+    private float accumulator = 0;
+
+    private void doPhysicsStep(float deltaTime) {
+        // Fixed time step
+        // Limit frame time to avoid spiral of death (i.e. endless loop of physics updates) on slow devices
+        float frameTime = Math.min(deltaTime, 0.25f);
+        accumulator += frameTime;
+        while (accumulator >= Globals.BOX2D_TIME_STEP) {
+            world.step(Globals.BOX2D_TIME_STEP, Globals.BOX2D_VELOCITY_ITERATIONS, Globals.BOX2D_POSITION_ITERATIONS);
+            accumulator -= Globals.BOX2D_TIME_STEP;
+        }
+    }
+
 
     @Override
     public void render(float delta) {
+        ScreenUtils.clear(0, 0, 0, 1, true);
+
+        doPhysicsStep(delta);
         camera.update();
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
         //TODO: render player
         player.render(delta);
+        debugRenderer.render(world, camera.combined);
     }
 
     @Override
@@ -33,7 +64,7 @@ public class LevelScreen implements Screen {
 
     @Override
     public void show() {
-        camera.position.set((float) map.widthPX / 2, (float) map.heightPX / 2, 0);
+        //camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
     }
 
     @Override
@@ -58,18 +89,34 @@ public class LevelScreen implements Screen {
     }
 
     public LevelScreen() {
-        float w = Gdx.graphics.getWidth();
-        float h = Gdx.graphics.getHeight();
-        map = new TileMap(15, 20, 2);
-        camera = new OrthographicCamera();
-        camera.position.set((float) map.widthPX / 2, (float) map.heightPX / 2, 0);
-        camera.setToOrtho(false, w, h);
+        if (instance != null) {
+            throw new IllegalStateException("LevelScreen already exists");
+        }
+        instance = this;
+        world = new World(new Vector2(0, 0), true);
+        world.setContactListener(new EntityContactListener());
 
-        viewport = new ScreenViewport(camera);
+        w = Gdx.graphics.getWidth() / PPM;
+        h = Gdx.graphics.getHeight() / PPM;
+        map = new TileMap(50, 50, 2);
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, w / 2, h / 2);
+
+        viewport = new FitViewport(w, h, camera);
+        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
+        camera.zoom = 1.25f;
         viewport.apply();
         camera.update();
 
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap());
-        player = new Player(camera, map.widthPX, map.heightPX);
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);
+        player = new Player(camera, map.widthMeters, map.heightMeters);
+
+    }
+
+    public static LevelScreen getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("LevelScreen not yet created");
+        }
+        return instance;
     }
 }

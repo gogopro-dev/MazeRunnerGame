@@ -210,8 +210,8 @@ public final class MazeGenerator {
         Queue<MazeCell> queue = new LinkedList<>();
 
         if (room.generatorStrategy == GeneratorStrategy.CENTER) {
-            int centerI = height / 2 - 2;
-            int centerJ = width / 2 - 2;
+            int centerI = height / 2;
+            int centerJ = width / 2;
             queue.add(grid.get(centerI).get(centerJ));
         } else if (room.generatorStrategy == GeneratorStrategy.RANDOM) {
             int i = random.nextInt(height);

@@ -18,14 +18,11 @@ public class Player extends Entity {
     private float elapsedTime = 0f;
     private boolean isHitting = false;    // Track if the hit animation is active
     private float hitElapsedTime = 0f;    // Tracks time for hit animation
-    private final float scale = 4f;       // Scale factor for player sprite
+    // Scale factor for player sprite
     private boolean isMoving = false;     // Flag to track movement state
-    private float playerX, playerY;       // Player's position
-    private float playerSpeed = 500f;     // Player movement speed (pixels per second)
+
     private boolean facingRight = true;
     private boolean canHit = true;
-    private final int mapWidth;
-    private final int mapHeight;
 
     /**
      * Creates a new player character.
@@ -33,15 +30,9 @@ public class Player extends Entity {
      * @param mapWidth The width of the map in pixels
      * @param mapHeight The height of the map in pixels
      */
-    public Player(OrthographicCamera camera, int mapWidth, int mapHeight) {
-        super();
+    public Player(OrthographicCamera camera, float mapWidth, float mapHeight) {
+        super(mapWidth, mapHeight);
         this.camera = camera;
-        this.mapWidth = mapWidth;
-        this.mapHeight = mapHeight;
-
-        playerX = (float) mapWidth / 2;
-        playerY = (float) mapHeight / 2;
-
 
         spriteBatch = new SpriteBatch(); // Create SpriteBatch
         // Load idle animation
@@ -91,7 +82,7 @@ public class Player extends Entity {
         // Draw the current frame
         float frameWidth = currentFrame.getRegionWidth() * scale;
         float frameHeight = currentFrame.getRegionHeight() * scale;
-        spriteBatch.draw(currentFrame, playerX, playerY, frameWidth, frameHeight);
+        spriteBatch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
 
         spriteBatch.end();
 
@@ -108,7 +99,6 @@ public class Player extends Entity {
      * @param deltaTime The time since the last frame in seconds
      */
     private void handleInput(float deltaTime) {
-        playerSpeed = 500f;
         isMoving = false;
 
         // Only update facing direction if not in hit animation
@@ -121,41 +111,32 @@ public class Player extends Entity {
         }
 
         // Handle keyboard input and allow movement during hit animation
-        if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.W)) {
-            playerX += (float) (playerSpeed * deltaTime / Math.sqrt(2));
-            playerY += (float) (playerSpeed * deltaTime / Math.sqrt(2));
-            isMoving = true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.S)) {
-            playerX += (float) (playerSpeed * deltaTime / Math.sqrt(2));
-            playerY -= (float) (playerSpeed * deltaTime / Math.sqrt(2));
-            isMoving = true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.W)) {
-            playerX -= (float) (playerSpeed * deltaTime / Math.sqrt(2));
-            playerY += (float) (playerSpeed * deltaTime / Math.sqrt(2));
-            isMoving = true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.A) && Gdx.input.isKeyPressed(Input.Keys.S)) {
-            playerX -= (float) (playerSpeed * deltaTime / Math.sqrt(2));
-            playerY -= (float) (playerSpeed * deltaTime / Math.sqrt(2));
-            isMoving = true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            playerY += playerSpeed * deltaTime;
-            isMoving = true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            playerY -= playerSpeed * deltaTime;
-            isMoving = true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            playerX -= playerSpeed * deltaTime;
-            isMoving = true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            playerX += playerSpeed * deltaTime;
-            isMoving = true;
+        float velocityX = 0;
+        float velocityY = 0;
+        float maxTotalVelocity = entitySpeed;
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+            velocityY = entitySpeed;
         }
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+            velocityY = -entitySpeed;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            velocityX = -entitySpeed;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            velocityX = entitySpeed;
+        }
+        if (velocityX != 0 || velocityY != 0) isMoving = true;
+        if (velocityX != 0 && velocityY != 0) {
+            velocityX /= (float) Math.sqrt(2);
+            velocityY /= (float) Math.sqrt(2);
+        }
+        body.setLinearVelocity(velocityX, velocityY);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && canHit) {
             isHitting = true;
             hitElapsedTime = 0f;
             canHit = false;
-            currentAnimation = hitAnimation;
         }
 
         // Update animation while preserving hit animation priority
@@ -169,34 +150,22 @@ public class Player extends Entity {
         float cameraY = camera.position.y;
         float cameraWidth = camera.viewportWidth;
         float cameraHeight = camera.viewportHeight;
-
+        // System.out.println("cameraX: " + cameraX + " cameraY: " + cameraY + " cameraWidth: " + cameraWidth + " cameraHeight: " + cameraHeight);
+        // System.out.println("mapWidth: " + mapWidth + " mapHeight: " + mapHeight);
         /// Move camera with player
-        if (playerX > cameraX + cameraWidth / 6){
-            camera.position.x += playerSpeed * deltaTime;
+        if (getSpriteX() > cameraX + cameraWidth / 8) {
+            camera.position.x += entitySpeed * deltaTime;
         }
-        if (playerY > cameraY + cameraHeight / 6){
-            camera.position.y += playerSpeed * deltaTime;
+        if (getSpriteX() < cameraX - cameraWidth / 6) {
+            camera.position.x -= entitySpeed * deltaTime;
         }
-        if (playerX < cameraX - cameraWidth / 4){
-            camera.position.x -= playerSpeed * deltaTime;
+        if (getSpriteY() > cameraY + cameraHeight / 8) {
+            camera.position.y += entitySpeed * deltaTime;
         }
-        if (playerY < cameraY - cameraHeight / 4){
-            camera.position.y -= playerSpeed * deltaTime;
+        if (getSpriteY() < cameraY - cameraHeight / 6) {
+            camera.position.y -= entitySpeed * deltaTime;
         }
-
-        /// Clamp camera position to map bounds
-        if (camera.position.x < cameraWidth/2){
-            camera.position.x = cameraWidth/2;                  // Clamp camera to left edge
-        }
-        if (camera.position.y < cameraHeight/2){
-            camera.position.y = cameraHeight/2;                 // Clamp camera to bottom edge
-        }
-        if (camera.position.x > mapWidth - cameraWidth/2){
-            camera.position.x = mapWidth - cameraWidth/2;       // Clamp camera to right edge
-        }
-        if (camera.position.y > mapHeight - cameraHeight/2){
-            camera.position.y = mapHeight - cameraHeight/2;     // Clamp camera to top edge
-        }
+        // Todo: Reimplement camera bounds (@Erik)
     }
 
     public void dispose() {

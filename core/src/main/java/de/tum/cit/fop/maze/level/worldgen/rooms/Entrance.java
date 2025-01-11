@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class Entrance extends Room {
     public Entrance() {
-        super(3, 3, GeneratorStrategy.CENTER);
+        super(5, 5, GeneratorStrategy.CENTER);
     }
 
     @Override
