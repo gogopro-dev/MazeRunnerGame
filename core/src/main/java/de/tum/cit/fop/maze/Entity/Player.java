@@ -13,17 +13,19 @@ public class Player extends Entity {
     private final HUD hud;
     private final OrthographicCamera camera;
     private final SpriteBatch spriteBatch;
-    private final Animation<TextureRegion> playerAnimation;
+    private final Animation<TextureRegion> idleAnimation;
     private final Animation<TextureRegion> movementAnimation;
     private final Animation<TextureRegion> hitAnimation;
+    private final Animation<TextureRegion> idleTorchAnimation;
+    private final Animation<TextureRegion> movementTorchAnimation;
     private Animation<TextureRegion> currentAnimation;
     private float elapsedTime = 0f;
     private boolean isHitting = false;    // Track if the hit animation is active
     private float hitElapsedTime = 0f;    // Tracks time for hit animation
     private boolean isMoving = false;     // Flag to track movement state
-
     private boolean facingRight = true;
     private boolean canHit = true;
+    private boolean isHoldingTorch = true;
     private final float mapWidth;
     private final float mapHeight;
 
@@ -40,23 +42,33 @@ public class Player extends Entity {
         this.mapWidth = mapWidth * 2;
         this.mapHeight = mapHeight * 2;
 
+        /// Player can hit if not holding torch
+        canHit = !isHoldingTorch;
+
         this.camera = camera;
 
         spriteBatch = new SpriteBatch(); // Create SpriteBatch
-        // Load idle animation
-        TextureAtlas idleAtlas = new TextureAtlas(Gdx.files.internal("anim/player/Character_stay.atlas"));
-        playerAnimation = new Animation<>(1f / 8f, idleAtlas.getRegions());
-        playerAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        // Load movement animation
-        TextureAtlas moveAtlas = new TextureAtlas(Gdx.files.internal("anim/player/Character_move.atlas"));
-        movementAnimation = new Animation<>(1f /40f * 3f, moveAtlas.getRegions());
+        TextureAtlas animAtlas = new TextureAtlas(Gdx.files.internal("anim/player/character.atlas"));
+        /// Load idle animation
+        idleAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle"));
+        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        /// Load movement animation
+        movementAnimation = new Animation<>(1f /40f * 3f, animAtlas.findRegions("Character_move"));
         movementAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        // Load hit animation
-        TextureAtlas hitAtlas = new TextureAtlas(Gdx.files.internal("anim/player/character_hit.atlas"));
-        hitAnimation = new Animation<>(1f / 30f, hitAtlas.getRegions());
+        /// Load hit animation
+        hitAnimation = new Animation<>(1f / 30f, animAtlas.findRegions("Character_hit"));
         hitAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        /// Load idle torch animation
+        idleTorchAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle_torch"));
+        idleTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        /// Load movement torch animation
+        movementTorchAnimation = new Animation<>(1f /40f * 3f, animAtlas.findRegions("Character_move_torch"));
+        movementTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         hud = new HUD(health, maxHealth);
         // To test the HUD, uncomment the following line
@@ -68,43 +80,43 @@ public class Player extends Entity {
      * @param deltaTime The time since the last frame in seconds
      */
     public void render(float deltaTime) {
-        // Stamina regeneration?
+        /// Stamina regeneration?
         hud.restoreStamina(1f/60f);
         hud.render();
         elapsedTime += deltaTime;
         if (isHitting) {
             hitElapsedTime += deltaTime;
         }
-        // Handle player input and movement
+        /// Handle player input and movement
         handleInput();
 
         camera.update();
         spriteBatch.setProjectionMatrix(camera.combined);
 
-        // Begin rendering
+        /// Begin rendering
         spriteBatch.begin();
-        //if hud.render(); is c
-        // Get the current animation frame
+
+        /// Get the current animation frame
         TextureRegion currentFrame = (isHitting ? hitAnimation : currentAnimation)
             .getKeyFrame(isHitting ? hitElapsedTime : elapsedTime, true);
 
-        // Flip the frame if needed
+        /// Flip the frame if needed
         if (facingRight && currentFrame.isFlipX()) {
             currentFrame.flip(true, false); // Flip horizontally if facing right
         } else if (!facingRight && !currentFrame.isFlipX()) {
             currentFrame.flip(true, false); // Flip horizontally if facing left
         }
 
-        // Draw the current frame
+        /// Draw the current frame
         float frameWidth = currentFrame.getRegionWidth() * scale;
         float frameHeight = currentFrame.getRegionHeight() * scale;
         spriteBatch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
 
 
-        // Check if hit animation is finished
+        /// Check if hit animation is finished
         if (isHitting && hitAnimation.isAnimationFinished(hitElapsedTime)) {
             isHitting = false; // Reset hit state
-            canHit = true; // Reset hit cooldownI
+            canHit = !isHoldingTorch; // Reset hit cooldown if not holding torch
             hitElapsedTime = 0f; // Reset hit animation time
         }
         spriteBatch.end();
@@ -117,7 +129,13 @@ public class Player extends Entity {
     private void handleInput() {
         isMoving = false;
 
-        // Only update facing direction if not in hit animation
+        /// If pressed 'R', toggle torch
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            isHoldingTorch = !isHoldingTorch;
+            canHit = !isHoldingTorch;
+        }
+
+        /// Only update facing direction if not in hit animation
         if (!isHitting) {
             if (Gdx.input.isKeyPressed(Input.Keys.D)) {
                 facingRight = true;
@@ -126,7 +144,7 @@ public class Player extends Entity {
             }
         }
 
-        // Handle keyboard input and allow movement during hit animation
+        /// Handle keyboard input and allow movement during hit animation
         float velocityX = 0;
         float velocityY = 0;
         float maxTotalVelocity = entitySpeed;
@@ -155,11 +173,15 @@ public class Player extends Entity {
             canHit = false;
         }
 
-        // Update animation while preserving hit animation priority
+        /// Update animation while preserving hit animation priority
         if (isHitting) {
             currentAnimation = hitAnimation;
         } else {
-            currentAnimation = isMoving ? movementAnimation : playerAnimation;
+            if (isHoldingTorch){
+                currentAnimation = isMoving ? movementTorchAnimation : idleTorchAnimation;
+            } else {
+                currentAnimation = isMoving ? movementAnimation : idleAnimation;
+            }
         }
 
         /// Move camera with the player
