@@ -57,15 +57,6 @@ public class Player extends Entity {
 
         /// Load hit animation
         hitAnimation = new Animation<>(1f / 30f, animAtlas.findRegions("Character_hit"));
-        TextureAtlas animAtlas = new TextureAtlas(Gdx.files.internal("anim/player/character.atlas"));
-        /// Load idle animation
-        idleAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle"));
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-
-        /// Load movement animation
-        movementAnimation = new Animation<>(1f /40f * 3f, animAtlas.findRegions("Character_move"));
-        /// Load hit animation
-        hitAnimation = new Animation<>(1f / 30f, animAtlas.findRegions("Character_hit"));
         hitAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         /// Load idle torch animation
@@ -99,9 +90,6 @@ public class Player extends Entity {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
-        /// Begin rendering
-        batch.begin();
-
         /// Get the current animation frame
         TextureRegion currentFrame = (isHitting ? hitAnimation : currentAnimation)
             .getKeyFrame(isHitting ? hitElapsedTime : elapsedTime, true);
@@ -125,7 +113,6 @@ public class Player extends Entity {
             canHit = !isHoldingTorch; // Reset hit cooldown if not holding torch
             hitElapsedTime = 0f; // Reset hit animation time
         }
-        batch.end();
 
     }
 
