@@ -1,7 +1,10 @@
 package de.tum.cit.fop.maze.level.worldgen;
 
 
+import de.tum.cit.fop.maze.level.worldgen.rooms.Entrance;
 import de.tum.cit.fop.maze.level.worldgen.rooms.Room;
+import de.tum.cit.fop.maze.level.worldgen.rooms.Shop;
+import de.tum.cit.fop.maze.level.worldgen.rooms.SpecialRoom;
 
 import java.util.*;
 
@@ -39,36 +42,42 @@ public final class MazeGenerator {
             Arrays.asList(0, -1),
             Arrays.asList(-1, 0)
     );
-    /// The height of the maze
+    /// The width value to use for generation
+    private final int generatorWidth;
+    /// The height value to use for generation
+    private final int generatorHeight;
+
     public final int width;
-    /// The width of the maze
     public final int height;
+
     /// Final grid
-    public final List<List<MazeCell>>  grid = new ArrayList<>();
+    public final ArrayList<ArrayList<MazeCell>> grid = new ArrayList<>();
 
     private final Random random;
 
     /**
      * <p>Constructor</p>
-     * @param height The height of the maze. <b>It will be adjusted to be odd.</b>
-     * @param width The width of the maze. <b>It will be adjusted to be odd.</b>
+     * @param height The generatorHeight of the maze. <b>It will be adjusted to be odd.</b>
+     * @param width The generatorWidth of the maze. <b>It will be adjusted to be odd.</b>
      * @param seed The seed for the random number generator.
      */
     public MazeGenerator(int height, int width, long seed) {
 
         this.path = new HashMap<>();
         this.random = new Random(seed);
-        this.width = (2 * (width / 2)) + 1;  // Make sure width is odd
-        this.height = (2 * (height / 2)) + 1;  // Make sure height is odd
-        this.visited = new short[this.height][this.width];
+        this.generatorWidth = (2 * (width / 2)) + 1;  // Make sure generatorWidth is odd
+        this.generatorHeight = (2 * (height / 2)) + 1;  // Make sure generatorHeight is odd
+        this.width = width + 2;
+        this.height = height + 2;
+        this.visited = new short[this.generatorHeight][this.generatorWidth];
 
         for (int i = 0; i < height; i++) {
             Arrays.fill(visited[i], (short) 0);
         }
         this.willsonsCellGrid = new ArrayList<>();
-        for (int i = 0; i < this.height; i++) {
+        for (int i = 0; i < this.generatorHeight; i++) {
             List<Boolean> row = new ArrayList<>();
-            for (int j = 0; j < this.width; j++) {
+            for (int j = 0; j < this.generatorWidth; j++) {
                 row.add(false);
             }
             this.willsonsCellGrid.add(row);
@@ -82,15 +91,15 @@ public final class MazeGenerator {
      * <p>Fills the grid and the aux. arrays.</p>
      */
     private void clearArrays() {
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+        for (int i = 0; i < generatorHeight; i++) {
+            for (int j = 0; j < generatorWidth; j++) {
                 willsonsCellGrid.get(i).set(j, false);
             }
         }
 
         // Fill unvisited cells
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+        for (int i = 0; i < generatorHeight; i++) {
+            for (int j = 0; j < generatorWidth; j++) {
                 if (i % 2 == 0 && j % 2 == 0) {
                     unvisitedCells.add(new MazeCell(i, j));
                 }
@@ -108,8 +117,29 @@ public final class MazeGenerator {
         willsonsCellGrid.get(current.i).set(current.j, true);
     }
 
+    public void generate() {
+
+        generateMazeWalls();
+        generateRooms(List.of(
+            new Entrance(),
+            new Shop(),
+            new SpecialRoom()
+        ));
+        // Surround grid with walls
+        grid.add(0, new ArrayList<>());
+        grid.add(new ArrayList<>());
+        for (int i = 0; i < width; i++) {
+            grid.get(0).add(new MazeCell(0, i, CellType.WALL));
+            grid.get(height - 1).add(new MazeCell(height - 1, i, CellType.WALL));
+        }
+        for (int i = 0; i < height; i++) {
+            grid.get(i).add(0, new MazeCell(i, 0, CellType.WALL));
+            grid.get(i).add(new MazeCell(i, width - 1, CellType.WALL));
+        }
+    }
+
     /** Generates maze walls. */
-    public void generateMazeWalls() {
+    private void generateMazeWalls() {
         this.clearArrays();
         MazeCell current = unvisitedCells.remove(
                 random.nextInt(unvisitedCells.size())
@@ -150,9 +180,9 @@ public final class MazeGenerator {
         }
 
         /// Fill the final maze grid
-        for (int i = 0; i < height; i++) {
-            List<MazeCell> row = new ArrayList<>();
-            for (int j = 0; j < width; j++) {
+        for (int i = 0; i < generatorHeight; i++) {
+            ArrayList<MazeCell> row = new ArrayList<>();
+            for (int j = 0; j < generatorWidth; j++) {
                 if (willsonsCellGrid.get(i).get(j)) {
                     row.add(new MazeCell(i, j, CellType.PATH));
                 } else {
@@ -176,14 +206,14 @@ public final class MazeGenerator {
     private boolean isPossibleToGenerateRoom(int i, int j, Room room) {
         for (int k = i; k < i + room.height; k++) {
             for (int l = j; l < j + room.width; l++) {
-                if (k < 0 || k >= height || l < 0 || l >= width) {
+                if (k < 0 || k >= generatorHeight || l < 0 || l >= generatorWidth) {
                     return false;
                 }
                 if (grid.get(k).get(l).getCellType() == CellType.ROOM_PATH ||
                         grid.get(k).get(l).getCellType() == CellType.ROOM_WALL) {
                     return false;
                 }
-                if (k > 0 && l > 0 && k < height - 1 && l < width - 1) {
+                if (k > 0 && l > 0 && k < generatorHeight - 1 && l < generatorWidth - 1) {
                     // check if no room cell is adjacent
                     if (grid.get(k - 1).get(l).getCellType().isRoom() ||
                             grid.get(k + 1).get(l).getCellType().isRoom() ||
@@ -210,38 +240,38 @@ public final class MazeGenerator {
         Queue<MazeCell> queue = new LinkedList<>();
 
         if (room.generatorStrategy == GeneratorStrategy.CENTER) {
-            int centerI = height / 2;
-            int centerJ = width / 2;
+            int centerI = generatorHeight / 2;
+            int centerJ = generatorWidth / 2;
             queue.add(grid.get(centerI).get(centerJ));
         } else if (room.generatorStrategy == GeneratorStrategy.RANDOM) {
-            int i = random.nextInt(height);
-            int j = random.nextInt(width);
+            int i = random.nextInt(generatorHeight);
+            int j = random.nextInt(generatorWidth);
             queue.add(grid.get(i).get(j));
         } else if (room.generatorStrategy == GeneratorStrategy.CORNERS) {
             queue.add(grid.get(0).get(0));
-            queue.add(grid.get(0).get(width - 1));
-            queue.add(grid.get(height - 1).get(0));
-            queue.add(grid.get(height - 1).get(width - 1));
+            queue.add(grid.get(0).get(generatorWidth - 1));
+            queue.add(grid.get(generatorHeight - 1).get(0));
+            queue.add(grid.get(generatorHeight - 1).get(generatorWidth - 1));
         } else if (room.generatorStrategy == GeneratorStrategy.SIDES) {
-            for (int i = 0; i < height; i++) {
+            for (int i = 0; i < generatorHeight; i++) {
                 queue.add(grid.get(i).get(0));
-                queue.add(grid.get(i).get(width - 1));
+                queue.add(grid.get(i).get(generatorWidth - 1));
             }
-            for (int j = 0; j < width; j++) {
+            for (int j = 0; j < generatorWidth; j++) {
                 queue.add(grid.get(0).get(j));
-                queue.add(grid.get(height - 1).get(j));
+                queue.add(grid.get(generatorHeight - 1).get(j));
             }
         } else if (room.generatorStrategy == GeneratorStrategy.AROUND_CENTER) {
-            int centerI = height / 2;
-            int centerJ = width / 2;
+            int centerI = generatorHeight / 2;
+            int centerJ = generatorWidth / 2;
             List<MazeCell> candidates = new ArrayList<>();
-            for (int i = centerI - height / 3 ; i < centerI + height / 3 ; ++i) {
-                candidates.add(grid.get(i).get(centerJ - height / 3));
-                candidates.add(grid.get(i).get(centerJ + height / 3));
+            for (int i = centerI - generatorHeight / 3; i < centerI + generatorHeight / 3; ++i) {
+                candidates.add(grid.get(i).get(centerJ - generatorHeight / 3));
+                candidates.add(grid.get(i).get(centerJ + generatorHeight / 3));
             }
-            for (int j = centerJ - width / 3 ; j < centerJ + width / 3 ; ++j) {
-                candidates.add(grid.get(centerI + height / 3).get(j));
-                candidates.add(grid.get(centerI - height / 3).get(j));
+            for (int j = centerJ - generatorWidth / 3; j < centerJ + generatorWidth / 3; ++j) {
+                candidates.add(grid.get(centerI + generatorHeight / 3).get(j));
+                candidates.add(grid.get(centerI - generatorHeight / 3).get(j));
             }
             int pick = random.nextInt(candidates.size());
             queue.add(candidates.get(pick));
@@ -274,9 +304,9 @@ public final class MazeGenerator {
                 break;
             }
             /// Out of bounds safety checks
-            if (i + 1 < height) queue.add(grid.get(i + 1).get(j));
+            if (i + 1 < generatorHeight) queue.add(grid.get(i + 1).get(j));
             if (i - 1 >= 0)     queue.add(grid.get(i - 1).get(j));
-            if (j + 1 < width)  queue.add(grid.get(i).get(j + 1));
+            if (j + 1 < generatorWidth) queue.add(grid.get(i).get(j + 1));
             if (j - 1 >= 0)     queue.add(grid.get(i).get(j - 1));
 
 
@@ -290,7 +320,7 @@ public final class MazeGenerator {
      * <p>Clears the visited array.</p>
      */
     private void clearVisited() {
-        for (int i = 0; i < height; i++) {
+        for (int i = 0; i < generatorHeight; i++) {
             Arrays.fill(visited[i], (short) 0);
         }
     }
@@ -310,8 +340,8 @@ public final class MazeGenerator {
     }
 
     private void fixDoubleWalls() {
-        for (int i = 1; i < height; i++) {
-            for (int j = 1; j < width; j++) {
+        for (int i = 1; i < generatorHeight; i++) {
+            for (int j = 1; j < generatorWidth; j++) {
                 boolean leftWall = grid.get(i).get(j - 1).getCellType() == CellType.WALL;
                 boolean currentRoomWall = grid.get(i).get(j).getCellType() == CellType.ROOM_WALL;
                 if (currentRoomWall && leftWall) {
@@ -330,8 +360,8 @@ public final class MazeGenerator {
          *      ###
          *    ##!
          */
-        for (int i = 1; i < height - 1; i++) {
-            for (int j = 1; j < width - 1; j++) {
+        for (int i = 1; i < generatorHeight - 1; i++) {
+            for (int j = 1; j < generatorWidth - 1; j++) {
                 boolean currentIsRoom = grid.get(i).get(j).getCellType().isRoom();
 
                 boolean topWall = grid.get(i - 1).get(j).getCellType().isWall();
@@ -378,8 +408,8 @@ public final class MazeGenerator {
 
         // Flood fill disjoint components
         while (true) {
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
+            for (int i = 0; i < generatorHeight; i++) {
+                for (int j = 0; j < generatorWidth; j++) {
                     MazeCell cell = grid.get(i).get(j);
                     if (cell.getCellType().isWalkable() && visited[i][j] == 0) {
                         queue.add(cell);
@@ -400,9 +430,9 @@ public final class MazeGenerator {
                 }
 
                 visited[i][j] = counter;
-                if (i + 1 < height) queue.add(grid.get(i + 1).get(j));
+                if (i + 1 < generatorHeight) queue.add(grid.get(i + 1).get(j));
                 if (i - 1 >= 0)     queue.add(grid.get(i - 1).get(j));
-                if (j + 1 < width)  queue.add(grid.get(i).get(j + 1));
+                if (j + 1 < generatorWidth) queue.add(grid.get(i).get(j + 1));
                 if (j - 1 >= 0)     queue.add(grid.get(i).get(j - 1));
             }
             ++counter;
@@ -411,14 +441,14 @@ public final class MazeGenerator {
         DSU dsu = new DSU(counter);
 
         // Find all possible passages
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+        for (int i = 0; i < generatorHeight; i++) {
+            for (int j = 0; j < generatorWidth; j++) {
                 MazeCell cell = grid.get(i).get(j);
                 if (cell.getCellType() == CellType.WALL) {
                     MazeCell above = i - 1 >= 0 ? grid.get(i - 1).get(j) : null;
-                    MazeCell below = i + 1 < height ? grid.get(i + 1).get(j) : null;
+                    MazeCell below = i + 1 < generatorHeight ? grid.get(i + 1).get(j) : null;
                     MazeCell left = j - 1 >= 0 ? grid.get(i).get(j - 1) : null;
-                    MazeCell right = j + 1 < width ? grid.get(i).get(j + 1) : null;
+                    MazeCell right = j + 1 < generatorWidth ? grid.get(i).get(j + 1) : null;
 
                     if (above != null && below != null &&
                             above.getCellType() == CellType.PATH && below.getCellType() == CellType.PATH &&
@@ -472,8 +502,8 @@ public final class MazeGenerator {
      */
     private boolean validDirection(MazeCell cell, int directionIndex) {
         MazeCell newCell = getNextCell(cell, directionIndex, 2);
-        return newCell.i >= 0 && newCell.i < height &&
-                newCell.j >= 0 && newCell.j < width;
+        return newCell.i >= 0 && newCell.i < generatorHeight &&
+            newCell.j >= 0 && newCell.j < generatorWidth;
     }
 
 

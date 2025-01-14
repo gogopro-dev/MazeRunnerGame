@@ -2,15 +2,17 @@ package de.tum.cit.fop.maze.Entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.physics.box2d.*;
 import com.google.gson.Gson;
+import de.tum.cit.fop.maze.BodyBits;
+import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.AbsolutePoint;
+
+import java.util.*;
 
 public class Enemy extends Entity {
-
+    public final float visionRange = Globals.CELL_SIZE_METERS * 3 * 6;
     private Animation<TextureRegion> idleAnimation;
     private Animation<TextureRegion> movementAnimation;
     private Animation<TextureRegion> movementTPAnimation;
@@ -22,20 +24,38 @@ public class Enemy extends Entity {
     private float elapsedTime = 0f;
     private boolean isHitting = false;
     private float hitElapsedTime = 0f;    // Tracks time for hit animation
-    private boolean isMoving = false;
-
+    private boolean isMovingToPlayer = false;
     private boolean facingRight = true;
     private boolean canHit = true;
-    private SpriteBatch spriteBatch;
-    private OrthographicCamera camera;
 
-    public Enemy(float mapWidth, float mapHeight, EnemyType enemyType, OrthographicCamera camera) {
-        super(mapWidth, mapHeight);
+    private final List<AbsolutePoint> path;
+    private AbsolutePoint currentPathPoint;
+
+
+    public Enemy(EnemyType enemyType, SpriteBatch batch) {
+        super(batch);
+        this.bodyType = BodyDef.BodyType.DynamicBody;
+        this.box2dUserData = "enemy";
         this.enemyType = enemyType;
-        this.camera = camera;
-        spriteBatch = new SpriteBatch();
-
+        this.path = Collections.synchronizedList(new LinkedList<>());
         loadAnimations();
+    }
+
+    @Override
+    public void spawn(float x, float y, World world) {
+        super.spawn(x, y, world);
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(boundingRectangle.width() / 6f, boundingRectangle.height() / 6f);
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.filter.categoryBits = BodyBits.ENEMY;
+        fixtureDef.filter.maskBits = BodyBits.ENEMY_MASK;
+        fixtureDef.shape = shape;
+        fixtureDef.restitution = 0f;
+        fixtureDef.density = 10000f;
+        fixtureDef.friction = 0f;
+        this.body.createFixture(fixtureDef);
+        shape.dispose();
+
     }
 
     public void render(float deltaTime) {
@@ -44,43 +64,36 @@ public class Enemy extends Entity {
             hitElapsedTime += deltaTime;
         }
 
-        //TODO: Implement enemy AI (@Hlib and @Erik)
-
-        camera.update();
-        spriteBatch.setProjectionMatrix(camera.combined);
-
-        currentAnimation = idleAnimation;
-        // Begin rendering
-        spriteBatch.begin();
+        // Check if hit animation is finished
+        if (isHitting && attackAnimation.isAnimationFinished(hitElapsedTime)) {
+            isHitting = false; // Reset hit state
+            canHit = true; // Reset hit cooldownI
+            hitElapsedTime = 0f; // Reset hit animation time
+        } else if (isMoving() && isMovingToPlayer) {
+            currentAnimation = movementTPAnimation;
+        } else if (isMoving() && !isMovingToPlayer) {
+            currentAnimation = movementAnimation;
+        } else {
+            currentAnimation = idleAnimation;
+        }
         // Get the current animation frame
         TextureRegion currentFrame = currentAnimation.getKeyFrame(elapsedTime, true);
 
         // Draw the current frame
         float frameWidth = currentFrame.getRegionWidth() * scale;
         float frameHeight = currentFrame.getRegionHeight() * scale;
-        spriteBatch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
 
-        spriteBatch.end();
+        if (this.body != null && isMoving()) {
+            this.facingRight = (this.body.getLinearVelocity().x > 0 + config.attributes.speed / 2f);
 
-        // Check if hit animation is finished
-        if (isHitting && attackAnimation.isAnimationFinished(hitElapsedTime)) {
-            isHitting = false; // Reset hit state
-            canHit = true; // Reset hit cooldownI
-            hitElapsedTime = 0f; // Reset hit animation time
+            if (facingRight && currentFrame.isFlipX()) {
+                currentFrame.flip(true, false); // Flip horizontally if facing right
+            } else if (!facingRight && !currentFrame.isFlipX()) {
+                currentFrame.flip(true, false); // Flip horizontally if facing left
+            }
         }
-    }
 
-    public void dispose(){
-        spriteBatch.dispose();
-    }
-
-    private void handleInput() {
-        // Update animation while preserving hit animation priority
-        if (isHitting) {
-            currentAnimation = attackAnimation;
-        } else {
-            currentAnimation = isMoving ? movementAnimation : idleAnimation;
-        }
+        batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
     }
 
     public void loadAnimations() {
@@ -118,14 +131,64 @@ public class Enemy extends Entity {
         currentAnimation = idleAnimation;
     }
 
+    public boolean isFacingRight() {
+        return facingRight;
+    }
+
+    public synchronized void setMovingToPlayer(boolean b) {
+        this.body.setLinearVelocity(0, 0);
+        isMovingToPlayer = b;
+    }
+
+
     public record EnemyConfig (String pathToAnim, EnemyType enemyType, Attributes attributes) {
         public record Attributes (int speed, int heal, int maxHealth, int damage){}
     }
 
-    //TODO: Implement enemy AI (@Hlib and @Erik)
-    public static class EnemyAI {
-        public EnemyAI() {
+    public boolean isMoving() {
+        return !this.body.getLinearVelocity().isZero();
+    }
 
+    public boolean isMovingToPlayer() {
+        return isMovingToPlayer;
+    }
+
+    public List<AbsolutePoint> getPath() {
+        return path;
+    }
+
+    public void updatePath(List<AbsolutePoint> path) {
+        synchronized (this.path) {
+            this.path.clear();
+            this.path.addAll(path);
+            currentPathPoint = path.isEmpty() ? null : path.get(0);
+        }
+    }
+
+    public synchronized void followPath() {
+        synchronized (path) {
+            if (currentPathPoint == null) {
+                if (path.isEmpty()) {
+                    return;
+                }
+                currentPathPoint = path.remove(0);
+            }
+            if (this.getPosition().distance(currentPathPoint) < 0.1f) {
+                if (path.isEmpty()) {
+                    currentPathPoint = null;
+                } else {
+                    currentPathPoint = path.remove(0);
+                }
+            }
+            if (currentPathPoint != null) {
+                AbsolutePoint direction = new AbsolutePoint(
+                    currentPathPoint.x() - getPosition().x(),
+                    currentPathPoint.y() - getPosition().y()
+                );
+                this.body.setLinearVelocity(direction.toVector2().nor().scl(config.attributes.speed));
+            } else {
+                this.body.setLinearVelocity(0, 0);
+            }
         }
     }
 }

@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.*;
  */
 public class Player extends Entity {
     private final OrthographicCamera camera;
-    private final SpriteBatch spriteBatch;
     private final Animation<TextureRegion> playerAnimation;
     private final Animation<TextureRegion> movementAnimation;
     private final Animation<TextureRegion> hitAnimation;
@@ -31,16 +30,14 @@ public class Player extends Entity {
      * @param mapWidth The width of the map in pixels
      * @param mapHeight The height of the map in pixels
      */
-    public Player(OrthographicCamera camera, float mapWidth, float mapHeight) {
-        super(mapWidth, mapHeight);
+    public Player(OrthographicCamera camera, float mapWidth, float mapHeight, SpriteBatch batch) {
 
-        /// Real map size is twice as big
-        this.mapWidth = mapWidth * 2;
-        this.mapHeight = mapHeight * 2;
+        super(batch);
+        this.box2dUserData = "player";
+        this.mapWidth = mapWidth;
+        this.mapHeight = mapHeight;
 
         this.camera = camera;
-
-        spriteBatch = new SpriteBatch(); // Create SpriteBatch
         // Load idle animation
         TextureAtlas idleAtlas = new TextureAtlas(Gdx.files.internal("anim/player/Character_stay.atlas"));
         playerAnimation = new Animation<>(1f / 8f, idleAtlas.getRegions());
@@ -70,10 +67,8 @@ public class Player extends Entity {
         handleInput();
 
         camera.update();
-        spriteBatch.setProjectionMatrix(camera.combined);
+        batch.setProjectionMatrix(camera.combined);
 
-        // Begin rendering
-        spriteBatch.begin();
         // Get the current animation frame
         TextureRegion currentFrame = (isHitting ? hitAnimation : currentAnimation)
             .getKeyFrame(isHitting ? hitElapsedTime : elapsedTime, true);
@@ -88,9 +83,8 @@ public class Player extends Entity {
         // Draw the current frame
         float frameWidth = currentFrame.getRegionWidth() * scale;
         float frameHeight = currentFrame.getRegionHeight() * scale;
-        spriteBatch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
+        batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
 
-        spriteBatch.end();
 
         // Check if hit animation is finished
         if (isHitting && hitAnimation.isAnimationFinished(hitElapsedTime)) {
@@ -108,9 +102,9 @@ public class Player extends Entity {
 
         // Only update facing direction if not in hit animation
         if (!isHitting) {
-            if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
                 facingRight = true;
-            } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            } else if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 facingRight = false;
             }
         }
@@ -118,17 +112,16 @@ public class Player extends Entity {
         // Handle keyboard input and allow movement during hit animation
         float velocityX = 0;
         float velocityY = 0;
-        float maxTotalVelocity = entitySpeed;
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
             velocityY = entitySpeed;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             velocityY = -entitySpeed;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             velocityX = -entitySpeed;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             velocityX = entitySpeed;
         }
         if (velocityX != 0 || velocityY != 0) isMoving = true;
@@ -152,7 +145,10 @@ public class Player extends Entity {
         }
 
         /// Move camera with the player
+        updateCameraPosition();
+    }
 
+    public void updateCameraPosition() {
         float cameraX = camera.position.x;
         float cameraY = camera.position.y;
         float cameraWidth = camera.viewportWidth;
@@ -193,6 +189,7 @@ public class Player extends Entity {
         float effectiveViewportWidth = cameraWidth * camera.zoom;
         float effectiveViewportHeight = cameraHeight * camera.zoom;
 
+
         /// Prevent showing area beyond left and right edges
         float minX = effectiveViewportWidth / 2;
         float maxX = mapWidth - effectiveViewportWidth / 2;
@@ -208,7 +205,12 @@ public class Player extends Entity {
         camera.position.y = newCameraY;
     }
 
+
+    public boolean isFacingRight() {
+        return facingRight;
+    }
+
     public void dispose() {
-        spriteBatch.dispose();
+        batch.dispose();
     }
 }

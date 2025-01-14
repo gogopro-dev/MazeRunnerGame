@@ -1,9 +1,15 @@
 package de.tum.cit.fop.maze.Entity;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.box2d.*;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.AbsolutePoint;
+import de.tum.cit.fop.maze.essentials.BoundingRectangle;
 import de.tum.cit.fop.maze.level.LevelScreen;
+import org.jetbrains.annotations.NotNull;
 
 import static de.tum.cit.fop.maze.Globals.PPM;
 
@@ -13,6 +19,7 @@ import static de.tum.cit.fop.maze.Globals.PPM;
 
 
 public abstract class Entity {
+    protected String box2dUserData = null;
     protected int health;
     protected int maxHealth;
     protected int stamina;
@@ -20,33 +27,22 @@ public abstract class Entity {
     /// Entity movement speed (in chicken per second)
     protected float entitySpeed = 8f;
     protected Body body;
+    protected BodyDef.BodyType bodyType = BodyDef.BodyType.DynamicBody;
+    protected final SpriteBatch batch;
+    public final BoundingRectangle boundingRectangle =
+        new BoundingRectangle(0.4f * PPM * scale, 0.24f * scale * PPM);
+
 
 
     /**
      * Creates a new entity with default values.
      */
-    public Entity(float positionX, float positionY) {
+    public Entity(SpriteBatch batch) {
+        this.batch = batch;
         //TODO: Change default values
         this.health = 100;
         this.maxHealth = 100;
         this.stamina = 100;
-        LevelScreen screen = LevelScreen.getInstance();
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        body = screen.world.createBody(bodyDef);
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(0.4f * PPM * scale / 4, 0.7f * scale * PPM / 4);
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = shape;
-        fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.3f;
-        fixtureDef.filter.categoryBits = BodyBits.ENTITY;
-        fixtureDef.filter.maskBits = BodyBits.ENTITY_MASK;
-        body.createFixture(fixtureDef);
-        body.setUserData(this);
-        body.setFixedRotation(true);
-        body.setTransform(positionX, positionY, 0);
-        shape.dispose();
     }
 
     /**
@@ -97,5 +93,42 @@ public abstract class Entity {
 
     public float getSpriteY() {
         return body.getPosition().y - 15.5f * scale;
+    }
+
+    public @NotNull Body getBody() {
+        if (body == null) {
+            throw new IllegalStateException("Entity not spawned");
+        }
+        return body;
+    }
+
+    public void spawn(float x, float y, World world) {
+        if (body != null) {
+            throw new IllegalStateException("Entity already spawned");
+        }
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = bodyType;
+        bodyDef.position.set(x, y);
+        bodyDef.fixedRotation = true;
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(boundingRectangle.width() / 2, boundingRectangle.height() / 2);
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 10000f;
+        fixtureDef.friction = 0.3f;
+        fixtureDef.filter.categoryBits = BodyBits.ENTITY;
+        fixtureDef.filter.maskBits = BodyBits.ENTITY_MASK;
+        body = world.createBody(bodyDef);
+        body.createFixture(fixtureDef);
+        body.setUserData(box2dUserData);
+        shape.dispose();
+    }
+
+    public void dispose() {
+        body.getWorld().destroyBody(body);
+    }
+
+    public AbsolutePoint getPosition() {
+        return new AbsolutePoint(body.getPosition().x, body.getPosition().y);
     }
 }

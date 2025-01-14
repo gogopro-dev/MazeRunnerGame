@@ -4,6 +4,7 @@ import de.tum.cit.fop.maze.level.worldgen.CellType;
 import de.tum.cit.fop.maze.level.worldgen.GeneratorStrategy;
 import de.tum.cit.fop.maze.level.worldgen.MazeCell;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -68,7 +69,7 @@ public abstract class Room {
      * @param maze the maze
      * @param random the random instance to use
      */
-    public void generateDoor(List<List<MazeCell>> maze, Random random) {
+    public void generateDoor(ArrayList<ArrayList<MazeCell>> maze, Random random) {
         if (i == -1 || j == -1) {
             throw new IllegalStateException("Room location is not set");
         }
@@ -137,7 +138,7 @@ public abstract class Room {
      * @param mazeCells - matrix of maze
      * @param random - random instance
      */
-    public void generate(List<List<MazeCell>> mazeCells, Random random) {
+    public void generate(ArrayList<ArrayList<MazeCell>> mazeCells, Random random) {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (i == 0 || i == height - 1 || j == 0 || j == width - 1) {
@@ -160,7 +161,7 @@ public abstract class Room {
      * @param j the column of the cell
      * @param cellType the new cell type
      */
-    public void updateCellType(List<List<MazeCell>> maze, int i, int j, CellType cellType) {
+    public void updateCellType(ArrayList<ArrayList<MazeCell>> maze, int i, int j, CellType cellType) {
         if (this.i == -1 || this.j == -1) {
             throw new IllegalStateException("Room location is not set");
         }

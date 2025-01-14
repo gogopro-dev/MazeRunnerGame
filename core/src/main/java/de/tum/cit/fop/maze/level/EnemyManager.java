@@ -1,0 +1,197 @@
+package de.tum.cit.fop.maze.level;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Shape;
+import com.badlogic.gdx.utils.async.AsyncExecutor;
+import de.tum.cit.fop.maze.BodyBits;
+import de.tum.cit.fop.maze.Entity.Enemy;
+import de.tum.cit.fop.maze.essentials.AbsolutePoint;
+import de.tum.cit.fop.maze.essentials.BoundingRectangle;
+import de.tum.cit.fop.maze.essentials.DebugRenderer;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class EnemyManager {
+    private final LevelScreen levelScreen;
+    ///  The Libgdx executor for asynchronous tasks
+    private final AsyncExecutor asyncExecutor;
+    private final ArrayList<Enemy> enemies;
+    private float accumulator = 0;
+    ///  The number of launched tasks, used so that no new tasks are launched if there are already some running
+    ///  (mainly for low-end devices)
+    private final AtomicInteger launchedTasks = new AtomicInteger(0);
+
+    public EnemyManager(LevelScreen levelScreen) {
+        this.enemies = new ArrayList<>();
+        this.asyncExecutor = new AsyncExecutor(8);
+        this.levelScreen = levelScreen;
+    }
+
+    /**
+     * Check if the player is seen by the enemy (not blocked by any obstacles and within the vision range)
+     *
+     * @param enemy The enemy to check
+     * @return {@code true} if the player is seen by the enemy, {@code false} otherwise
+     */
+    private boolean isPlayerSeen(Enemy enemy) {
+        BoundingRectangle enemyRect = enemy.boundingRectangle;
+        BoundingRectangle playerRect = levelScreen.player.boundingRectangle;
+        AbsolutePoint enemyPosition = enemy.getPosition();
+        AbsolutePoint playerPosition = levelScreen.player.getPosition();
+        AbsolutePoint enemyEyes = new AbsolutePoint(
+            enemyPosition.x(),
+            enemyPosition.y() + enemyRect.height() / 3
+        );
+        float rayLength;
+        if (enemy.isFacingRight() == playerPosition.onTheRightFrom(enemyPosition)) {
+            rayLength = enemy.visionRange;
+        } else {
+            rayLength = enemy.visionRange / 2f;
+        }
+        if (enemyPosition.distance(levelScreen.player.getPosition()) > rayLength) {
+            return false;
+        }
+        ArrayList<AbsolutePoint> playerTrackingPoints = new ArrayList<>();
+        /// We will track the player with 3 points on the top, middle and bottom of the player
+        for (int i = 1; i <= 3; ++i) {
+            playerTrackingPoints.add(
+                new AbsolutePoint(
+                    playerPosition.x(),
+                    playerPosition.y() - playerRect.height() / 1.7f + playerRect.height() * i / 3
+                )
+            );
+        }
+
+        boolean finalResult = false;
+        for (AbsolutePoint trackingPoint : playerTrackingPoints) {
+            boolean[] result = {true};
+
+            levelScreen.world.rayCast(
+                (fixture, point, normal, fraction) -> {
+                    if (fixture.getBody().getUserData() == "enemy") return -1;
+                    if (fixture.getBody().getUserData() == null) {
+                        result[0] = false;
+                    }
+                    return fraction;
+                },
+                enemyEyes.toVector2(),
+                trackingPoint.toVector2()
+            );
+            DebugRenderer.getInstance().drawLine(
+                enemyEyes,
+                trackingPoint,
+                result[0] ? Color.BLUE : Color.YELLOW
+            );
+            finalResult |= result[0];
+        }
+        return finalResult;
+    }
+
+    /**
+     * Create an enemy at the specified position
+     *
+     * @param enemy The enemy to create
+     * @param x     The x coordinate of the enemy
+     * @param y     The y coordinate of the enemy
+     */
+    public void createEnemy(Enemy enemy, float x, float y) {
+        enemy.spawn(x, y, levelScreen.world);
+        enemies.add(enemy);
+    }
+
+    /**
+     * Render the enemies
+     *
+     * @param delta The time since the last frame
+     */
+    public void renderEnemies(float delta) {
+        tickEnemies(delta);
+        for (Enemy enemy : enemies) {
+            enemy.render(delta);
+        }
+
+    }
+
+    private void removeEnemy(Enemy enemy) {
+        enemy.dispose();
+        enemies.remove(enemy);
+    }
+
+    /**
+     * Recalculate the path of the enemies to the player
+     */
+    private void recalculatePaths() {
+        if (launchedTasks.get() > 0) return;
+        for (Enemy enemy : enemies) {
+            if (!enemy.isMovingToPlayer()) {
+                continue;
+            }
+            launchedTasks.incrementAndGet();
+            asyncExecutor.submit(() -> {
+                List<AbsolutePoint> path = LevelScreen.getInstance().map.pathfinder.aStar(
+                    enemy,
+                    LevelScreen.getInstance().player.getPosition()
+                );
+                if (path == null) {
+                    launchedTasks.decrementAndGet();
+                    enemy.setMovingToPlayer(false);
+                    return true;
+                }
+                enemy.updatePath(path);
+                launchedTasks.decrementAndGet();
+                return true;
+            });
+        }
+
+    }
+
+    /**
+     * Tick the enemies
+     *
+     * @param delta The time since the last frame
+     */
+    public void tickEnemies(float delta) {
+        accumulator += delta;
+        if (accumulator >= 0.10f) {
+            accumulator = 0;
+            recalculatePaths();
+        }
+        for (Enemy enemy : enemies) {
+            tickEnemy(enemy);
+        }
+    }
+
+    /**
+     * Tick a single enemy
+     *
+     * @param enemy The enemy to tick
+     */
+    private void tickEnemy(Enemy enemy) {
+        if (!enemy.isMovingToPlayer() && isPlayerSeen(enemy)) {
+            enemy.setMovingToPlayer(true);
+        }
+        if (enemy.isMovingToPlayer()) {
+            AbsolutePoint lastPoint = enemy.getPosition();
+            AbsolutePoint currentPoint;
+            for (int i = 0; i < enemy.getPath().size(); ++i) {
+                currentPoint = enemy.getPath().get(i);
+                DebugRenderer.getInstance().drawLine(lastPoint, currentPoint, Color.RED);
+                lastPoint = currentPoint;
+            }
+            enemy.followPath();
+        }
+        /// Todo @Hlib move randomly*/
+    }
+
+    public void dispose() {
+        for (Enemy enemy : enemies) {
+            enemy.dispose();
+        }
+        enemies.clear();
+    }
+}
