@@ -1,0 +1,12 @@
+{
+  "id": 1,
+  "textureName": "buffSpeed",
+  "attribute": {
+    "speed": 1,
+    "maxhealth": 0,
+    "stamina": 0,
+    "attack": 0,
+    "heal": 0
+  },
+    "duration": 10
+}
