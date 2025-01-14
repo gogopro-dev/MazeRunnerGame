@@ -32,7 +32,7 @@ public class TextureLoader {
         if (texturesLoaded) {
             return;
         }
-        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal(texturePath));
+        TextureAtlas atlas = new TextureAtlas(Gdx.files.local(texturePath));
         atlas.getRegions().forEach(region -> {
             var val = textures.putIfAbsent(region.name, new ArrayList<>(List.of(region)));
             if (val != null) {
