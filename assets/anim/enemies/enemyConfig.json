@@ -3,7 +3,7 @@
     "enemyType": "ZOMBIE",
     "pathToAnim": "anim/enemies/zombie/zombie.atlas",
     "attributes": {
-      "speed": 1,
+      "speed": 3,
       "maxHealth": 1,
       "attackDMG": 1,
       "heal": 1

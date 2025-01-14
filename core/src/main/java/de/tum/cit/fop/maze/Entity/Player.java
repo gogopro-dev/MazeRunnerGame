@@ -11,9 +11,7 @@ import de.tum.cit.fop.maze.Collectable;
  */
 public class Player extends Entity {
     private final HUD hud;
-    private final HUDv2 hudv2;
     private final OrthographicCamera camera;
-    private final SpriteBatch spriteBatch;
     private final Animation<TextureRegion> idleAnimation;
     private final Animation<TextureRegion> movementAnimation;
     private final Animation<TextureRegion> hitAnimation;
@@ -36,21 +34,17 @@ public class Player extends Entity {
      * @param mapWidth The width of the map in pixels
      * @param mapHeight The height of the map in pixels
      */
-    public Player(OrthographicCamera camera, float mapWidth, float mapHeight) {
-        super(mapWidth, mapHeight);
-        health = 91;
-        maxHealth = 100;
+    public Player(OrthographicCamera camera, float mapWidth, float mapHeight, SpriteBatch batch) {
 
-        /// Real map size is twice as big
-        this.mapWidth = mapWidth * 2;
-        this.mapHeight = mapHeight * 2;
+        super(batch);
+        this.box2dUserData = "player";
+        this.mapWidth = mapWidth;
+        this.mapHeight = mapHeight;
 
         /// Player can hit if not holding torch
         canHit = !isHoldingTorch;
 
         this.camera = camera;
-
-        spriteBatch = new SpriteBatch(); // Create SpriteBatch
 
         TextureAtlas animAtlas = new TextureAtlas(Gdx.files.internal("anim/player/character.atlas"));
         /// Load idle animation
@@ -74,8 +68,6 @@ public class Player extends Entity {
         movementTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         hud = new HUD(health, maxHealth);
-        hudv2 = new HUDv2(health, maxHealth, spriteBatch);
-        hudv2.createDamageButton();
         // To test the HUD, uncomment the following line
 //        hud.forTesting();
 
@@ -86,7 +78,8 @@ public class Player extends Entity {
      */
     public void render(float deltaTime) {
         /// Stamina regeneration?
-//        hud.restoreStamina(1f/60f);
+        hud.restoreStamina(1f/60f);
+        hud.render();
         elapsedTime += deltaTime;
         if (isHitting) {
             hitElapsedTime += deltaTime;
@@ -95,11 +88,7 @@ public class Player extends Entity {
         handleInput();
 
         camera.update();
-        spriteBatch.setProjectionMatrix(camera.combined);
-        /// Begin rendering
-        spriteBatch.begin();
-
-        hudv2.render(deltaTime);
+        batch.setProjectionMatrix(camera.combined);
 
         /// Get the current animation frame
         TextureRegion currentFrame = (isHitting ? hitAnimation : currentAnimation)
@@ -115,7 +104,7 @@ public class Player extends Entity {
         /// Draw the current frame
         float frameWidth = currentFrame.getRegionWidth() * scale;
         float frameHeight = currentFrame.getRegionHeight() * scale;
-        spriteBatch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
+        batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
 
 
         /// Check if hit animation is finished
@@ -124,7 +113,6 @@ public class Player extends Entity {
             canHit = !isHoldingTorch; // Reset hit cooldown if not holding torch
             hitElapsedTime = 0f; // Reset hit animation time
         }
-        spriteBatch.end();
 
     }
 
@@ -142,9 +130,9 @@ public class Player extends Entity {
 
         /// Only update facing direction if not in hit animation
         if (!isHitting) {
-            if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
                 facingRight = true;
-            } else if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            } else if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 facingRight = false;
             }
         }
@@ -152,17 +140,16 @@ public class Player extends Entity {
         /// Handle keyboard input and allow movement during hit animation
         float velocityX = 0;
         float velocityY = 0;
-        float maxTotalVelocity = entitySpeed;
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
             velocityY = entitySpeed;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             velocityY = -entitySpeed;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             velocityX = -entitySpeed;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             velocityX = entitySpeed;
         }
         if (velocityX != 0 || velocityY != 0) isMoving = true;
@@ -190,7 +177,10 @@ public class Player extends Entity {
         }
 
         /// Move camera with the player
+        updateCameraPosition();
+    }
 
+    public void updateCameraPosition() {
         float cameraX = camera.position.x;
         float cameraY = camera.position.y;
         float cameraWidth = camera.viewportWidth;
@@ -231,6 +221,7 @@ public class Player extends Entity {
         float effectiveViewportWidth = cameraWidth * camera.zoom;
         float effectiveViewportHeight = cameraHeight * camera.zoom;
 
+
         /// Prevent showing area beyond left and right edges
         float minX = effectiveViewportWidth / 2;
         float maxX = mapWidth - effectiveViewportWidth / 2;
@@ -244,6 +235,11 @@ public class Player extends Entity {
         /// Update camera position
         camera.position.x = newCameraX;
         camera.position.y = newCameraY;
+    }
+
+
+    public boolean isFacingRight() {
+        return facingRight;
     }
 
     @Override
@@ -280,8 +276,4 @@ public class Player extends Entity {
     }
 
 
-    public void dispose() {
-        spriteBatch.dispose();
-        hud.dispose();
-    }
 }

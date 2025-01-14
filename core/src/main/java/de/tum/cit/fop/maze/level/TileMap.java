@@ -1,5 +1,6 @@
 package de.tum.cit.fop.maze.level;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -17,14 +18,7 @@ import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.level.worldgen.CellType;
 import de.tum.cit.fop.maze.level.worldgen.MazeCell;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
-import de.tum.cit.fop.maze.level.worldgen.rooms.Entrance;
-import de.tum.cit.fop.maze.level.worldgen.rooms.Shop;
-import de.tum.cit.fop.maze.level.worldgen.rooms.SpecialRoom;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.Console;
-import java.io.File;
-import java.util.List;
 
 import static de.tum.cit.fop.maze.Globals.*;
 
@@ -34,8 +28,10 @@ public class TileMap implements Disposable {
     public final int height;
     public final float heightMeters;
     public final float widthMeters;
-    public final boolean[][] collisionMap;
+    public final EntityPathfinder pathfinder;
+    ///
     private final TextureLoader textures;
+
 
     /**
      * Create a new TileMap with a given height, width and seed
@@ -47,55 +43,47 @@ public class TileMap implements Disposable {
         MazeGenerator generator = new MazeGenerator(height, width, seed);
         this.map = new TiledMap();
         // Always get width and height from the generator, because it always makes the parameters odd
+        generator.generate();
         this.width = generator.width * 3;
         this.height = generator.height * 3;
 
         widthMeters = this.width * CELL_SIZE_METERS;
         heightMeters = this.height * CELL_SIZE_METERS;
-        this.collisionMap = new boolean[this.height][this.width];
+        boolean[][] wallMap = new boolean[this.height][this.width];
 
         textures = new TextureLoader("assets/tiles/tiles.atlas", generator.getRandom());
         createDebugLayer();
 
 
-        generator.generateMazeWalls();
-        generator.generateRooms(List.of(
-            new Entrance(),
-            new Shop(),
-            new SpecialRoom()
-        ));
+
         ///  Dimensions x3 since we want to have 3x3 tiles for each cell,
         ///  so we create larger environment for fights, etc.
-        TiledMapTileLayer bottomLayer =
+        TiledMapTileLayer layer =
             new TiledMapTileLayer(this.width, this.height,
                 Globals.CELL_SIZE,
                 Globals.CELL_SIZE
             );
-        TiledMapTileLayer topLayer =
-            new TiledMapTileLayer(this.width, this.height,
-                Globals.CELL_SIZE,
-                Globals.CELL_SIZE
-            );
+        map.getLayers().add(layer);
 
-        map.getLayers().add(bottomLayer);
-        map.getLayers().add(topLayer);
+
 
         // System.out.println(generator);
-        // Necessary paddings
+        // Paddings to account for surrounding walls
         int startI = 2;
         int startJ = 1;
         for (int i = generator.height - 1; i >= 0; --i) {
             for (int j = generator.width - 1; j >= 0; --j) {
+
                 MazeCell cell = generator.grid.get(i).get(j);
                 int x = startJ + j * 3;
-                int y = bottomLayer.getHeight() - (startI + i * 3);
+                int y = layer.getHeight() - (startI + i * 3);
                 /// All non-walkable cells require hitboxes
-                if (!cell.getCellType().isWalkable()) {
-                    setCollisionSquare(x, y);
+                if (cell.getCellType().isWall()) {
+                    setWallSquare(x, y, wallMap);
                 }
                 ///  Floor
                 if (cell.getCellType().isWalkable()) {
-                    setSquare(textures.getTextureWithVariationChance("floor"), x, y, false);
+                    setSquare(textures.getTextureWithVariationChance("floor"), x, y);
                 }
                 ///  Room walls
                 if (cell.getCellType() == CellType.WALL || cell.getCellType() == CellType.ROOM_WALL) {
@@ -124,12 +112,13 @@ public class TileMap implements Disposable {
 
             }
         }
-        reverseCollisionMapRows();
-        generateHitboxes();
+        reverseCollisionMapRows(wallMap);
+        generateHitboxes(wallMap);
+        pathfinder = new EntityPathfinder();
 
     }
 
-    private void reverseCollisionMapRows() {
+    private void reverseCollisionMapRows(boolean[][] collisionMap) {
         for (int i = 0; i < height / 2; ++i) {
             for (int j = 0; j < width; ++j) {
                 boolean tmp = collisionMap[i][j];
@@ -139,7 +128,14 @@ public class TileMap implements Disposable {
         }
     }
 
-    private void setCollisionSquare(int x, int y) {
+    /**
+     * Set a wall square for the wallMap at x y position
+     *
+     * @param x       the x position
+     * @param y       the y position
+     * @param wallMap the collision map with the cells
+     */
+    private void setWallSquare(int x, int y, boolean[][] wallMap) {
         int[][] allSurrounding = {
             {0, 0},
             {-1, 0},
@@ -153,7 +149,7 @@ public class TileMap implements Disposable {
         };
         ///  Height is reversed since the map is drawn from the top left corner
         for (int[] surrounding : allSurrounding) {
-            collisionMap[height - 1 - y - surrounding[1]][x + surrounding[0]] = true;
+            wallMap[height - 1 - y - surrounding[1]][x + surrounding[0]] = true;
         }
     }
 
@@ -218,7 +214,7 @@ public class TileMap implements Disposable {
      */
     private void setDecorationSquare(int x, int y) {
         TextureRegion decoration = textures.getTextureWithVariationChance("decorWater");
-        setSquare(decoration, x, y, false);
+        setSquare(decoration, x, y);
     }
 
     /**
@@ -226,9 +222,8 @@ public class TileMap implements Disposable {
      * @param texture the texture to set
      * @param x the x position
      * @param y the y position
-     * @param topLayer the layer to set the cell in
      */
-    private void setSquare(TextureRegion texture, int x, int y, boolean topLayer) {
+    private void setSquare(TextureRegion texture, int x, int y) {
         int[][] allSurrounding = {
             {0, 0},
             {-1, 0},
@@ -241,7 +236,7 @@ public class TileMap implements Disposable {
             {1, 1}
         };
         for (int[] surrounding : allSurrounding) {
-            setCell(texture, x + surrounding[0], y + surrounding[1], topLayer);
+            setCell(texture, x + surrounding[0], y + surrounding[1]);
         }
     }
 
@@ -305,12 +300,21 @@ public class TileMap implements Disposable {
         map.dispose();
     }
 
+    /**
+     * Helper function to create a hitbox at x y position considering the cell size
+     * Create a hitbox at x y position with hx hy size
+     * @param x the x position
+     * @param y the y position
+     * @param hx the x size
+     * @param hy the y size
+     * @param fixtureDef the fixture definition
+     */
     private void createRectangularHitbox(float x, float y, float hx, float hy, @Nullable FixtureDef fixtureDef) {
         // System.out.println("Creating hitbox at " + x + " " + y + " " + hx + " " + hy + " With cell size " + CELL_SIZE_METERS); ;
-        hx *= CELL_SIZE_METERS;
-        hy *= CELL_SIZE_METERS;
-        x = x * CELL_SIZE_METERS * 2f + hx;
-        y = y * CELL_SIZE_METERS * 2f + hy;
+        hx *= CELL_SIZE_METERS / 2;
+        hy *= CELL_SIZE_METERS / 2;
+        x = x * CELL_SIZE_METERS + hx;
+        y = y * CELL_SIZE_METERS + hy;
 
         LevelScreen screen = LevelScreen.getInstance();
         BodyDef bodyDef = new BodyDef();
@@ -330,25 +334,41 @@ public class TileMap implements Disposable {
         shape.dispose();
     }
 
+    /**
+     * Helper function to create a hitbox at x y position considering the cell size
+     * Create a hitbox at x y position with hx hy size
+     * @param x the x position
+     * @param y the y position
+     * @param hx the x size
+     * @param hy the y size
+     */
     private void createRectangularHitbox(float x, float y, float hx, float hy) {
         createRectangularHitbox(x, y, hx, hy, null);
     }
 
-    private boolean isIsolatedCollidable(int i, int j) {
-        if (i - 2 <= 0 || j - 2 <= 0 || i + 2 >= height || j + 2 >= width) {
+    /**
+     * Check if the cell at i j position is isolated, requires special treatment, since we draw a decoration there
+     *
+     * @param x       the x position
+     * @param y       the y position
+     * @param wallMap the collision map with the cells
+     * @return {@code true} if the cell is isolated
+     */
+    private boolean isIsolatedCollidable(int x, int y, boolean[][] wallMap) {
+        if (y - 2 <= 0 || x - 2 <= 0 || y + 2 >= height || x + 2 >= width) {
             return false;
         }
-        return !collisionMap[i - 2][j] && !collisionMap[i + 2][j] && !collisionMap[i][j - 2] && !collisionMap[i][j + 2];
+        return !wallMap[y - 2][x] && !wallMap[y + 2][x] && !wallMap[y][x - 2] && !wallMap[y][x + 2];
     }
 
-    private void generateVerticalHitboxes() {
+    private void generateVerticalHitboxes(boolean[][] wallMap) {
         for (int j = 0; j < width; j += 3) {
             int x = (j - 1);
             int y = -1;
             int hy = 0;
             for (int i = 0; i < height; i += 3) {
-                // System.out.println("Checking " + i + " " + j + " " + collisionMap[i][j]);
-                if (collisionMap[i][j]) {
+                // System.out.println("Checking " + i + " " + j + " " + wallMap[i][j]);
+                if (wallMap[i][j]) {
                     if (y == -1) {
                         y = i;
                     }
@@ -357,8 +377,9 @@ public class TileMap implements Disposable {
                     if (y != -1) {
                         if (hy > 3) {
                             /// HY reduced by 0.05 to avoid collision above the wall
-                            createRectangularHitbox(x + CELL_SIZE_METERS * 2.66f, y, 3,
-                                hy - CELL_SIZE_METERS * 0.05f);
+                            /// 1.8 is the height of the wall (less than usual 3 because of projection)
+                            /// x + 1 and y + 1.8 are the starting point of the wall
+                            createRectangularHitbox(x + 1, y + 1.8f + 0.04f, 3, hy - 0.08f - 1.8f);
                         }
                         y = -1;
                         hy = 0;
@@ -366,33 +387,33 @@ public class TileMap implements Disposable {
                 }
             }
             if (y != -1 && hy > 3) {
-                createRectangularHitbox(x + CELL_SIZE_METERS * 2.66f, y, 3,
-                    hy - CELL_SIZE_METERS * 0.05f);
+                createRectangularHitbox(x + 1, y + 1.8f + 0.04f, 3, hy - 0.5f - 1.8f);
             }
         }
 
     }
 
-    private void generateHorizontalHitboxes() {
+    private void generateHorizontalHitboxes(boolean[][] wallMap) {
         for (int i = 0; i < height; i += 3) {
             int x = -1;
             int y = (i - 1);
             int hx = 0;
             for (int j = 0; j < width; j += 3) {
-                if (collisionMap[i][j]) {
+                if (wallMap[i][j]) {
                     if (x == -1) {
                         x = j;
                     }
                     hx += 3;
                 } else {
                     if (x != -1) {
+                        /// x is offset for 0.025f to avoid collision with the tiny pixel
                         if (hx > 3) {
-                            createRectangularHitbox(x, y + CELL_SIZE_METERS * 2.66f, hx, 3);
+                            createRectangularHitbox(x + 0.025f, y + 1 + 1.8f, hx - 0.05f, 1.2f);
                         }
-                        if (isIsolatedCollidable(i + 1, j - 2)) {
+                        if (isIsolatedCollidable(j - 2, i + 1, wallMap)) {
                             FixtureDef fixtureDef = new FixtureDef();
                             fixtureDef.filter.categoryBits = BodyBits.DECORATION;
-                            createRectangularHitbox(x, y + CELL_SIZE_METERS * 2.66f, hx, 3, fixtureDef);
+                            createRectangularHitbox(x + 0.025f, y + 1 + 1.8f, hx - 0.05f, 1.2f, fixtureDef);
                         }
 
                         x = -1;
@@ -401,14 +422,18 @@ public class TileMap implements Disposable {
                 }
             }
             if (x != -1 && hx > 3) {
-                createRectangularHitbox(x, y + CELL_SIZE_METERS * 2.66f, hx, 3);
+                createRectangularHitbox(x + 0.025f, y + 1 + 1.8f, hx - 0.05f, 1.2f);
             }
         }
     }
 
-
-    private void generateHitboxes() {
-        generateVerticalHitboxes();
-        generateHorizontalHitboxes();
+    /**
+     * Generate hitboxes for the map
+     *
+     * @param wallMap the collision map with the cells
+     */
+    private void generateHitboxes(boolean[][] wallMap) {
+        generateVerticalHitboxes(wallMap);
+        generateHorizontalHitboxes(wallMap);
     }
 }
