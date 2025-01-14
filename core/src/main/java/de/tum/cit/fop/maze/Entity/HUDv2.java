@@ -22,28 +22,34 @@ import java.util.Map;
 public class HUDv2 {
     private final Stage stage;
     private final List<List<Image>> matrixHPBar;
-    private List<TextureRegion> statusBar;
+    private final Map<String, Image> statusBar;
     private final float heartsAnimationFrameDuration;
     private final SpriteBatch spriteBatch;
 
+
     private TextureAtlas atlas;
 
-    private ProgressBar staminaBar;
-
-    private boolean gotHit = false;
 
     private int receivedDmg;
     private int health;
     private int maxHealth;
 
+    private ProgressBar staminaBar;
+    private float stamina = 100f;
+    private final float staminaConsumptionSpeed = 0.5f;
+    private final float staminaBarPadding = 10f;
+
+    private final float statusBarSpacingFromHPBar = 10f;
+    private final float statusBarInnerSpacing = 5f;
+    private final float statusScale = 1.5f;
+
+
+    private boolean gotHit = false;
     private Map<String, Animation<TextureRegion>> animations;
-    private Animation<TextureRegion> leftHalfFtoE;
-    private Animation<TextureRegion> rightHalfFtoE;
-    private Animation<TextureRegion> leftHalfFtoF;
 
     float hitElapsedTime = 0;
-    float offsetXStep;
-    float offsetYStep;
+    float offsetXStepHP;
+    float offsetYStepHP;
     final float spacingX = 2.5f;
     final float spacingY = 2.5f;
     final float heartsScaling = 1.5f;
@@ -65,7 +71,7 @@ public class HUDv2 {
             );
 
         matrixHPBar = new ArrayList<>();
-        statusBar = new ArrayList<>();
+        statusBar = new HashMap<>();
 
         heartsAnimationFrameDuration = 1f;
 
@@ -76,40 +82,37 @@ public class HUDv2 {
         loadTextures();
         updateHPBar();
         createStaminaBar();
+        createDamageButton();
+        createAddStatusButton();
     }
 
     public void loadTextures() {
-        atlas = new TextureAtlas(Gdx.files.local("temporary\\HUDv2\\HUD_v2_1.atlas"));
+        atlas = new TextureAtlas(Gdx.files.local("temporary\\HUDv2\\HUD_v2.atlas"));
         animations = new HashMap<>();
 
-        Animation<TextureRegion> lHFtoE = new Animation<TextureRegion>(heartsAnimationFrameDuration, atlas.findRegions("lHFtoE"));
+        Animation<TextureRegion> lHFtoE = new Animation<>(heartsAnimationFrameDuration,
+            atlas.findRegions("lHalfFullToEmpty")); // lHalfFullToEmpty
         lHFtoE.setPlayMode(Animation.PlayMode.LOOP);
 
-        Animation<TextureRegion> rHFtoE = new Animation<TextureRegion>(heartsAnimationFrameDuration, atlas.findRegions("rHFtoE"));
+        Animation<TextureRegion> rHFtoE = new Animation<>(heartsAnimationFrameDuration,
+            atlas.findRegions("rHalfFullToEmpty")); // rHalfFullToEmpty
         rHFtoE.setPlayMode(Animation.PlayMode.LOOP);
 
         Array <TextureRegion> lHFtoFTextureRegions = new Array<>();
-        lHFtoFTextureRegions.add(atlas.findRegion("lHFtoF"));
-        lHFtoFTextureRegions.add(atlas.findRegion("lHFtoE", 0));
-        lHFtoFTextureRegions.add(atlas.findRegion("lHFtoF"));
-        lHFtoFTextureRegions.add(atlas.findRegion("lHFtoE", 0));
+        lHFtoFTextureRegions.add(atlas.findRegion("lHalfFullToFull")); // lHalfFullToFull
+        lHFtoFTextureRegions.add(atlas.findRegion("lHalfFullToEmpty", 0)); // lHalfFullToEmpty
+        lHFtoFTextureRegions.add(atlas.findRegion("lHalfFullToFull")); // lHalfFullToFull
+        lHFtoFTextureRegions.add(atlas.findRegion("lHalfFullToEmpty", 0)); // lHalfFullToEmpty
 
-        Animation<TextureRegion> lHFtoF = new Animation<TextureRegion>(heartsAnimationFrameDuration, lHFtoFTextureRegions);
+        Animation<TextureRegion> lHFtoF = new Animation<>(heartsAnimationFrameDuration, lHFtoFTextureRegions);
         lHFtoF.setPlayMode(Animation.PlayMode.LOOP);
 
         animations.put("lHalfFullToFull", lHFtoF);
         animations.put("lHalfFullToEmpty", lHFtoE);
         animations.put("rHalfFullToEmpty", rHFtoE);
 
-//        leftHalfFtoE = new Animation<TextureRegion>(heartsAnimationFrameDuration, atlas.findRegions("lHFtoE"));
-//        rightHalfFtoE = new Animation<TextureRegion>(heartsAnimationFrameDuration, atlas.findRegions("rHFtoE"));
-//
-////        leftHalfFtoF.setPlayMode(Animation.PlayMode.LOOP);
-//        leftHalfFtoE.setPlayMode(Animation.PlayMode.LOOP);
-//        rightHalfFtoE.setPlayMode(Animation.PlayMode.LOOP);
-
-        offsetXStep = animations.get("lHalfFullToEmpty").getKeyFrame(0).getRegionWidth() * heartsScaling;
-        offsetYStep = animations.get("lHalfFullToEmpty").getKeyFrame(0).getRegionHeight() * heartsScaling;
+        offsetXStepHP = animations.get("lHalfFullToEmpty").getKeyFrame(0).getRegionWidth() * heartsScaling;
+        offsetYStepHP = animations.get("lHalfFullToEmpty").getKeyFrame(0).getRegionHeight() * heartsScaling;
 
 
 
@@ -134,24 +137,22 @@ public class HUDv2 {
             matrixHPBar.add(new ArrayList<>());
         }
         List<Image> row = matrixHPBar.remove(matrixHPBar.size() - 1);
-//        drawn += startsWith;
-//        target += startsWith;
 
         while (target != count){
             addImageToRow(row, x, y, count % 2 == 0 ? lHalfTexture : rHalfTexture);
-            x += count % 2 == 0 ? offsetXStep : offsetXStep + spacingX;
+            x += count % 2 == 0 ? offsetXStepHP : offsetXStepHP + spacingX;
             count++;
             if (count % (amountOfHeartsInRow * 2) == 0) {
                 matrixHPBar.add(row);
                 row = new ArrayList<>();
-                y += offsetYStep + spacingY;
+                y += offsetYStepHP + spacingY;
                 x = padding;
             }
         }
         if (!row.isEmpty()) {
             matrixHPBar.add(row);
         }
-        if (lHalfTexture == atlas.findRegion("lHFtoE", 0)) {
+        if (lHalfTexture == atlas.findRegion("lHalfFullToEmpty", 0)) {
             indexXOfLastFullHalf = matrixHPBar.get(matrixHPBar.size()-1).size()-1;
             indexYOfLastFullHalf = matrixHPBar.size()-1;
             System.out.println(indexXOfLastFullHalf + " " + indexYOfLastFullHalf);
@@ -165,13 +166,13 @@ public class HUDv2 {
         }
         clearHPBar();
 
-        TextureRegion lHFull = atlas.findRegion("lHFtoE", 0);
-        TextureRegion rHFull = atlas.findRegion("rHFtoE", 0);
-        TextureRegion lHEmpty = atlas.findRegion("lHFtoE", 3);
-        TextureRegion rHEmpty = atlas.findRegion("rHFtoE", 3);
+        TextureRegion lHFull = atlas.findRegion("lHalfFullToEmpty", 0);
+        TextureRegion rHFull = atlas.findRegion("rHalfFullToEmpty", 0);
+        TextureRegion lHEmpty = atlas.findRegion("lHalfFullToEmpty", 3);
+        TextureRegion rHEmpty = atlas.findRegion("rHalfFullToEmpty", 3);
 
         List<Float> resultOfFirstFill =
-            fillHPBarWithHearts(health, padding, offsetYStep / 2 + padding, lHFull, rHFull, 0);
+            fillHPBarWithHearts(health, padding, offsetYStepHP / 2 + padding, lHFull, rHFull, 0);
         fillHPBarWithHearts(
             maxHealth, resultOfFirstFill.get(0), resultOfFirstFill.get(1), lHEmpty, rHEmpty, resultOfFirstFill.get(2)
         );
@@ -211,46 +212,77 @@ public class HUDv2 {
 
     public void createStaminaBar() {
         int width = 300;
-        int height = 15;
+        int height = 30;
 
         staminaBar = new ProgressBar(
-            0f, 100f, 0.01f, false, new ProgressBar.ProgressBarStyle()
+            0f, stamina, staminaConsumptionSpeed, false, new ProgressBar.ProgressBarStyle()
         );
+
         staminaBar.getStyle().background = commonFunctions.getColoredDrawable(width, height, Color.WHITE);
         staminaBar.getStyle().knob = commonFunctions.getColoredDrawable(0, height, Color.GOLD);
         staminaBar.getStyle().knobBefore = commonFunctions.getColoredDrawable(width, height, Color.GOLD);
 
         staminaBar.setWidth(width);
         staminaBar.setHeight(height);
-
-        staminaBar.setValue(100f);
+        staminaBar.setValue(stamina);
         staminaBar.setAnimateDuration(0.25f);
 
 
-        float stBarX = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getX();
+        float stBarX = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getX() + staminaBarPadding;
         float stBarY = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getY() - spacingBetwHPBarAndStaminaBar;
 
 
         staminaBar.setPosition(stBarX, stBarY);
+
+
         stage.addActor(staminaBar);
+        setStaminaBarBorder(width, height, stBarX, stBarY);
     }
 
-//    public void drawStaminaBarBackground(float width, float height) {
-//        Image staminaBarBackground = new Image(atlas.findRegion("staminaBarBackground"));
-//        float stBarWidth = width + 192/2f;
-//        float stBarHeight = height + 16;
-//
-//        stage.addActor(staminaBarBackground);
-//        staminaBarBackground.setSize(stBarWidth, stBarHeight);
-//        staminaBarBackground.setPosition(stBarX - 192/4f, stBarY - 8);
-//    }
+    private void setStaminaBarBorder(int width, int height, float stBarX, float stBarY) {
+        //TODO repack Atlas with proper name and get rid of "magic numbers"
+        Image staminaBarBorder = new Image(atlas.findRegion("staminaBarBorder"));
+        float sizeXMultiplier = width/staminaBarBorder.getWidth();
+        float sizeYMultiplier = height/staminaBarBorder.getHeight();
+//        staminaBarBorder.setSize(width +32, height + 18);
+        staminaBarBorder.setSize(width *sizeXMultiplier, height * sizeYMultiplier);
+        staminaBarBorder.setPosition(stBarX -22, stBarY - 8);
+        stage.addActor(staminaBarBorder);
+    }
 
     public void updateStaminaBar(float currentStamina, float maxStamina) {
+        stamina = maxStamina;
         staminaBar.setRange(0f, maxStamina);
         staminaBar.setValue(currentStamina);
     }
     public void drainStamina(float stamina) {
         staminaBar.setValue(staminaBar.getValue() - stamina);
+    }
+
+    public void addStatus(String statusName) {
+        TextureAtlas.AtlasRegion region = atlas.findRegion(statusName);
+        Image statusImg = new Image(region);
+        statusBar.put(statusName, statusImg);
+
+//        statusDurations.put(statusName, duration);
+    }
+
+    public void removeStatus(String statusName) {
+        statusBar.get(statusName).remove();
+        statusBar.remove(statusName);
+    }
+
+    public void renderStatusBar() {
+        float x = matrixHPBar.get(0).get(amountOfHeartsInRow*2-1).getX()+ offsetXStepHP + statusBarSpacingFromHPBar;
+        float y = matrixHPBar.get(0).get(0).getY();
+
+        for (Map.Entry<String, Image> entry : statusBar.entrySet()) {
+            Image statusImg = entry.getValue();
+            statusImg.setScale(statusScale);
+            statusImg.setPosition(x, y);
+            stage.addActor(statusImg);
+            x -= statusImg.getWidth() + statusBarInnerSpacing;
+        }
     }
 
     private void damageAnimation(float deltaTime){
@@ -266,7 +298,6 @@ public class HUDv2 {
 
         if (indexXOfLastFullHalf % 2 == 0) {
             drawHeartAnimation("lHalfFullToFull", indexYOfLastFullHalf, indexXOfLastFullHalf);
-//            tempIndexX++;
         }
 
         while(heartsToAnimate > 0) {
@@ -306,11 +337,33 @@ public class HUDv2 {
         takeDmgButton.addCaptureListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 System.out.println("Damage button clicked");
-                takeDmg(20);
+                takeDmg(30);
                 return true;
             }
         });
         stage.addActor(takeDmgButton);
+    }
+
+    public void createAddStatusButton(){
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.fontColor = Color.WHITE;
+        textButtonStyle.font = new BitmapFont();
+
+        Button addStatusButton = new TextButton("Add Status", textButtonStyle);
+        addStatusButton.setPosition(20, Gdx.graphics.getHeight() / 2f - 50);
+        addStatusButton.addCaptureListener(new InputListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                System.out.println("Add status button clicked");
+                addStatus("status1");
+                return true;
+            }
+        });
+        stage.addActor(addStatusButton);
+    }
+
+    public void dispose() {
+        atlas.dispose();
+        stage.dispose();
     }
 
 
@@ -326,6 +379,7 @@ public class HUDv2 {
                 hitElapsedTime = 0f;
             }
         }
+        renderStatusBar();
         stage.getBatch().end();
     }
 }
