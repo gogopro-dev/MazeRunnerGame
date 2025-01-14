@@ -21,8 +21,9 @@ public class Player extends Entity {
     private final Animation<TextureRegion> movementTorchAnimation;
     private Animation<TextureRegion> currentAnimation;
     private float elapsedTime = 0f;
-    private boolean isHitting = false;    // Track if the hit animation is active
+
     private float hitElapsedTime = 0f;    // Tracks time for hit animation
+    private boolean isHitting = false;    // Track if the hit animation is active
     private boolean isMoving = false;     // Flag to track movement state
     private boolean facingRight = true;
     private boolean canHit = true;
@@ -30,18 +31,18 @@ public class Player extends Entity {
     private boolean beingChased = false;
     private final float mapWidth;
     private final float mapHeight;
+
+
     /**
      * Creates a new player character.
-     * @param mapWidth The width of the map in pixels
-     * @param mapHeight The height of the map in pixels
+     * @param batch The sprite batch to render the player character
      */
-    public Player(float mapWidth, float mapHeight, SpriteBatch batch) {
-
+    public Player(SpriteBatch batch) {
         super(batch);
+        this.mapWidth = LevelScreen.getInstance().map.widthMeters;
+        this.mapHeight = LevelScreen.getInstance().map.heightMeters;
         this.mass = 5f;
         this.box2dUserData = "player";
-        this.mapWidth = mapWidth;
-        this.mapHeight = mapHeight;
 
         /// Player can hit if not holding torch
         canHit = !isHoldingTorch;

@@ -132,7 +132,7 @@ public class LevelScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);
-        player = new Player(map.widthMeters, map.heightMeters, batch);
+        player = new Player(batch);
         player.spawn(map.widthMeters / 2, map.heightMeters / 2, world);
 
         /// Set camera at the center of the players position in Box2D world
