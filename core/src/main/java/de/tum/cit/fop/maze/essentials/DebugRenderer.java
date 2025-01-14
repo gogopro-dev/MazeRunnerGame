@@ -48,6 +48,28 @@ public class DebugRenderer {
         shapeRenderer.line(start.x(), start.y(), end.x(), end.y(), color, color);
     }
 
+    /**
+     * Draw a rectangle between two points.
+     */
+    public void drawRectangle(AbsolutePoint start, AbsolutePoint end, Color color) {
+        shapeRenderer.rect(
+            start.x(), start.y(),
+            end.x() - start.x(),
+            end.y() - start.y(),
+            color, color, color, color
+        );
+    }
+
+    /**
+     * Draw a circle at a point.
+     *
+     * @param center
+     * @param radius
+     */
+    public void drawCircle(AbsolutePoint center, float radius) {
+        shapeRenderer.circle(center.x(), center.y(), radius);
+    }
+
     public void drawLine(AbsolutePoint start, AbsolutePoint end) {
         drawLine(start, end, Color.WHITE);
     }

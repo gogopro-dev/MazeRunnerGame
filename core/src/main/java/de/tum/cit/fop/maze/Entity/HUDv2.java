@@ -2,13 +2,17 @@ package de.tum.cit.fop.maze.Entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import de.tum.cit.fop.maze.commonFunctions;
+import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,15 +20,17 @@ import java.util.List;
 import java.util.Map;
 
 public class HUDv2 {
-    private Stage stage;
-    private List<List<Image>> matrixHPBar;
+    private final Stage stage;
+    private final List<List<Image>> matrixHPBar;
     private List<TextureRegion> statusBar;
-    private float heartsAnimationFrameDuration;
-    private SpriteBatch spriteBatch;
-    private boolean gotHit;
+    private final float heartsAnimationFrameDuration;
+    private final SpriteBatch spriteBatch;
+
     private TextureAtlas atlas;
-    int amountOfHeartsInRow;
+
     private ProgressBar staminaBar;
+
+    private boolean gotHit = false;
 
     private int receivedDmg;
     private int health;
@@ -34,45 +40,46 @@ public class HUDv2 {
     private Animation<TextureRegion> leftHalfFtoE;
     private Animation<TextureRegion> rightHalfFtoE;
     private Animation<TextureRegion> leftHalfFtoF;
-    float hitElapsedTime;
+
+    float hitElapsedTime = 0;
     float offsetXStep;
     float offsetYStep;
-    float spacingX;
-    float spacingY;
-    float heartsScaling;
-    float padding;
+    final float spacingX = 2.5f;
+    final float spacingY = 2.5f;
+    final float heartsScaling = 1.5f;
+    final float padding = 10f;
+    final float spacingBetwHPBarAndStaminaBar = 30f;
+    int amountOfHeartsInRow = 20;
+
     int indexXOfLastFullHalf;
     int indexYOfLastFullHalf;
 
-    float spacingBetwHPBarAndStaminaBar;
 
-    public HUDv2(int health, int maxHealth, SpriteBatch spriteBatch) {
-        stage = new Stage();
+    public HUDv2(Player player) {
+        this.spriteBatch = LevelScreen.getInstance().batch;
+        this.stage =
+            new Stage(
+                new ScalingViewport(
+                    Scaling.stretch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera()
+                ), spriteBatch
+            );
+
         matrixHPBar = new ArrayList<>();
         statusBar = new ArrayList<>();
 
         heartsAnimationFrameDuration = 1f;
-        this.spriteBatch = spriteBatch;
-        this.stage = new Stage();
+
         Gdx.input.setInputProcessor(this.stage);
-        gotHit = false;
-        hitElapsedTime = 0f;
-        this.health = health;
-        this.maxHealth = maxHealth;
+        this.health = player.health;
+        this.maxHealth = player.maxHealth;
 
-        init();
-
-
-//            this.health = health;
-//            this.maxHealth = maxHealth;
-
+        loadTextures();
         updateHPBar();
         createStaminaBar();
-//            createStaminaBar();
     }
 
-    public void init() {
-        atlas = new TextureAtlas(Gdx.files.internal("temporary\\HUDv2\\HUD_v2_1.atlas"));
+    public void loadTextures() {
+        atlas = new TextureAtlas(Gdx.files.local("temporary\\HUDv2\\HUD_v2_1.atlas"));
         animations = new HashMap<>();
 
         Animation<TextureRegion> lHFtoE = new Animation<TextureRegion>(heartsAnimationFrameDuration, atlas.findRegions("lHFtoE"));
@@ -101,15 +108,10 @@ public class HUDv2 {
 //        leftHalfFtoE.setPlayMode(Animation.PlayMode.LOOP);
 //        rightHalfFtoE.setPlayMode(Animation.PlayMode.LOOP);
 
-        heartsScaling = 1.5f;
         offsetXStep = animations.get("lHalfFullToEmpty").getKeyFrame(0).getRegionWidth() * heartsScaling;
         offsetYStep = animations.get("lHalfFullToEmpty").getKeyFrame(0).getRegionHeight() * heartsScaling;
-        spacingX = 2.5f;
-        spacingY = 2.5f;
-        padding = 10f;
-        amountOfHeartsInRow = 20;
 
-        spacingBetwHPBarAndStaminaBar = 15f;
+
 
 
     }
@@ -123,21 +125,23 @@ public class HUDv2 {
 
     // for info: lHFull, rHFull, lHEmpty, rHEmpty
 
-    private List<Float> fillHPBarWithHearts(int target, float StartX, float StartY, TextureRegion lHalfTexture, TextureRegion rHalfTexture, float count){
+    private List<Float> fillHPBarWithHearts(
+        int target, float StartX, float StartY, TextureRegion lHalfTexture, TextureRegion rHalfTexture, float count
+    ) {
         float x = StartX;
         float y = StartY;
-        if (count % (amountOfHeartsInRow*2) == 0) {
+        if (count % (amountOfHeartsInRow * 2) == 0) {
             matrixHPBar.add(new ArrayList<>());
         }
-        List<Image> row = matrixHPBar.remove(matrixHPBar.size()-1);
+        List<Image> row = matrixHPBar.remove(matrixHPBar.size() - 1);
 //        drawn += startsWith;
 //        target += startsWith;
 
         while (target != count){
-            addImageToRow(row, x, y, count%2 == 0 ? lHalfTexture : rHalfTexture);
-            x += count%2==0 ? offsetXStep: offsetXStep + spacingX;
+            addImageToRow(row, x, y, count % 2 == 0 ? lHalfTexture : rHalfTexture);
+            x += count % 2 == 0 ? offsetXStep : offsetXStep + spacingX;
             count++;
-            if (count%(amountOfHeartsInRow*2)==0){
+            if (count % (amountOfHeartsInRow * 2) == 0) {
                 matrixHPBar.add(row);
                 row = new ArrayList<>();
                 y += offsetYStep + spacingY;
@@ -152,7 +156,7 @@ public class HUDv2 {
             indexYOfLastFullHalf = matrixHPBar.size()-1;
             System.out.println(indexXOfLastFullHalf + " " + indexYOfLastFullHalf);
         }
-        return List.of(x, y, (float) count);
+        return List.of(x, y, count);
     }
 
     public void updateHPBar(){
@@ -166,8 +170,11 @@ public class HUDv2 {
         TextureRegion lHEmpty = atlas.findRegion("lHFtoE", 3);
         TextureRegion rHEmpty = atlas.findRegion("rHFtoE", 3);
 
-        List<Float> resultOfFirstFill = fillHPBarWithHearts(health, padding, offsetYStep/2 + padding, lHFull, rHFull, 0);
-        fillHPBarWithHearts(maxHealth, resultOfFirstFill.get(0), resultOfFirstFill.get(1), lHEmpty, rHEmpty, resultOfFirstFill.get(2));
+        List<Float> resultOfFirstFill =
+            fillHPBarWithHearts(health, padding, offsetYStep / 2 + padding, lHFull, rHFull, 0);
+        fillHPBarWithHearts(
+            maxHealth, resultOfFirstFill.get(0), resultOfFirstFill.get(1), lHEmpty, rHEmpty, resultOfFirstFill.get(2)
+        );
         System.out.println(matrixHPBar.size());
 
 
@@ -199,15 +206,16 @@ public class HUDv2 {
         float width = heart.getImageWidth()*heartsScaling;
         float height = heart.getImageHeight()*heartsScaling;
         spriteBatch.draw(currentFrame, heart.getX(), heart.getY(), width, height);
-        }
-
+    }
 
 
     public void createStaminaBar() {
         int width = 300;
         int height = 15;
 
-        staminaBar = new ProgressBar(0f, 100f, 0.01f, false, new ProgressBar.ProgressBarStyle());
+        staminaBar = new ProgressBar(
+            0f, 100f, 0.01f, false, new ProgressBar.ProgressBarStyle()
+        );
         staminaBar.getStyle().background = commonFunctions.getColoredDrawable(width, height, Color.WHITE);
         staminaBar.getStyle().knob = commonFunctions.getColoredDrawable(0, height, Color.GOLD);
         staminaBar.getStyle().knobBefore = commonFunctions.getColoredDrawable(width, height, Color.GOLD);
@@ -219,8 +227,8 @@ public class HUDv2 {
         staminaBar.setAnimateDuration(0.25f);
 
 
-        float stBarX = matrixHPBar.get(matrixHPBar.size()-1).get(0).getX();
-        float stBarY = matrixHPBar.get(matrixHPBar.size()-1).get(0).getY() - spacingBetwHPBarAndStaminaBar;
+        float stBarX = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getX();
+        float stBarY = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getY() - spacingBetwHPBarAndStaminaBar;
 
 
         staminaBar.setPosition(stBarX, stBarY);
@@ -251,11 +259,12 @@ public class HUDv2 {
         if (receivedDmg <= 0) {
             return;
         }
-        int tempIndexX = indexXOfLastFullHalf%(amountOfHeartsInRow*2 -1) == 0 ? 0 : indexXOfLastFullHalf +1;
+        int tempIndexX = indexXOfLastFullHalf % (amountOfHeartsInRow * 2 - 1) == 0 ? 0 : indexXOfLastFullHalf + 1;
 //        int tempIndexX = indexXOfLastHeartToAnimate;
-        int tempIndexY = indexXOfLastFullHalf%(amountOfHeartsInRow*2 -1) == 0 ? indexYOfLastFullHalf + 1 : indexYOfLastFullHalf;
+        int tempIndexY = indexXOfLastFullHalf % (amountOfHeartsInRow * 2 - 1) == 0 ? indexYOfLastFullHalf + 1 :
+            indexYOfLastFullHalf;
 
-        if (indexXOfLastFullHalf % 2==0) {
+        if (indexXOfLastFullHalf % 2 == 0) {
             drawHeartAnimation("lHalfFullToFull", indexYOfLastFullHalf, indexXOfLastFullHalf);
 //            tempIndexX++;
         }
@@ -274,8 +283,8 @@ public class HUDv2 {
             }
         }
 
-
     }
+
 
     private boolean areAllAnimationsFinished() {
         for (Map.Entry<String, Animation<TextureRegion>> entry : animations.entrySet()) {
@@ -286,14 +295,13 @@ public class HUDv2 {
         return true;
     }
 
-    public void createDamageButton() {
 
-        Button takeDmgButton = new Button();
+    public void createDamageButton() {
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.fontColor = Color.WHITE;
         textButtonStyle.font = new BitmapFont();
 
-        takeDmgButton = new TextButton("Take Damage", textButtonStyle);
+        Button takeDmgButton = new TextButton("Take Damage", textButtonStyle);
         takeDmgButton.setPosition(20, Gdx.graphics.getHeight() / 2f);
         takeDmgButton.addCaptureListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -306,10 +314,10 @@ public class HUDv2 {
     }
 
 
-
     public void render(float deltaTime) {
         stage.act();
         stage.draw();
+        stage.getBatch().begin();
         if (gotHit) {
             damageAnimation(deltaTime);
             hitElapsedTime += deltaTime;
@@ -318,6 +326,7 @@ public class HUDv2 {
                 hitElapsedTime = 0f;
             }
         }
+        stage.getBatch().end();
     }
 }
 

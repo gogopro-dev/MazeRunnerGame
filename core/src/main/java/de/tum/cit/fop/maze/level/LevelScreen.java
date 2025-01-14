@@ -11,11 +11,8 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.tum.cit.fop.maze.Entity.*;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
-import de.tum.cit.fop.maze.Entity.Enemy;
-import de.tum.cit.fop.maze.Entity.EnemyType;
-import de.tum.cit.fop.maze.Entity.EntityContactListener;
-import de.tum.cit.fop.maze.Entity.Player;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 
@@ -30,12 +27,13 @@ public class LevelScreen implements Screen {
     private static LevelScreen instance = null;
     public final float w, h;
     EnemyManager manager;
-    Viewport viewport;
+    public final Viewport viewport;
     public TileMap map;
     public final OrthographicCamera camera;
     private final TiledMapRenderer tiledMapRenderer;
     public final SpriteBatch batch;
     public final Player player;
+    public final HUDv2 hud;
     /// Box2D world
     public final World world;
     public final ReentrantLock worldLock = new ReentrantLock();
@@ -71,9 +69,11 @@ public class LevelScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
         DebugRenderer.getInstance().setProjectionMatrix(camera.combined);
         batch.begin();
-        player.render(delta);
+
         manager.renderEnemies(delta);
+        player.render(delta);
         batch.end();
+        hud.render(delta);
         DebugRenderer.getInstance().end();
     }
 
@@ -132,13 +132,16 @@ public class LevelScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);
-        player = new Player(camera, map.widthMeters, map.heightMeters, batch);
+        player = new Player(map.widthMeters, map.heightMeters, batch);
         player.spawn(map.widthMeters / 2, map.heightMeters / 2, world);
 
         /// Set camera at the center of the players position in Box2D world
         camera.position.set(player.getSpriteX(),player.getSpriteY(), 0);
         camera.zoom = 1.25f;
         camera.update();
+
+        hud = new HUDv2(player);
+
 
         /*enemy = new Enemy(EnemyType.SKELETON, camera, batchEnemy);
         enemy.spawn(map.widthMeters / 2 - 10, map.heightMeters / 2 + 15.5f, world);

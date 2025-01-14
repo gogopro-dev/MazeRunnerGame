@@ -1,5 +1,6 @@
 package de.tum.cit.fop.maze.Entity;
 
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -25,10 +26,12 @@ public abstract class Entity {
     protected int stamina;
     protected final float scale = 4 * Globals.MPP;
     /// Entity movement speed (in chicken per second)
-    protected float entitySpeed = 8f;
+    protected float entitySpeed = 7f;
     protected Body body;
     protected BodyDef.BodyType bodyType = BodyDef.BodyType.DynamicBody;
     protected final SpriteBatch batch;
+    protected final OrthographicCamera camera;
+    protected float mass = 0f;
     public final BoundingRectangle boundingRectangle =
         new BoundingRectangle(0.4f * PPM * scale, 0.24f * scale * PPM);
 
@@ -39,6 +42,7 @@ public abstract class Entity {
      */
     public Entity(SpriteBatch batch) {
         this.batch = batch;
+        this.camera = LevelScreen.getInstance().camera;
         //TODO: Change default values
         this.health = 100;
         this.maxHealth = 100;
@@ -114,13 +118,26 @@ public abstract class Entity {
         shape.setAsBox(boundingRectangle.width() / 2, boundingRectangle.height() / 2);
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-        fixtureDef.density = 10000f;
+        fixtureDef.density = mass;
         fixtureDef.friction = 0.3f;
         fixtureDef.filter.categoryBits = BodyBits.ENTITY;
         fixtureDef.filter.maskBits = BodyBits.ENTITY_MASK;
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
         body.setUserData(box2dUserData);
+        shape.dispose();
+
+
+        shape = new PolygonShape();
+        shape.setAsBox(boundingRectangle.width() / 8f, boundingRectangle.height() / 8f);
+        fixtureDef = new FixtureDef();
+        fixtureDef.filter.categoryBits = BodyBits.ENEMY;
+        fixtureDef.filter.maskBits = BodyBits.ENEMY_MASK;
+        fixtureDef.shape = shape;
+        fixtureDef.restitution = 0f;
+        fixtureDef.density = mass;
+        fixtureDef.friction = 0f;
+        this.body.createFixture(fixtureDef);
         shape.dispose();
     }
 

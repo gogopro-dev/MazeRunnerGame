@@ -1,13 +1,9 @@
 package de.tum.cit.fop.maze.level;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
-import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Entity.Enemy;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.BoundingRectangle;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
@@ -49,9 +45,9 @@ public class EnemyManager {
         );
         float rayLength;
         if (enemy.isFacingRight() == playerPosition.onTheRightFrom(enemyPosition)) {
-            rayLength = enemy.visionRange;
+            rayLength = enemy.getConfig().attributes().visionRange() * Globals.CELL_SIZE_METERS * 3;
         } else {
-            rayLength = enemy.visionRange / 2f;
+            rayLength = enemy.getConfig().attributes().visionRange() * Globals.CELL_SIZE_METERS * 3 / 2f;
         }
         if (enemyPosition.distance(levelScreen.player.getPosition()) > rayLength) {
             return false;
@@ -156,14 +152,17 @@ public class EnemyManager {
      * @param delta The time since the last frame
      */
     public void tickEnemies(float delta) {
+        boolean playerChased = false;
         accumulator += delta;
         if (accumulator >= 0.10f) {
             accumulator = 0;
             recalculatePaths();
         }
         for (Enemy enemy : enemies) {
+            playerChased |= enemy.isMovingToPlayer();
             tickEnemy(enemy);
         }
+        levelScreen.player.setBeingChased(playerChased);
     }
 
     /**
@@ -185,6 +184,7 @@ public class EnemyManager {
             }
             enemy.followPath();
         }
+
         /// Todo @Hlib move randomly*/
     }
 

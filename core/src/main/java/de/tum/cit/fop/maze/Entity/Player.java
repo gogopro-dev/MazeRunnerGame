@@ -2,16 +2,18 @@ package de.tum.cit.fop.maze.Entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.*;
 import de.tum.cit.fop.maze.Collectable;
+import de.tum.cit.fop.maze.essentials.AbsolutePoint;
+import de.tum.cit.fop.maze.essentials.DebugRenderer;
+import de.tum.cit.fop.maze.level.LevelScreen;
 
 /**
  * Represents the player character in the game.
  */
 public class Player extends Entity {
-    private final HUD hud;
-    private final OrthographicCamera camera;
     private final Animation<TextureRegion> idleAnimation;
     private final Animation<TextureRegion> movementAnimation;
     private final Animation<TextureRegion> hitAnimation;
@@ -25,18 +27,18 @@ public class Player extends Entity {
     private boolean facingRight = true;
     private boolean canHit = true;
     private boolean isHoldingTorch = true;
+    private boolean beingChased = false;
     private final float mapWidth;
     private final float mapHeight;
-
     /**
      * Creates a new player character.
-     * @param camera The camera to follow the player
      * @param mapWidth The width of the map in pixels
      * @param mapHeight The height of the map in pixels
      */
-    public Player(OrthographicCamera camera, float mapWidth, float mapHeight, SpriteBatch batch) {
+    public Player(float mapWidth, float mapHeight, SpriteBatch batch) {
 
         super(batch);
+        this.mass = 5f;
         this.box2dUserData = "player";
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
@@ -44,7 +46,6 @@ public class Player extends Entity {
         /// Player can hit if not holding torch
         canHit = !isHoldingTorch;
 
-        this.camera = camera;
 
         TextureAtlas animAtlas = new TextureAtlas(Gdx.files.internal("anim/player/character.atlas"));
         /// Load idle animation
@@ -67,7 +68,6 @@ public class Player extends Entity {
         movementTorchAnimation = new Animation<>(1f /40f * 3f, animAtlas.findRegions("Character_move_torch"));
         movementTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        hud = new HUD(health, maxHealth);
         // To test the HUD, uncomment the following line
 //        hud.forTesting();
 
@@ -78,8 +78,7 @@ public class Player extends Entity {
      */
     public void render(float deltaTime) {
         /// Stamina regeneration?
-        hud.restoreStamina(1f/60f);
-        hud.render();
+
         elapsedTime += deltaTime;
         if (isHitting) {
             hitElapsedTime += deltaTime;
@@ -105,6 +104,7 @@ public class Player extends Entity {
         float frameWidth = currentFrame.getRegionWidth() * scale;
         float frameHeight = currentFrame.getRegionHeight() * scale;
         batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
+
 
 
         /// Check if hit animation is finished
@@ -187,34 +187,40 @@ public class Player extends Entity {
         float cameraHeight = camera.viewportHeight;
 
         /// Calculate screen boundaries with consistent ratios
-        /// 0.3f is a constant that can be adjusted to change the camera movement threshold
-        /// Less than 0.2f: Player can go out ob bounds of the screen
-        /// More than 0.4f: Camera moves too early
-        float boundaryLeft = cameraX - cameraWidth * 0.3f;
-        float boundaryRight = cameraX + cameraWidth * 0.3f;
-        float boundaryBottom = cameraY - cameraHeight * 0.3f;
-        float boundaryTop = cameraY + cameraHeight * 0.3f;
+        /// The less the constant is, the earlier the camera will start moving
+        float constX = 0.2f;
+        float constY = 0.1f;
 
-        float playerX = getSpriteX();
-        float playerY = getSpriteY();
+
+        float boundaryLeft = cameraX - cameraWidth * constX;
+        float boundaryRight = cameraX + cameraWidth * constX;
+        float boundaryBottom = cameraY - cameraHeight * constY;
+        float boundaryTop = cameraY + cameraHeight * constY;
+        DebugRenderer.getInstance().drawRectangle(
+            new AbsolutePoint(boundaryLeft, boundaryBottom),
+            new AbsolutePoint(boundaryRight, boundaryTop), Color.OLIVE
+        );
+        float playerX = getPosition().x();
+        float playerY = getPosition().y();
 
         /// Calculate new camera position based on player position
 
         float newCameraX = camera.position.x;
         float newCameraY = camera.position.y;
 
+
         /// Handle X-axis camera movement
         if (playerX < boundaryLeft) {
-            newCameraX = playerX + cameraWidth * 0.3f;
+            newCameraX = playerX + cameraWidth * constX;
         } else if (playerX > boundaryRight) {
-            newCameraX = playerX - cameraWidth * 0.3f;
+            newCameraX = playerX - cameraWidth * constX;
         }
 
         /// Handle Y-axis camera movement
         if (playerY < boundaryBottom) {
-            newCameraY = playerY + cameraHeight * 0.3f;
+            newCameraY = playerY + cameraHeight * constY;
         } else if (playerY > boundaryTop) {
-            newCameraY = playerY - cameraHeight * 0.3f;
+            newCameraY = playerY - cameraHeight * constY;
         }
 
         /// Clamp camera position to map boundaries, accounting for zoom
@@ -245,25 +251,24 @@ public class Player extends Entity {
     @Override
     public void takeDamage(int damage) {
         super.takeDamage(damage);
-        hud.takeDmg(damage);
     }
 
     @Override
     public void heal(int amount) {
         super.heal(amount);
-        hud.heal(amount);
+        //hud.hea(amount);
     }
 
     @Override
     public void useStamina(int amount) {
         super.useStamina(amount);
-        hud.useStamina(amount);
+        //hud.useStamina(amount);
     }
 
     @Override
     public void restoreStamina(int amount) {
         super.restoreStamina(amount);
-        hud.restoreStamina(amount);
+        //hud.restoreStamina(amount);
     }
 
     public void collectItem(Collectable item) {
@@ -272,8 +277,15 @@ public class Player extends Entity {
     public void collectBuff(Collectable buff) {
         // TODO: animation when collecting buff
 
-        hud.addStatus(buff.getTextureName());
+        // hud.addStatus(buff.getTextureName());
     }
 
+    public boolean isBeingChased() {
+        return beingChased;
+    }
+
+    public void setBeingChased(boolean beingChased) {
+        this.beingChased = beingChased;
+    }
 
 }

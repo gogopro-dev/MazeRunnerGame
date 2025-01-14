@@ -12,7 +12,6 @@ import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import java.util.*;
 
 public class Enemy extends Entity {
-    public final float visionRange = Globals.CELL_SIZE_METERS * 3 * 6;
     private Animation<TextureRegion> idleAnimation;
     private Animation<TextureRegion> movementAnimation;
     private Animation<TextureRegion> movementTPAnimation;
@@ -44,17 +43,7 @@ public class Enemy extends Entity {
     @Override
     public void spawn(float x, float y, World world) {
         super.spawn(x, y, world);
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(boundingRectangle.width() / 6f, boundingRectangle.height() / 6f);
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = BodyBits.ENEMY;
-        fixtureDef.filter.maskBits = BodyBits.ENEMY_MASK;
-        fixtureDef.shape = shape;
-        fixtureDef.restitution = 0f;
-        fixtureDef.density = 10000f;
-        fixtureDef.friction = 0f;
-        this.body.createFixture(fixtureDef);
-        shape.dispose();
+
 
     }
 
@@ -82,7 +71,8 @@ public class Enemy extends Entity {
         // Draw the current frame
         float frameWidth = currentFrame.getRegionWidth() * scale;
         float frameHeight = currentFrame.getRegionHeight() * scale;
-
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
         if (this.body != null && isMoving()) {
             this.facingRight = (this.body.getLinearVelocity().x > 0 + config.attributes.speed / 2f);
 
@@ -142,7 +132,8 @@ public class Enemy extends Entity {
 
 
     public record EnemyConfig (String pathToAnim, EnemyType enemyType, Attributes attributes) {
-        public record Attributes (int speed, int heal, int maxHealth, int damage){}
+        public record Attributes(float speed, float heal, float maxHealth, float damage, float visionRange) {
+        }
     }
 
     public boolean isMoving() {
@@ -191,4 +182,9 @@ public class Enemy extends Entity {
             }
         }
     }
+
+    public EnemyConfig getConfig() {
+        return config;
+    }
+
 }
