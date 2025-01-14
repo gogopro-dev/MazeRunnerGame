@@ -11,6 +11,7 @@ import de.tum.cit.fop.maze.Collectable;
  */
 public class Player extends Entity {
     private final HUD hud;
+    private final HUDv2 hudv2;
     private final OrthographicCamera camera;
     private final SpriteBatch spriteBatch;
     private final Animation<TextureRegion> idleAnimation;
@@ -37,6 +38,8 @@ public class Player extends Entity {
      */
     public Player(OrthographicCamera camera, float mapWidth, float mapHeight) {
         super(mapWidth, mapHeight);
+        health = 91;
+        maxHealth = 100;
 
         /// Real map size is twice as big
         this.mapWidth = mapWidth * 2;
@@ -71,6 +74,8 @@ public class Player extends Entity {
         movementTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         hud = new HUD(health, maxHealth);
+        hudv2 = new HUDv2(health, maxHealth, spriteBatch);
+        hudv2.createDamageButton();
         // To test the HUD, uncomment the following line
 //        hud.forTesting();
 
@@ -81,8 +86,7 @@ public class Player extends Entity {
      */
     public void render(float deltaTime) {
         /// Stamina regeneration?
-        hud.restoreStamina(1f/60f);
-        hud.render();
+//        hud.restoreStamina(1f/60f);
         elapsedTime += deltaTime;
         if (isHitting) {
             hitElapsedTime += deltaTime;
@@ -92,9 +96,10 @@ public class Player extends Entity {
 
         camera.update();
         spriteBatch.setProjectionMatrix(camera.combined);
-
         /// Begin rendering
         spriteBatch.begin();
+
+        hudv2.render(deltaTime);
 
         /// Get the current animation frame
         TextureRegion currentFrame = (isHitting ? hitAnimation : currentAnimation)
