@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze.Entity;
+package de.tum.cit.fop.maze.entities.tile;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -6,10 +6,13 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.physics.box2d.*;
 import com.google.gson.Gson;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
-public class Trap {
+import java.util.Arrays;
+
+public class Trap extends TileEntity {
     private static final String TRAP_ANIMATION_PATH = "anim/traps/traps.atlas";
     private Animation<TextureRegion> trapAnimation;
     private float elapsedTime = 0f;
@@ -19,38 +22,33 @@ public class Trap {
     private SpriteBatch spriteBatch;
     private TextureRegion currentFrame;
     private TrapAttributes trapAttributes;
+    private Body body;
     private final String type;
-    public Trap(OrthographicCamera camera, String type) {
 
-        spriteBatch = LevelScreen.getInstance().batch;
-
+    public Trap(String type) {
+        super(0, 0);
+        Gson gson = new Gson();
+        TrapAttributes attributes = Arrays.stream(
+            gson.fromJson(Gdx.files.internal("anim/traps/trapConfig.json").reader(), TrapAttributes[].class)
+        ).filter(attribute -> attribute.type.equals(type)).findFirst().get();
+        this.width = attributes.width;
+        this.height = attributes.height;
+        this.trapAttributes = attributes;
         this.type = type;
+        this.camera = LevelScreen.getInstance().camera;
+        this.spriteBatch = LevelScreen.getInstance().batch;
 
-        this.camera = camera;
-
-        loadAnimations();
         TextureAtlas textureAtlas = new TextureAtlas(Gdx.files.internal(TRAP_ANIMATION_PATH));
         trapAnimation = new Animation<>(trapAttributes.frameDuration, textureAtlas.findRegions(type), Animation.PlayMode.NORMAL);
         /// trapAnimation keyframe's stateTime:
         /// 0.0f, 1/6f, 1/4f, 1/2f
     }
 
-    public void loadAnimations() {
-        Gson gson = new Gson();
-        TrapAttributes[] TrapAttributes = gson.fromJson(Gdx.files.internal("anim/traps/trapConfig.json").reader(), TrapAttributes[].class);
-        for (TrapAttributes attribute : TrapAttributes) {
-            if (attribute.type.equals(type)) {
-                this.trapAttributes = attribute;
-            }
-        }
 
+    public record TrapAttributes
+        (String type, float frameDuration, float damage, float cooldown, int height, int width) {
     }
 
-    public record TrapAttributes (String type, float frameDuration, float damage, float cooldown) {}
-
-    public void activate() {
-//        trapAnimation.
-    }
 
     public void render(float deltaTime) {
         elapsedTime += deltaTime;
@@ -77,6 +75,17 @@ public class Trap {
             currentFrame = trapAnimation.getKeyFrame(trapAnimation.getAnimationDuration(), false);
         }
         //TODO: change x and y position
-        spriteBatch.draw(currentFrame, LevelScreen.getInstance().player.getPosition().x()+1, LevelScreen.getInstance().player.getPosition().y()+1, 1, 1);
+        spriteBatch.draw(
+            currentFrame,
+            getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
+            getSpriteDrawWidth(), getSpriteDrawHeight()
+        );
     }
+
+    public boolean isDamaging() {
+        return isActivated && elapsedTime > 0.15f;
+    }
+
+
+
 }

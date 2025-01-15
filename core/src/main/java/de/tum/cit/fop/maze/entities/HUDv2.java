@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze.Entity;
+package de.tum.cit.fop.maze.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -23,7 +23,7 @@ public class HUDv2 {
     private final Stage stage;
     private final List<List<Image>> matrixHPBar;
     private final Map<String, Image> statusBar;
-    private final float heartsAnimationFrameDuration;
+    private final float heartsAnimationFrameDuration = 1/5f;
     private final SpriteBatch spriteBatch;
 
 
@@ -37,7 +37,8 @@ public class HUDv2 {
     private ProgressBar staminaBar;
     private float stamina = 100f;
     private final float staminaConsumptionSpeed = 0.5f;
-    private final float staminaBarPadding = 10f;
+    private final float staminaBarScaling = 1.5f;
+    private final float borderAlignmentX = 22f;
 
     private final float statusBarSpacingFromHPBar = 10f;
     private final float statusBarInnerSpacing = 5f;
@@ -73,7 +74,6 @@ public class HUDv2 {
         matrixHPBar = new ArrayList<>();
         statusBar = new HashMap<>();
 
-        heartsAnimationFrameDuration = 1f;
 
         Gdx.input.setInputProcessor(this.stage);
         this.health = player.health;
@@ -211,14 +211,15 @@ public class HUDv2 {
 
 
     public void createStaminaBar() {
-        int width = 300;
-        int height = 30;
+
+        int width = (int) (300 * staminaBarScaling);
+        int height = (int) (20 * staminaBarScaling);
 
         staminaBar = new ProgressBar(
             0f, stamina, staminaConsumptionSpeed, false, new ProgressBar.ProgressBarStyle()
         );
 
-        staminaBar.getStyle().background = commonFunctions.getColoredDrawable(width, height, Color.WHITE);
+        staminaBar.getStyle().background = commonFunctions.getColoredDrawable(width, height, Color.DARK_GRAY);
         staminaBar.getStyle().knob = commonFunctions.getColoredDrawable(0, height, Color.GOLD);
         staminaBar.getStyle().knobBefore = commonFunctions.getColoredDrawable(width, height, Color.GOLD);
 
@@ -228,25 +229,26 @@ public class HUDv2 {
         staminaBar.setAnimateDuration(0.25f);
 
 
-        float stBarX = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getX() + staminaBarPadding;
-        float stBarY = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getY() - spacingBetwHPBarAndStaminaBar;
+        float stBarX = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getX();
+        float stBarY = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getY() - spacingBetwHPBarAndStaminaBar - height;
 
 
-        staminaBar.setPosition(stBarX, stBarY);
+        staminaBar.setPosition(stBarX + borderAlignmentX*staminaBarScaling, stBarY);
 
 
         stage.addActor(staminaBar);
-        setStaminaBarBorder(width, height, stBarX, stBarY);
+        setStaminaBarBorder((int) (width/staminaBarScaling), (int) (height/staminaBarScaling), stBarX, stBarY + height);
     }
 
     private void setStaminaBarBorder(int width, int height, float stBarX, float stBarY) {
         //TODO repack Atlas with proper name and get rid of "magic numbers"
         Image staminaBarBorder = new Image(atlas.findRegion("staminaBarBorder"));
-        float sizeXMultiplier = width/staminaBarBorder.getWidth();
-        float sizeYMultiplier = height/staminaBarBorder.getHeight();
-//        staminaBarBorder.setSize(width +32, height + 18);
-        staminaBarBorder.setSize(width *sizeXMultiplier, height * sizeYMultiplier);
-        staminaBarBorder.setPosition(stBarX -22, stBarY - 8);
+        float borderWidth = (width +33)*staminaBarScaling;
+        float borderHeight = (height + 22)*staminaBarScaling;
+        float borderAlignmentY = (height+10)*staminaBarScaling;
+
+        staminaBarBorder.setSize(borderWidth, borderHeight);
+        staminaBarBorder.setPosition(stBarX, stBarY - borderAlignmentY);
         stage.addActor(staminaBarBorder);
     }
 

@@ -6,7 +6,7 @@ package de.tum.cit.fop.maze.level.worldgen;
  * @param wall wall we can break to get to the other cell
  * @param b second cell
  */
-public record PassagePossibility (MazeCell a, MazeCell wall, MazeCell b) {
+public record PassagePossibility(GeneratorCell a, GeneratorCell wall, GeneratorCell b) {
     public PassagePossibility {
         if (a.i == b.i && a.j == b.j) {
             throw new IllegalArgumentException("a and b cannot be the same cell");

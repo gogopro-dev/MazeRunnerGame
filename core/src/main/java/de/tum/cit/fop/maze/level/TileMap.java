@@ -1,6 +1,5 @@
 package de.tum.cit.fop.maze.level;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -16,7 +15,7 @@ import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.level.worldgen.CellType;
-import de.tum.cit.fop.maze.level.worldgen.MazeCell;
+import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +45,7 @@ public class TileMap implements Disposable {
         generator.generate();
         this.width = generator.width * 3;
         this.height = generator.height * 3;
-
+        System.out.println(generator);
         widthMeters = this.width * CELL_SIZE_METERS;
         heightMeters = this.height * CELL_SIZE_METERS;
         boolean[][] wallMap = new boolean[this.height][this.width];
@@ -74,7 +73,7 @@ public class TileMap implements Disposable {
         for (int i = generator.height - 1; i >= 0; --i) {
             for (int j = generator.width - 1; j >= 0; --j) {
 
-                MazeCell cell = generator.grid.get(i).get(j);
+                GeneratorCell cell = generator.grid.get(i).get(j);
                 int x = startJ + j * 3;
                 int y = layer.getHeight() - (startI + i * 3);
                 /// All non-walkable cells require hitboxes
@@ -110,6 +109,11 @@ public class TileMap implements Disposable {
 
                 }
 
+                /// Trap
+                if (cell.getCellType() == CellType.TRAP) {
+
+                }
+
             }
         }
         reverseCollisionMapRows(wallMap);
@@ -118,6 +122,22 @@ public class TileMap implements Disposable {
 
     }
 
+    /**
+     * Spawn a random trap at x y position
+     *
+     * @param x the x position <b>(must be cell center)</b>
+     * @param y the y position <b>(must be cell center)</b>
+     */
+    private void spawnRandomTrap(int x, int y) {
+
+    }
+
+
+    /**
+     * Reverse the collision map rows
+     *
+     * @param collisionMap the collision map with the cells
+     */
     private void reverseCollisionMapRows(boolean[][] collisionMap) {
         for (int i = 0; i < height / 2; ++i) {
             for (int j = 0; j < width; ++j) {

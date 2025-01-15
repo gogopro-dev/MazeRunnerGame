@@ -5,7 +5,7 @@ import de.tum.cit.fop.maze.level.worldgen.rooms.Room;
 /**
  * Used to represent a cell in the maze.
  */
-public final class MazeCell {
+public final class GeneratorCell {
     /// Row index
     public final int i;
     /// Column index
@@ -15,7 +15,7 @@ public final class MazeCell {
     /// The room the cell is part of
     private @Null Room room = null;
 
-    public MazeCell(int i, int j, CellType cellType) {
+    public GeneratorCell(int i, int j, CellType cellType) {
         this.i = i;
         this.j = j;
         this.cellType = cellType;
@@ -26,7 +26,7 @@ public final class MazeCell {
      * @param i - row index
      * @param j - column index
      */
-    public MazeCell(int i, int j) {
+    public GeneratorCell(int i, int j) {
         this.i = i;
         this.j = j;
         this.cellType = CellType.NONE;
@@ -66,7 +66,7 @@ public final class MazeCell {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof MazeCell other)) return false;
+        if (!(obj instanceof GeneratorCell other)) return false;
         return i == other.i && j == other.j;
     }
 }

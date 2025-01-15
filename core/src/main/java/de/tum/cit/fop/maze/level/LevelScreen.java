@@ -11,22 +11,23 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import de.tum.cit.fop.maze.Entity.*;
-import de.tum.cit.fop.maze.essentials.AbsolutePoint;
+import de.tum.cit.fop.maze.entities.*;
 import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.entities.tile.TileEntityManager;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
+import de.tum.cit.fop.maze.entities.tile.TileEntityContactListener;
 
-import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static de.tum.cit.fop.maze.Globals.MPP;
 import static de.tum.cit.fop.maze.Globals.PPM;
 
 public class LevelScreen implements Screen {
-
     private static LevelScreen instance = null;
+
     public final float w, h;
-    EnemyManager manager;
+    private final EnemyManager enemyManager;
+    public final TileEntityManager tileEntityManager;
     public final Viewport viewport;
     public TileMap map;
     public final OrthographicCamera camera;
@@ -69,8 +70,8 @@ public class LevelScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
         DebugRenderer.getInstance().setProjectionMatrix(camera.combined);
         batch.begin();
-
-        manager.renderEnemies(delta);
+        tileEntityManager.render(delta);
+        enemyManager.render(delta);
         player.render(delta);
         batch.end();
         hud.render(delta);
@@ -106,18 +107,17 @@ public class LevelScreen implements Screen {
     public void dispose() {
         map.dispose();
         player.dispose();
-        manager.dispose();
+        enemyManager.dispose();
     }
 
     public LevelScreen() {
         if (instance != null) {
             throw new IllegalStateException("LevelScreen already exists");
         }
-
-
         instance = this;
+
         world = new World(new Vector2(0, 0), true);
-        world.setContactListener(new EntityContactListener());
+        world.setContactListener(new TileEntityContactListener());
 
         w = Gdx.graphics.getWidth() / PPM;
         h = Gdx.graphics.getHeight() / PPM;
@@ -136,39 +136,20 @@ public class LevelScreen implements Screen {
         player.spawn(map.widthMeters / 2, map.heightMeters / 2, world);
 
         /// Set camera at the center of the players position in Box2D world
-        camera.position.set(player.getSpriteX(),player.getSpriteY(), 0);
+        camera.position.set(player.getPosition().x(), player.getPosition().y(), 0);
         camera.zoom = 1.25f;
         camera.update();
 
         hud = new HUDv2(player);
-
-
-        /*enemy = new Enemy(EnemyType.SKELETON, camera, batchEnemy);
-        enemy.spawn(map.widthMeters / 2 - 10, map.heightMeters / 2 + 15.5f, world);
-        List<AbsolutePoint> path = map.pathfinder.aStar(
-            enemy, new AbsolutePoint(player)
-        );
-        // draw a dot at each point in the path
-        if (path != null) {
-            for (AbsolutePoint point : path) {
-                BodyDef bodyDef = new BodyDef();
-                bodyDef.type = BodyDef.BodyType.StaticBody;
-                bodyDef.position.set(point.x(), point.y());
-                Body body = world.createBody(bodyDef);
-                CircleShape shape = new CircleShape();
-                shape.setRadius(0.1f);
-                body.createFixture(shape, 0.0f);
-                shape.dispose();
-            }
-        }*/
-        manager = new EnemyManager(this);
-        manager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 10);
-        manager.createEnemy(new Enemy(EnemyType.SKELETON, batch), 8.3f, 12);
-        manager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.2f);
-        manager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.4f);
-        manager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.6f);
-        manager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.7f);
-        manager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.1f, 11.5f);
+        tileEntityManager = new TileEntityManager();
+        enemyManager = new EnemyManager();
+        /*enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 10);
+        enemyManager.createEnemy(new Enemy(EnemyType.SKELETON, batch), 8.3f, 12);
+        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.2f);
+        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.4f);
+        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.6f);
+        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.7f);
+        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.1f, 11.5f);*/
 
 //        enemy2 = new Enemy(map.widthMeters, map.heightMeters, EnemyType.ZOMBIE, camera);
 

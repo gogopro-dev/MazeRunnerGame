@@ -1,9 +1,6 @@
 package de.tum.cit.fop.maze.essentials;
 
 import com.badlogic.gdx.math.Vector2;
-import de.tum.cit.fop.maze.Entity.Entity;
-import de.tum.cit.fop.maze.Globals;
-import de.tum.cit.fop.maze.level.LevelScreen;
 
 /**
  * Represents a point in the world with absolute coordinates with some handy utility methods.

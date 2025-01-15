@@ -1,6 +1,7 @@
 package de.tum.cit.fop.maze.level.worldgen;
 
 
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.level.worldgen.rooms.Entrance;
 import de.tum.cit.fop.maze.level.worldgen.rooms.Room;
 import de.tum.cit.fop.maze.level.worldgen.rooms.Shop;
@@ -28,13 +29,13 @@ import java.util.*;
 public final class MazeGenerator {
     /// Auxiliary arrays
     /// The path from the current cell to the next cell
-    private final HashMap<MazeCell, Integer> path;
+    private final HashMap<GeneratorCell, Integer> path;
     ///  The visited cells
     private final short[][] visited;
     /// The wilson's cell grid of booleans to mark walls
     private final List<List<Boolean>> willsonsCellGrid;
-    private final ArrayList<MazeCell> visitedCells;
-    private final ArrayList<MazeCell> unvisitedCells;
+    private final ArrayList<GeneratorCell> visitedCells;
+    private final ArrayList<GeneratorCell> unvisitedCells;
     /// The directions to move in the maze
     private final List<List<Integer>> directions = Arrays.asList(
             Arrays.asList(0, 1),
@@ -51,7 +52,7 @@ public final class MazeGenerator {
     public final int height;
 
     /// Final grid
-    public final ArrayList<ArrayList<MazeCell>> grid = new ArrayList<>();
+    public final ArrayList<ArrayList<GeneratorCell>> grid = new ArrayList<>();
 
     private final Random random;
 
@@ -101,7 +102,7 @@ public final class MazeGenerator {
         for (int i = 0; i < generatorHeight; i++) {
             for (int j = 0; j < generatorWidth; j++) {
                 if (i % 2 == 0 && j % 2 == 0) {
-                    unvisitedCells.add(new MazeCell(i, j));
+                    unvisitedCells.add(new GeneratorCell(i, j));
                 }
             }
         }
@@ -113,7 +114,7 @@ public final class MazeGenerator {
     /**
      * @param current The cell to set.
      */
-    private void setTrue(MazeCell current){
+    private void setTrue(GeneratorCell current) {
         willsonsCellGrid.get(current.i).set(current.j, true);
     }
 
@@ -125,30 +126,51 @@ public final class MazeGenerator {
             new Shop(),
             new SpecialRoom()
         ));
+
         // Surround grid with walls
         grid.add(0, new ArrayList<>());
         grid.add(new ArrayList<>());
         for (int i = 0; i < width; i++) {
-            grid.get(0).add(new MazeCell(0, i, CellType.WALL));
-            grid.get(height - 1).add(new MazeCell(height - 1, i, CellType.WALL));
+            grid.get(0).add(new GeneratorCell(0, i, CellType.WALL));
+            grid.get(height - 1).add(new GeneratorCell(height - 1, i, CellType.WALL));
         }
         for (int i = 0; i < height; i++) {
-            grid.get(i).add(0, new MazeCell(i, 0, CellType.WALL));
-            grid.get(i).add(new MazeCell(i, width - 1, CellType.WALL));
+            grid.get(i).add(0, new GeneratorCell(i, 0, CellType.WALL));
+            grid.get(i).add(new GeneratorCell(i, width - 1, CellType.WALL));
+        }
+        generateTraps();
+    }
+
+    private void generateTraps() {
+        for (int i = 1; i < height - 1; i++) {
+            for (int j = 1; j < width - 1; j++) {
+                GeneratorCell current = grid.get(i).get(j);
+                GeneratorCell above = grid.get(i - 1).get(j);
+                GeneratorCell below = grid.get(i + 1).get(j);
+                GeneratorCell left = grid.get(i).get(j - 1);
+                GeneratorCell right = grid.get(i).get(j + 1);
+                if (!current.getCellType().isRoom() && current.getCellType().isPath() &&
+                    (
+                        (above.getCellType().isWall() && below.getCellType().isWall()) ||
+                            (left.getCellType().isWall() && right.getCellType().isWall())
+                    ) && random.nextDouble() < Globals.TRAP_SPAWN_CHANCE) {
+                    current.setCellType(CellType.TRAP);
+                }
+            }
         }
     }
 
     /** Generates maze walls. */
     private void generateMazeWalls() {
         this.clearArrays();
-        MazeCell current = unvisitedCells.remove(
+        GeneratorCell current = unvisitedCells.remove(
                 random.nextInt(unvisitedCells.size())
         );
         visitedCells.add(current);
         setTrue(current);
 
         while (!unvisitedCells.isEmpty()) {
-            MazeCell first = unvisitedCells.get(random.nextInt(unvisitedCells.size()));
+            GeneratorCell first = unvisitedCells.get(random.nextInt(unvisitedCells.size()));
             current = first;
             do {
                 int directionIndex = random.nextInt(4);
@@ -169,7 +191,7 @@ public final class MazeGenerator {
 
                 // Look at direction at next cell
                 int directionIndex = path.get(current);
-                MazeCell crossed = getNextCell(current, directionIndex, 1);
+                GeneratorCell crossed = getNextCell(current, directionIndex, 1);
                 setTrue(crossed);
                 current = getNextCell(current, directionIndex, 2);
                 if (visitedCells.contains(current)) {
@@ -181,12 +203,12 @@ public final class MazeGenerator {
 
         /// Fill the final maze grid
         for (int i = 0; i < generatorHeight; i++) {
-            ArrayList<MazeCell> row = new ArrayList<>();
+            ArrayList<GeneratorCell> row = new ArrayList<>();
             for (int j = 0; j < generatorWidth; j++) {
                 if (willsonsCellGrid.get(i).get(j)) {
-                    row.add(new MazeCell(i, j, CellType.PATH));
+                    row.add(new GeneratorCell(i, j, CellType.PATH));
                 } else {
-                    row.add(new MazeCell(i, j, CellType.WALL));
+                    row.add(new GeneratorCell(i, j, CellType.WALL));
                 }
             }
             grid.add(row);
@@ -237,7 +259,7 @@ public final class MazeGenerator {
     private void generateRoom(Room room) {
         clearVisited();
         boolean generated = false;
-        Queue<MazeCell> queue = new LinkedList<>();
+        Queue<GeneratorCell> queue = new LinkedList<>();
 
         if (room.generatorStrategy == GeneratorStrategy.CENTER) {
             int centerI = generatorHeight / 2;
@@ -264,7 +286,7 @@ public final class MazeGenerator {
         } else if (room.generatorStrategy == GeneratorStrategy.AROUND_CENTER) {
             int centerI = generatorHeight / 2;
             int centerJ = generatorWidth / 2;
-            List<MazeCell> candidates = new ArrayList<>();
+            List<GeneratorCell> candidates = new ArrayList<>();
             for (int i = centerI - generatorHeight / 3; i < centerI + generatorHeight / 3; ++i) {
                 candidates.add(grid.get(i).get(centerJ - generatorHeight / 3));
                 candidates.add(grid.get(i).get(centerJ + generatorHeight / 3));
@@ -280,7 +302,7 @@ public final class MazeGenerator {
 
         while (!queue.isEmpty()) {
 
-            MazeCell current = queue.poll();
+            GeneratorCell current = queue.poll();
             int i = current.i;
             int j = current.j;
             if (visited[i][j] > 0) {
@@ -289,10 +311,10 @@ public final class MazeGenerator {
             visited[i][j] = 1;
             if (isPossibleToGenerateRoom(i, j, room)) {
                 generated = true;
-                List<MazeCell> roomCells = new ArrayList<>();
+                List<GeneratorCell> roomCells = new ArrayList<>();
                 for (int k = i; k < i + room.height; k++) {
                     for (int l = j; l < j + room.width; l++) {
-                        MazeCell cell = grid.get(k).get(l);
+                        GeneratorCell cell = grid.get(k).get(l);
                         roomCells.add(cell);
                         cell.setRoom(room);
                     }
@@ -381,7 +403,7 @@ public final class MazeGenerator {
                         (topWall && rightWall && rightDiagonalTop) ||
                         (bottomWall && leftWall && leftDiagonalBottom) ||
                         (bottomWall && rightWall && rightDiagonalBottom)) {
-                    MazeCell temp = grid.get(i).get(j);
+                    GeneratorCell temp = grid.get(i).get(j);
                     // Check so that we are consistent with the cell type (room or not)
                     temp.setCellType(
                             temp.getRoom() == null ? CellType.WALL : CellType.ROOM_WALL
@@ -404,13 +426,13 @@ public final class MazeGenerator {
 
         short counter = 1;
         clearVisited();
-        Queue<MazeCell> queue = new LinkedList<>();
+        Queue<GeneratorCell> queue = new LinkedList<>();
 
         // Flood fill disjoint components
         while (true) {
             for (int i = 0; i < generatorHeight; i++) {
                 for (int j = 0; j < generatorWidth; j++) {
-                    MazeCell cell = grid.get(i).get(j);
+                    GeneratorCell cell = grid.get(i).get(j);
                     if (cell.getCellType().isWalkable() && visited[i][j] == 0) {
                         queue.add(cell);
                         break;
@@ -422,7 +444,7 @@ public final class MazeGenerator {
             }
             if (queue.isEmpty()) break;
             while(!queue.isEmpty()) {
-                MazeCell current = queue.poll();
+                GeneratorCell current = queue.poll();
                 int i = current.i;
                 int j = current.j;
                 if (visited[i][j] > 0 || !grid.get(i).get(j).getCellType().isWalkable()) {
@@ -443,12 +465,12 @@ public final class MazeGenerator {
         // Find all possible passages
         for (int i = 0; i < generatorHeight; i++) {
             for (int j = 0; j < generatorWidth; j++) {
-                MazeCell cell = grid.get(i).get(j);
+                GeneratorCell cell = grid.get(i).get(j);
                 if (cell.getCellType() == CellType.WALL) {
-                    MazeCell above = i - 1 >= 0 ? grid.get(i - 1).get(j) : null;
-                    MazeCell below = i + 1 < generatorHeight ? grid.get(i + 1).get(j) : null;
-                    MazeCell left = j - 1 >= 0 ? grid.get(i).get(j - 1) : null;
-                    MazeCell right = j + 1 < generatorWidth ? grid.get(i).get(j + 1) : null;
+                    GeneratorCell above = i - 1 >= 0 ? grid.get(i - 1).get(j) : null;
+                    GeneratorCell below = i + 1 < generatorHeight ? grid.get(i + 1).get(j) : null;
+                    GeneratorCell left = j - 1 >= 0 ? grid.get(i).get(j - 1) : null;
+                    GeneratorCell right = j + 1 < generatorWidth ? grid.get(i).get(j + 1) : null;
 
                     if (above != null && below != null &&
                             above.getCellType() == CellType.PATH && below.getCellType() == CellType.PATH &&
@@ -467,9 +489,9 @@ public final class MazeGenerator {
         /// Randomize the possibilities
         Collections.shuffle(possibilities, random);
         for (PassagePossibility possibility : possibilities) {
-            MazeCell a = possibility.a();
-            MazeCell b = possibility.b();
-            MazeCell wall = possibility.wall();
+            GeneratorCell a = possibility.a();
+            GeneratorCell b = possibility.b();
+            GeneratorCell wall = possibility.wall();
             if (dsu.same(visited[a.i][a.j], visited[b.i][b.j])) {
                 continue;
             }
@@ -484,11 +506,11 @@ public final class MazeGenerator {
      * @param current The current cell.
      * @param directionIndex The index of the direction.
      * @param distance The distance to the next cell.
-     * @return {@link MazeCell} The next cell.
+     * @return {@link GeneratorCell} The next cell.
      */
-    private MazeCell getNextCell(MazeCell current, int directionIndex, int distance) {
+    private GeneratorCell getNextCell(GeneratorCell current, int directionIndex, int distance) {
         List<Integer> direction = directions.get(directionIndex);
-        return new MazeCell(
+        return new GeneratorCell(
                 current.i + direction.get(0) * distance,
                 current.j + direction.get(1) * distance
         );
@@ -500,8 +522,8 @@ public final class MazeGenerator {
      * @param directionIndex The index of the direction.
      * @return {@code True} if the direction is valid, false otherwise.
      */
-    private boolean validDirection(MazeCell cell, int directionIndex) {
-        MazeCell newCell = getNextCell(cell, directionIndex, 2);
+    private boolean validDirection(GeneratorCell cell, int directionIndex) {
+        GeneratorCell newCell = getNextCell(cell, directionIndex, 2);
         return newCell.i >= 0 && newCell.i < generatorHeight &&
             newCell.j >= 0 && newCell.j < generatorWidth;
     }
@@ -511,9 +533,9 @@ public final class MazeGenerator {
     public String toString() {
         Character spacing = ' ';
         StringBuilder sb = new StringBuilder();
-        for (List<MazeCell> mazeCells : grid) {
-            for (MazeCell mazeCell : mazeCells) {
-                switch (mazeCell.getCellType()) {
+        for (List<GeneratorCell> generatorCells : grid) {
+            for (GeneratorCell generatorCell : generatorCells) {
+                switch (generatorCell.getCellType()) {
                     case WALL ->        sb.append("#");
                     case PATH ->        sb.append(" ");
                     case TRAP ->        sb.append("T");
