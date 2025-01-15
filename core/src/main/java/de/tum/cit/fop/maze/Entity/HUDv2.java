@@ -37,8 +37,8 @@ public class HUDv2 {
     private ProgressBar staminaBar;
     private float stamina = 100f;
     private final float staminaConsumptionSpeed = 0.5f;
-    private final float staminaBarPadding = 10f;
     private final float staminaBarScaling = 1.5f;
+    private final float borderAlignmentX = 22f;
 
     private final float statusBarSpacingFromHPBar = 10f;
     private final float statusBarInnerSpacing = 5f;
@@ -229,11 +229,11 @@ public class HUDv2 {
         staminaBar.setAnimateDuration(0.25f);
 
 
-        float stBarX = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getX() + staminaBarPadding;
+        float stBarX = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getX();
         float stBarY = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getY() - spacingBetwHPBarAndStaminaBar - height;
 
 
-        staminaBar.setPosition(stBarX, stBarY);
+        staminaBar.setPosition(stBarX + borderAlignmentX*staminaBarScaling, stBarY);
 
 
         stage.addActor(staminaBar);
@@ -245,11 +245,10 @@ public class HUDv2 {
         Image staminaBarBorder = new Image(atlas.findRegion("staminaBarBorder"));
         float borderWidth = (width +33)*staminaBarScaling;
         float borderHeight = (height + 22)*staminaBarScaling;
-        float borderSpacingX = 22*staminaBarScaling;
-        float borderSpacingY = (height+10)*staminaBarScaling;
+        float borderAlignmentY = (height+10)*staminaBarScaling;
 
         staminaBarBorder.setSize(borderWidth, borderHeight);
-        staminaBarBorder.setPosition(stBarX - borderSpacingX, stBarY - borderSpacingY);
+        staminaBarBorder.setPosition(stBarX, stBarY - borderAlignmentY);
         stage.addActor(staminaBarBorder);
     }
 
