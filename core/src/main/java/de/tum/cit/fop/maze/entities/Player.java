@@ -1,9 +1,8 @@
-package de.tum.cit.fop.maze.Entity;
+package de.tum.cit.fop.maze.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.*;
 import de.tum.cit.fop.maze.Collectable;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
@@ -29,6 +28,7 @@ public class Player extends Entity {
     private boolean canHit = true;
     private boolean isHoldingTorch = true;
     private boolean beingChased = false;
+    private boolean onTrap = false;
     private final float mapWidth;
     private final float mapHeight;
 
@@ -79,7 +79,6 @@ public class Player extends Entity {
      */
     public void render(float deltaTime) {
         /// Stamina regeneration?
-
         elapsedTime += deltaTime;
         if (isHitting) {
             hitElapsedTime += deltaTime;
@@ -105,7 +104,6 @@ public class Player extends Entity {
         float frameWidth = currentFrame.getRegionWidth() * scale;
         float frameHeight = currentFrame.getRegionHeight() * scale;
         batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
-
 
 
         /// Check if hit animation is finished
@@ -190,7 +188,7 @@ public class Player extends Entity {
         /// Calculate screen boundaries with consistent ratios
         /// The less the constant is, the earlier the camera will start moving
         float constX = 0.2f;
-        float constY = 0.1f;
+        float constY = 0.15f;
 
 
         float boundaryLeft = cameraX - cameraWidth * constX;
@@ -201,6 +199,7 @@ public class Player extends Entity {
             new AbsolutePoint(boundaryLeft, boundaryBottom),
             new AbsolutePoint(boundaryRight, boundaryTop), Color.OLIVE
         );
+
         float playerX = getPosition().x();
         float playerY = getPosition().y();
 
@@ -289,4 +288,12 @@ public class Player extends Entity {
         this.beingChased = beingChased;
     }
 
+
+    public boolean isOnTrap() {
+        return onTrap;
+    }
+
+    public void setOnTrap(boolean onTrap) {
+        this.onTrap = onTrap;
+    }
 }

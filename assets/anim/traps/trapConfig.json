@@ -3,18 +3,24 @@
     "type": "peaks",
     "frameDuration": 0.100,
     "damage": 1,
-    "cooldown": 4
+    "cooldown": 4,
+    "height": 1,
+    "width": 1
   },
   {
     "type": "flamethrowerV",
     "frameDuration": 0.100,
     "damage": 1,
-    "cooldown": 4
+    "cooldown": 4,
+    "height": 5,
+    "width": 1
   },
   {
     "type": "flamethrowerH",
     "frameDuration": 0.100,
     "damage": 1,
-    "cooldown": 4
+    "cooldown": 4,
+    "height": 1,
+    "width": 4
   }
 ]

@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze.Entity;
+package de.tum.cit.fop.maze.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;

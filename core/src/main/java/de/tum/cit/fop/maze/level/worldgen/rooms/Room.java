@@ -2,7 +2,7 @@ package de.tum.cit.fop.maze.level.worldgen.rooms;
 
 import de.tum.cit.fop.maze.level.worldgen.CellType;
 import de.tum.cit.fop.maze.level.worldgen.GeneratorStrategy;
-import de.tum.cit.fop.maze.level.worldgen.MazeCell;
+import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +29,7 @@ public abstract class Room {
     public final GeneratorStrategy generatorStrategy;
 
     /// The list of cells that are part of the room
-    protected List<MazeCell> roomCells = null;
+    protected List<GeneratorCell> roomCells = null;
 
     protected Room(int height, int width, GeneratorStrategy generatorStrategy) {
         this.height = height;
@@ -37,7 +37,7 @@ public abstract class Room {
         this.generatorStrategy = generatorStrategy;
     }
 
-    public List<MazeCell> getRoomCells() {
+    public List<GeneratorCell> getRoomCells() {
         return roomCells;
     }
 
@@ -56,7 +56,7 @@ public abstract class Room {
      * Sets the list of cells that are part of the room
      * @param roomCells the list of cells that are part of the room
      */
-    public void setRoomCells(List<MazeCell> roomCells) {
+    public void setRoomCells(List<GeneratorCell> roomCells) {
         this.roomCells = roomCells;
     }
 
@@ -69,12 +69,12 @@ public abstract class Room {
      * @param maze the maze
      * @param random the random instance to use
      */
-    public void generateDoor(ArrayList<ArrayList<MazeCell>> maze, Random random) {
+    public void generateDoor(ArrayList<ArrayList<GeneratorCell>> maze, Random random) {
         if (i == -1 || j == -1) {
             throw new IllegalStateException("Room location is not set");
         }
         /// Door can't be generated at corners so we chose only walls and filter out the corner cells
-        List<MazeCell> candidates = this.roomCells.stream().filter(
+        List<GeneratorCell> candidates = this.roomCells.stream().filter(
             cell -> (
                 cell.getCellType() == CellType.ROOM_WALL && (
                     cell.i != i || cell.j != j
@@ -88,7 +88,7 @@ public abstract class Room {
             )
         ).collect(Collectors.toList());
         Collections.shuffle(candidates, random);
-        for (MazeCell candidate : candidates) {
+        for (GeneratorCell candidate : candidates) {
             int cellI = candidate.i;
             int cellJ = candidate.j;
             if (cellI - 1 > 0 && maze.get(cellI - 1).get(cellJ).getCellType() == CellType.PATH) {
@@ -107,7 +107,7 @@ public abstract class Room {
         }
 
         /// Remove a wall next to the door as well if there is no other options to generate a reachable door
-        for (MazeCell candidate : candidates) {
+        for (GeneratorCell candidate : candidates) {
             int cellI = candidate.i;
             int cellJ = candidate.j;
             if (cellI - 1 > 0 && maze.get(cellI - 1).get(cellJ).getCellType() == CellType.WALL) {
@@ -138,7 +138,7 @@ public abstract class Room {
      * @param mazeCells - matrix of maze
      * @param random - random instance
      */
-    public void generate(ArrayList<ArrayList<MazeCell>> mazeCells, Random random) {
+    public void generate(ArrayList<ArrayList<GeneratorCell>> mazeCells, Random random) {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (i == 0 || i == height - 1 || j == 0 || j == width - 1) {
@@ -161,7 +161,7 @@ public abstract class Room {
      * @param j the column of the cell
      * @param cellType the new cell type
      */
-    public void updateCellType(ArrayList<ArrayList<MazeCell>> maze, int i, int j, CellType cellType) {
+    public void updateCellType(ArrayList<ArrayList<GeneratorCell>> maze, int i, int j, CellType cellType) {
         if (this.i == -1 || this.j == -1) {
             throw new IllegalStateException("Room location is not set");
         }

@@ -1,12 +1,10 @@
-package de.tum.cit.fop.maze.Entity;
+package de.tum.cit.fop.maze.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 import com.google.gson.Gson;
-import de.tum.cit.fop.maze.BodyBits;
-import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 
 import java.util.*;
@@ -71,8 +69,6 @@ public class Enemy extends Entity {
         // Draw the current frame
         float frameWidth = currentFrame.getRegionWidth() * scale;
         float frameHeight = currentFrame.getRegionHeight() * scale;
-        camera.update();
-        batch.setProjectionMatrix(camera.combined);
         if (this.body != null && isMoving()) {
             this.facingRight = (this.body.getLinearVelocity().x > 0 + config.attributes.speed / 2f);
 

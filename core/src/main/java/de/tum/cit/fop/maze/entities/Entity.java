@@ -1,9 +1,7 @@
-package de.tum.cit.fop.maze.Entity;
+package de.tum.cit.fop.maze.entities;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.box2d.*;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
@@ -12,6 +10,7 @@ import de.tum.cit.fop.maze.essentials.BoundingRectangle;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import org.jetbrains.annotations.NotNull;
 
+import static de.tum.cit.fop.maze.Globals.CELL_SIZE_METERS;
 import static de.tum.cit.fop.maze.Globals.PPM;
 
 /**
@@ -91,12 +90,12 @@ public abstract class Entity {
         stamina += amount;
     }
 
-    public float getSpriteX() {
-        return body.getPosition().x - 18 * scale;
+    protected float getSpriteX() {
+        return body.getPosition().x - CELL_SIZE_METERS * 1.15f;
     }
 
-    public float getSpriteY() {
-        return body.getPosition().y - 15.5f * scale;
+    protected float getSpriteY() {
+        return body.getPosition().y - CELL_SIZE_METERS * 0.95f;
     }
 
     public @NotNull Body getBody() {

@@ -1,12 +1,12 @@
-package de.tum.cit.fop.maze.level;
+package de.tum.cit.fop.maze.entities;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
-import de.tum.cit.fop.maze.Entity.Enemy;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.BoundingRectangle;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
+import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +22,10 @@ public class EnemyManager {
     ///  (mainly for low-end devices)
     private final AtomicInteger launchedTasks = new AtomicInteger(0);
 
-    public EnemyManager(LevelScreen levelScreen) {
+    public EnemyManager() {
         this.enemies = new ArrayList<>();
         this.asyncExecutor = new AsyncExecutor(8);
-        this.levelScreen = levelScreen;
+        this.levelScreen = LevelScreen.getInstance();
     }
 
     /**
@@ -105,7 +105,7 @@ public class EnemyManager {
      *
      * @param delta The time since the last frame
      */
-    public void renderEnemies(float delta) {
+    public void render(float delta) {
         tickEnemies(delta);
         for (Enemy enemy : enemies) {
             enemy.render(delta);
