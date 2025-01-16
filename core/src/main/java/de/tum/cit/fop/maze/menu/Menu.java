@@ -7,8 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.utils.viewport.*;
 
 /**
  * Class for the main menu.
@@ -19,6 +18,7 @@ public class Menu implements Screen {
     private MenuState menuState = MenuState.MAIN_MENU;
     private final MainMenuUI mainMenuUI;
     private final SettingsUI settingsUI;
+    private final CreditsUI creditsUI;
     private static Menu instance = null;
     private final OrthographicCamera camera;
     private final Viewport viewport;
@@ -39,6 +39,7 @@ public class Menu implements Screen {
 
         mainMenuUI = new MainMenuUI(viewport, batch);
         settingsUI = new SettingsUI(viewport, batch);
+        creditsUI = new CreditsUI(viewport, batch);
 
         /// Load background atlas and get all regions
         TextureAtlas backgroundAtlas = new TextureAtlas(Gdx.files.internal("background/background.atlas"));
@@ -74,6 +75,7 @@ public class Menu implements Screen {
             case CREATE_NEW_GAME:
                 break;
             case CREDITS:
+                creditsUI.show();
                 break;
             case SETTINGS:
                 settingsUI.show();
@@ -113,6 +115,7 @@ public class Menu implements Screen {
             case CREATE_NEW_GAME:
                 break;
             case CREDITS:
+                creditsUI.render(delta);
                 break;
             case SETTINGS:
                 settingsUI.render(delta);
@@ -122,8 +125,14 @@ public class Menu implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(SCREEN_WIDTH, SCREEN_HEIGHT);
-        viewport.getCamera().update();
+        viewport.update(width, height, true);
+        // Center the viewport in the window
+        viewport.setScreenBounds(
+            (width - SCREEN_WIDTH) / 2,
+            (height - SCREEN_HEIGHT) / 2,
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT
+        );
         camera.update();
     }
 
@@ -146,6 +155,7 @@ public class Menu implements Screen {
     public void dispose() {
         mainMenuUI.dispose();
         settingsUI.dispose();
+        creditsUI.dispose();
     }
 
     @Override
@@ -157,6 +167,7 @@ public class Menu implements Screen {
             case CREATE_NEW_GAME:
                 break;
             case CREDITS:
+                creditsUI.show();
                 break;
             case SETTINGS:
                 settingsUI.show();
