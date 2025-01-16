@@ -22,7 +22,7 @@ public final class Globals {
     public static final int BOX2D_VELOCITY_ITERATIONS = 8;
     public static final int BOX2D_POSITION_ITERATIONS = 3;
 
-
+    public static final int TRAP_DAMAGE = 10;
     public static final boolean DEBUG = true;
 
 }
