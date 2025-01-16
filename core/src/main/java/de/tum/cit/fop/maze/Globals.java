@@ -21,8 +21,8 @@ public final class Globals {
     public static final float BOX2D_TIME_STEP = 1 / 120f;
     public static final int BOX2D_VELOCITY_ITERATIONS = 8;
     public static final int BOX2D_POSITION_ITERATIONS = 3;
-
     public static final int TRAP_DAMAGE = 10;
+    public static final float DEFAULT_CAMERA_ZOOM = 1.25f;
     public static final boolean DEBUG = true;
 
 }
