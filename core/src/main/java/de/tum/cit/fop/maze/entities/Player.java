@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
 import de.tum.cit.fop.maze.Collectable;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.level.LevelScreen;
@@ -33,6 +34,7 @@ public class Player extends Entity {
     private boolean isDamaged = false;
     private float damageFlashTimer = 0f;
     private static final float DAMAGE_FLASH_DURATION = 0.2f;
+    private float trapAttackElapsedTime = 0f;
 
     /**
      * Creates a new player character.
@@ -82,10 +84,15 @@ public class Player extends Entity {
     public void render(float deltaTime) {
         /// Stamina regeneration?
         elapsedTime += deltaTime;
+        trapAttackElapsedTime += deltaTime;
         if (isAttacking) {
             attackElapsedTime += deltaTime;
         }
 
+        if (onActiveTrap && trapAttackElapsedTime > 0.75f) {
+            takeDamage(Globals.TRAP_DAMAGE);
+            trapAttackElapsedTime = 0f;
+        }
         /// Update damage flash timer
         if (isDamaged) {
             damageFlashTimer += deltaTime;
