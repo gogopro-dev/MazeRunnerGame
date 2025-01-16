@@ -8,7 +8,7 @@ import de.tum.cit.fop.maze.menu.Menu;
 public class LoadMenu extends Game {
     @Override
     public void create() {
-        Menu menu = Menu.getInstance();
+        Menu.getInstance();
         setScreen(new LevelScreen());
     }
 }

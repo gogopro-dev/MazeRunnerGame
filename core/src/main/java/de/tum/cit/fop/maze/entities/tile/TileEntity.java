@@ -8,9 +8,11 @@ import de.tum.cit.fop.maze.level.LevelScreen;
 
 import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
 
+/**
+ * This class represents a tile entity in the game.
+ * Tile entities are static objects in the game that can be interacted with by the player.
+ */
 public abstract class TileEntity {
-
-
     private Body body;
     protected int width;
     protected int height;
@@ -39,7 +41,8 @@ public abstract class TileEntity {
         return width * Globals.CELL_SIZE_METERS;
     }
 
-    public void spawn(float x, float y) {
+
+    protected void spawn(float x, float y) {
         World world = LevelScreen.getInstance().world;
         if (body != null) {
             throw new IllegalStateException("Trap");

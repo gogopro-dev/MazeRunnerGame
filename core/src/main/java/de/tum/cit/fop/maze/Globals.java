@@ -10,6 +10,7 @@ public final class Globals {
 
 
     public static final float ENTITY_PATHFINDING_RANGE = 6 * 3;
+    public static final float ENEMY_PATHFINDING_INTERVAL = 0.1f;
 
     public static final float TRAP_SPAWN_CHANCE = 0.06f;
 
@@ -20,6 +21,7 @@ public final class Globals {
     public static final float BOX2D_TIME_STEP = 1 / 120f;
     public static final int BOX2D_VELOCITY_ITERATIONS = 8;
     public static final int BOX2D_POSITION_ITERATIONS = 3;
+
 
     public static final boolean DEBUG = true;
 

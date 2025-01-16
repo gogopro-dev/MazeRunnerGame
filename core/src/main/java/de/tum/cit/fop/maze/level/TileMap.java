@@ -14,12 +14,17 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.entities.EntityPathfinder;
+import de.tum.cit.fop.maze.entities.tile.TileEntityManager;
+import de.tum.cit.fop.maze.entities.tile.Trap;
+import de.tum.cit.fop.maze.entities.tile.TrapType;
 import de.tum.cit.fop.maze.level.worldgen.CellType;
 import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import org.jetbrains.annotations.Nullable;
 
 import static de.tum.cit.fop.maze.Globals.*;
+import static java.lang.Math.max;
 
 public class TileMap implements Disposable {
     private final TiledMap map;
@@ -30,7 +35,8 @@ public class TileMap implements Disposable {
     public final EntityPathfinder pathfinder;
     ///
     private final TextureLoader textures;
-
+    private final MazeGenerator generator;
+    private final TileEntityManager tileEntityManager;
 
     /**
      * Create a new TileMap with a given height, width and seed
@@ -39,12 +45,13 @@ public class TileMap implements Disposable {
      * @param seed the seed for the map
      */
     public TileMap(int height, int width, int seed) {
-        MazeGenerator generator = new MazeGenerator(height, width, seed);
+        this.generator = new MazeGenerator(height, width, seed);
         this.map = new TiledMap();
         // Always get width and height from the generator, because it always makes the parameters odd
         generator.generate();
         this.width = generator.width * 3;
         this.height = generator.height * 3;
+        this.tileEntityManager = LevelScreen.getInstance().tileEntityManager;
         System.out.println(generator);
         widthMeters = this.width * CELL_SIZE_METERS;
         heightMeters = this.height * CELL_SIZE_METERS;
@@ -52,7 +59,7 @@ public class TileMap implements Disposable {
 
         textures = new TextureLoader("assets/tiles/tiles.atlas", generator.getRandom());
         createDebugLayer();
-
+        System.out.println(generator);
 
 
         ///  Dimensions x3 since we want to have 3x3 tiles for each cell,
@@ -110,8 +117,11 @@ public class TileMap implements Disposable {
                 }
 
                 /// Trap
-                if (cell.getCellType() == CellType.TRAP) {
-
+                if (cell.getCellType() == CellType.TRAP && !GenerationCases.isEdge(i, j, generator)) {
+                    boolean vertical =
+                        this.generator.grid.get(i - 1).get(j).getCellType().isWall() &&
+                            this.generator.grid.get(i + 1).get(j).getCellType().isWall();
+                    spawnRandomTrap(x, y + 1, vertical);
                 }
 
             }
@@ -128,8 +138,38 @@ public class TileMap implements Disposable {
      * @param x the x position <b>(must be cell center)</b>
      * @param y the y position <b>(must be cell center)</b>
      */
-    private void spawnRandomTrap(int x, int y) {
+    private void spawnRandomTrap(int x, int y, boolean vertical) {
+        float xActual = x + 0.5f;
+        float yActual = y - 0.5f;
+        if (!vertical) --yActual;
+        TrapType trapType = vertical ?
+            TrapType.pickRandomHorizontalTrap(generator.getRandom()) :
+            TrapType.pickRandomVerticalTrap(generator.getRandom());
 
+        Trap trap = new Trap(trapType);
+        boolean singleCellTrap = false;
+        try {
+            singleCellTrap = trap.attributes.width() == 1 && trap.attributes.height() == 1;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        ///  If the trap is longer or higher than 3 cells (passage size),
+        ///  we need to align it properly towards the carrying wall
+        xActual -= max(0, trap.attributes.width() - 3) / 2f;
+        yActual += max(0, trap.attributes.height() - 3) / 2f;
+        if (singleCellTrap) {
+
+            tileEntityManager.createTileEntity(trap, xActual, yActual);
+            tileEntityManager.createTileEntity(
+                new Trap(trapType), xActual - (!vertical ? 1 : 0), yActual - (vertical ? 1 : 0)
+            );
+            tileEntityManager.createTileEntity(
+                new Trap(trapType), xActual + (!vertical ? 1 : 0), yActual + (vertical ? 1 : 0)
+            );
+            return;
+        }
+        tileEntityManager.createTileEntity(trap, xActual, yActual);
     }
 
 

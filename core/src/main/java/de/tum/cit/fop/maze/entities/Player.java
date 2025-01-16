@@ -28,7 +28,7 @@ public class Player extends Entity {
     private boolean canHit = true;
     private boolean isHoldingTorch = true;
     private boolean beingChased = false;
-    private boolean onTrap = false;
+    private boolean onActiveTrap = false;
     private final float mapWidth;
     private final float mapHeight;
 
@@ -289,11 +289,11 @@ public class Player extends Entity {
     }
 
 
-    public boolean isOnTrap() {
-        return onTrap;
+    public boolean isOnActiveTrap() {
+        return onActiveTrap;
     }
 
-    public void setOnTrap(boolean onTrap) {
-        this.onTrap = onTrap;
+    public void setOnActiveTrap(boolean onActiveTrap) {
+        this.onActiveTrap = onActiveTrap;
     }
 }

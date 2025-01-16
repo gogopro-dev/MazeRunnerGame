@@ -1,6 +1,6 @@
 [
   {
-    "type": "peaks",
+    "type": "SPIKES",
     "frameDuration": 0.100,
     "damage": 1,
     "cooldown": 4,
@@ -8,7 +8,7 @@
     "width": 1
   },
   {
-    "type": "flamethrowerV",
+    "type": "FLAMETHROWER_V",
     "frameDuration": 0.100,
     "damage": 1,
     "cooldown": 4,
@@ -16,7 +16,7 @@
     "width": 1
   },
   {
-    "type": "flamethrowerH",
+    "type": "FLAMETHROWER_H",
     "frameDuration": 0.100,
     "damage": 1,
     "cooldown": 4,
