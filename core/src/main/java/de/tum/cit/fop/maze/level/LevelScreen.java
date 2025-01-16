@@ -116,12 +116,13 @@ public class LevelScreen implements Screen {
         }
         instance = this;
 
+        /// Init world
         world = new World(new Vector2(0, 0), true);
         world.setContactListener(new TileEntityContactListener());
 
         w = Gdx.graphics.getWidth() / PPM;
         h = Gdx.graphics.getHeight() / PPM;
-        map = new TileMap(15, 15, 2);
+
         camera = new OrthographicCamera();
         camera.setToOrtho(false, w / 2, h / 2);
 
@@ -130,6 +131,10 @@ public class LevelScreen implements Screen {
 
         this.batch = new SpriteBatch();
         batch.setProjectionMatrix(camera.combined);
+        tileEntityManager = new TileEntityManager();
+        enemyManager = new EnemyManager();
+        map = new TileMap(15, 15, 2);
+
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);
         player = new Player(batch);
@@ -141,8 +146,7 @@ public class LevelScreen implements Screen {
         camera.update();
 
         hud = new HUDv2(player);
-        tileEntityManager = new TileEntityManager();
-        enemyManager = new EnemyManager();
+
         /*enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 10);
         enemyManager.createEnemy(new Enemy(EnemyType.SKELETON, batch), 8.3f, 12);
         enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.2f);

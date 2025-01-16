@@ -12,6 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * <h2>The manager for the enemies</h2>
+ * <p>
+ * The enemy manager is responsible for creating, rendering and ticking the enemies, including their AI.
+ * </p>
+ * <p>
+ * A brief overview of the enemy AI:
+ *     <ul>
+ *         <li>Enemies have a vision range, and if the player is within this range and not blocked by any obstacles,
+ *         the enemy will start chasing the player</li>
+ *         <li>Enemies will follow the player until they reach the player or the player is
+ *         no longer in their vision range</li>
+ *         <li>Enemies will move randomly if the player is not in their vision range</li>
+ * </p>
+ */
 public class EnemyManager {
     private final LevelScreen levelScreen;
     ///  The Libgdx executor for asynchronous tasks
@@ -148,13 +163,12 @@ public class EnemyManager {
 
     /**
      * Tick the enemies
-     *
      * @param delta The time since the last frame
      */
     public void tickEnemies(float delta) {
         boolean playerChased = false;
         accumulator += delta;
-        if (accumulator >= 0.10f) {
+        if (accumulator >= Globals.ENEMY_PATHFINDING_INTERVAL) {
             accumulator = 0;
             recalculatePaths();
         }

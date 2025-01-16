@@ -14,7 +14,7 @@ public final class GenerationCases {
      * @param generator the maze generator
      * @return {@code true} if the current cell is on the edge of the maze
      */
-    private static boolean isEdge(int i, int j, MazeGenerator generator) {
+    public static boolean isEdge(int i, int j, MazeGenerator generator) {
         return i <= 0 || i >= generator.height - 1 || j <= 0 || j >= generator.width - 1;
     }
 
