@@ -15,23 +15,24 @@ import de.tum.cit.fop.maze.level.LevelScreen;
 public class Player extends Entity {
     private final Animation<TextureRegion> idleAnimation;
     private final Animation<TextureRegion> movementAnimation;
-    private final Animation<TextureRegion> hitAnimation;
+    private final Animation<TextureRegion> attackAnimation;
     private final Animation<TextureRegion> idleTorchAnimation;
     private final Animation<TextureRegion> movementTorchAnimation;
     private Animation<TextureRegion> currentAnimation;
     private float elapsedTime = 0f;
-
-    private float hitElapsedTime = 0f;    // Tracks time for hit animation
-    private boolean isHitting = false;    // Track if the hit animation is active
+    private float attackElapsedTime = 0f;    // Tracks time for hit animation
+    private boolean isAttacking = false;    // Track if the hit animation is active
     private boolean isMoving = false;     // Flag to track movement state
     private boolean facingRight = true;
-    private boolean canHit = true;
+    private boolean canHit;
     private boolean isHoldingTorch = true;
     private boolean beingChased = false;
     private boolean onActiveTrap = false;
     private final float mapWidth;
     private final float mapHeight;
-
+    private boolean isDamaged = false;
+    private float damageFlashTimer = 0f;
+    private static final float DAMAGE_FLASH_DURATION = 0.2f;
 
     /**
      * Creates a new player character.
@@ -58,8 +59,8 @@ public class Player extends Entity {
         movementAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         /// Load hit animation
-        hitAnimation = new Animation<>(1f / 30f, animAtlas.findRegions("Character_hit"));
-        hitAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        attackAnimation = new Animation<>(1f / 30f, animAtlas.findRegions("Character_hit"));
+        attackAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         /// Load idle torch animation
         idleTorchAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle_torch"));
@@ -73,6 +74,7 @@ public class Player extends Entity {
 //        hud.forTesting();
 
     }
+
     /**
      * Renders the player character.
      * @param deltaTime The time since the last frame in seconds
@@ -80,9 +82,21 @@ public class Player extends Entity {
     public void render(float deltaTime) {
         /// Stamina regeneration?
         elapsedTime += deltaTime;
-        if (isHitting) {
-            hitElapsedTime += deltaTime;
+        if (isAttacking) {
+            attackElapsedTime += deltaTime;
         }
+
+        /// Update damage flash timer
+        if (isDamaged) {
+            damageFlashTimer += deltaTime;
+            if (damageFlashTimer >= DAMAGE_FLASH_DURATION) {
+                isDamaged = false;
+                damageFlashTimer = 0f;
+                /// Reset color back to normal
+                batch.setColor(new Color(1,1,1, 1));
+            }
+        }
+
         /// Handle player input and movement
         handleInput();
 
@@ -90,8 +104,8 @@ public class Player extends Entity {
         batch.setProjectionMatrix(camera.combined);
 
         /// Get the current animation frame
-        TextureRegion currentFrame = (isHitting ? hitAnimation : currentAnimation)
-            .getKeyFrame(isHitting ? hitElapsedTime : elapsedTime, true);
+        TextureRegion currentFrame = (isAttacking ? attackAnimation : currentAnimation)
+            .getKeyFrame(isAttacking ? attackElapsedTime : elapsedTime, true);
 
         /// Flip the frame if needed
         if (facingRight && currentFrame.isFlipX()) {
@@ -100,17 +114,25 @@ public class Player extends Entity {
             currentFrame.flip(true, false); // Flip horizontally if facing left
         }
 
+        /// Set red tint if damaged
+        if (isDamaged) {
+            batch.setColor(new Color(1,0,0, 1));
+        }
+
         /// Draw the current frame
         float frameWidth = currentFrame.getRegionWidth() * scale;
         float frameHeight = currentFrame.getRegionHeight() * scale;
         batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
 
+        if (isAttacking && attackAnimation.getAnimationDuration() / 2 < attackElapsedTime) {
+            //TODO: Attack enemy
+        }
 
         /// Check if hit animation is finished
-        if (isHitting && hitAnimation.isAnimationFinished(hitElapsedTime)) {
-            isHitting = false; // Reset hit state
+        if (isAttacking && attackAnimation.isAnimationFinished(attackElapsedTime)) {
+            isAttacking = false; // Reset hit state
             canHit = !isHoldingTorch; // Reset hit cooldown if not holding torch
-            hitElapsedTime = 0f; // Reset hit animation time
+            attackElapsedTime = 0f; // Reset hit animation time
         }
 
     }
@@ -128,7 +150,7 @@ public class Player extends Entity {
         }
 
         /// Only update facing direction if not in hit animation
-        if (!isHitting) {
+        if (!isAttacking) {
             if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
                 facingRight = true;
             } else if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
@@ -159,14 +181,14 @@ public class Player extends Entity {
         body.setLinearVelocity(velocityX, velocityY);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && canHit) {
-            isHitting = true;
-            hitElapsedTime = 0f;
+            isAttacking = true;
+            attackElapsedTime = 0f;
             canHit = false;
         }
 
         /// Update animation while preserving hit animation priority
-        if (isHitting) {
-            currentAnimation = hitAnimation;
+        if (isAttacking) {
+            currentAnimation = attackAnimation;
         } else {
             if (isHoldingTorch){
                 currentAnimation = isMoving ? movementTorchAnimation : idleTorchAnimation;
@@ -251,6 +273,8 @@ public class Player extends Entity {
     @Override
     public void takeDamage(int damage) {
         super.takeDamage(damage);
+        isDamaged = true;
+        damageFlashTimer = 0f;
     }
 
     @Override
