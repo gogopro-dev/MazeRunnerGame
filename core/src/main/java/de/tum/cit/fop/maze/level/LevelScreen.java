@@ -143,7 +143,7 @@ public class LevelScreen implements Screen {
 
         /// Set camera at the center of the players position in Box2D world
         camera.position.set(player.getPosition().x() + 5, player.getPosition().y(), 0);
-        camera.zoom = 1.25f;
+        camera.zoom = Globals.DEFAULT_CAMERA_ZOOM;
         camera.update();
 
         hud = new HUDv2(player);
