@@ -384,5 +384,9 @@ public class HUDv2 {
         renderStatusBar();
         stage.getBatch().end();
     }
+
+    public void show(){
+        Gdx.input.setInputProcessor(this.stage);
+    }
 }
 
