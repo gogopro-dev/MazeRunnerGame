@@ -2,13 +2,13 @@ package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import de.tum.cit.fop.maze.essentials.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,9 +135,9 @@ public class HUD {
 
 
         staminaBar = new ProgressBar(0f, 1f, 0.01f, false, new ProgressBar.ProgressBarStyle());
-        staminaBar.getStyle().background = commonFunctions.getColoredDrawable(width, height, Color.BLACK);
-        staminaBar.getStyle().knob = commonFunctions.getColoredDrawable(0, height, Color.GOLD);
-        staminaBar.getStyle().knobBefore = commonFunctions.getColoredDrawable(width, height, Color.GOLD);
+        staminaBar.getStyle().background = Utils.getColoredDrawable(width, height, Color.BLACK);
+        staminaBar.getStyle().knob = Utils.getColoredDrawable(0, height, Color.GOLD);
+        staminaBar.getStyle().knobBefore = Utils.getColoredDrawable(width, height, Color.GOLD);
 
         staminaBar.setWidth(width);
         staminaBar.setHeight(height);

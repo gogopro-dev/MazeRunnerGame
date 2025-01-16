@@ -90,4 +90,23 @@ public final class GenerationCases {
             generator.grid.get(i + 1).get(j).getCellType().isWall() &&
             generator.grid.get(i - 1).get(j).getCellType().isWall();
     }
+
+    /**
+     * Checks if the current cell has any surrounding walls
+     *
+     * @param i         row index
+     * @param j         column index
+     * @param generator the maze generator
+     * @return {@code true} if the current cell has any surrounding walls
+     */
+    public static boolean hasAnySurroundingWall(int i, int j, MazeGenerator generator) {
+        if (isEdge(i, j, generator)) {
+            return false;
+        }
+        return
+            generator.grid.get(i - 1).get(j).getCellType().isWall() ||
+                generator.grid.get(i + 1).get(j).getCellType().isWall() ||
+                generator.grid.get(i).get(j + 1).getCellType().isWall() ||
+                generator.grid.get(i).get(j - 1).getCellType().isWall();
+    }
 }

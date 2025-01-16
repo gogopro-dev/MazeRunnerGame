@@ -1,5 +1,7 @@
 package de.tum.cit.fop.maze.entities.tile;
 
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.*;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
@@ -16,11 +18,42 @@ public abstract class TileEntity {
     private Body body;
     protected int width;
     protected int height;
-    protected boolean isActivated = true;
+    protected boolean isOnPlayer = false;
+    protected final SpriteBatch batch;
+    protected final OrthographicCamera camera;
+    protected final BodyDef bodyDef;
+    protected final FixtureDef fixtureDef;
+
 
     public TileEntity(int width, int height) {
         this.width = width;
         this.height = height;
+        this.batch = LevelScreen.getInstance().batch;
+        this.camera = LevelScreen.getInstance().camera;
+        this.bodyDef = new BodyDef();
+        this.fixtureDef = new FixtureDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.fixedRotation = true;
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(
+            width * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING,
+            height * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING
+        );
+
+        fixtureDef.shape = shape;
+        fixtureDef.isSensor = true;
+        fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
+        fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
+
+    }
+
+    public TileEntity(int width, int height, BodyDef bodyDef, FixtureDef fixtureDef) {
+        this.width = width;
+        this.height = height;
+        this.batch = LevelScreen.getInstance().batch;
+        this.camera = LevelScreen.getInstance().camera;
+        this.bodyDef = bodyDef;
+        this.fixtureDef = fixtureDef;
     }
 
     AbsolutePoint getSpriteDrawPosition() {
@@ -47,43 +80,36 @@ public abstract class TileEntity {
         if (body != null) {
             throw new IllegalStateException("Trap");
         }
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.StaticBody;
         bodyDef.position.set(x, y);
-        bodyDef.fixedRotation = true;
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(
-            width * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING,
-            height * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING
-        );
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = shape;
-        fixtureDef.isSensor = true;
-        fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
-        fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
+
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
+        fixtureDef.shape.dispose();
         body.setUserData(this);
-        shape.dispose();
+
     }
 
     public void contactTick(float delta) {
     }
 
     public void onPlayerStartContact(Contact c) {
-        this.isActivated = true;
+        this.isOnPlayer = true;
     }
 
-    public boolean isActivated() {
-        return isActivated;
+    public boolean isOnPlayer() {
+        return isOnPlayer;
     }
 
     public void onPlayerEndContact(Contact c) {
-        this.isActivated = false;
+        this.isOnPlayer = false;
     }
 
     public Body getBody() {
         return body;
+    }
+
+    public AbsolutePoint getPosition() {
+        return new AbsolutePoint(body.getPosition().x, body.getPosition().y);
     }
 
     abstract public void render(float delta);

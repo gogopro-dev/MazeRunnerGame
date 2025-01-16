@@ -24,7 +24,7 @@ public class TileEntityManager {
     public void render(float delta) {
         boolean isAnyActiveTraps = false;
         for (TileEntity tileEntity : tileEntities) {
-            if (tileEntity.isActivated()) {
+            if (tileEntity.isOnPlayer()) {
                 if (tileEntity instanceof Trap trap) {
                     isAnyActiveTraps |= trap.isActivated();
                 }

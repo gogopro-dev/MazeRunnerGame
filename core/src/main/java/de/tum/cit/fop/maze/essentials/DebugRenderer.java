@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.function.Function;
 
@@ -15,6 +17,7 @@ import java.util.function.Function;
 public class DebugRenderer {
     private static DebugRenderer instance;
     private final ShapeRenderer shapeRenderer;
+    private final List<Function<Void, Void>> spawnedShapes = new ArrayList<>();
 
     public static DebugRenderer getInstance() {
         if (instance == null) {
@@ -60,6 +63,26 @@ public class DebugRenderer {
         );
     }
 
+    public void spawnRectangle(AbsolutePoint start, AbsolutePoint end, Color color) {
+        spawnedShapes.add((Void v) -> {
+            shapeRenderer.rect(
+                start.x(), start.y(),
+                end.x() - start.x(),
+                end.y() - start.y(),
+                color, color, color, color
+            );
+            return null;
+        });
+    }
+
+
+    public void spawnCircle(AbsolutePoint center, float radius) {
+        spawnedShapes.add((Void v) -> {
+            shapeRenderer.circle(center.x(), center.y(), radius, 50);
+            return null;
+        });
+    }
+
     /**
      * Draw a circle at a point.
      *
@@ -79,6 +102,9 @@ public class DebugRenderer {
     }
 
     public void end() {
+        for (Function<Void, Void> f : spawnedShapes) {
+            f.apply(null);
+        }
         shapeRenderer.end();
     }
 

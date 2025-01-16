@@ -6,6 +6,7 @@ import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.BoundingRectangle;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
+import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
@@ -51,7 +52,6 @@ public class EnemyManager {
      */
     private boolean isPlayerSeen(Enemy enemy) {
         BoundingRectangle enemyRect = enemy.boundingRectangle;
-        BoundingRectangle playerRect = levelScreen.player.boundingRectangle;
         AbsolutePoint enemyPosition = enemy.getPosition();
         AbsolutePoint playerPosition = levelScreen.player.getPosition();
         AbsolutePoint enemyEyes = new AbsolutePoint(
@@ -64,43 +64,8 @@ public class EnemyManager {
         } else {
             rayLength = enemy.getConfig().attributes().visionRange() * Globals.CELL_SIZE_METERS * 3 / 2f;
         }
-        if (enemyPosition.distance(levelScreen.player.getPosition()) > rayLength) {
-            return false;
-        }
-        ArrayList<AbsolutePoint> playerTrackingPoints = new ArrayList<>();
-        /// We will track the player with 3 points on the top, middle and bottom of the player
-        for (int i = 1; i <= 3; ++i) {
-            playerTrackingPoints.add(
-                new AbsolutePoint(
-                    playerPosition.x(),
-                    playerPosition.y() - playerRect.height() / 1.7f + playerRect.height() * i / 3
-                )
-            );
-        }
 
-        boolean finalResult = false;
-        for (AbsolutePoint trackingPoint : playerTrackingPoints) {
-            boolean[] result = {true};
-
-            levelScreen.world.rayCast(
-                (fixture, point, normal, fraction) -> {
-                    if (fixture.getBody().getUserData() == "enemy") return -1;
-                    if (fixture.getBody().getUserData() == null) {
-                        result[0] = false;
-                    }
-                    return fraction;
-                },
-                enemyEyes.toVector2(),
-                trackingPoint.toVector2()
-            );
-            DebugRenderer.getInstance().drawLine(
-                enemyEyes,
-                trackingPoint,
-                result[0] ? Color.BLUE : Color.YELLOW
-            );
-            finalResult |= result[0];
-        }
-        return finalResult;
+        return Utils.isPlayerReachable(enemyEyes, rayLength);
     }
 
     /**

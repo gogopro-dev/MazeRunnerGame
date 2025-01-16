@@ -3,25 +3,26 @@ package de.tum.cit.fop.maze.entities.tile;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.google.gson.Gson;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.Arrays;
+
+import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
 
 /**
  * Represents a trap in the game
  */
 public class Trap extends TileEntity {
-    private static final String TRAP_ANIMATION_PATH = "anim/traps/traps.atlas";
+    private static final String TRAP_ANIMATION_PATH = "anim/tileEntities/traps.atlas";
     private final Animation<TextureRegion> trapAnimation;
     private float elapsedTime = 0f;
     private float lastActivationTime = 0f;
-    private final OrthographicCamera camera;
-    private boolean isActivated = true;
-    private final SpriteBatch spriteBatch;
+    private boolean isActivated = false;
     private final TrapType type;
     public final TrapAttributes attributes;
 
@@ -34,14 +35,17 @@ public class Trap extends TileEntity {
         super(0, 0);
         Gson gson = new Gson();
         TrapAttributes attributes = Arrays.stream(
-            gson.fromJson(Gdx.files.internal("anim/traps/trapConfig.json").reader(), TrapAttributes[].class)
+            gson.fromJson(Gdx.files.internal("anim/tileEntities/trapConfig.json").reader(), TrapAttributes[].class)
         ).filter(attribute -> attribute.type.equals(type)).findFirst().get();
         this.width = attributes.width;
         this.height = attributes.height;
+        ((PolygonShape) this.fixtureDef.shape).setAsBox(
+            width * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING,
+            height * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING
+        );
         this.attributes = attributes;
         this.type = type;
-        this.camera = LevelScreen.getInstance().camera;
-        this.spriteBatch = LevelScreen.getInstance().batch;
+
 
         TextureAtlas textureAtlas = new TextureAtlas(Gdx.files.internal(TRAP_ANIMATION_PATH));
         trapAnimation = new Animation<>(
@@ -83,7 +87,7 @@ public class Trap extends TileEntity {
         }
 
         camera.update();
-        spriteBatch.setProjectionMatrix(camera.combined);
+        batch.setProjectionMatrix(camera.combined);
 
         TextureRegion currentFrame;
         if (isActivated) {
@@ -93,11 +97,15 @@ public class Trap extends TileEntity {
             currentFrame = trapAnimation.getKeyFrame(trapAnimation.getAnimationDuration(), false);
         }
 
-        spriteBatch.draw(
+        batch.draw(
             currentFrame,
             getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
             getSpriteDrawWidth(), getSpriteDrawHeight()
         );
+    }
+
+    public boolean isActivated() {
+        return isActivated;
     }
 
     public boolean isDamaging() {

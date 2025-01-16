@@ -11,7 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
-import de.tum.cit.fop.maze.commonFunctions;
+import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
@@ -219,9 +219,9 @@ public class HUDv2 {
             0f, stamina, staminaConsumptionSpeed, false, new ProgressBar.ProgressBarStyle()
         );
 
-        staminaBar.getStyle().background = commonFunctions.getColoredDrawable(width, height, Color.DARK_GRAY);
-        staminaBar.getStyle().knob = commonFunctions.getColoredDrawable(0, height, Color.GOLD);
-        staminaBar.getStyle().knobBefore = commonFunctions.getColoredDrawable(width, height, Color.GOLD);
+        staminaBar.getStyle().background = Utils.getColoredDrawable(width, height, Color.DARK_GRAY);
+        staminaBar.getStyle().knob = Utils.getColoredDrawable(0, height, Color.GOLD);
+        staminaBar.getStyle().knobBefore = Utils.getColoredDrawable(width, height, Color.GOLD);
 
         staminaBar.setWidth(width);
         staminaBar.setHeight(height);

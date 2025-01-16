@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import de.tum.cit.fop.maze.commonFunctions;
+import de.tum.cit.fop.maze.essentials.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,9 +142,9 @@ public class HUD {
         int height = 10;
 
         staminaBar = new ProgressBar(0f, 100f, 0.01f, false, new ProgressBar.ProgressBarStyle());
-        staminaBar.getStyle().background = commonFunctions.getColoredDrawable(width, height, Color.WHITE);
-        staminaBar.getStyle().knob = commonFunctions.getColoredDrawable(0, height, Color.GOLD);
-        staminaBar.getStyle().knobBefore = commonFunctions.getColoredDrawable(width, height, Color.GOLD);
+        staminaBar.getStyle().background = Utils.getColoredDrawable(width, height, Color.WHITE);
+        staminaBar.getStyle().knob = Utils.getColoredDrawable(0, height, Color.GOLD);
+        staminaBar.getStyle().knobBefore = Utils.getColoredDrawable(width, height, Color.GOLD);
 
         staminaBar.setWidth(width);
         staminaBar.setHeight(height);

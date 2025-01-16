@@ -320,4 +320,9 @@ public class Player extends Entity {
     public void setOnActiveTrap(boolean onActiveTrap) {
         this.onActiveTrap = onActiveTrap;
     }
+
+    public boolean isHoldingTorch() {
+        return isHoldingTorch;
+    }
+
 }

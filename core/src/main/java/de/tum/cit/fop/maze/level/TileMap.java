@@ -1,5 +1,6 @@
 package de.tum.cit.fop.maze.level;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -11,17 +12,24 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.EntityPathfinder;
 import de.tum.cit.fop.maze.entities.tile.TileEntityManager;
+import de.tum.cit.fop.maze.entities.tile.Torch;
 import de.tum.cit.fop.maze.entities.tile.Trap;
 import de.tum.cit.fop.maze.entities.tile.TrapType;
+import de.tum.cit.fop.maze.essentials.AbsolutePoint;
+import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.level.worldgen.CellType;
 import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static de.tum.cit.fop.maze.Globals.*;
 import static java.lang.Math.max;
@@ -33,7 +41,6 @@ public class TileMap implements Disposable {
     public final float heightMeters;
     public final float widthMeters;
     public final EntityPathfinder pathfinder;
-    ///
     private final TextureLoader textures;
     private final MazeGenerator generator;
     private final TileEntityManager tileEntityManager;
@@ -47,6 +54,8 @@ public class TileMap implements Disposable {
     public TileMap(int height, int width, int seed) {
         this.generator = new MazeGenerator(height, width, seed);
         this.map = new TiledMap();
+        ArrayList<AbsolutePoint> torches = new ArrayList<>();
+        AbsolutePoint closestTorch = null;
         // Always get width and height from the generator, because it always makes the parameters odd
         generator.generate();
         this.width = generator.width * 3;
@@ -83,13 +92,44 @@ public class TileMap implements Disposable {
                 GeneratorCell cell = generator.grid.get(i).get(j);
                 int x = startJ + j * 3;
                 int y = layer.getHeight() - (startI + i * 3);
+                DebugRenderer.getInstance().spawnRectangle(
+                    new AbsolutePoint(x - 1, y - 1).toMetersFromCells(),
+                    new AbsolutePoint(x + 2, y + 2).toMetersFromCells(),
+                    Color.BLACK
+                );
                 /// All non-walkable cells require hitboxes
                 if (cell.getCellType().isWall()) {
                     setWallSquare(x, y, wallMap);
+
                 }
                 ///  Floor
                 if (cell.getCellType().isWalkable()) {
                     setSquare(textures.getTextureWithVariationChance("floor"), x, y);
+                    if (cell.getCellType() != CellType.TRAP && !GenerationCases.isEdge(i, j, generator)) {
+                        boolean anySurroundingWall;
+                        if (false) {
+                            AbsolutePoint current = getCellCenter(x, y);
+                            for (AbsolutePoint torch : torches) {
+                                if (closestTorch != null && current.distance(closestTorch) > Torch.activationRadius * 2) {
+                                    closestTorch = torch;
+                                } else if (closestTorch == null) {
+                                    closestTorch = torch;
+                                }
+                            }
+                            if (closestTorch == null || torches.isEmpty() ||
+                                current.distance(closestTorch) > Torch.activationRadius * 2) {
+                                if (false) {
+
+                                } else {
+
+                                }
+                                DebugRenderer.getInstance().spawnCircle(current, 0.25f);
+
+
+                            }
+                        }
+
+                    }
                 }
                 ///  Room walls
                 if (cell.getCellType() == CellType.WALL || cell.getCellType() == CellType.ROOM_WALL) {
@@ -121,7 +161,7 @@ public class TileMap implements Disposable {
                     boolean vertical =
                         this.generator.grid.get(i - 1).get(j).getCellType().isWall() &&
                             this.generator.grid.get(i + 1).get(j).getCellType().isWall();
-                    spawnRandomTrap(x, y + 1, vertical);
+                    spawnRandomTrap(x, y, vertical);
                 }
 
             }
@@ -133,33 +173,37 @@ public class TileMap implements Disposable {
     }
 
     /**
-     * Spawn a random trap at x y position
      *
-     * @param x the x position <b>(must be cell center)</b>
-     * @param y the y position <b>(must be cell center)</b>
+     */
+    private AbsolutePoint getCellCenter(int x, int y) {
+        return new AbsolutePoint(x + 0.5f, y + 0.5f).toMetersFromCells();
+    }
+
+    /**
+     * Spawn a random trap at x y position
+     * @param x the x position <b>(must be 3x3 cell center)</b>
+     * @param y the y position <b>(must be 3x3 cell center)</b>
+     * @param vertical {@code true} if the passage is vertical
      */
     private void spawnRandomTrap(int x, int y, boolean vertical) {
-        float xActual = x + 0.5f;
-        float yActual = y - 0.5f;
+
+        AbsolutePoint center = getCellCenter(x, y);
+        DebugRenderer.getInstance().spawnCircle(center, 0.25f);
+        float xActual = center.x();
+        float yActual = center.y();
         if (!vertical) --yActual;
         TrapType trapType = vertical ?
             TrapType.pickRandomHorizontalTrap(generator.getRandom()) :
             TrapType.pickRandomVerticalTrap(generator.getRandom());
 
         Trap trap = new Trap(trapType);
-        boolean singleCellTrap = false;
-        try {
-            singleCellTrap = trap.attributes.width() == 1 && trap.attributes.height() == 1;
+        boolean singleCellTrap = trap.attributes.width() == 1 && trap.attributes.height() == 1;
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
         ///  If the trap is longer or higher than 3 cells (passage size),
         ///  we need to align it properly towards the carrying wall
         xActual -= max(0, trap.attributes.width() - 3) / 2f;
         yActual += max(0, trap.attributes.height() - 3) / 2f;
         if (singleCellTrap) {
-
             tileEntityManager.createTileEntity(trap, xActual, yActual);
             tileEntityManager.createTileEntity(
                 new Trap(trapType), xActual - (!vertical ? 1 : 0), yActual - (vertical ? 1 : 0)

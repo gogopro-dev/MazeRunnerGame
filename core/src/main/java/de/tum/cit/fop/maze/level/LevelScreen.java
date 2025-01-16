@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.entities.*;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.tile.TileEntityManager;
+import de.tum.cit.fop.maze.entities.tile.Torch;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.entities.tile.TileEntityContactListener;
 
@@ -138,14 +139,30 @@ public class LevelScreen implements Screen {
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);
         player = new Player(batch);
-        player.spawn(map.widthMeters / 2, map.heightMeters / 2, world);
+        player.spawn(map.widthMeters / 2 + 8, map.heightMeters / 2, world);
 
         /// Set camera at the center of the players position in Box2D world
-        camera.position.set(player.getPosition().x(), player.getPosition().y(), 0);
+        camera.position.set(player.getPosition().x() + 5, player.getPosition().y(), 0);
         camera.zoom = 1.25f;
         camera.update();
 
         hud = new HUDv2(player);
+        tileEntityManager.createTileEntity(
+            new Torch(Torch.Orientation.UP),
+            map.widthMeters / 2, map.heightMeters / 2
+        );
+        tileEntityManager.createTileEntity(
+            new Torch(Torch.Orientation.LEFT),
+            map.widthMeters / 2 + 1, map.heightMeters / 2
+        );
+        tileEntityManager.createTileEntity(
+            new Torch(Torch.Orientation.RIGHT),
+            map.widthMeters / 2 + 2, map.heightMeters / 2
+        );
+        tileEntityManager.createTileEntity(
+            new Torch(Torch.Orientation.DOWN),
+            map.widthMeters / 2 + 3, map.heightMeters / 2
+        );
 
         /*enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 10);
         enemyManager.createEnemy(new Enemy(EnemyType.SKELETON, batch), 8.3f, 12);

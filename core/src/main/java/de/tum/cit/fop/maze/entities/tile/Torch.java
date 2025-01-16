@@ -1,0 +1,103 @@
+package de.tum.cit.fop.maze.entities.tile;
+
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.physics.box2d.*;
+import de.tum.cit.fop.maze.BodyBits;
+import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.Utils;
+import de.tum.cit.fop.maze.level.LevelScreen;
+import org.jetbrains.annotations.Nullable;
+
+
+public class Torch extends TileEntity {
+    public enum Orientation {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT
+    }
+
+    private boolean lit = false;
+
+    public static final float activationRadius = 2f;
+    private float elapsedTime = 0f;
+    private final Orientation orientation;
+    private final @Nullable Animation<TextureAtlas.AtlasRegion> torchAnimation;
+    private final @Nullable TextureRegion standTexture;
+
+    public Torch(Orientation orientation) {
+        super(1, 1, new BodyDef(), new FixtureDef());
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.fixedRotation = true;
+        CircleShape shape = new CircleShape();
+        shape.setRadius(activationRadius * Globals.CELL_SIZE_METERS);
+        fixtureDef.shape = shape;
+        fixtureDef.isSensor = true;
+        fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
+        fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
+        this.orientation = orientation;
+
+        TextureAtlas textureAtlas = new TextureAtlas("anim/tileEntities/torches.atlas");
+        switch (orientation) {
+            case UP -> {
+                this.torchAnimation =
+                    new Animation<>(
+                        0.1f, textureAtlas.findRegions("front_torch"), Animation.PlayMode.LOOP
+                    );
+                this.standTexture = textureAtlas.findRegion("front_torch_stand");
+            }
+            case LEFT, RIGHT -> {
+                this.torchAnimation =
+                    new Animation<>(
+                        0.1f, textureAtlas.findRegions("side_torch"), Animation.PlayMode.LOOP
+                    );
+                this.standTexture = textureAtlas.findRegion("side_torch_stand");
+            }
+            default -> {
+                this.torchAnimation = null;
+                this.standTexture = null;
+            }
+        }
+
+    }
+
+    @Override
+    public void render(float delta) {
+        elapsedTime += delta;
+        if (torchAnimation != null && standTexture != null) {
+            TextureRegion frame = lit ? torchAnimation.getKeyFrame(elapsedTime, true) : standTexture;
+            if (orientation == Orientation.RIGHT && !frame.isFlipX()) {
+                frame.flip(true, false);
+            }
+
+            batch.draw(frame,
+                getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
+                getSpriteDrawWidth(), getSpriteDrawHeight()
+            );
+        }
+    }
+
+
+    @Override
+    public void onPlayerStartContact(Contact c) {
+        super.onPlayerStartContact(c);
+
+    }
+
+    @Override
+    public void contactTick(float delta) {
+        if (!lit &&
+            LevelScreen.getInstance().player.isHoldingTorch() &&
+            /// -1/4f for centering source point of the torch center
+            Utils.isPlayerReachable(
+                this.getPosition().addY(-1 / 4f * Globals.CELL_SIZE_METERS), activationRadius * 2
+            )
+        ) {
+            lit = true;
+        }
+    }
+
+
+}

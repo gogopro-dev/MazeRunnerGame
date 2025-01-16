@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import de.tum.cit.fop.maze.essentials.Utils;
 
 public class TextLabel extends Label{
     private String text;
@@ -17,7 +18,7 @@ public class TextLabel extends Label{
         LabelStyle style = new LabelStyle();
         style.font = new BitmapFont(Gdx.files.local("font/YosterIslandRegular-VqMe.ttf")); //// Load custom font
         //TODO: replace it with a different Background
-        style.background = commonFunctions.getColoredDrawable(100, 100, new Color(0, 0, 0, 0));
+        style.background = Utils.getColoredDrawable(100, 100, new Color(0, 0, 0, 0));
         this.setStyle(style);
     }
 }

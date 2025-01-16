@@ -1,0 +1,98 @@
+package de.tum.cit.fop.maze.essentials;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.entities.Enemy;
+import de.tum.cit.fop.maze.level.LevelScreen;
+
+import java.util.ArrayList;
+
+public class Utils {
+    public static Drawable getColoredDrawable(int width, int height, Color color) {
+        // create simple font for Stamina Bar
+        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fill();
+        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture(pixmap)));
+        pixmap.dispose();
+
+        return drawable;
+    }
+
+    /**
+     * Check if the player is reachable (not blocked by any obstacles and within the vision range)
+     *
+     * @param sourcePoint The point to check from
+     * @return {@code true} if the player is reachable {@code false} otherwise
+     */
+    public static boolean isPlayerReachable(AbsolutePoint sourcePoint) {
+        LevelScreen levelScreen = LevelScreen.getInstance();
+        AbsolutePoint playerPosition = levelScreen.player.getPosition();
+        BoundingRectangle playerRect = levelScreen.player.boundingRectangle;
+        ArrayList<AbsolutePoint> playerTrackingPoints = new ArrayList<>();
+        /// We will track the player with 3 points on the top, middle and bottom of the player
+        for (int i = 1; i <= 3; ++i) {
+            playerTrackingPoints.add(
+                new AbsolutePoint(
+                    playerPosition.x(),
+                    playerPosition.y() - playerRect.height() / 1.7f + playerRect.height() * i / 3
+                )
+            );
+        }
+        boolean finalResult = false;
+
+        for (AbsolutePoint playerTrackingPoint : playerTrackingPoints) {
+            boolean[] result = {true};
+            levelScreen.world.rayCast(
+                (fixture, point, normal, fraction) -> {
+                    if (fixture.getBody().getUserData() == "enemy") return -1;
+                    if (fixture.getBody().getUserData() == null) {
+                        result[0] = false;
+                    }
+                    return fraction;
+                },
+                sourcePoint.toVector2(),
+                playerTrackingPoint.toVector2()
+            );
+            DebugRenderer.getInstance().drawLine(sourcePoint, playerTrackingPoint, result[0] ? Color.GREEN : Color.RED);
+            finalResult |= result[0];
+
+        }
+        return finalResult;
+    }
+
+    public static boolean isPlayerReachable(AbsolutePoint sourcePoint, float rayLength) {
+        LevelScreen levelScreen = LevelScreen.getInstance();
+        AbsolutePoint playerPosition = levelScreen.player.getPosition();
+        if (sourcePoint.distance(playerPosition) > rayLength) {
+            return false;
+        }
+        return isPlayerReachable(sourcePoint);
+    }
+
+    public static Texture getColoredTexture(int width, int height, Color color) {
+        // create simple font for Stamina Bar
+        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fill();
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+
+        return texture;
+    }
+
+    public static Drawable turnPixmapToDrawable(Pixmap pixmap) {
+        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture(pixmap)));
+        return drawable;
+    }
+
+    public static Texture turnPixmapToTexture(Pixmap pixmap) {
+        Texture texture = new Texture(pixmap);
+        return texture;
+    }
+}

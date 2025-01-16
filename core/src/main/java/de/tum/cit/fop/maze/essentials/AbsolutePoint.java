@@ -1,6 +1,7 @@
 package de.tum.cit.fop.maze.essentials;
 
 import com.badlogic.gdx.math.Vector2;
+import de.tum.cit.fop.maze.Globals;
 
 /**
  * Represents a point in the world with absolute coordinates with some handy utility methods.
@@ -37,6 +38,20 @@ public record AbsolutePoint(float x, float y) {
     public Vector2 toVector2() {
         return new Vector2(x, y);
     }
+
+
+    public AbsolutePoint toMetersFromCells() {
+        return new AbsolutePoint(x * Globals.CELL_SIZE_METERS, y * Globals.CELL_SIZE_METERS);
+    }
+
+    public AbsolutePoint addX(float x) {
+        return new AbsolutePoint(this.x + x, this.y);
+    }
+
+    public AbsolutePoint addY(float y) {
+        return new AbsolutePoint(this.x, this.y + y);
+    }
+
 
     // Locale does not matter for numbers
     @SuppressWarnings("DefaultLocale")
