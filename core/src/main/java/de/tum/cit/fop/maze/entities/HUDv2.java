@@ -87,7 +87,7 @@ public class HUDv2 {
     }
 
     public void loadTextures() {
-        atlas = new TextureAtlas(Gdx.files.local("temporary\\HUDv2\\HUD_v2.atlas"));
+        atlas = new TextureAtlas(Gdx.files.local("temporary/HUDv2/HUD_v2.atlas"));
         animations = new HashMap<>();
 
         Animation<TextureRegion> lHFtoE = new Animation<>(heartsAnimationFrameDuration,
