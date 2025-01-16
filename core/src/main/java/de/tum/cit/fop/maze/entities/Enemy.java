@@ -19,8 +19,8 @@ public class Enemy extends Entity {
     private final EnemyType enemyType;
     private EnemyConfig config;
     private float elapsedTime = 0f;
-    private boolean isHitting = false;
-    private float hitElapsedTime = 0f;    // Tracks time for hit animation
+    private boolean isAttacking = false;
+    private float attackElapsedTime = 0f;    // Tracks time for attack animation
     private boolean isMovingToPlayer = false;
     private boolean facingRight = true;
     private boolean canHit = true;
@@ -47,15 +47,19 @@ public class Enemy extends Entity {
 
     public void render(float deltaTime) {
         elapsedTime += deltaTime;
-        if (isHitting) {
-            hitElapsedTime += deltaTime;
+        if (isAttacking) {
+            attackElapsedTime += deltaTime;
+        }
+
+        if (isAttacking && attackAnimation.getAnimationDuration() / 2 < attackElapsedTime) {
+            //TODO: Attack player
         }
 
         // Check if hit animation is finished
-        if (isHitting && attackAnimation.isAnimationFinished(hitElapsedTime)) {
-            isHitting = false; // Reset hit state
+        if (isAttacking && attackAnimation.isAnimationFinished(attackElapsedTime)) {
+            isAttacking = false; // Reset hit state
             canHit = true; // Reset hit cooldownI
-            hitElapsedTime = 0f; // Reset hit animation time
+            attackElapsedTime = 0f; // Reset hit animation time
         } else if (isMoving() && isMovingToPlayer) {
             currentAnimation = movementTPAnimation;
         } else if (isMoving() && !isMovingToPlayer) {
@@ -81,7 +85,21 @@ public class Enemy extends Entity {
 
         batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
     }
+    public void die() {
+        currentAnimation = dieAnimation;
+    }
 
+    public void attack() {
+        if (canHit) {
+            isAttacking = true;
+            canHit = false;
+            currentAnimation = attackAnimation;
+        }
+    }
+
+    /**
+     * Load animations from the enemyConfig.json file
+     */
     public void loadAnimations() {
         Gson gson = new Gson();
         FileHandle file = Gdx.files.internal("anim/enemies/enemyConfig.json");
