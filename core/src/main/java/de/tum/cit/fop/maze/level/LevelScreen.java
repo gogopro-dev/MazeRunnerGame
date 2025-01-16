@@ -85,7 +85,7 @@ public class LevelScreen implements Screen {
 
     @Override
     public void show() {
-
+        hud.show();
     }
 
     @Override
@@ -165,4 +165,5 @@ public class LevelScreen implements Screen {
         }
         return instance;
     }
+
 }
