@@ -49,14 +49,14 @@ public abstract class Entity {
     }
 
     /**
-     * Returns the current health of the entity.
+     * Checks if the entity is dead.
      */
     public boolean isDead() {
         return health <= 0;
     }
 
     /**
-     * Returns the current health of the entity.
+     * Takes damage from the entity.
      * @param damage The amount of damage to take.
      */
     public void takeDamage(int damage) {
@@ -64,7 +64,7 @@ public abstract class Entity {
     }
 
     /**
-     * Returns the current health of the entity.
+     * Heals the entity.
      * @param amount The amount to heal.
      */
     public void heal(int amount) {
@@ -75,7 +75,7 @@ public abstract class Entity {
     }
 
     /**
-     * Returns the current health of the entity.
+     * Uses stamina from the entity.
      * @param amount The amount of stamina to use.
      */
     public void useStamina(int amount) {
@@ -83,7 +83,7 @@ public abstract class Entity {
     }
 
     /**
-     * Returns the current health of the entity.
+     * Restores stamina to the entity.
      * @param amount The amount of stamina to restore.
      */
     public void restoreStamina(int amount) {
