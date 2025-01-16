@@ -3,12 +3,17 @@ package de.tum.cit.fop.maze.essentials;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Disposable;
+import de.tum.cit.fop.maze.LoadMenu;
+import de.tum.cit.fop.maze.level.LevelScreen;
+
+import java.util.logging.Level;
 
 /**
  * Class for the fade overlay.</br>
  * Used to fade in and out the screen.
  */
-public class FadeOverlay {
+public class FadeOverlay implements Disposable {
     private final ShapeRenderer shapeRenderer;
     private final float fadeSpeed = 0.5f; // Adjust this to control fade speed
     private float alpha = 0;
@@ -84,11 +89,15 @@ public class FadeOverlay {
         shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         shapeRenderer.end();
         Gdx.gl.glDisable(GL20.GL_BLEND);
+        if (state == State.NONE) {
+            LoadMenu.getInstance().setScreen(LevelScreen.getInstance());
+            this.dispose();
+            System.out.println("FadeOverlay disposed");
+            System.out.println(LoadMenu.getInstance().getScreen());
+        }
     }
 
-    /**
-     * Disposes the shape renderer
-     */
+    @Override
     public void dispose() {
         shapeRenderer.dispose();
     }
