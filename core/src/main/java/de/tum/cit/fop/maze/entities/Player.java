@@ -185,6 +185,13 @@ public class Player extends Entity {
             velocityX /= (float) Math.sqrt(2);
             velocityY /= (float) Math.sqrt(2);
         }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) && stamina > 0) {
+            velocityX *= 1.3f;
+            velocityY *= 1.3f;
+            useStamina(1);
+        }
+
         body.setLinearVelocity(velocityX, velocityY);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && canHit) {
@@ -206,6 +213,14 @@ public class Player extends Entity {
 
         /// Move camera with the player
         updateCameraPosition();
+
+        /// Handle camera zoom
+        if (Gdx.input.isKeyPressed(Input.Keys.EQUALS) && camera.zoom > Globals.DEFAULT_CAMERA_ZOOM - 0.5f) {
+            camera.zoom -= 0.0002f;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.MINUS) && camera.zoom < Globals.DEFAULT_CAMERA_ZOOM + 0.5f) {
+            camera.zoom += 0.0002f;
+        }
     }
 
     public void updateCameraPosition() {
