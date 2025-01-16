@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.*;
+import de.tum.cit.fop.maze.essentials.FadeOverlay;
+import de.tum.cit.fop.maze.level.LevelScreen;
 
 /**
  * Class for the main menu.
@@ -27,15 +29,18 @@ public class Menu implements Screen {
     private float stateTime = 0f;
     private int currentFrameIndex = 0;
     private static final float FRAME_DURATION = 0.1f;
+    private final FadeOverlay fadeOverlay;
     /**
      * Constructor for the main menu.</br>
      * Creates the stage and sets the input processor.</br>
      */
     private Menu() {
-        // Camera, Viewport nad SpriteBatch setup
+        /// Camera, Viewport nad SpriteBatch setup
         camera = new OrthographicCamera();
         viewport = new FitViewport(1024, 764, camera);
         batch = new SpriteBatch();
+
+        fadeOverlay = new FadeOverlay();
 
         mainMenuUI = new MainMenuUI(viewport, batch);
         settingsUI = new SettingsUI(viewport, batch);
@@ -67,10 +72,11 @@ public class Menu implements Screen {
         Gdx.input.setInputProcessor(null);
 
         switch (menuState){
+            case PLAY:
+                fadeOverlay.startFadeIn();
+                break;
             case MAIN_MENU:
                 mainMenuUI.show();
-                break;
-            case PLAY:
                 break;
             case CREATE_NEW_GAME:
                 break;
@@ -85,19 +91,19 @@ public class Menu implements Screen {
 
     @Override
     public void render(float delta) {
-        // Clear the screen
+        /// Clear the screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Update animation state time
+        /// Update animation state time
         stateTime += delta;
 
-        // Determine current frame
+        /// Determine current frame
         if (stateTime >= FRAME_DURATION) {
             currentFrameIndex = (currentFrameIndex + 1) % backgroundRegions.size;
             stateTime = 0f;
         }
-        // Draw current background frame
+        /// Draw current background frame
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         batch.draw(
@@ -109,6 +115,23 @@ public class Menu implements Screen {
         batch.end();
 
         switch (menuState){
+            case PLAY:
+
+                    /// Check if fade in/out is finished
+                    if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
+                        /// Switch to rendering level screen
+                        LevelScreen.getInstance().render(delta);
+                    } else {
+                        /// Continue rendering menu while fading
+                        mainMenuUI.render(delta);
+                    }
+
+                    /// if fading out is not finished, render overlay
+                    if (!fadeOverlay.isFinishedOut()) {
+                        fadeOverlay.render(delta);
+                    }
+
+                break;
             case MAIN_MENU:
                 mainMenuUI.render(delta);
                 break;
@@ -126,7 +149,7 @@ public class Menu implements Screen {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height, true);
-        // Center the viewport in the window
+        /// Center the viewport in the window
         viewport.setScreenBounds(
             (width - SCREEN_WIDTH) / 2,
             (height - SCREEN_HEIGHT) / 2,
@@ -156,6 +179,8 @@ public class Menu implements Screen {
         mainMenuUI.dispose();
         settingsUI.dispose();
         creditsUI.dispose();
+        fadeOverlay.dispose();
+        batch.dispose();
     }
 
     @Override
