@@ -63,38 +63,44 @@ public class LevelScreen implements Screen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1, true);
-
-        /// Render the game if not paused
-        if (!pauseScreen.isPaused()) {
-            worldLock.lock();
-            doPhysicsStep(delta);
-            worldLock.unlock();
-
-            DebugRenderer.getInstance().begin();
-            tiledMapRenderer.setView(camera);
-            tiledMapRenderer.render();
-
-            camera.update();
-            debugRenderer.render(world, camera.combined);
-            batch.setProjectionMatrix(camera.combined);
-            DebugRenderer.getInstance().setProjectionMatrix(camera.combined);
-
-            batch.begin();
-            tileEntityManager.render(delta);
-            enemyManager.render(delta);
-            player.render(delta);
-            batch.end();
-
-            hud.render(delta);
-            DebugRenderer.getInstance().end();
-        } else {
+        if (pauseScreen.isPaused()){
             /// Render the last frame before pausing
             Texture pauseTexture = new Texture(pauseScreen.getLastFrame());
             batch.begin();
-            batch.draw(pauseTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, pauseTexture.getWidth(), pauseTexture.getHeight(), false, true);
+            batch.draw(pauseTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
+                0, 0, pauseTexture.getWidth(), pauseTexture.getHeight(),
+                false, true);
             batch.end();
             pauseTexture.dispose();
+            /// Update and render pause screen
+            pauseScreen.update();
+            pauseScreen.render(delta);
+            return;
         }
+
+        /// Render the game if not paused
+        worldLock.lock();
+        doPhysicsStep(delta);
+        worldLock.unlock();
+
+        DebugRenderer.getInstance().begin();
+        tiledMapRenderer.setView(camera);
+        tiledMapRenderer.render();
+
+        camera.update();
+        debugRenderer.render(world, camera.combined);
+        batch.setProjectionMatrix(camera.combined);
+        DebugRenderer.getInstance().setProjectionMatrix(camera.combined);
+
+        batch.begin();
+        tileEntityManager.render(delta);
+        enemyManager.render(delta);
+        player.render(delta);
+        batch.end();
+
+        hud.render(delta);
+        DebugRenderer.getInstance().end();
+
         /// Update and render pause screen
         pauseScreen.update();
         pauseScreen.render(delta);
