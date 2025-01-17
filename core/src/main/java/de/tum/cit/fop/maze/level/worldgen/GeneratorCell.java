@@ -1,5 +1,6 @@
 package de.tum.cit.fop.maze.level.worldgen;
 import com.badlogic.gdx.utils.Null;
+import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.level.worldgen.rooms.Room;
 
 /**
@@ -7,9 +8,9 @@ import de.tum.cit.fop.maze.level.worldgen.rooms.Room;
  */
 public final class GeneratorCell {
     /// Row index
-    public final int i;
+    private int i;
     /// Column index
-    public final int j;
+    private int j;
     /// The {@link CellType} of the cell
     private CellType cellType;
     /// The room the cell is part of
@@ -68,5 +69,37 @@ public final class GeneratorCell {
     public boolean equals(Object obj) {
         if (!(obj instanceof GeneratorCell other)) return false;
         return i == other.i && j == other.j;
+    }
+
+    public int getI() {
+        return i;
+    }
+
+    public int getJ() {
+        return j;
+    }
+
+    public void setI(int i) {
+        this.i = i;
+    }
+
+    public void setJ(int j) {
+        this.j = j;
+    }
+
+    public Direction getDirection(GeneratorCell other) {
+        if (this.i == other.i) {
+            if (this.j < other.j) {
+                return Direction.RIGHT;
+            } else {
+                return Direction.LEFT;
+            }
+        } else {
+            if (this.i < other.i) {
+                return Direction.DOWN;
+            } else {
+                return Direction.UP;
+            }
+        }
     }
 }

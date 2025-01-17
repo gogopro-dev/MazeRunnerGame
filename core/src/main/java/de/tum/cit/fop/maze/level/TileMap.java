@@ -12,7 +12,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
@@ -23,13 +22,14 @@ import de.tum.cit.fop.maze.entities.tile.Trap;
 import de.tum.cit.fop.maze.entities.tile.TrapType;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
+import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.level.worldgen.CellType;
 import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static de.tum.cit.fop.maze.Globals.*;
 import static java.lang.Math.max;
@@ -55,7 +55,6 @@ public class TileMap implements Disposable {
         this.generator = new MazeGenerator(height, width, seed);
         this.map = new TiledMap();
         ArrayList<AbsolutePoint> torches = new ArrayList<>();
-        AbsolutePoint closestTorch = null;
         // Always get width and height from the generator, because it always makes the parameters odd
         generator.generate();
         this.width = generator.width * 3;
@@ -88,8 +87,7 @@ public class TileMap implements Disposable {
         int startJ = 1;
         for (int i = generator.height - 1; i >= 0; --i) {
             for (int j = generator.width - 1; j >= 0; --j) {
-
-                GeneratorCell cell = generator.grid.get(i).get(j);
+                final GeneratorCell cell = generator.grid.get(i).get(j);
                 int x = startJ + j * 3;
                 int y = layer.getHeight() - (startI + i * 3);
                 DebugRenderer.getInstance().spawnRectangle(
@@ -105,31 +103,7 @@ public class TileMap implements Disposable {
                 ///  Floor
                 if (cell.getCellType().isWalkable()) {
                     setSquare(textures.getTextureWithVariationChance("floor"), x, y);
-                    if (cell.getCellType() != CellType.TRAP && !GenerationCases.isEdge(i, j, generator)) {
-                        boolean anySurroundingWall;
-                        if (false) {
-                            AbsolutePoint current = getCellCenter(x, y);
-                            for (AbsolutePoint torch : torches) {
-                                if (closestTorch != null && current.distance(closestTorch) > Torch.activationRadius * 2) {
-                                    closestTorch = torch;
-                                } else if (closestTorch == null) {
-                                    closestTorch = torch;
-                                }
-                            }
-                            if (closestTorch == null || torches.isEmpty() ||
-                                current.distance(closestTorch) > Torch.activationRadius * 2) {
-                                if (false) {
-
-                                } else {
-
-                                }
-                                DebugRenderer.getInstance().spawnCircle(current, 0.25f);
-
-
-                            }
-                        }
-
-                    }
+                    tryTorchSpawn(i, j, cell, x, y, torches);
                 }
                 ///  Room walls
                 if (cell.getCellType() == CellType.WALL || cell.getCellType() == CellType.ROOM_WALL) {
@@ -172,10 +146,55 @@ public class TileMap implements Disposable {
 
     }
 
+    private void tryTorchSpawn(int i, int j, GeneratorCell cell, int x, int y, ArrayList<AbsolutePoint> torches) {
+        AbsolutePoint closestTorch = null;
+        GeneratorCell torchCell = GenerationCases.getFirstSurroundingWall(i, j, generator);
+        if (
+            cell.getCellType() != CellType.TRAP &&
+                !GenerationCases.isEdge(i, j, generator) &&
+                torchCell != null
+        ) {
+            Direction torchDirection = cell.getDirection(torchCell);
+            AbsolutePoint current = getCellCenterMeters(x, y);
+            AbsolutePoint torchPoint = getTorchPoint(torchDirection, current);
+
+            for (AbsolutePoint torch : torches) {
+                if (closestTorch != null && torchPoint.distance(closestTorch) > torchPoint.distance(torch)) {
+                    closestTorch = torch;
+                } else if (closestTorch == null) {
+                    closestTorch = torch;
+                }
+            }
+
+            if (closestTorch != null && torchPoint.distance(closestTorch) < Torch.activationRadius * TORCH_GAP) {
+                return;
+            }
+            torches.add(torchPoint);
+            tileEntityManager.createTileEntity(
+                new Torch(torchDirection), torchPoint.x(), torchPoint.y()
+            );
+            DebugRenderer.getInstance().spawnCircle(current, 0.25f);
+        }
+    }
+
+    private static AbsolutePoint getTorchPoint(Direction torchDirection, AbsolutePoint current) {
+        AbsolutePoint torchPoint;
+        switch (
+            torchDirection
+        ) {
+            case UP -> torchPoint = current.addY(CELL_SIZE_METERS * 3);
+            case DOWN -> torchPoint = current.addY(-CELL_SIZE_METERS * 1.25f);
+            case LEFT -> torchPoint = current.addX(-CELL_SIZE_METERS);
+            case RIGHT -> torchPoint = current.addX(CELL_SIZE_METERS);
+            default -> throw new IllegalStateException("Unexpected value: " + torchDirection);
+        }
+        return torchPoint;
+    }
+
     /**
      *
      */
-    private AbsolutePoint getCellCenter(int x, int y) {
+    private AbsolutePoint getCellCenterMeters(int x, int y) {
         return new AbsolutePoint(x + 0.5f, y + 0.5f).toMetersFromCells();
     }
 
@@ -187,7 +206,7 @@ public class TileMap implements Disposable {
      */
     private void spawnRandomTrap(int x, int y, boolean vertical) {
 
-        AbsolutePoint center = getCellCenter(x, y);
+        AbsolutePoint center = getCellCenterMeters(x, y);
         DebugRenderer.getInstance().spawnCircle(center, 0.25f);
         float xActual = center.x();
         float yActual = center.y();

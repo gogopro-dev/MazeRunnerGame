@@ -8,13 +8,13 @@ package de.tum.cit.fop.maze.level.worldgen;
  */
 public record PassagePossibility(GeneratorCell a, GeneratorCell wall, GeneratorCell b) {
     public PassagePossibility {
-        if (a.i == b.i && a.j == b.j) {
+        if (a.getI() == b.getI() && a.getJ() == b.getJ()) {
             throw new IllegalArgumentException("a and b cannot be the same cell");
         }
-        if (a.i != wall.i && a.j != wall.j) {
+        if (a.getI() != wall.getI() && a.getJ() != wall.getJ()) {
             throw new IllegalArgumentException("wall must be in the same row or column as a");
         }
-        if (b.i != wall.i && b.j != wall.j) {
+        if (b.getI() != wall.getI() && b.getJ() != wall.getJ()) {
             throw new IllegalArgumentException("wall must be in the same row or column as b");
         }
     }

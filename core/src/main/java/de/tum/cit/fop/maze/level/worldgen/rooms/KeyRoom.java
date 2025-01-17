@@ -16,9 +16,9 @@ public class KeyRoom extends Room {
     @Override
     public void generate(ArrayList<ArrayList<GeneratorCell>> mazeCells, Random random) {
         for (GeneratorCell cell : this.roomCells) {
-            updateCellType(mazeCells, cell.i, cell.j, CellType.ROOM_PATH);
-            if (cell.i == i + 1 && cell.j == j + 1) {
-                updateCellType(mazeCells, cell.i, cell.j, CellType.KEY_OBELISK);
+            updateCellType(mazeCells, cell.getI(), cell.getJ(), CellType.ROOM_PATH);
+            if (cell.getI() == i + 1 && cell.getJ() == j + 1) {
+                updateCellType(mazeCells, cell.getI(), cell.getJ(), CellType.KEY_OBELISK);
             }
         }
     }

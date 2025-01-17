@@ -77,20 +77,20 @@ public abstract class Room {
         List<GeneratorCell> candidates = this.roomCells.stream().filter(
             cell -> (
                 cell.getCellType() == CellType.ROOM_WALL && (
-                    cell.i != i || cell.j != j
+                    cell.getI() != i || cell.getJ() != j
                 ) && (
-                    cell.i != i + height - 1 || cell.j != j
+                    cell.getI() != i + height - 1 || cell.getJ() != j
                 ) && (
-                    cell.i != i || cell.j != j + width - 1
+                    cell.getI() != i || cell.getJ() != j + width - 1
                 ) && (
-                    cell.i != i + height - 1 || cell.j != j + width - 1
+                    cell.getI() != i + height - 1 || cell.getJ() != j + width - 1
                 )
             )
         ).collect(Collectors.toList());
         Collections.shuffle(candidates, random);
         for (GeneratorCell candidate : candidates) {
-            int cellI = candidate.i;
-            int cellJ = candidate.j;
+            int cellI = candidate.getI();
+            int cellJ = candidate.getJ();
             if (cellI - 1 > 0 && maze.get(cellI - 1).get(cellJ).getCellType() == CellType.PATH) {
                 updateCellType(maze, cellI, cellJ, CellType.DOOR);
                 return;
@@ -108,8 +108,8 @@ public abstract class Room {
 
         /// Remove a wall next to the door as well if there is no other options to generate a reachable door
         for (GeneratorCell candidate : candidates) {
-            int cellI = candidate.i;
-            int cellJ = candidate.j;
+            int cellI = candidate.getI();
+            int cellJ = candidate.getJ();
             if (cellI - 1 > 0 && maze.get(cellI - 1).get(cellJ).getCellType() == CellType.WALL) {
                 updateCellType(maze, cellI, cellJ, CellType.DOOR);
                 updateCellType(maze, cellI - 1, cellJ, CellType.PATH);

@@ -1,11 +1,21 @@
 package de.tum.cit.fop.maze.level;
 
+import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 
 /**
  * <p>Contains the different cases to process the generation of the maze, to distinguish different specifics</p>
  */
 public final class GenerationCases {
+
+    /**
+     * Private constructor to prevent instantiation
+     *
+     * @throws UnsupportedOperationException if the constructor is called
+     */
+    private GenerationCases() {
+        throw new UnsupportedOperationException("This class cannot be instantiated");
+    }
 
     /**
      * Checks if the current cell is located on the edge of the maze
@@ -108,5 +118,33 @@ public final class GenerationCases {
                 generator.grid.get(i + 1).get(j).getCellType().isWall() ||
                 generator.grid.get(i).get(j + 1).getCellType().isWall() ||
                 generator.grid.get(i).get(j - 1).getCellType().isWall();
+    }
+
+    /**
+     * Returns a surrounding wall of the current cell, if any with the following priority:
+     * <ol>
+     *     <li>Top wall</li>
+     *     <li>Left wall</li>
+     *     <li>Right wall</li>
+     *     <li>Bottom wall</li>
+     * </ol>
+     */
+    public static GeneratorCell getFirstSurroundingWall(int i, int j, MazeGenerator generator) {
+        if (isEdge(i, j, generator)) {
+            return null;
+        }
+        if (generator.grid.get(i - 1).get(j).getCellType().isWall()) {
+            return generator.grid.get(i - 1).get(j);
+        }
+        if (generator.grid.get(i).get(j - 1).getCellType().isWall()) {
+            return generator.grid.get(i).get(j - 1);
+        }
+        if (generator.grid.get(i).get(j + 1).getCellType().isWall()) {
+            return generator.grid.get(i).get(j + 1);
+        }
+        if (generator.grid.get(i + 1).get(j).getCellType().isWall()) {
+            return generator.grid.get(i + 1).get(j);
+        }
+        return null;
     }
 }

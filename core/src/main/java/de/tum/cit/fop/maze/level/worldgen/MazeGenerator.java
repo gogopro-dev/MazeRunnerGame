@@ -115,7 +115,7 @@ public final class MazeGenerator {
      * @param current The cell to set.
      */
     private void setTrue(GeneratorCell current) {
-        willsonsCellGrid.get(current.i).set(current.j, true);
+        willsonsCellGrid.get(current.getI()).set(current.getJ(), true);
     }
 
     public void generate() {
@@ -137,6 +137,13 @@ public final class MazeGenerator {
         for (int i = 0; i < height; i++) {
             grid.get(i).add(0, new GeneratorCell(i, 0, CellType.WALL));
             grid.get(i).add(new GeneratorCell(i, width - 1, CellType.WALL));
+        }
+        /// Update all cells coordinates
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                grid.get(i).get(j).setI(i);
+                grid.get(i).get(j).setJ(j);
+            }
         }
         generateTraps();
     }
@@ -303,8 +310,8 @@ public final class MazeGenerator {
         while (!queue.isEmpty()) {
 
             GeneratorCell current = queue.poll();
-            int i = current.i;
-            int j = current.j;
+            int i = current.getI();
+            int j = current.getJ();
             if (visited[i][j] > 0) {
                 continue;
             }
@@ -445,8 +452,8 @@ public final class MazeGenerator {
             if (queue.isEmpty()) break;
             while(!queue.isEmpty()) {
                 GeneratorCell current = queue.poll();
-                int i = current.i;
-                int j = current.j;
+                int i = current.getI();
+                int j = current.getJ();
                 if (visited[i][j] > 0 || !grid.get(i).get(j).getCellType().isWalkable()) {
                     continue;
                 }
@@ -492,11 +499,11 @@ public final class MazeGenerator {
             GeneratorCell a = possibility.a();
             GeneratorCell b = possibility.b();
             GeneratorCell wall = possibility.wall();
-            if (dsu.same(visited[a.i][a.j], visited[b.i][b.j])) {
+            if (dsu.same(visited[a.getI()][a.getJ()], visited[b.getI()][b.getJ()])) {
                 continue;
             }
             wall.setCellType(CellType.PATH);
-            dsu.union(visited[a.i][a.j], visited[b.i][b.j]);
+            dsu.union(visited[a.getI()][a.getJ()], visited[b.getI()][b.getJ()]);
         }
 
     }
@@ -511,8 +518,8 @@ public final class MazeGenerator {
     private GeneratorCell getNextCell(GeneratorCell current, int directionIndex, int distance) {
         List<Integer> direction = directions.get(directionIndex);
         return new GeneratorCell(
-                current.i + direction.get(0) * distance,
-                current.j + direction.get(1) * distance
+            current.getI() + direction.get(0) * distance,
+            current.getJ() + direction.get(1) * distance
         );
     }
 
@@ -524,8 +531,8 @@ public final class MazeGenerator {
      */
     private boolean validDirection(GeneratorCell cell, int directionIndex) {
         GeneratorCell newCell = getNextCell(cell, directionIndex, 2);
-        return newCell.i >= 0 && newCell.i < generatorHeight &&
-            newCell.j >= 0 && newCell.j < generatorWidth;
+        return newCell.getI() >= 0 && newCell.getI() < generatorHeight &&
+            newCell.getJ() >= 0 && newCell.getJ() < generatorWidth;
     }
 
 

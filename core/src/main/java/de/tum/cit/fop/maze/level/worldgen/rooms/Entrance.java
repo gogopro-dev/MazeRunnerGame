@@ -16,7 +16,7 @@ public class Entrance extends Room {
     @Override
     public void generate(ArrayList<ArrayList<GeneratorCell>> mazeCells, Random random) {
         for (GeneratorCell cell : this.roomCells) {
-            updateCellType(mazeCells, cell.i, cell.j, CellType.ROOM_PATH);
+            updateCellType(mazeCells, cell.getI(), cell.getJ(), CellType.ROOM_PATH);
         }
     }
 

@@ -11,6 +11,7 @@ import de.tum.cit.fop.maze.Globals;
  */
 public record AbsolutePoint(float x, float y) {
 
+
     public float distance(AbsolutePoint other) {
         return (float) Math.sqrt(Math.pow(x - other.x, 2) + Math.pow(y - other.y, 2));
     }
@@ -50,6 +51,31 @@ public record AbsolutePoint(float x, float y) {
 
     public AbsolutePoint addY(float y) {
         return new AbsolutePoint(this.x, this.y + y);
+    }
+
+    /**
+     * Returns the orientation of this point relative to another point.
+     *
+     * @param other The other point.
+     * @return The orientation of this point relative to the other point.
+     * @throws IllegalArgumentException If the points are not aligned.
+     */
+    public Direction orientationTo(AbsolutePoint other) {
+        if (this.x == other.x) {
+            if (this.y < other.y) {
+                return Direction.UP;
+            } else {
+                return Direction.DOWN;
+            }
+        } else if (this.y == other.y) {
+            if (this.x < other.x) {
+                return Direction.RIGHT;
+            } else {
+                return Direction.LEFT;
+            }
+        } else {
+            throw new IllegalArgumentException("Points are not aligned");
+        }
     }
 
 

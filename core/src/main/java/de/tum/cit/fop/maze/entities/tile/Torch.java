@@ -6,28 +6,23 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import org.jetbrains.annotations.Nullable;
 
 
 public class Torch extends TileEntity {
-    public enum Orientation {
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT
-    }
 
     private boolean lit = false;
 
     public static final float activationRadius = 2f;
     private float elapsedTime = 0f;
-    private final Orientation orientation;
+    private final Direction direction;
     private final @Nullable Animation<TextureAtlas.AtlasRegion> torchAnimation;
     private final @Nullable TextureRegion standTexture;
 
-    public Torch(Orientation orientation) {
+    public Torch(Direction direction) {
         super(1, 1, new BodyDef(), new FixtureDef());
         bodyDef.type = BodyDef.BodyType.StaticBody;
         bodyDef.fixedRotation = true;
@@ -37,10 +32,10 @@ public class Torch extends TileEntity {
         fixtureDef.isSensor = true;
         fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
-        this.orientation = orientation;
+        this.direction = direction;
 
         TextureAtlas textureAtlas = new TextureAtlas("anim/tileEntities/torches.atlas");
-        switch (orientation) {
+        switch (direction) {
             case UP -> {
                 this.torchAnimation =
                     new Animation<>(
@@ -68,7 +63,7 @@ public class Torch extends TileEntity {
         elapsedTime += delta;
         if (torchAnimation != null && standTexture != null) {
             TextureRegion frame = lit ? torchAnimation.getKeyFrame(elapsedTime, true) : standTexture;
-            if (orientation == Orientation.RIGHT && !frame.isFlipX()) {
+            if (direction == Direction.RIGHT && !frame.isFlipX()) {
                 frame.flip(true, false);
             }
 
