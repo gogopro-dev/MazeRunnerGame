@@ -146,7 +146,7 @@ public class HUDv2 {
                 matrixHPBar.add(row);
                 row = new ArrayList<>();
                 y += offsetYStepHP + spacingY;
-                x = StartX;
+                x = padding + fillamentAlignmentX;
             }
         }
         if (!row.isEmpty()) {

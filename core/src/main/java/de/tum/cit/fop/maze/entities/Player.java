@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
-import de.tum.cit.fop.maze.Collectable;
+import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
@@ -72,9 +72,8 @@ public class Player extends Entity {
         movementTorchAnimation = new Animation<>(1f /40f * 3f, animAtlas.findRegions("Character_move_torch"));
         movementTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        // To test the HUD, uncomment the following line
-//        hud.forTesting();
-
+        health = 40;
+        maxHealth = 40;
     }
 
     /**
@@ -297,17 +296,20 @@ public class Player extends Entity {
         super.takeDamage(damage);
         isDamaged = true;
         damageFlashTimer = 0f;
+        LevelScreen.getInstance().hud.takeDmg(damage);
     }
 
     @Override
     public void heal(int amount) {
         super.heal(amount);
+        //TODO: HUD heal
         //hud.hea(amount);
     }
 
     @Override
     public void useStamina(int amount) {
         super.useStamina(amount);
+        LevelScreen.getInstance().hud.drainStamina(amount);
         //hud.useStamina(amount);
     }
 
@@ -317,13 +319,7 @@ public class Player extends Entity {
         //hud.restoreStamina(amount);
     }
 
-    public void collectItem(Collectable item) {
-        //TODO: implement item collection
-    }
-    public void collectBuff(Collectable buff) {
-        // TODO: animation when collecting buff
-
-        // hud.addStatus(buff.getTextureName());
+    public void collect(Collectable collectable) {
     }
 
     public boolean isBeingChased() {
