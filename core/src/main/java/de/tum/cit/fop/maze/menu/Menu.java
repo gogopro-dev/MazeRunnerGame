@@ -30,6 +30,18 @@ public class Menu implements Screen {
     private int currentFrameIndex = 0;
     private static final float FRAME_DURATION = 0.1f;
     private final FadeOverlay fadeOverlay;
+
+    /**
+     * Returns the singleton instance of the menu.
+     * @return The singleton instance of the menu.
+     */
+    public static synchronized Menu getInstance(){
+        if (instance == null){
+            instance = new Menu();
+        }
+        return instance;
+    }
+
     /**
      * Constructor for the main menu.</br>
      * Creates the stage and sets the input processor.</br>
@@ -49,17 +61,6 @@ public class Menu implements Screen {
         /// Load background atlas and get all regions
         TextureAtlas backgroundAtlas = new TextureAtlas(Gdx.files.internal("background/background.atlas"));
         backgroundRegions = backgroundAtlas.getRegions();
-    }
-
-    /**
-     * Returns the singleton instance of the menu.
-     * @return The singleton instance of the menu.
-     */
-    public static synchronized Menu getInstance(){
-        if (instance == null){
-            instance = new Menu();
-        }
-        return instance;
     }
 
     /**

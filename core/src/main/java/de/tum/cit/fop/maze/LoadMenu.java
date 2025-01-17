@@ -10,6 +10,7 @@ public class LoadMenu extends Game {
 
     @Override
     public void create() {
+        /// Initialize the Menu singleton and all its dependencies
         Menu menu = Menu.getInstance();
         /// Initialize the LevelScreen singleton
         new LevelScreen();

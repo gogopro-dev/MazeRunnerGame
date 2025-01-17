@@ -14,15 +14,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
-import de.tum.cit.fop.maze.essentials.FadeOverlay;
-import de.tum.cit.fop.maze.menu.MainMenuUI;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
 import de.tum.cit.fop.maze.menu.SettingsUI;
 import java.nio.ByteBuffer;
 
+/**
+ * Class for the pause screen.</br>
+ * Used to pause the game and show the pause menu.
+ */
 public class PauseScreen {
     private Pixmap lastFrame;
     private final Texture pauseBackground;
@@ -37,6 +38,9 @@ public class PauseScreen {
     private boolean isSettings = false;
     private static PauseScreen instance = null;
 
+    /**
+     * @return The singleton instance of the pause screen
+     */
     public static PauseScreen getInstance() {
         if (instance == null) {
             instance = new PauseScreen();
@@ -44,6 +48,10 @@ public class PauseScreen {
         return instance;
     }
 
+    /**
+     * Constructor for the pause screen.</br>
+     * Creates the pause menu.
+     */
     public PauseScreen() {
         pauseBackground = new Texture("menu/pause_menu.png");
         stage = new Stage(new ScreenViewport());
@@ -58,15 +66,21 @@ public class PauseScreen {
         setupPauseMenu();
     }
 
+    /**
+     * Sets up the pause menu
+     */
     public void setupPauseMenu(){
+        /// Load icons for buttons
         TextureAtlas iconsAtlas = new TextureAtlas(Gdx.files.internal("icons/main_menu_icons.atlas"));
         TextureRegion iconRegion;
 
+        /// Load font for text
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 27;
         parameter.color = new Color(0xE0E0E0FF);
 
+        /// Create style for buttons
         ImageTextButton.ImageTextButtonStyle textButtonStyle = new ImageTextButton.ImageTextButtonStyle();
         textButtonStyle.font = generator.generateFont(parameter);
         textButtonStyle.up = play_button_skin.getDrawable("play_button_released");
@@ -74,6 +88,7 @@ public class PauseScreen {
         textButtonStyle.pressedOffsetX = 1;
         textButtonStyle.pressedOffsetY = -1;
 
+        /// Create table for pause menu
         screenTable.setBackground(new TextureRegionDrawable(new TextureRegion(pauseBackground)));
         screenTable.setSize(304*1.6f, 224*1.6f); // Adjust size as needed
         screenTable.setPosition(
@@ -106,7 +121,6 @@ public class PauseScreen {
         });
 
         /// Create Settings button
-
         iconRegion = iconsAtlas.findRegion("settings");
         Image settingsImage = new Image(iconRegion);
 
@@ -140,15 +154,19 @@ public class PauseScreen {
             }
         });
 
+        /// Add buttons to table
         screenTable.add(pauseLabel).padTop(6f).padBottom(20f).row();
         screenTable.add(resumeButton).padTop(20f).padBottom(10f).width(224*1.2f).height(48f*1.2f).row();
         screenTable.add(settingsButton).padTop(10f).padBottom(10f).width(224*1.2f).height(48f*1.2f).row();
         screenTable.add(exitButton).padTop(10f).padBottom(10f).width(224*1.2f).height(48f*1.2f).row();
-        // Add buttons to container
 
         stage.addActor(screenTable);
     }
 
+    /**
+     * Sets the pause state
+     * @param settings The new pause state
+     */
     public void setSettings(boolean settings) {
         isSettings = settings;
     }
@@ -243,10 +261,16 @@ public class PauseScreen {
         lastFrame.dispose();
     }
 
+    /**
+     * @return The last frame before pausing
+     */
     public Pixmap getLastFrame() {
         return lastFrame;
     }
 
+    /**
+     * @return True if the settings menu is open
+     */
     public boolean isSettings() {
         return isSettings;
     }

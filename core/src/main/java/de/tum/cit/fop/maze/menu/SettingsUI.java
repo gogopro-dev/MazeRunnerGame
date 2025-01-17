@@ -43,6 +43,9 @@ public class SettingsUI {
     private TextureRegion dropDownMenuRegion;
     private TextureRegion containerRegion;
 
+    /**
+     * @return The singleton instance of the settings menu
+     */
     public static SettingsUI getInstance() {
         if (instance == null) {
             throw new IllegalStateException("SettingsUI has not been initialized yet");

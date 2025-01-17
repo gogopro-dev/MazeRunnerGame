@@ -64,10 +64,12 @@ public class LevelScreen implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1, true);
 
+        /// Render the game if not paused
         if (!pauseScreen.isPaused()) {
             worldLock.lock();
             doPhysicsStep(delta);
             worldLock.unlock();
+
             DebugRenderer.getInstance().begin();
             tiledMapRenderer.setView(camera);
             tiledMapRenderer.render();
@@ -76,22 +78,25 @@ public class LevelScreen implements Screen {
             debugRenderer.render(world, camera.combined);
             batch.setProjectionMatrix(camera.combined);
             DebugRenderer.getInstance().setProjectionMatrix(camera.combined);
+
             batch.begin();
             tileEntityManager.render(delta);
             enemyManager.render(delta);
             player.render(delta);
             batch.end();
+
             hud.render(delta);
             DebugRenderer.getInstance().end();
         } else {
+            /// Render the last frame before pausing
             Texture pauseTexture = new Texture(pauseScreen.getLastFrame());
             batch.begin();
             batch.draw(pauseTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, pauseTexture.getWidth(), pauseTexture.getHeight(), false, true);
             batch.end();
             pauseTexture.dispose();
         }
+        /// Update and render pause screen
         pauseScreen.update();
-        // Render pause menu on top if paused
         pauseScreen.render(delta);
     }
 

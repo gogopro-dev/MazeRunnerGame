@@ -25,6 +25,9 @@ public class MainMenuUI {
     private final Skin play_button_skin;
     private final BitmapFont font;
 
+    /**
+     * @return The singleton instance of the main menu
+     */
     public static synchronized MainMenuUI getInstance() {
         if (instance == null) {
             throw new IllegalStateException("MainMenuUI has not been initialized yet.");

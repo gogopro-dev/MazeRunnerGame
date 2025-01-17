@@ -87,9 +87,6 @@ public class FadeOverlay implements Disposable {
         shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         shapeRenderer.end();
         Gdx.gl.glDisable(GL20.GL_BLEND);
-        if (state == State.NONE) {
-            LoadMenu.getInstance().setScreen(LevelScreen.getInstance());
-        }
     }
 
     @Override
