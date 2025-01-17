@@ -26,7 +26,7 @@ public class Collectable extends TileEntity {
     public Collectable(String idleAnimName, String pickupAnimName) {
         super(1, 1);
         batch = LevelScreen.getInstance().batch;
-        TextureAtlas atlas = new TextureAtlas(Gdx.files.local("temporary\\collectables\\collectables.atlas"));
+        TextureAtlas atlas = new TextureAtlas(Gdx.files.local("temporary/collectables/collectables.atlas"));
         idleAnimation = new Animation<>(frameDuration, atlas.findRegions(idleAnimName));
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
 //        pickupAnimation = new Animation<>(frameDuration, atlas.findRegions(idleAnimName));
