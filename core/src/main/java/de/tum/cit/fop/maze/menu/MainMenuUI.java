@@ -19,10 +19,18 @@ import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
  * Class for the main screen in menu.
  */
 public class MainMenuUI {
+    private static MainMenuUI instance = null;
     private final Stage stage;
     private final TextureAtlas playButtonAtlas;
     private final Skin play_button_skin;
     private final BitmapFont font;
+
+    public static synchronized MainMenuUI getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("MainMenuUI has not been initialized yet.");
+        }
+        return instance;
+    }
 
     /**
      * Constructor for the main menu.</br>
@@ -32,6 +40,7 @@ public class MainMenuUI {
      * @param batch The sprite batch for the stage
      */
     public MainMenuUI(Viewport viewport, SpriteBatch batch) {
+        instance = this;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 27;

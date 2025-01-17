@@ -7,8 +7,6 @@ import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
-import java.util.logging.Level;
-
 /**
  * Class for the fade overlay.</br>
  * Used to fade in and out the screen.
@@ -91,9 +89,6 @@ public class FadeOverlay implements Disposable {
         Gdx.gl.glDisable(GL20.GL_BLEND);
         if (state == State.NONE) {
             LoadMenu.getInstance().setScreen(LevelScreen.getInstance());
-            this.dispose();
-            System.out.println("FadeOverlay disposed");
-            System.out.println(LoadMenu.getInstance().getScreen());
         }
     }
 

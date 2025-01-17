@@ -67,6 +67,15 @@ public class Menu implements Screen {
      * @param state The state to toggle to.
      */
     public void toggleMenuState(MenuState state){
+        toggleMenuState(state, false);
+    }
+
+    /**
+     * Toggles the menu state.
+     * @param state The state to toggle to.
+     * @param fadeIn True if the fade in should be started.
+     */
+    public void toggleMenuState(MenuState state, boolean fadeIn){
         menuState = state;
 
         Gdx.input.setInputProcessor(null);
@@ -76,6 +85,9 @@ public class Menu implements Screen {
                 fadeOverlay.startFadeIn();
                 break;
             case MAIN_MENU:
+                if (fadeIn) {
+                    fadeOverlay.startFadeIn();
+                }
                 mainMenuUI.show();
                 break;
             case CREATE_NEW_GAME:
@@ -116,24 +128,35 @@ public class Menu implements Screen {
 
         switch (menuState){
             case PLAY:
+                /// Check if fade in/out is finished
+                if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
+                    /// Switch to rendering level screen
+                    LevelScreen.getInstance().render(delta);
+                } else {
+                    /// Continue rendering menu while fading
+                    mainMenuUI.render(delta);
+                }
 
-                    /// Check if fade in/out is finished
-                    if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
-                        /// Switch to rendering level screen
-                        LevelScreen.getInstance().render(delta);
-                    } else {
-                        /// Continue rendering menu while fading
-                        mainMenuUI.render(delta);
-                    }
-
-                    /// if fading out is not finished, render overlay
-                    if (!fadeOverlay.isFinishedOut()) {
-                        fadeOverlay.render(delta);
-                    }
+                /// if fading out is not finished, render overlay
+                if (!fadeOverlay.isFinishedOut()) {
+                    fadeOverlay.render(delta);
+                }
 
                 break;
             case MAIN_MENU:
-                mainMenuUI.render(delta);
+                if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
+                    /// Switch to rendering menu screen
+                    mainMenuUI.show();
+                    mainMenuUI.render(delta);
+                } else {
+                    /// Continue rendering level screen fading
+                    LevelScreen.getInstance().render(delta);
+                }
+
+                /// if fading out is not finished, render overlay
+                if (!fadeOverlay.isFinishedOut()) {
+                    fadeOverlay.render(delta);
+                }
                 break;
             case CREATE_NEW_GAME:
                 break;

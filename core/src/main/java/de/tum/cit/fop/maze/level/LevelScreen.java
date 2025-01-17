@@ -3,11 +3,13 @@ package de.tum.cit.fop.maze.level;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -43,6 +45,8 @@ public class LevelScreen implements Screen {
     public final ReentrantLock worldLock = new ReentrantLock();
     Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
     private float accumulator = 0;
+    private final PauseScreen pauseScreen;
+    private final Stage stage;
 
     private void doPhysicsStep(float deltaTime) {
         // Fixed time step
@@ -59,36 +63,48 @@ public class LevelScreen implements Screen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1, true);
-        worldLock.lock();
-        doPhysicsStep(delta);
-        worldLock.unlock();
-        DebugRenderer.getInstance().begin();
-        tiledMapRenderer.setView(camera);
-        tiledMapRenderer.render();
 
+        if (!pauseScreen.isPaused()) {
+            worldLock.lock();
+            doPhysicsStep(delta);
+            worldLock.unlock();
+            DebugRenderer.getInstance().begin();
+            tiledMapRenderer.setView(camera);
+            tiledMapRenderer.render();
 
-        //TODO: render player
-        camera.update();
-        debugRenderer.render(world, camera.combined);
-        batch.setProjectionMatrix(camera.combined);
-        DebugRenderer.getInstance().setProjectionMatrix(camera.combined);
-        batch.begin();
-        tileEntityManager.render(delta);
-        enemyManager.render(delta);
-        player.render(delta);
-        batch.end();
-        hud.render(delta);
-        DebugRenderer.getInstance().end();
+            camera.update();
+            debugRenderer.render(world, camera.combined);
+            batch.setProjectionMatrix(camera.combined);
+            DebugRenderer.getInstance().setProjectionMatrix(camera.combined);
+            batch.begin();
+            tileEntityManager.render(delta);
+            enemyManager.render(delta);
+            player.render(delta);
+            batch.end();
+            hud.render(delta);
+            DebugRenderer.getInstance().end();
+        } else {
+            Texture pauseTexture = new Texture(pauseScreen.getLastFrame());
+            batch.begin();
+            batch.draw(pauseTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, pauseTexture.getWidth(), pauseTexture.getHeight(), false, true);
+            batch.end();
+            pauseTexture.dispose();
+        }
+        pauseScreen.update();
+        // Render pause menu on top if paused
+        pauseScreen.render(delta);
     }
 
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
+        pauseScreen.resize(width, height);
     }
 
     @Override
     public void show() {
         hud.show();
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -111,6 +127,7 @@ public class LevelScreen implements Screen {
         map.dispose();
         player.dispose();
         enemyManager.dispose();
+        pauseScreen.dispose();
     }
 
     public LevelScreen() {
@@ -118,6 +135,7 @@ public class LevelScreen implements Screen {
             throw new IllegalStateException("LevelScreen already exists");
         }
         instance = this;
+        pauseScreen = PauseScreen.getInstance();
 
         /// Init world
         world = new World(new Vector2(0, 0), true);
@@ -134,6 +152,7 @@ public class LevelScreen implements Screen {
 
         this.batch = new SpriteBatch();
         batch.setProjectionMatrix(camera.combined);
+        stage = new Stage(viewport, batch);
         tileEntityManager = new TileEntityManager();
         enemyManager = new EnemyManager();
         map = new TileMap(15, 15, 2);
@@ -175,10 +194,10 @@ public class LevelScreen implements Screen {
         enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.2f);
         enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.4f);
         enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.6f);
-        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.7f);
-        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.1f, 11.5f);*/
+        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.7f);*/
+        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.1f, 11.5f);
 
-//        enemy2 = new Enemy(map.widthMeters, map.heightMeters, EnemyType.ZOMBIE, camera);
+        //enemyManager.createEnemy(; = new Enemy(map.widthMeters, map.heightMeters, EnemyType.ZOMBIE, camera);
 
     }
 
@@ -189,4 +208,7 @@ public class LevelScreen implements Screen {
         return instance;
     }
 
+    public Stage getStage() {
+        return stage;
+    }
 }

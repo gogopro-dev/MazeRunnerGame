@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import de.tum.cit.fop.maze.level.PauseScreen;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.Arrays;
  * Class for the settings menu
  */
 public class SettingsUI {
+    private static SettingsUI instance;
     java.util.List<String> resolutionList = new ArrayList<>(Arrays.asList("640x480", "800x600", "1024x768", "1280x720", "1280x800", "1280x960", "1400x1050", "1600x1200", "1680x1050", "1920x1080", "1920x1200", "2048x1536", "2560x1440", "2560x1600", "3840x2160", "3840x2400", "7680x4320"));
     private final Stage stage;
     private final TextureAtlas playButtonAtlas;
@@ -41,6 +43,13 @@ public class SettingsUI {
     private TextureRegion dropDownMenuRegion;
     private TextureRegion containerRegion;
 
+    public static SettingsUI getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("SettingsUI has not been initialized yet");
+        }
+        return instance;
+    }
+
     /**
      * Constructor for the settings menu.
      * Loads textures and sets up the menu
@@ -48,6 +57,7 @@ public class SettingsUI {
      * @param batch SpriteBatch
      */
     public SettingsUI(Viewport viewport, SpriteBatch batch) {
+        instance = this;
         loadTextures();
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
@@ -304,7 +314,11 @@ public class SettingsUI {
         exitSettingsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU);
+                if (PauseScreen.getInstance().isSettings()) {
+                    PauseScreen.getInstance().setSettings(false);
+                } else {
+                    Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU);
+                }
             }
         });
 
@@ -488,9 +502,10 @@ public class SettingsUI {
         dropDownMenuRegion = new TextureRegion(settingsAtlas.findRegion("drop_down_menu"));
         containerRegion = new TextureRegion(settingsAtlas.findRegion("settings_container"));
     }
+
     public void render(float delta) {
         // Update and draw stage (buttons)
-        stage.act(delta);
+        stage.act();
         stage.draw();
     }
 
