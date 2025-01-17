@@ -18,6 +18,7 @@ import de.tum.cit.fop.maze.entities.tile.Torch;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.entities.tile.TileEntityContactListener;
 import de.tum.cit.fop.maze.essentials.Direction;
+import de.tum.cit.fop.maze.entities.tile.Collectable;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -148,6 +149,10 @@ public class LevelScreen implements Screen {
         camera.update();
 
         hud = new HUDv2(player);
+        Collectable collectable = new Collectable("key", null);
+        tileEntityManager.createTileEntity(collectable,
+         map.widthMeters / 2 + 10, map.heightMeters / 2
+        );
         tileEntityManager.createTileEntity(
             new Torch(Direction.UP),
             map.widthMeters / 2, map.heightMeters / 2

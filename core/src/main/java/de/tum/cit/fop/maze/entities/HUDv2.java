@@ -37,8 +37,8 @@ public class HUDv2 {
     private ProgressBar staminaBar;
     private float stamina = 100f;
     private final float staminaConsumptionSpeed = 0.5f;
-    private final float staminaBarScaling = 1.5f;
-    private final float borderAlignmentX = 22f;
+    private final float staminaBarScaling = 1f;
+    private final float fillamentAlignmentX = 34f;
 
     private final float statusBarSpacingFromHPBar = 10f;
     private final float statusBarInnerSpacing = 5f;
@@ -51,12 +51,12 @@ public class HUDv2 {
     float hitElapsedTime = 0;
     float offsetXStepHP;
     float offsetYStepHP;
-    final float spacingX = 2.5f;
-    final float spacingY = 2.5f;
+    final float spacingX = 4f;
+    final float spacingY = 4f;
     final float heartsScaling = 1.5f;
     final float padding = 10f;
-    final float spacingBetwHPBarAndStaminaBar = 30f;
-    int amountOfHeartsInRow = 20;
+    final float spacingBetwHPBarAndStaminaBar = 20f;
+    int amountOfHeartsInRow = 10;
 
     int indexXOfLastFullHalf;
     int indexYOfLastFullHalf;
@@ -87,24 +87,24 @@ public class HUDv2 {
     }
 
     public void loadTextures() {
-        atlas = new TextureAtlas(Gdx.files.local("temporary/HUDv2/HUD_v2.atlas"));
+        atlas = new TextureAtlas(Gdx.files.local("temporary/HUDv2/HUDv2.atlas"));
         animations = new HashMap<>();
 
         Animation<TextureRegion> lHFtoE = new Animation<>(heartsAnimationFrameDuration,
-            atlas.findRegions("lHalfFullToEmpty")); // lHalfFullToEmpty
+            atlas.findRegions("HealthL_DMG")); // lHalfFullToEmpty
         lHFtoE.setPlayMode(Animation.PlayMode.LOOP);
 
         Animation<TextureRegion> rHFtoE = new Animation<>(heartsAnimationFrameDuration,
-            atlas.findRegions("rHalfFullToEmpty")); // rHalfFullToEmpty
+            atlas.findRegions("HealthR_DMG")); // rHalfFullToEmpty
         rHFtoE.setPlayMode(Animation.PlayMode.LOOP);
 
-        Array <TextureRegion> lHFtoFTextureRegions = new Array<>();
-        lHFtoFTextureRegions.add(atlas.findRegion("lHalfFullToFull")); // lHalfFullToFull
-        lHFtoFTextureRegions.add(atlas.findRegion("lHalfFullToEmpty", 0)); // lHalfFullToEmpty
-        lHFtoFTextureRegions.add(atlas.findRegion("lHalfFullToFull")); // lHalfFullToFull
-        lHFtoFTextureRegions.add(atlas.findRegion("lHalfFullToEmpty", 0)); // lHalfFullToEmpty
+        Array <TextureRegion> HealthL_noDMG = new Array<>();
+        HealthL_noDMG.add(atlas.findRegion("HealthL_noDMG", 1)); // lHalfFullToFull
+        HealthL_noDMG.add(atlas.findRegion("HealthL_DMG", 1)); // lHalfFullToEmpty
+        HealthL_noDMG.add(atlas.findRegion("HealthL_DMG", 0)); // lHalfFullToFull
+        HealthL_noDMG.add(atlas.findRegion("HealthL_noDMG", 1)); // lHalfFullToEmpty
 
-        Animation<TextureRegion> lHFtoF = new Animation<>(heartsAnimationFrameDuration, lHFtoFTextureRegions);
+        Animation<TextureRegion> lHFtoF = new Animation<>(heartsAnimationFrameDuration, HealthL_noDMG);
         lHFtoF.setPlayMode(Animation.PlayMode.LOOP);
 
         animations.put("lHalfFullToFull", lHFtoF);
@@ -146,13 +146,13 @@ public class HUDv2 {
                 matrixHPBar.add(row);
                 row = new ArrayList<>();
                 y += offsetYStepHP + spacingY;
-                x = padding;
+                x = StartX;
             }
         }
         if (!row.isEmpty()) {
             matrixHPBar.add(row);
         }
-        if (lHalfTexture == atlas.findRegion("lHalfFullToEmpty", 0)) {
+        if (lHalfTexture == atlas.findRegion("HealthL_noDMG", 1)) {
             indexXOfLastFullHalf = matrixHPBar.get(matrixHPBar.size()-1).size()-1;
             indexYOfLastFullHalf = matrixHPBar.size()-1;
             System.out.println(indexXOfLastFullHalf + " " + indexYOfLastFullHalf);
@@ -166,13 +166,13 @@ public class HUDv2 {
         }
         clearHPBar();
 
-        TextureRegion lHFull = atlas.findRegion("lHalfFullToEmpty", 0);
-        TextureRegion rHFull = atlas.findRegion("rHalfFullToEmpty", 0);
-        TextureRegion lHEmpty = atlas.findRegion("lHalfFullToEmpty", 3);
-        TextureRegion rHEmpty = atlas.findRegion("rHalfFullToEmpty", 3);
+        TextureRegion lHFull = atlas.findRegion("HealthL_noDMG", 1);
+        TextureRegion rHFull = atlas.findRegion("HealthR_noDMG", 1);
+        TextureRegion lHEmpty = atlas.findRegion("HealthL_DMG", 2);
+        TextureRegion rHEmpty = atlas.findRegion("HealthR_DMG", 2);
 
         List<Float> resultOfFirstFill =
-            fillHPBarWithHearts(health, padding, offsetYStepHP / 2 + padding, lHFull, rHFull, 0);
+            fillHPBarWithHearts(health, padding + fillamentAlignmentX, offsetYStepHP / 2 + padding, lHFull, rHFull, 0);
         fillHPBarWithHearts(
             maxHealth, resultOfFirstFill.get(0), resultOfFirstFill.get(1), lHEmpty, rHEmpty, resultOfFirstFill.get(2)
         );
@@ -229,11 +229,11 @@ public class HUDv2 {
         staminaBar.setAnimateDuration(0.25f);
 
 
-        float stBarX = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getX();
+        float stBarX = padding;
         float stBarY = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getY() - spacingBetwHPBarAndStaminaBar - height;
 
 
-        staminaBar.setPosition(stBarX + borderAlignmentX*staminaBarScaling, stBarY);
+        staminaBar.setPosition(stBarX + fillamentAlignmentX *staminaBarScaling, stBarY);
 
 
         stage.addActor(staminaBar);
@@ -243,9 +243,10 @@ public class HUDv2 {
     private void setStaminaBarBorder(int width, int height, float stBarX, float stBarY) {
         //TODO repack Atlas with proper name and get rid of "magic numbers"
         Image staminaBarBorder = new Image(atlas.findRegion("staminaBarBorder"));
-        float borderWidth = (width +33)*staminaBarScaling;
+        float borderWidth = (width +37)*staminaBarScaling;
         float borderHeight = (height + 22)*staminaBarScaling;
-        float borderAlignmentY = (height+10)*staminaBarScaling;
+        float borderAlignmentY = (height+11)*staminaBarScaling;
+//        float borderAlignmentX = 12*staminaBarScaling;
 
         staminaBarBorder.setSize(borderWidth, borderHeight);
         staminaBarBorder.setPosition(stBarX, stBarY - borderAlignmentY);
