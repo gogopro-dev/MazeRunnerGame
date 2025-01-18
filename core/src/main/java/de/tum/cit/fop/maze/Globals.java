@@ -25,7 +25,8 @@ public final class Globals {
     public static final int BOX2D_POSITION_ITERATIONS = 3;
     public static final int TRAP_DAMAGE = 10;
     public static final float DEFAULT_CAMERA_ZOOM = 1.25f;
-    public static final float TORCH_GAP = 2.3f;
+    public static final float TORCH_ACTIVATION_RADIUS = 0.75f;
+    public static final float TORCH_GAP = 4.3f * 1.25f;
     public static final float TORCH_LIGHT_RADIUS = 10f;
     public static final float TRAP_LIGHT_RADIUS = 12f;
     public static final int RAY_AMOUNT = 100;

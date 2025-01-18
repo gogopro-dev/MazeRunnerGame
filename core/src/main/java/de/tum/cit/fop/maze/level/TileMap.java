@@ -167,7 +167,7 @@ public class TileMap implements Disposable {
                 }
             }
 
-            if (closestTorch != null && torchPoint.distance(closestTorch) < Torch.activationRadius * TORCH_GAP) {
+            if (closestTorch != null && torchPoint.distance(closestTorch) < TORCH_ACTIVATION_RADIUS * TORCH_GAP) {
                 return;
             }
             torches.add(torchPoint);

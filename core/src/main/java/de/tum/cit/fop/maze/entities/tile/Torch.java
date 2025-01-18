@@ -22,8 +22,6 @@ import static de.tum.cit.fop.maze.Globals.*;
 public class Torch extends TileEntity {
 
     private boolean lit = false;
-
-    public static final float activationRadius = 2f;
     private PointLight light;
     private float elapsedTime = 0f;
     private float elapsedLitTime = 0f;
@@ -38,7 +36,7 @@ public class Torch extends TileEntity {
         bodyDef.type = BodyDef.BodyType.StaticBody;
         bodyDef.fixedRotation = true;
         CircleShape shape = new CircleShape();
-        shape.setRadius(activationRadius * Globals.CELL_SIZE_METERS);
+        shape.setRadius(TORCH_ACTIVATION_RADIUS * Globals.CELL_SIZE_METERS);
         fixtureDef.shape = shape;
         fixtureDef.isSensor = true;
         fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
@@ -118,7 +116,7 @@ public class Torch extends TileEntity {
             LevelScreen.getInstance().player.isHoldingTorch() &&
             /// -1/4f for centering source point of the torch center
             Utils.isPlayerReachable(
-                this.getPosition().addY(-1 / 4f * Globals.CELL_SIZE_METERS), activationRadius * 2
+                this.getPosition().addY(-1 / 4f * Globals.CELL_SIZE_METERS), TORCH_ACTIVATION_RADIUS * 2
             )
         ) {
             lit = true;
