@@ -1,13 +1,17 @@
 package de.tum.cit.fop.maze.entities;
 
+import box2dLight.PointLight;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.physics.box2d.World;
+import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
+import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 /**
@@ -21,6 +25,7 @@ public class Player extends Entity {
     private final Animation<TextureRegion> movementTorchAnimation;
     private Animation<TextureRegion> currentAnimation;
     private float elapsedTime = 0f;
+    private float elapsedTorchTime = 0f;
     private float attackElapsedTime = 0f;    // Tracks time for hit animation
     private boolean isAttacking = false;    // Track if the hit animation is active
     private boolean isMoving = false;     // Flag to track movement state
@@ -35,6 +40,7 @@ public class Player extends Entity {
     private float damageFlashTimer = 0f;
     private static final float DAMAGE_FLASH_DURATION = 0.2f;
     private float trapAttackElapsedTime = 0f;
+    private PointLight torchLight;
 
     /**
      * Creates a new player character.
@@ -45,7 +51,6 @@ public class Player extends Entity {
         this.mapWidth = LevelScreen.getInstance().map.widthMeters;
         this.mapHeight = LevelScreen.getInstance().map.heightMeters;
         this.mass = 5f;
-        this.box2dUserData = "player";
 
         /// Player can hit if not holding torch
         canHit = !isHoldingTorch;
@@ -81,8 +86,19 @@ public class Player extends Entity {
      * @param deltaTime The time since the last frame in seconds
      */
     public void render(float deltaTime) {
-        /// Stamina regeneration?
+        /// TODO Stamina regeneration?
         elapsedTime += deltaTime;
+        if (isHoldingTorch) {
+            elapsedTorchTime += deltaTime;
+            if (this.torchLight.getDistance() < Globals.TORCH_LIGHT_RADIUS) {
+                this.torchLight.setDistance(
+                    Math.min(
+                        Globals.TORCH_LIGHT_RADIUS,
+                        Utils.easeOutCirc(elapsedTorchTime * 0.77f) * Globals.TORCH_LIGHT_RADIUS
+                    )
+                );
+            }
+        }
         trapAttackElapsedTime += deltaTime;
         if (isAttacking) {
             attackElapsedTime += deltaTime;
@@ -153,6 +169,9 @@ public class Player extends Entity {
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             isHoldingTorch = !isHoldingTorch;
             canHit = !isHoldingTorch;
+            elapsedTorchTime = 0f;
+            torchLight.setDistance(0);
+            torchLight.setActive(isHoldingTorch);
         }
 
         /// Only update facing direction if not in hit animation
@@ -284,6 +303,17 @@ public class Player extends Entity {
         /// Update camera position
         camera.position.x = newCameraX;
         camera.position.y = newCameraY;
+    }
+
+    @Override
+    public void spawn(float x, float y, World world) {
+        super.spawn(x, y, world);
+        torchLight = new PointLight(
+            LevelScreen.getInstance().rayHandler, Globals.RAY_AMOUNT, Globals.TORCH_LIGHT_COLOR, 0, x, y
+        );
+        torchLight.setContactFilter(BodyBits.LIGHT, (short) 0, BodyBits.LIGHT_MASK);
+        torchLight.setActive(false);
+        torchLight.attachToBody(body);
     }
 
 

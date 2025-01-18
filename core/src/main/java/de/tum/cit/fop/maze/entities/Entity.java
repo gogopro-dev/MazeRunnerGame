@@ -19,7 +19,6 @@ import static de.tum.cit.fop.maze.Globals.PPM;
 
 
 public abstract class Entity {
-    protected String box2dUserData = null;
     protected int health;
     protected int maxHealth;
     protected int stamina;
@@ -123,7 +122,7 @@ public abstract class Entity {
         fixtureDef.filter.maskBits = BodyBits.ENTITY_MASK;
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
-        body.setUserData(box2dUserData);
+        body.setUserData(this);
         shape.dispose();
 
 

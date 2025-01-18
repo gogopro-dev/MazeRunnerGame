@@ -5,7 +5,8 @@
     "damage": 1,
     "cooldown": 4,
     "height": 1,
-    "width": 1
+    "width": 1,
+    "emitsLight": false
   },
   {
     "type": "FLAMETHROWER_V",
@@ -13,7 +14,8 @@
     "damage": 1,
     "cooldown": 4,
     "height": 5,
-    "width": 1
+    "width": 1,
+    "emitsLight": true
   },
   {
     "type": "FLAMETHROWER_H",
@@ -21,6 +23,7 @@
     "damage": 1,
     "cooldown": 4,
     "height": 1,
-    "width": 4
+    "width": 4,
+    "emitsLight": true
   }
 ]

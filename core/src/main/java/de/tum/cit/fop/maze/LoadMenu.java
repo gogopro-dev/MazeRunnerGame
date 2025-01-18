@@ -13,8 +13,7 @@ public class LoadMenu extends Game {
         /// Initialize the Menu singleton and all its dependencies
         Menu menu = Menu.getInstance();
         /// Initialize the LevelScreen singleton
-        new LevelScreen();
-        setScreen(menu);
+        setScreen(new LevelScreen());
     }
 
     public static LoadMenu getInstance() {

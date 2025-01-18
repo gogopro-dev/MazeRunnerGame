@@ -32,7 +32,6 @@ public class Enemy extends Entity {
     public Enemy(EnemyType enemyType, SpriteBatch batch) {
         super(batch);
         this.bodyType = BodyDef.BodyType.DynamicBody;
-        this.box2dUserData = "enemy";
         this.enemyType = enemyType;
         this.path = Collections.synchronizedList(new LinkedList<>());
         loadAnimations();

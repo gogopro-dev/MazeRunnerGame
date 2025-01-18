@@ -1,5 +1,7 @@
 package de.tum.cit.fop.maze;
 
+import com.badlogic.gdx.graphics.Color;
+
 public final class Globals {
 
     /// Pixel per Meter
@@ -24,6 +26,11 @@ public final class Globals {
     public static final int TRAP_DAMAGE = 10;
     public static final float DEFAULT_CAMERA_ZOOM = 1.25f;
     public static final float TORCH_GAP = 2.3f;
-    public static final boolean DEBUG = true;
+    public static final float TORCH_LIGHT_RADIUS = 10f;
+    public static final float TRAP_LIGHT_RADIUS = 12f;
+    public static final int RAY_AMOUNT = 100;
+    public static final Color TORCH_LIGHT_COLOR = new Color(0xffa459ff);
+    public static final Color TRAP_LIGHT_COLOR = new Color(0xff0000ff);
+    public static final boolean DEBUG = false;
 
 }

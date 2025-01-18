@@ -1,6 +1,7 @@
 package de.tum.cit.fop.maze.entities.tile;
 
 import com.badlogic.gdx.physics.box2d.*;
+import de.tum.cit.fop.maze.entities.Player;
 
 public class TileEntityContactListener implements ContactListener {
     @Override
@@ -11,9 +12,9 @@ public class TileEntityContactListener implements ContactListener {
             return;
         }
         System.out.println(a.getUserData() + " " + b.getUserData());
-        if (a.getUserData() instanceof TileEntity && b.getUserData() == "player") {
+        if (a.getUserData() instanceof TileEntity && b.getUserData() instanceof Player) {
             ((TileEntity) a.getUserData()).onPlayerStartContact(contact);
-        } else if (a.getUserData() == "player" && b.getUserData() instanceof TileEntity) {
+        } else if (a.getUserData() instanceof Player && b.getUserData() instanceof TileEntity) {
             ((TileEntity) b.getUserData()).onPlayerStartContact(contact);
         }
     }
@@ -28,9 +29,9 @@ public class TileEntityContactListener implements ContactListener {
         if (a.getUserData() instanceof TileEntity && b.getUserData() instanceof TileEntity) {
             return;
         }
-        if (a.getUserData() instanceof TileEntity && b.getUserData() == "player") {
+        if (a.getUserData() instanceof TileEntity && b.getUserData() instanceof Player) {
             ((TileEntity) a.getUserData()).onPlayerEndContact(contact);
-        } else if (a.getUserData() == "player" && b.getUserData() instanceof TileEntity) {
+        } else if (a.getUserData() instanceof Player && b.getUserData() instanceof TileEntity) {
             ((TileEntity) b.getUserData()).onPlayerEndContact(contact);
         }
     }

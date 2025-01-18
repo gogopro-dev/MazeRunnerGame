@@ -1,5 +1,6 @@
 package de.tum.cit.fop.maze.entities.tile;
 
+import box2dLight.PointLight;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -7,12 +8,15 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.google.gson.Gson;
+import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
+import static de.tum.cit.fop.maze.Globals.*;
 
 /**
  * Represents a trap in the game
@@ -25,6 +29,30 @@ public class Trap extends TileEntity {
     private boolean isActivated = false;
     private final TrapType type;
     public final TrapAttributes attributes;
+    private @Nullable PointLight light;
+
+    /**
+     * The attributes of a trap
+     *
+     * @param type          the type of the trap
+     * @param frameDuration duration of each frame in seconds
+     * @param damage        the damage of the trap
+     * @param cooldown      cooldown of the trap in seconds
+     * @param height        height of the trap in cells
+     * @param width         width of the trap in cells
+     * @param emitsLight    whether the trap emits light
+     */
+    public record TrapAttributes(
+        TrapType type,
+        float frameDuration,
+        float damage,
+        float cooldown,
+        int height,
+        int width,
+        boolean emitsLight
+    ) {
+    }
+
 
     /**
      * Creates a new trap from a given type
@@ -53,33 +81,27 @@ public class Trap extends TileEntity {
         );
     }
 
-    /**
-     * The attributes of a trap
-     * @param type the type of the trap
-     * @param frameDuration duration of each frame in seconds
-     * @param damage the damage of the trap
-     * @param cooldown cooldown of the trap in seconds
-     * @param height height of the trap in cells
-     * @param width width of the trap in cells
-     */
-    public record TrapAttributes
-        (TrapType type,
-         float frameDuration,
-         float damage,
-         float cooldown,
-         int height,
-         int width) {
-    }
-
-
     public void render(float deltaTime) {
         elapsedTime += deltaTime;
         if (isActivated){
             if (trapAnimation.isAnimationFinished(elapsedTime)) {
                 isActivated = false;
                 lastActivationTime = elapsedTime;
+            } else if (light != null) {
+                light.setActive(true);
+                if (light.getDistance() < TRAP_LIGHT_RADIUS) {
+                    light.setDistance(TRAP_LIGHT_RADIUS * Utils.easeOutCirc(elapsedTime));
+                }
             }
         } else {
+            if (light != null && light.getDistance() > 0) {
+                light.setDistance(
+                    TRAP_LIGHT_RADIUS -
+                        TRAP_LIGHT_RADIUS * Utils.easeOutCirc((elapsedTime - lastActivationTime) * 3f)
+                );
+            } else if (light != null) {
+                //light.setActive(false);
+            }
             if (elapsedTime - lastActivationTime >= attributes.cooldown) {
                 isActivated = true;
                 elapsedTime = 0f;
@@ -102,6 +124,20 @@ public class Trap extends TileEntity {
             getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
             getSpriteDrawWidth(), getSpriteDrawHeight()
         );
+    }
+
+    @Override
+    protected void spawn(float x, float y) {
+        super.spawn(x, y);
+        if (attributes.emitsLight) {
+            light = new PointLight(
+                LevelScreen.getInstance().rayHandler, RAY_AMOUNT, TRAP_LIGHT_COLOR,
+                0, x, y
+            );
+            light.setContactFilter(BodyBits.LIGHT, (short) 0, BodyBits.LIGHT_MASK);
+            light.setActive(false);
+            light.setStaticLight(true);
+        }
     }
 
     public boolean isActivated() {

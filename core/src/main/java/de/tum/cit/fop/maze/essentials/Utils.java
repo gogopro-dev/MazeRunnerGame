@@ -50,7 +50,7 @@ public class Utils {
             boolean[] result = {true};
             levelScreen.world.rayCast(
                 (fixture, point, normal, fraction) -> {
-                    if (fixture.getBody().getUserData() == "enemy") return -1;
+                    if (fixture.getBody().getUserData() instanceof Enemy) return -1;
                     if (fixture.getBody().getUserData() == null) {
                         result[0] = false;
                     }
@@ -94,5 +94,27 @@ public class Utils {
     public static Texture turnPixmapToTexture(Pixmap pixmap) {
         Texture texture = new Texture(pixmap);
         return texture;
+    }
+
+    /**
+     * Easing easeInOutQuart for smooth transitions between states, based on the x value 0 to 1
+     *
+     * @param x The input value between {@code 0} and {@code 1} signifying the progress of the transition
+     * @return The eased value between {@code 0} and {@code 1}
+     */
+    public static float easeInOutQuart(float x) {
+        return x < 0.5 ? 8 * x * x * x * x : (float) (1 - Math.pow(-2 * x + 2, 4) / 2);
+    }
+
+    /**
+     * Easing easeOutCirc for smooth transitions between states, based on the x value 0 to 1
+     *
+     * @param x The input value between {@code 0} and {@code 1} signifying the progress of the transition
+     * @return The eased value between {@code 0} and {@code 1}
+     */
+    public static float easeOutCirc(float x) {
+        if (x > 1) return 1;
+        return (float) Math.sqrt(1 - Math.pow(x - 1, 2));
+
     }
 }
