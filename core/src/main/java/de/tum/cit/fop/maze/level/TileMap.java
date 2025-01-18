@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import static de.tum.cit.fop.maze.Globals.*;
 import static java.lang.Math.max;
@@ -502,7 +503,7 @@ public class TileMap implements Disposable {
                             /// HY reduced by 0.05 to avoid collision above the wall
                             /// 1.8 is the height of the wall (less than usual 3 because of projection)
                             /// x + 1 and y + 1.8 are the starting point of the wall
-                            createRectangularHitbox(x + 1, y + 1.5f + 0.04f, 3, hy - 0.08f - 1.5f);
+                            createRectangularHitbox(x + 1, y + 2.6f + 0.04f, 3, hy - 2.8f);
                         }
                         y = -1;
                         hy = 0;
@@ -510,7 +511,7 @@ public class TileMap implements Disposable {
                 }
             }
             if (y != -1 && hy > 3) {
-                createRectangularHitbox(x + 1, y + 1.5f + 0.04f, 3, hy - 0.5f - 1.5f);
+                createRectangularHitbox(x + 1, y + 2.6f + 0.04f, 3, hy - 2.8f);
             }
         }
 
@@ -531,13 +532,17 @@ public class TileMap implements Disposable {
                     if (x != -1) {
                         /// x is offset for 0.025f to avoid collision with the tiny pixel
                         if (hx > 3) {
-                            createRectangularHitbox(x + 0.025f, y + 1 + 1.5f, hx - 0.05f, 1.5f);
+                            FixtureDef temp = new FixtureDef();
+                            temp.filter.categoryBits = BodyBits.WALL_NO_LIGHT;
+                            temp.filter.maskBits = BodyBits.WALL_NO_LIGHT_MASK;
+                            createRectangularHitbox(x + 0.015f, y + 1 + 1.5f, hx - 0.021f, 1.5f, temp);
+                            createRectangularHitbox(x + 0.015f, y + 3f + 0.6f, hx - 0.021f, 0.3f);
                         }
-                        if (isIsolatedCollidable(j - 2, i + 1, wallMap)) {
+                        /*if (isIsolatedCollidable(j - 2, i + 1, wallMap)) {
                             FixtureDef fixtureDef = new FixtureDef();
                             fixtureDef.filter.categoryBits = BodyBits.DECORATION;
                             createRectangularHitbox(x + 0.025f, y + 1 + 1.5f, hx - 0.05f, 1.5f, fixtureDef);
-                        }
+                        }*/
 
                         x = -1;
                         hx = 0;
@@ -545,7 +550,8 @@ public class TileMap implements Disposable {
                 }
             }
             if (x != -1 && hx > 3) {
-                createRectangularHitbox(x + 0.025f, y + 1 + 1.5f, hx - 0.05f, 1.5f);
+                createRectangularHitbox(x + 0.015f, y + 1 + 1.5f, hx - 0.021f, 1.5f);
+                createRectangularHitbox(x + 0.015f, y + 3f + 0.3f, hx - 0.021f, 0.3f);
             }
         }
     }

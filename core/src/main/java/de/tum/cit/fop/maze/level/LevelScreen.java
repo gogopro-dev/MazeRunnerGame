@@ -1,7 +1,9 @@
 package de.tum.cit.fop.maze.level;
 
+import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -22,6 +24,7 @@ import de.tum.cit.fop.maze.entities.tile.TileEntityContactListener;
 import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 
+import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static de.tum.cit.fop.maze.Globals.MPP;
@@ -40,6 +43,8 @@ public class LevelScreen implements Screen {
     public final SpriteBatch batch;
     public final Player player;
     public final HUDv2 hud;
+    public final RayHandler rayHandler;
+
     /// Box2D world
     public final World world;
     public final ReentrantLock worldLock = new ReentrantLock();
@@ -73,9 +78,8 @@ public class LevelScreen implements Screen {
             DebugRenderer.getInstance().begin();
             tiledMapRenderer.setView(camera);
             tiledMapRenderer.render();
-
             camera.update();
-            debugRenderer.render(world, camera.combined);
+
             batch.setProjectionMatrix(camera.combined);
             DebugRenderer.getInstance().setProjectionMatrix(camera.combined);
 
@@ -85,7 +89,10 @@ public class LevelScreen implements Screen {
             player.render(delta);
             batch.end();
 
+            rayHandler.setCombinedMatrix(camera);
+            rayHandler.updateAndRender();
             hud.render(delta);
+            if (Globals.DEBUG) debugRenderer.render(world, camera.combined);
             DebugRenderer.getInstance().end();
         } else {
             /// Render the last frame before pausing
@@ -143,8 +150,19 @@ public class LevelScreen implements Screen {
         pauseScreen = PauseScreen.getInstance();
 
         /// Init world
+        RayHandler.useDiffuseLight(false);
         world = new World(new Vector2(0, 0), true);
         world.setContactListener(new TileEntityContactListener());
+        RayHandler.useDiffuseLight(true);
+        rayHandler = new RayHandler(world);
+        rayHandler.setShadows(true);
+
+        Color lightColor = new Color(0.082f, 0.067f, 0.122f, 0.5f);
+        rayHandler.setAmbientLight(lightColor);
+        rayHandler.setBlurNum(33);
+
+
+
 
         w = Gdx.graphics.getWidth() / PPM;
         h = Gdx.graphics.getHeight() / PPM;
