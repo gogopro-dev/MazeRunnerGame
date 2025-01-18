@@ -42,6 +42,14 @@ public class Player extends Entity {
     private float trapAttackElapsedTime = 0f;
     private PointLight torchLight;
 
+    private int attackDamage = 0;
+    private int armor = 0;
+
+    private int gold = 0;
+    private boolean hasResurrectionAmulet = false;
+    private boolean hasVampireAmulet = false;
+    private boolean hasSpeedBoots = false;
+
     /**
      * Creates a new player character.
      * @param batch The sprite batch to render the player character
@@ -210,6 +218,8 @@ public class Player extends Entity {
             useStamina(1);
         }
 
+        //TODO stamina regen (func in hud is ready)
+
         body.setLinearVelocity(velocityX, velocityY);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && canHit) {
@@ -346,10 +356,47 @@ public class Player extends Entity {
     @Override
     public void restoreStamina(int amount) {
         super.restoreStamina(amount);
+        LevelScreen.getInstance().hud.restoreStamina(amount);
         //hud.restoreStamina(amount);
     }
-
+    /**
+     * Collects a collectable item.
+     * @param collectable The collectable item to collect
+     */
     public void collect(Collectable collectable) {
+        // add attributes of collectable to player
+        if (collectable.getType() == null){
+            throw new IllegalArgumentException("Collectable type is null");
+        }
+
+        switch (collectable.getType()) {
+            case HEART:
+                heal(collectable.getNonUniqueAttribute(collectable.getType()));
+                System.out.println("Health increased to " + health);
+                break;
+            case GOLD_COIN:
+                // TODO: add gold to player
+                gold += collectable.getNonUniqueAttribute(collectable.getType());
+                System.out.println("Gold increased to " + gold);
+                break;
+            case DAMAGE_COIN:
+                attackDamage += collectable.getNonUniqueAttribute(collectable.getType());
+                System.out.println("Attack damage increased to " + attackDamage);
+                break;
+            case DEFENSE_COIN:
+                armor += collectable.getNonUniqueAttribute(collectable.getType());
+                System.out.println("Armor increased to " + armor);
+                break;
+            case RESURRECTION_AMULET:
+                System.out.println("Resurrection amulet collected");
+                break;
+            case VAMPIRE_AMULET:
+                System.out.println("Vampire amulet collected");
+                break;
+            case SPEED_BOOTS:
+                System.out.println("Speed boots collected");
+                break;
+        }
     }
 
     public boolean isBeingChased() {
