@@ -544,7 +544,7 @@ public class TileMap implements Disposable {
                             temp.filter.categoryBits = BodyBits.WALL_NO_LIGHT;
                             temp.filter.maskBits = BodyBits.WALL_NO_LIGHT_MASK;
                             createRectangularHitbox(x + 0.07f, y + 1 + 1.5f, hx - 0.07f, 1.5f, temp);
-                            createRectangularHitbox(x + 0.09f, y + 3f + 0.6f, hx - 0.1f, 0.3f);
+                            createRectangularHitbox(x + 0.12f, y + 3f + 0.6f, hx - 0.24f, 0.3f);
                         }
                         /*if (isIsolatedCollidable(j - 2, i + 1, wallMap)) {
                             FixtureDef fixtureDef = new FixtureDef();
@@ -561,8 +561,8 @@ public class TileMap implements Disposable {
                 FixtureDef temp = new FixtureDef();
                 temp.filter.categoryBits = BodyBits.WALL_NO_LIGHT;
                 temp.filter.maskBits = BodyBits.WALL_NO_LIGHT_MASK;
-                createRectangularHitbox(x + 0.07f, y + 1 + 1.5f, hx - 0.07f, 1.5f, temp);
-                createRectangularHitbox(x + 0.09f, y + 3f + 0.6f, hx - 0.1f, 0.3f);
+                createRectangularHitbox(x + 0.03f, y + 1 + 1.5f, hx - 0.12f, 1.5f, temp);
+                createRectangularHitbox(x + 0.12f, y + 3f + 0.6f, hx - 0.24f, 0.3f);
             }
         }
     }

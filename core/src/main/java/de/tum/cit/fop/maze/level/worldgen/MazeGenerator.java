@@ -156,11 +156,19 @@ public final class MazeGenerator {
                 GeneratorCell below = grid.get(i + 1).get(j);
                 GeneratorCell left = grid.get(i).get(j - 1);
                 GeneratorCell right = grid.get(i).get(j + 1);
+                int totalSurroundingWallCount = 0;
+                for (GeneratorCell cell : List.of(above, below, left, right)) {
+                    if (cell.getCellType().isWall()) {
+                        totalSurroundingWallCount++;
+                    }
+                }
                 if (!current.getCellType().isRoom() && current.getCellType().isPath() &&
                     (
                         (above.getCellType().isWall() && below.getCellType().isWall()) ||
                             (left.getCellType().isWall() && right.getCellType().isWall())
-                    ) && random.nextDouble() < Globals.TRAP_SPAWN_CHANCE) {
+                    )
+                    && totalSurroundingWallCount < 3
+                    && random.nextDouble() < Globals.TRAP_SPAWN_CHANCE) {
                     current.setCellType(CellType.TRAP);
                 }
             }
@@ -363,9 +371,9 @@ public final class MazeGenerator {
         for (Room room : rooms) {
             generateRoom(room);
         }
-        fixDoubleWalls();
         fixCorners();
         fixReachability();
+        fixDoubleWalls();
     }
 
     private void fixDoubleWalls() {
@@ -380,13 +388,13 @@ public final class MazeGenerator {
                     grid.get(i).get(j - 1).setCellType(CellType.PATH);
                 }
                 boolean is3wallVerticalBlock;
-                if (!(i > 1 && i < generatorHeight - 2)) is3wallVerticalBlock = true;
+                if (!(i > 1 && i < generatorHeight - 1)) is3wallVerticalBlock = true;
                 else {
-                    boolean underBottomWall = grid.get(i + 2).get(j).getCellType().isWall();
+                    boolean underBottomWall = i < generatorHeight - 2 && grid.get(i + 2).get(j).getCellType().isWall();
                     boolean aboveTopWall = grid.get(i - 2).get(j).getCellType().isWall();
-                    is3wallVerticalBlock = topWall && currentWall && bottomWall;
-                    is3wallVerticalBlock |= currentWall && bottomWall && underBottomWall;
-                    is3wallVerticalBlock |= topWall && currentWall && aboveTopWall;
+                    is3wallVerticalBlock = (topWall && currentWall && bottomWall) ||
+                        (currentWall && bottomWall && underBottomWall) ||
+                        (aboveTopWall && topWall && currentWall);
                 }
                 boolean currentCellIsRoom = grid.get(i).get(j).getCellType().isRoom();
                 boolean topCellIsRoom = grid.get(i - 1).get(j).getCellType().isRoom();
