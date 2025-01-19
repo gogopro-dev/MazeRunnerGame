@@ -5,7 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -13,8 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.utils.viewport.*;
 import de.tum.cit.fop.maze.entities.*;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.tile.TileEntityManager;
@@ -24,7 +22,6 @@ import de.tum.cit.fop.maze.entities.tile.TileEntityContactListener;
 import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 
-import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static de.tum.cit.fop.maze.Globals.MPP;
@@ -36,13 +33,13 @@ public class LevelScreen implements Screen {
     public final float w, h;
     private final EnemyManager enemyManager;
     public final TileEntityManager tileEntityManager;
-    public final Viewport viewport;
+    public FillViewport viewport;
     public TileMap map;
     public final OrthographicCamera camera;
     private final TiledMapRenderer tiledMapRenderer;
     public final SpriteBatch batch;
     public final Player player;
-    public final HUDv2 hud;
+    public final HUD hud;
     public final RayHandler rayHandler;
 
     /// Box2D world
@@ -67,22 +64,32 @@ public class LevelScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        /// Clear the screen
         ScreenUtils.clear(0, 0, 0, 1, true);
+
         if (pauseScreen.isPaused()){
             /// Render the last frame before pausing
-            Texture pauseTexture = new Texture(pauseScreen.getLastFrame());
-            batch.begin();
-            batch.draw(pauseTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
-                0, 0, pauseTexture.getWidth(), pauseTexture.getHeight(),
-                false, true);
-            batch.end();
-            pauseTexture.dispose();
+            pauseScreen.drawLastFrame(batch);
+
             /// Update and render pause screen
             pauseScreen.update();
             pauseScreen.render(delta);
             return;
         }
 
+        /// Render the game if not paused
+        renderWorld(delta);
+
+        /// Update and render pause screen
+        pauseScreen.update();
+        pauseScreen.render(delta);
+    }
+
+    /**
+     * Render the game world
+     * @param delta The time since the last render in seconds
+     */
+    public void renderWorld(float delta){
         /// Render the game if not paused
         worldLock.lock();
         doPhysicsStep(delta);
@@ -104,19 +111,18 @@ public class LevelScreen implements Screen {
         batch.end();
 
         rayHandler.setCombinedMatrix(camera);
-            rayHandler.updateAndRender();
-            hud.render(delta);
-            if (Globals.DEBUG) debugRenderer.render(world, camera.combined);
+        rayHandler.updateAndRender();
+        hud.render(delta);
+        if (Globals.DEBUG) debugRenderer.render(world, camera.combined);
         DebugRenderer.getInstance().end();
-        /// Update and render pause screen
-        pauseScreen.update();
-        pauseScreen.render(delta);
     }
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height);
         pauseScreen.resize(width, height);
+
+        viewport.update(width, height);
+        viewport.setScreenSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     @Override
@@ -153,7 +159,6 @@ public class LevelScreen implements Screen {
             throw new IllegalStateException("LevelScreen already exists");
         }
         instance = this;
-        pauseScreen = PauseScreen.getInstance();
 
         /// Init world
         RayHandler.useDiffuseLight(false);
@@ -167,17 +172,16 @@ public class LevelScreen implements Screen {
         rayHandler.setAmbientLight(lightColor);
         rayHandler.setBlurNum(33);
 
-
-
-
-        w = Gdx.graphics.getWidth() / PPM;
         h = Gdx.graphics.getHeight() / PPM;
+        w = Gdx.graphics.getWidth() / PPM;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, w / 2, h / 2);
 
-        viewport = new FitViewport(w, h, camera);
+        viewport = new FillViewport(w,h, camera);
         viewport.apply();
+
+        pauseScreen = new PauseScreen();
 
         this.batch = new SpriteBatch();
         batch.setProjectionMatrix(camera.combined);
@@ -192,12 +196,12 @@ public class LevelScreen implements Screen {
         player.spawn(map.widthMeters / 2 + 8, map.heightMeters / 2, world);
 
         /// Set camera at the center of the players position in Box2D world
-        camera.position.set(player.getPosition().x() + 5, player.getPosition().y(), 0);
+        camera.position.set(player.getPosition().x(), player.getPosition().y(), 0);
         camera.zoom = Globals.DEFAULT_CAMERA_ZOOM;
         camera.update();
 
-        hud = new HUDv2(player);
-        Collectable collectable = new Collectable("key", null);
+        hud = new HUD(player);
+        Collectable collectable = new Collectable("key");
         tileEntityManager.createTileEntity(collectable,
          map.widthMeters / 2 + 10, map.heightMeters / 2
         );
@@ -230,6 +234,37 @@ public class LevelScreen implements Screen {
 
     }
 
+    /**
+     * Update the viewport after resizing the window
+     */
+    public void updateViewport() {
+        float h = Gdx.graphics.getHeight() / PPM;
+        float w = Gdx.graphics.getWidth() / PPM;
+        float ratio = viewport.getWorldWidth() / w;
+
+
+        float playerRelativeX = player.getPosition().x() - camera.position.x;
+        float playerRelativeY = player.getPosition().y() - camera.position.y;
+
+        camera.viewportWidth = w / 2;
+        camera.viewportHeight = h / 2;
+        Globals.DEFAULT_CAMERA_ZOOM *= ratio;
+        camera.zoom = Globals.DEFAULT_CAMERA_ZOOM;
+
+        /// Set camera at the position of the player it was before resizing
+        camera.position.set(player.getPosition().x() - playerRelativeX, player.getPosition().y() - playerRelativeY, 0);
+
+        viewport.setScreenSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        viewport.setWorldSize(w, h);
+
+        hud.resize();
+        viewport.apply();
+    }
+
+    /**
+     * Get the instance of the LevelScreen
+     * @return The instance of the LevelScreen
+     */
     public static LevelScreen getInstance() {
         if (instance == null) {
             throw new IllegalStateException("LevelScreen not yet created");

@@ -1,9 +1,9 @@
 package de.tum.cit.fop.maze.level;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -13,7 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.*;
+import com.google.gson.internal.bind.util.ISO8601Utils;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
@@ -25,7 +26,7 @@ import java.nio.ByteBuffer;
  * Used to pause the game and show the pause menu.
  */
 public class PauseScreen {
-    private Pixmap lastFrame;
+    private Texture lastFrame;
     private final Texture pauseBackground;
     private final Stage stage;
     private final ShapeRenderer shapeRenderer;
@@ -43,7 +44,7 @@ public class PauseScreen {
      */
     public static PauseScreen getInstance() {
         if (instance == null) {
-            instance = new PauseScreen();
+            throw new IllegalStateException("PauseScreen has not been initialized yet.");
         }
         return instance;
     }
@@ -54,7 +55,7 @@ public class PauseScreen {
      */
     public PauseScreen() {
         pauseBackground = new Texture("menu/pause_menu.png");
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         shapeRenderer = new ShapeRenderer();
         isPaused = false;
         wasEscapePressed = false;
@@ -70,6 +71,7 @@ public class PauseScreen {
      * Sets up the pause menu
      */
     public void setupPauseMenu(){
+        instance = this;
         /// Load icons for buttons
         TextureAtlas iconsAtlas = new TextureAtlas(Gdx.files.internal("icons/main_menu_icons.atlas"));
         TextureRegion iconRegion;
@@ -161,6 +163,7 @@ public class PauseScreen {
         screenTable.add(exitButton).padTop(10f).padBottom(10f).width(224*1.2f).height(48f*1.2f).row();
 
         stage.addActor(screenTable);
+
     }
 
     /**
@@ -172,6 +175,25 @@ public class PauseScreen {
     }
 
     /**
+     * Takes a screenshot of the current frame </br>
+     * Used to display the pause menu
+     */
+    public void takeScreenshot() {
+        Pixmap pixmap = Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
+        ByteBuffer pixels = pixmap.getPixels();
+        // This loop makes sure the whole screenshot is opaque and looks exactly like what the user is seeing
+        int size = Gdx.graphics.getBackBufferWidth() * Gdx.graphics.getBackBufferHeight() * 4;
+        for (int i = 3; i < size; i += 4) {
+            pixels.put(i, (byte) 255);
+        }
+
+        if(lastFrame != null) {
+            lastFrame.dispose();
+        }
+        lastFrame = new Texture(pixmap);
+    }
+
+    /**
      * Toggles the pause state
      */
     public void togglePause() {
@@ -179,14 +201,7 @@ public class PauseScreen {
         if (isPaused) {
             /// Take a screenshot of the current frame
             /// To place the pause menu on top of it
-            Pixmap pixmap = Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
-            ByteBuffer pixels = pixmap.getPixels();
-            // This loop makes sure the whole screenshot is opaque and looks exactly like what the user is seeing
-            int size = Gdx.graphics.getBackBufferWidth() * Gdx.graphics.getBackBufferHeight() * 4;
-            for (int i = 3; i < size; i += 4) {
-                pixels.put(i, (byte) 255);
-            }
-            lastFrame = pixmap;
+            takeScreenshot();
         }
     }
 
@@ -228,7 +243,7 @@ public class PauseScreen {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(0, 0, 0, 0.5f);
-        shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        shapeRenderer.rect(0, 0, stage.getViewport().getWorldWidth(), stage.getViewport().getWorldHeight());
         shapeRenderer.end();
         Gdx.gl.glDisable(GL20.GL_BLEND);
         if (!isSettings) {
@@ -257,14 +272,26 @@ public class PauseScreen {
         pauseBackground.dispose();
         stage.dispose();
         shapeRenderer.dispose();
-        playButtonAtlas.dispose();
         lastFrame.dispose();
+        playButtonAtlas.dispose();
+    }
+
+    /**
+     * Draws the last frame before pausing
+     * @param batch The sprite batch to draw with
+     */
+    public void drawLastFrame(SpriteBatch batch) {
+        batch.begin();
+        batch.draw(lastFrame, 0, 0, stage.getViewport().getWorldWidth(), stage.getViewport().getWorldHeight(),
+            0, 0, lastFrame.getWidth(), lastFrame.getHeight(),
+            false, true);
+        batch.end();
     }
 
     /**
      * @return The last frame before pausing
      */
-    public Pixmap getLastFrame() {
+    public Texture getLastFrame() {
         return lastFrame;
     }
 
@@ -273,5 +300,28 @@ public class PauseScreen {
      */
     public boolean isSettings() {
         return isSettings;
+    }
+
+    /**
+     * Updates the viewport
+     * @param hasResized True if the viewport has been resized
+     */
+    public void updateViewport(boolean hasResized) {
+        if (hasResized){
+            /// Update the pause menu to match new resolution
+            LevelScreen.getInstance().renderWorld(0);
+            takeScreenshot();
+        }
+        int width = Gdx.graphics.getWidth();
+        int height = Gdx.graphics.getHeight();
+
+        stage.getViewport().update(width, height, true);
+        stage.getViewport().apply();
+        screenTable.setPosition(
+            stage.getViewport().getWorldWidth()/2f - screenTable.getWidth()/2,
+            stage.getViewport().getWorldHeight()/2f - screenTable.getHeight()/2
+        );
+        // Update shapeRenderer projection matrix
+        shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
     }
 }

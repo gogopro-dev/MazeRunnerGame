@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import de.tum.cit.fop.maze.level.LevelScreen;
 import de.tum.cit.fop.maze.level.PauseScreen;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,6 +43,7 @@ public class SettingsUI {
     private TextureRegion knobRegion;
     private TextureRegion dropDownMenuRegion;
     private TextureRegion containerRegion;
+    private Container<VerticalGroup> container;
 
     /**
      * @return The singleton instance of the settings menu
@@ -289,6 +291,9 @@ public class SettingsUI {
                 Menu.getInstance().SCREEN_HEIGHT = Integer.parseInt(resolution[1]);
                 Menu.getInstance().SCREEN_WIDTH = Integer.parseInt(resolution[0]);
                 Menu.getInstance().resize(Integer.parseInt(resolution[0]), Integer.parseInt(resolution[1]));
+                container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
+                LevelScreen.getInstance().updateViewport();
+                PauseScreen.getInstance().updateViewport(true);
             }
         });
 
@@ -339,7 +344,7 @@ public class SettingsUI {
 
 
         /// Create the main texture for the settings menu to place all widgets on
-        Container<VerticalGroup> container = createContainer(settingElementGroup);
+        container = createContainer(settingElementGroup);
 
         stage.addActor(container);
     }
@@ -360,7 +365,6 @@ public class SettingsUI {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 isFullScreen = !isFullScreen;
-
                 /// Disable the resolution select box if full screen is on
                 selectBox.setDisabled(isFullScreen);
                 selectBox.getStyle().fontColor = isFullScreen ? new Color(0x404040FF) : new Color(0xE0E0E0FF);
@@ -375,9 +379,9 @@ public class SettingsUI {
                     Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
                     Menu.getInstance().SCREEN_HEIGHT = Gdx.graphics.getHeight();
                     Menu.getInstance().SCREEN_WIDTH = Gdx.graphics.getWidth();
-
                     /// resize the stage to the new resolution
                     Menu.getInstance().resize(Menu.getInstance().SCREEN_WIDTH, Menu.getInstance().SCREEN_HEIGHT);
+                    MainMenuUI.getInstance().updateContainerPosition();
                 } else {
                     /// Set the button padding to 12f to center the image
                     toggleFullButton.setImagePadding(12f);
@@ -386,9 +390,18 @@ public class SettingsUI {
                     Menu.getInstance().SCREEN_HEIGHT = 768;
                     Menu.getInstance().SCREEN_WIDTH = 1024;
 
+
                     Gdx.graphics.setWindowedMode(Menu.getInstance().SCREEN_WIDTH, Menu.getInstance().SCREEN_HEIGHT);
+                    MainMenuUI.getInstance().updateContainerPosition();
                     Menu.getInstance().resize(1024, 768);
                 }
+                LevelScreen.getInstance().updateViewport();
+                PauseScreen.getInstance().updateViewport(true);
+                container.setPosition(
+                    stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2,
+                    stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2
+                );
+
             }
         });
         return toggleFullButton;
