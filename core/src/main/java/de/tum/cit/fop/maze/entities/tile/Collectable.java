@@ -3,6 +3,7 @@ package de.tum.cit.fop.maze.entities.tile;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.World;
 import com.google.gson.Gson;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
@@ -152,6 +153,7 @@ public class Collectable extends TileEntity {
     public void onPlayerStartContact(Contact c) {
         super.onPlayerStartContact(c);
         if (!pickedUp){
+            toDestroy = true;
             pickedUp = true;
             pickupElapsedTime = 0f;
             ///  Collectable pickup logic is done in Player class

@@ -3,9 +3,11 @@ package de.tum.cit.fop.maze.entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.google.gson.Gson;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -17,6 +19,8 @@ public class Enemy extends Entity {
     private Animation<TextureRegion> dieAnimation;
     private Animation<TextureRegion> currentAnimation;
     private final EnemyType enemyType;
+    private Vector2 knockbackVector = new Vector2(0, 0);
+    private float knockbackActivationElapsedTime = 0;
     private EnemyConfig config;
     private float elapsedTime = 0f;
     private boolean isAttacking = false;
@@ -37,15 +41,10 @@ public class Enemy extends Entity {
         loadAnimations();
     }
 
-    @Override
-    public void spawn(float x, float y, World world) {
-        super.spawn(x, y, world);
-
-
-    }
-
     public void render(float deltaTime) {
+
         elapsedTime += deltaTime;
+        if (path != null) this.followPath();
         if (isAttacking) {
             attackElapsedTime += deltaTime;
         }
@@ -81,6 +80,14 @@ public class Enemy extends Entity {
                 currentFrame.flip(true, false); // Flip horizontally if facing left
             }
         }
+        if (!knockbackVector.isZero()) {
+            knockbackActivationElapsedTime += deltaTime;
+            body.setLinearVelocity(knockbackVector);
+            if (knockbackActivationElapsedTime > .05f) {
+                knockbackVector.setZero();
+            }
+        }
+
 
         batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
     }
@@ -189,11 +196,18 @@ public class Enemy extends Entity {
                     currentPathPoint.x() - getPosition().x(),
                     currentPathPoint.y() - getPosition().y()
                 );
-                this.body.setLinearVelocity(direction.toVector2().nor().scl(config.attributes.speed));
+                this.body.setLinearVelocity(
+                    direction.toVector2().nor().scl(config.attributes.speed)
+                );
             } else {
                 this.body.setLinearVelocity(0, 0);
             }
         }
+    }
+
+    public void setKnockbackVector(@Nullable Vector2 knockbackVector) {
+        this.knockbackVector = knockbackVector;
+        this.knockbackActivationElapsedTime = 0;
     }
 
     public EnemyConfig getConfig() {

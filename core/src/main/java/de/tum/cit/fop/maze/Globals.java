@@ -3,6 +3,8 @@ package de.tum.cit.fop.maze;
 import com.badlogic.gdx.graphics.Color;
 
 public final class Globals {
+    public static final boolean DEBUG = true;
+    public static final boolean FULLBRIGHT = true;
 
     /// Pixel per Meter
     public static final float PPM = 64f;
@@ -19,6 +21,7 @@ public final class Globals {
     public static final float TILEMAP_SCALE = 4f;
     public static final float CELL_SIZE_METERS = (CELL_SIZE / PPM) * TILEMAP_SCALE;
     public static final float TRAP_SAFETY_PADDING = CELL_SIZE_METERS / 12;
+    public static final float PATHFINDING_SAFETY_GAP = CELL_SIZE_METERS / 7f;
 
     public static final float BOX2D_TIME_STEP = 1 / 120f;
     public static final int BOX2D_VELOCITY_ITERATIONS = 8;
@@ -32,6 +35,8 @@ public final class Globals {
     public static final int RAY_AMOUNT = 100;
     public static final Color TORCH_LIGHT_COLOR = new Color(0xffa459ff);
     public static final Color TRAP_LIGHT_COLOR = new Color(0xff0000ff);
-    public static final boolean DEBUG = false;
 
+    public static final int PLAYER_DAMAGE = 2;
+    public static final float PLAYER_ATTACK_DISTANCE = CELL_SIZE_METERS;
+    public static final float PLAYER_ATTACK_KNOCKBACK = 10f;
 }

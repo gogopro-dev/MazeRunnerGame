@@ -75,6 +75,9 @@ public class DebugRenderer {
         if (!drawDebug) {
             return;
         }
+        if (spawnedShapes.size() > 10000) {
+            return;
+        }
         spawnedShapes.add((Void v) -> {
             shapeRenderer.rect(
                 start.x(), start.y(),

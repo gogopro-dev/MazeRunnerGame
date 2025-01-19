@@ -3,6 +3,7 @@ package de.tum.cit.fop.maze.entities.tile;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * This class manages the tile entities in the game.
@@ -16,14 +17,22 @@ public class TileEntityManager {
         tileEntity.spawn(x, y);
     }
 
-    public void removeTileEntity(TileEntity tileEntity) {
-        tileEntities.remove(tileEntity);
+    private void destroyTileEntity(TileEntity tileEntity) {
+        LevelScreen.getInstance().world.destroyBody(tileEntity.getBody());
     }
 
 
     public void render(float delta) {
         boolean isAnyActiveTraps = false;
-        for (TileEntity tileEntity : tileEntities) {
+        Iterator<TileEntity> it = tileEntities.iterator();
+
+        while (it.hasNext()) {
+            TileEntity tileEntity = it.next();
+            if (tileEntity.toDestroy) {
+                it.remove();
+                destroyTileEntity(tileEntity);
+                continue;
+            }
             if (tileEntity.isOnPlayer()) {
                 if (tileEntity instanceof Trap trap) {
                     isAnyActiveTraps |= trap.isActivated();

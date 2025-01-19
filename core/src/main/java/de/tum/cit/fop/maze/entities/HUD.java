@@ -24,7 +24,7 @@ public class HUD {
     private final Stage stage;
     private final List<List<Image>> matrixHPBar;
     private final Map<String, Image> statusBar;
-    private final float heartsAnimationFrameDuration = 1/5f;
+    private final float heartsAnimationFrameDuration = 1 / 5f;
     private final SpriteBatch spriteBatch;
 
 
@@ -99,7 +99,7 @@ public class HUD {
             atlas.findRegions("HealthR_DMG")); // rHalfFullToEmpty
         rHFtoE.setPlayMode(Animation.PlayMode.LOOP);
 
-        Array <TextureRegion> HealthL_noDMG = new Array<>();
+        Array<TextureRegion> HealthL_noDMG = new Array<>();
         HealthL_noDMG.add(atlas.findRegion("HealthL_noDMG", 1)); // lHalfFullToFull
         HealthL_noDMG.add(atlas.findRegion("HealthL_DMG", 1)); // lHalfFullToEmpty
         HealthL_noDMG.add(atlas.findRegion("HealthL_DMG", 0)); // lHalfFullToFull
@@ -116,9 +116,8 @@ public class HUD {
         offsetYStepHP = animations.get("lHalfFullToEmpty").getKeyFrame(0).getRegionHeight() * heartsScaling;
 
 
-
-
     }
+
     private void addImageToRow(List<Image> row, float offsetX, float offsetY, TextureRegion regionName) {
         Image eachHeart = new Image(regionName);
         eachHeart.setScale(heartsScaling);
@@ -139,7 +138,7 @@ public class HUD {
         }
         List<Image> row = matrixHPBar.remove(matrixHPBar.size() - 1);
 
-        while (target != count){
+        while (target != count) {
             addImageToRow(row, x, y, count % 2 == 0 ? lHalfTexture : rHalfTexture);
             x += count % 2 == 0 ? offsetXStepHP : offsetXStepHP + spacingX;
             count++;
@@ -154,14 +153,14 @@ public class HUD {
             matrixHPBar.add(row);
         }
         if (lHalfTexture == atlas.findRegion("HealthL_noDMG", 1)) {
-            indexXOfLastFullHalf = matrixHPBar.get(matrixHPBar.size()-1).size()-1;
-            indexYOfLastFullHalf = matrixHPBar.size()-1;
+            indexXOfLastFullHalf = matrixHPBar.get(matrixHPBar.size() - 1).size() - 1;
+            indexYOfLastFullHalf = matrixHPBar.size() - 1;
             System.out.println(indexXOfLastFullHalf + " " + indexYOfLastFullHalf);
         }
         return List.of(x, y, count);
     }
 
-    public void updateHPBar(){
+    public void updateHPBar() {
         if (health <= 0) {
             health = 2;
         }
@@ -202,11 +201,11 @@ public class HUD {
         updateHPBar();
     }
 
-    private void drawHeartAnimation(String animationName, int y, int x)  {
+    private void drawHeartAnimation(String animationName, int y, int x) {
         TextureRegion currentFrame = animations.get(animationName).getKeyFrame(hitElapsedTime);
         Image heart = matrixHPBar.get(y).get(x);
-        float width = heart.getImageWidth()*heartsScaling;
-        float height = heart.getImageHeight()*heartsScaling;
+        float width = heart.getImageWidth() * heartsScaling;
+        float height = heart.getImageHeight() * heartsScaling;
         spriteBatch.draw(currentFrame, heart.getX(), heart.getY(), width, height);
     }
 
@@ -234,19 +233,21 @@ public class HUD {
         float stBarY = matrixHPBar.get(matrixHPBar.size() - 1).get(0).getY() - spacingBetwHPBarAndStaminaBar - height;
 
 
-        staminaBar.setPosition(stBarX + fillamentAlignmentX *staminaBarScaling, stBarY);
+        staminaBar.setPosition(stBarX + fillamentAlignmentX * staminaBarScaling, stBarY);
 
 
         stage.addActor(staminaBar);
-        setStaminaBarBorder((int) (width/staminaBarScaling), (int) (height/staminaBarScaling), stBarX, stBarY + height);
+        setStaminaBarBorder(
+            (int) (width / staminaBarScaling), (int) (height / staminaBarScaling), stBarX, stBarY + height
+        );
     }
 
     private void setStaminaBarBorder(int width, int height, float stBarX, float stBarY) {
         //TODO repack Atlas with proper name and get rid of "magic numbers"
         Image staminaBarBorder = new Image(atlas.findRegion("staminaBarBorder"));
-        float borderWidth = (width +37)*staminaBarScaling;
-        float borderHeight = (height + 22)*staminaBarScaling;
-        float borderAlignmentY = (height+11)*staminaBarScaling;
+        float borderWidth = (width + 37) * staminaBarScaling;
+        float borderHeight = (height + 22) * staminaBarScaling;
+        float borderAlignmentY = (height + 11) * staminaBarScaling;
 //        float borderAlignmentX = 12*staminaBarScaling;
 
         staminaBarBorder.setSize(borderWidth, borderHeight);
@@ -259,6 +260,7 @@ public class HUD {
         staminaBar.setRange(0f, maxStamina);
         staminaBar.setValue(currentStamina);
     }
+
     public void drainStamina(float deltaStamina) {
         staminaBar.setValue(staminaBar.getValue() - deltaStamina);
     }
@@ -281,7 +283,8 @@ public class HUD {
     }
 
     public void renderStatusBar() {
-        float x = matrixHPBar.get(0).get(amountOfHeartsInRow*2-1).getX()+ offsetXStepHP + statusBarSpacingFromHPBar;
+        float x = matrixHPBar.get(0).get(amountOfHeartsInRow * 2 - 1).getX()
+            + offsetXStepHP + statusBarSpacingFromHPBar;
         float y = matrixHPBar.get(0).get(0).getY();
 
         for (Map.Entry<String, Image> entry : statusBar.entrySet()) {
@@ -293,7 +296,7 @@ public class HUD {
         }
     }
 
-    private void damageAnimation(float deltaTime){
+    private void damageAnimation(float deltaTime) {
         // receivedDmg, IndexX, IndexY
         int heartsToAnimate = receivedDmg;
         if (receivedDmg <= 0) {
@@ -308,7 +311,7 @@ public class HUD {
             drawHeartAnimation("lHalfFullToFull", indexYOfLastFullHalf, indexXOfLastFullHalf);
         }
 
-        while(heartsToAnimate > 0) {
+        while (heartsToAnimate > 0) {
             if (tempIndexX % 2 == 0) {
                 drawHeartAnimation("lHalfFullToEmpty", tempIndexY, tempIndexX);
             } else {
@@ -316,7 +319,7 @@ public class HUD {
             }
             tempIndexX++;
             heartsToAnimate--;
-            if (tempIndexX >= amountOfHeartsInRow*2) {
+            if (tempIndexX >= amountOfHeartsInRow * 2) {
                 tempIndexY++;
                 tempIndexX = 0;
             }
@@ -352,7 +355,7 @@ public class HUD {
         stage.addActor(takeDmgButton);
     }
 
-    public void createAddStatusButton(){
+    public void createAddStatusButton() {
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.fontColor = Color.WHITE;
         textButtonStyle.font = new BitmapFont();
@@ -391,7 +394,7 @@ public class HUD {
         stage.getBatch().end();
     }
 
-    public void show(){
+    public void show() {
         Gdx.input.setInputProcessor(this.stage);
     }
 

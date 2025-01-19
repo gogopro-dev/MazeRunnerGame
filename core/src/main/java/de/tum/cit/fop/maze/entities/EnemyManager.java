@@ -40,7 +40,7 @@ public class EnemyManager {
 
     public EnemyManager() {
         this.enemies = new ArrayList<>();
-        this.asyncExecutor = new AsyncExecutor(8);
+        this.asyncExecutor = new AsyncExecutor(Runtime.getRuntime().availableProcessors());
         this.levelScreen = LevelScreen.getInstance();
     }
 
@@ -161,7 +161,6 @@ public class EnemyManager {
                 DebugRenderer.getInstance().drawLine(lastPoint, currentPoint, Color.RED);
                 lastPoint = currentPoint;
             }
-            enemy.followPath();
         }
 
         /// Todo @Hlib move randomly*/
