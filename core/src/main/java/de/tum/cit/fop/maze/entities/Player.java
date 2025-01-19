@@ -251,6 +251,9 @@ public class Player extends Entity {
         }
     }
 
+    /**
+     * Updates the camera position based on the player's position.
+     */
     public void updateCameraPosition() {
         float cameraX = camera.position.x;
         float cameraY = camera.position.y;
