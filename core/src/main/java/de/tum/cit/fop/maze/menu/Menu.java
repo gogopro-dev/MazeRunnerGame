@@ -16,7 +16,7 @@ import de.tum.cit.fop.maze.level.LevelScreen;
  */
 public class Menu implements Screen {
     public int SCREEN_WIDTH = 1024;
-    public int SCREEN_HEIGHT = 764;
+    public int SCREEN_HEIGHT = 768;
     private MenuState menuState = MenuState.MAIN_MENU;
     private final MainMenuUI mainMenuUI;
     private final SettingsUI settingsUI;
@@ -30,7 +30,6 @@ public class Menu implements Screen {
     private int currentFrameIndex = 0;
     private static final float FRAME_DURATION = 0.1f;
     private final FadeOverlay fadeOverlay;
-
     /**
      * Returns the singleton instance of the menu.
      * @return The singleton instance of the menu.
@@ -49,7 +48,7 @@ public class Menu implements Screen {
     private Menu() {
         /// Camera, Viewport nad SpriteBatch setup
         camera = new OrthographicCamera();
-        viewport = new FitViewport(1024, 764, camera);
+        viewport = new ExtendViewport(1024, 768, camera);
         batch = new SpriteBatch();
 
         fadeOverlay = new FadeOverlay();
@@ -180,6 +179,10 @@ public class Menu implements Screen {
             SCREEN_WIDTH,
             SCREEN_HEIGHT
         );
+
+        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
+        MainMenuUI.getInstance().updateContainerPosition();
+//        viewportManager.update(width, height);
         camera.update();
     }
 
