@@ -76,12 +76,6 @@ public final class GenerationCases {
      * @return {@code true} if the current cell is a vertical wall
      */
     public static boolean verticalWallCase(int i, int j, MazeGenerator generator) {
-        /// Check if there is a wall above or wall on top and border above
-        if (i == generator.height - 1 &&
-            generator.grid.get(i).get(j).getCellType().isWall() &&
-            generator.grid.get(i - 1).get(j).getCellType().isWall()) {
-            return true;
-        }
         if (i == generator.height - 1) {
             return false;
         }

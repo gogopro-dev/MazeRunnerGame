@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.google.gson.Gson;
+import com.google.gson.internal.bind.ArrayTypeAdapter;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.Utils;
@@ -62,6 +63,7 @@ public class Trap extends TileEntity {
     public Trap(TrapType type) {
         super(0, 0);
         Gson gson = new Gson();
+
         TrapAttributes attributes = Arrays.stream(
             gson.fromJson(Gdx.files.internal("anim/tileEntities/trapConfig.json").reader(), TrapAttributes[].class)
         ).filter(attribute -> attribute.type.equals(type)).findFirst().get();

@@ -68,8 +68,8 @@ public final class MazeGenerator {
         this.random = new Random(seed);
         this.generatorWidth = (2 * (width / 2)) + 1;  // Make sure generatorWidth is odd
         this.generatorHeight = (2 * (height / 2)) + 1;  // Make sure generatorHeight is odd
-        this.width = width + 2;
-        this.height = height + 2;
+        this.width = width + 2 + (width % 2 == 0 ? 1 : 0);
+        this.height = height + 2 + (height % 2 == 0 ? 1 : 0);
         this.visited = new short[this.generatorHeight][this.generatorWidth];
 
         for (int i = 0; i < height; i++) {
@@ -363,19 +363,42 @@ public final class MazeGenerator {
         for (Room room : rooms) {
             generateRoom(room);
         }
-        fixCorners();
         fixDoubleWalls();
+        fixCorners();
         fixReachability();
     }
 
     private void fixDoubleWalls() {
-        for (int i = 1; i < generatorHeight; i++) {
+        for (int i = 1; i < generatorHeight - 1; i++) {
             for (int j = 1; j < generatorWidth; j++) {
                 boolean leftWall = grid.get(i).get(j - 1).getCellType() == CellType.WALL;
                 boolean currentRoomWall = grid.get(i).get(j).getCellType() == CellType.ROOM_WALL;
+                boolean currentWall = grid.get(i).get(j).getCellType().isWall();
+                boolean topWall = grid.get(i - 1).get(j).getCellType().isWall();
+                boolean bottomWall = grid.get(i + 1).get(j).getCellType().isWall();
                 if (currentRoomWall && leftWall) {
                     grid.get(i).get(j - 1).setCellType(CellType.PATH);
                 }
+                boolean is3wallVerticalBlock;
+                if (!(i > 1 && i < generatorHeight - 2)) is3wallVerticalBlock = true;
+                else {
+                    boolean underBottomWall = grid.get(i + 2).get(j).getCellType().isWall();
+                    boolean aboveTopWall = grid.get(i - 2).get(j).getCellType().isWall();
+                    is3wallVerticalBlock = topWall && currentWall && bottomWall;
+                    is3wallVerticalBlock |= currentWall && bottomWall && underBottomWall;
+                    is3wallVerticalBlock |= topWall && currentWall && aboveTopWall;
+                }
+                boolean currentCellIsRoom = grid.get(i).get(j).getCellType().isRoom();
+                boolean topCellIsRoom = grid.get(i - 1).get(j).getCellType().isRoom();
+                if (topWall && currentWall && !(topCellIsRoom && currentCellIsRoom) && !is3wallVerticalBlock) {
+                    if (topCellIsRoom) {
+                        grid.get(i).get(j).setCellType(CellType.PATH);
+                    } else {
+                        grid.get(i - 1).get(j).setCellType(CellType.PATH);
+                    }
+                    System.out.println("Fixing double walls");
+                }
+
             }
         }
     }
@@ -435,7 +458,7 @@ public final class MazeGenerator {
         clearVisited();
         Queue<GeneratorCell> queue = new LinkedList<>();
 
-        // Flood fill disjoint components
+        /// Flood fill disjoint components
         while (true) {
             for (int i = 0; i < generatorHeight; i++) {
                 for (int j = 0; j < generatorWidth; j++) {
@@ -469,7 +492,7 @@ public final class MazeGenerator {
         List<PassagePossibility> possibilities = new ArrayList<>();
         DSU dsu = new DSU(counter);
 
-        // Find all possible passages
+        /// Find all possible passages
         for (int i = 0; i < generatorHeight; i++) {
             for (int j = 0; j < generatorWidth; j++) {
                 GeneratorCell cell = grid.get(i).get(j);
