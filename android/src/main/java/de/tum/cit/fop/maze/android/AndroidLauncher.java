@@ -5,7 +5,6 @@ import android.os.Bundle;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import de.tum.cit.fop.maze.LoadMenu;
-import de.tum.cit.fop.maze.Main;
 
 /** Launches the Android application. */
 public class AndroidLauncher extends AndroidApplication {
