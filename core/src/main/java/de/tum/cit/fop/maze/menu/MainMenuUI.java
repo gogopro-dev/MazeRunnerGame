@@ -24,6 +24,7 @@ public class MainMenuUI {
     private final TextureAtlas playButtonAtlas;
     private final Skin play_button_skin;
     private final BitmapFont font;
+    Container<Table> container;
 
     /**
      * @return The singleton instance of the main menu
@@ -163,7 +164,7 @@ public class MainMenuUI {
         mainTable.add(exitButton).width(224).height(48).pad(10);
 
         /// Create container for all buttons
-        Container<Table> container = new Container<>(mainTable);
+        container = new Container<>(mainTable);
         container.setBackground(new TextureRegionDrawable(iconsAtlas.findRegion("menu")));
         container.setSize(306, 456);
 
@@ -182,6 +183,17 @@ public class MainMenuUI {
         stage.dispose();
         playButtonAtlas.dispose();
         font.dispose();
+    }
+
+    /**
+     * Updates the position of the container to the center of the screen.
+     */
+    public void updateContainerPosition(){
+        container.setPosition(
+            stage.getViewport().getWorldWidth()/2f - container.getWidth()/2,
+            stage.getViewport().getWorldHeight()/2f - container.getHeight()/2
+        );
+
     }
 
     public void show() {
