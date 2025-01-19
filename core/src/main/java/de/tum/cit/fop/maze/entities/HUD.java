@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
@@ -66,8 +67,8 @@ public class HUD {
         this.spriteBatch = LevelScreen.getInstance().batch;
         this.stage =
             new Stage(
-                new ScalingViewport(
-                    Scaling.stretch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera()
+                new ExtendViewport(
+                    Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera()
                 ), spriteBatch
             );
 
@@ -392,6 +393,10 @@ public class HUD {
 
     public void show(){
         Gdx.input.setInputProcessor(this.stage);
+    }
+
+    public void resize() {
+        stage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
     }
 }
 
