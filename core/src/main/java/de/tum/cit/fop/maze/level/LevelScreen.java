@@ -169,8 +169,10 @@ public class LevelScreen implements Screen {
         rayHandler.setShadows(true);
 
         Color lightColor = new Color(0.082f, 0.067f, 0.122f, 0.5f);
+        if (Globals.FULLBRIGHT) lightColor = Color.WHITE;
         rayHandler.setAmbientLight(lightColor);
         rayHandler.setBlurNum(33);
+
 
         h = Gdx.graphics.getHeight() / PPM;
         w = Gdx.graphics.getWidth() / PPM;
@@ -222,13 +224,13 @@ public class LevelScreen implements Screen {
             map.widthMeters / 2 + 3, map.heightMeters / 2
         );
 
-        /*enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 10);
+        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 10);
         enemyManager.createEnemy(new Enemy(EnemyType.SKELETON, batch), 8.3f, 12);
-        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.2f);
+        /*enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.2f);
         enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.4f);
         enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.6f);
-        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.7f);*/
-        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.1f, 11.5f);
+        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.7f);
+        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.1f, 11.5f);*/
 
         //enemyManager.createEnemy(; = new Enemy(map.widthMeters, map.heightMeters, EnemyType.ZOMBIE, camera);
 

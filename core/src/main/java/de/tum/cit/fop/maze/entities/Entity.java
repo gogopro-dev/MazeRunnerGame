@@ -124,11 +124,16 @@ public abstract class Entity {
         body.createFixture(fixtureDef);
         body.setUserData(this);
         shape.dispose();
+        spawnInnerHitbox();
+    }
 
-
-        shape = new PolygonShape();
+    /**
+     * Spawns inner hitbox for colliding with enemies, so that they don't stack on each other
+     */
+    protected void spawnInnerHitbox() {
+        PolygonShape shape = new PolygonShape();
         shape.setAsBox(boundingRectangle.width() / 8f, boundingRectangle.height() / 8f);
-        fixtureDef = new FixtureDef();
+        FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.filter.categoryBits = BodyBits.ENEMY;
         fixtureDef.filter.maskBits = BodyBits.ENEMY_MASK;
         fixtureDef.shape = shape;

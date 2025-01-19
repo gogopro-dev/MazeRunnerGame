@@ -23,6 +23,8 @@ public abstract class TileEntity {
     protected final OrthographicCamera camera;
     protected final BodyDef bodyDef;
     protected final FixtureDef fixtureDef;
+    /// Queues up tile entity for deletion
+    public boolean toDestroy = false;
 
 
     public TileEntity(int width, int height) {

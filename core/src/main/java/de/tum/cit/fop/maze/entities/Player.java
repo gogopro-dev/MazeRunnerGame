@@ -5,6 +5,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
@@ -156,6 +159,7 @@ public class Player extends Entity {
         if (isAttacking && !hasHit && attackElapsedTime > attackAnimation.getAnimationDuration()/2) {
             System.out.println("Attack");
             hasHit = true;
+            this.attackAllEnemiesInRange();
         }
 
         /// Check if hit animation is finished
@@ -167,14 +171,69 @@ public class Player extends Entity {
 
     }
 
+    private void attackAllEnemiesInRange() {
+        AbsolutePoint playerPos = getPosition();
+        AbsolutePoint rectangleStart, rectangleEnd;
+        float playerTop = playerPos.y() + boundingRectangle.height() / 2;
+        float playerBottom = playerPos.y() - boundingRectangle.height() / 2;
+        if (isFacingRight()) {
+            rectangleStart = new AbsolutePoint(
+                playerPos.x(),
+                playerTop
+            );
+            rectangleEnd =
+                new AbsolutePoint(
+                    playerPos.x() + Globals.PLAYER_ATTACK_DISTANCE,
+                    playerBottom
+                );
+        } else {
+            rectangleStart = new AbsolutePoint(
+                playerPos.x() - Globals.PLAYER_ATTACK_DISTANCE,
+                playerTop
+            );
+            rectangleEnd =
+                new AbsolutePoint(
+                    playerPos.x(),
+                    playerBottom
+                );
+        }
+        DebugRenderer.getInstance().spawnRectangle(
+            rectangleStart,
+            rectangleEnd,
+            Color.CYAN
+        );
+        LevelScreen.getInstance().world.QueryAABB(
+            fixture -> {
+                if (fixture.getBody().getUserData() instanceof Enemy enemy) {
+                    enemy.takeDamage(Globals.PLAYER_DAMAGE);
+                    enemy.setKnockbackVector(
+                        new Vector2(
+                            Globals.PLAYER_ATTACK_KNOCKBACK * Globals.CELL_SIZE_METERS * (isFacingRight() ? 1 : -1),
+                            0
+                        )
+                    );
+                    System.out.println("Enemy hit");
+                }
+                return true;
+            },
+            rectangleStart.x(), rectangleStart.y(), rectangleEnd.x(), rectangleEnd.y()
+        );
+    }
+
     /**
      * Handles player input and updates the player's position.
      */
     private void handleInput() {
         isMoving = false;
-
+        if (isBeingChased()) {
+            isHoldingTorch = false;
+            canHit = true;
+            elapsedTorchTime = 0f;
+            torchLight.setDistance(0);
+            torchLight.setActive(isHoldingTorch);
+        }
         /// If pressed 'R', toggle torch
-        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R) && !beingChased) {
             isHoldingTorch = !isHoldingTorch;
             canHit = !isHoldingTorch;
             elapsedTorchTime = 0f;
@@ -317,6 +376,21 @@ public class Player extends Entity {
         /// Update camera position
         camera.position.x = newCameraX;
         camera.position.y = newCameraY;
+    }
+
+    @Override
+    protected void spawnInnerHitbox() {
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(boundingRectangle.width() / 3f, boundingRectangle.height() / 3f);
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.filter.categoryBits = BodyBits.ENEMY;
+        fixtureDef.filter.maskBits = BodyBits.ENEMY_MASK;
+        fixtureDef.shape = shape;
+        fixtureDef.restitution = 0f;
+        fixtureDef.density = mass;
+        fixtureDef.friction = 0f;
+        this.body.createFixture(fixtureDef);
+        shape.dispose();
     }
 
     @Override

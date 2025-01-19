@@ -11,7 +11,6 @@ public class TileEntityContactListener implements ContactListener {
         if (a.getUserData() == null || b.getUserData() == null) {
             return;
         }
-        System.out.println(a.getUserData() + " " + b.getUserData());
         if (a.getUserData() instanceof TileEntity && b.getUserData() instanceof Player) {
             ((TileEntity) a.getUserData()).onPlayerStartContact(contact);
         } else if (a.getUserData() instanceof Player && b.getUserData() instanceof TileEntity) {
