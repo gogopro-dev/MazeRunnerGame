@@ -122,7 +122,7 @@ public class HUD {
     private void addImageToRow(List<Image> row, float offsetX, float offsetY, TextureRegion regionName) {
         Image eachHeart = new Image(regionName);
         eachHeart.setScale(heartsScaling);
-        eachHeart.setPosition(offsetX, Gdx.graphics.getHeight() - offsetY - eachHeart.getHeight());
+        eachHeart.setPosition(offsetX, stage.getViewport().getWorldHeight() - offsetY - eachHeart.getHeight());
         row.add(eachHeart);
         stage.addActor(eachHeart);
     }

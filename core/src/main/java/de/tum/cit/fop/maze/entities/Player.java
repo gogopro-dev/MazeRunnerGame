@@ -31,6 +31,7 @@ public class Player extends Entity {
     private boolean isMoving = false;     // Flag to track movement state
     private boolean facingRight = true;
     private boolean canHit;
+    private boolean hasHit;
     private boolean isHoldingTorch = true;
     private boolean beingChased = false;
     private boolean onActiveTrap = false;
@@ -41,10 +42,8 @@ public class Player extends Entity {
     private static final float DAMAGE_FLASH_DURATION = 0.2f;
     private float trapAttackElapsedTime = 0f;
     private PointLight torchLight;
-
     private int attackDamage = 0;
     private int armor = 0;
-
     private int gold = 0;
     private boolean hasResurrectionAmulet = false;
     private boolean hasVampireAmulet = false;
@@ -154,8 +153,9 @@ public class Player extends Entity {
         float frameHeight = currentFrame.getRegionHeight() * scale;
         batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
 
-        if (isAttacking && attackAnimation.getAnimationDuration() / 2 < attackElapsedTime) {
-            //TODO: Attack enemy
+        if (isAttacking && !hasHit && attackElapsedTime > attackAnimation.getAnimationDuration()/2) {
+            System.out.println("Attack");
+            hasHit = true;
         }
 
         /// Check if hit animation is finished
@@ -225,6 +225,7 @@ public class Player extends Entity {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && canHit) {
             isAttacking = true;
             attackElapsedTime = 0f;
+            hasHit = false;
             canHit = false;
         }
 
