@@ -215,9 +215,11 @@ public class Player extends Entity {
         );
         LevelScreen.getInstance().world.QueryAABB(
             fixture -> {
+                /// Do not commit a self-harm attempt ^_^
+                if (fixture.getBody().getUserData() instanceof Player) return true;
+
                 if (fixture.getBody().getUserData() instanceof Attackable attackable) {
                     attackable.takeDamage(Globals.PLAYER_DAMAGE);
-                    System.out.println("Enemy hit");
                 }
                 if (fixture.getBody().getUserData() instanceof Enemy enemy) {
                     enemy.setKnockbackVector(
