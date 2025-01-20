@@ -1,0 +1,51 @@
+[
+  {
+    "type": "HEART",
+    "textureName": "heart_collectable",
+    "immediateHealing": 2,
+    "frameDuration": 0.1,
+    "dropChance": 5
+  },
+  {
+    "type": "GOLD_COIN",
+    "textureName": "coin",
+    "immediateCoins": 1,
+    "frameDuration": 0.17,
+    "dropChance": 5
+  },
+  {
+    "type": "DEFENSE_COIN",
+    "textureName": "shield_orb",
+    "resistanceBoost": 0.15,
+    "frameDuration": 0.1,
+    "dropChance": 5
+  },
+  {
+  "type": "DAMAGE_COIN",
+  "textureName": "shield_orb",
+  "damageBoost": 0.15,
+  "frameDuration": 0.1,
+  "dropChance": 5
+},
+  {
+    "type": "RESURRECTION_AMULET",
+    "textureName": "health_amulet",
+    "amountOfResurrections": 1,
+    "frameDuration": 0.1,
+    "dropChance": 5
+  },
+  {
+    "type": "VAMPIRE_AMULET",
+    "textureName": "vampire_amulet",
+    "vampiricHealing": 0.15,
+    "frameDuration": 0.1,
+    "dropChance": 5
+  },
+  {
+    "type": "SPEED_BOOTS",
+    "textureName": "boots",
+    "speedBoost": 0.15,
+    "frameDuration": 0.1,
+    "dropChance": 5
+  }
+]
