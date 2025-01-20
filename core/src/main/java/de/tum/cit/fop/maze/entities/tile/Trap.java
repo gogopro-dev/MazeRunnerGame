@@ -23,7 +23,7 @@ import static de.tum.cit.fop.maze.Globals.*;
  * Represents a trap in the game
  */
 public class Trap extends TileEntity {
-    private static final String TRAP_ANIMATION_PATH = "anim/tileEntities/traps.atlas";
+    private static final String TRAP_ANIMATION_PATH = "anim/tileEntities/tile_entities.atlas";
     private final Animation<TextureRegion> trapAnimation;
     private float elapsedTime = 0f;
     private float lastActivationTime = 0f;
@@ -75,7 +75,6 @@ public class Trap extends TileEntity {
         );
         this.attributes = attributes;
         this.type = type;
-
 
         TextureAtlas textureAtlas = new TextureAtlas(Gdx.files.internal(TRAP_ANIMATION_PATH));
         trapAnimation = new Animation<>(

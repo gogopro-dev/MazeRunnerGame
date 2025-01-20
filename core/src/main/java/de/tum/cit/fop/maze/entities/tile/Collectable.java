@@ -4,8 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.World;
-import com.google.gson.Gson;
+import com.google.gson.*;
 import de.tum.cit.fop.maze.level.LevelScreen;
+
+import java.util.Arrays;
+
+import static com.badlogic.gdx.math.MathUtils.random;
 
 public class Collectable extends TileEntity {
     /*Итак мои предложения к коллектблам:
@@ -20,99 +24,38 @@ public class Collectable extends TileEntity {
 
     /// Enum for Collectable types
     public enum CollectableType {
-        HEART, GOLD_COIN, DAMAGE_COIN, DEFENSE_COIN, RESURRECTION_AMULET, VAMPIRE_AMULET, SPEED_BOOTS
-    }
-    protected CollectableType type  = null;
-    private Animation<TextureRegion> idleAnimation;
-    //TODO: add pickupAnimation
-    private Animation<TextureRegion> pickupAnimation;
-    private boolean pickedUp;
-    /// Player attributes which will be changed after Collectable pickup
-    protected record CollectableBuffs(int health, int gold, int damage, int resist, boolean resurrection, boolean vampireBuff, boolean speedBuff) {
-        public CollectableBuffs() {
-            this(0, 0, 0, 0, false, false, false);
-        }
-        public CollectableBuffs(int health, int gold, int damage, int resist, boolean resurrection, boolean vampireBuff, boolean speedBuff) {
-            this.health = health;
-            this.gold = gold;
-            this.damage = damage;
-            this.resist = resist;
-            this.resurrection = resurrection;
-            this.vampireBuff = vampireBuff;
-            this.speedBuff = speedBuff;
-        }
-    }
-    protected CollectableBuffs collectableBuffs = new CollectableBuffs();
-    private int height;
-    private int width;
-    private int id;
-    private String textureName;
-    private String tempTextureName = "key";
-    private SpriteBatch batch;
-    private float frameDuration = 1f;
-    private float elapsedTime;
-    private float pickupElapsedTime;
-    /** Constructor for testing purposes */
-
-    public Collectable() {
-        super(1, 1);
-        batch = LevelScreen.getInstance().batch;
-        TextureAtlas atlas = new TextureAtlas(Gdx.files.local("temporary/collectables/collectables.atlas"));
-        idleAnimation = new Animation<>(frameDuration, atlas.findRegions(tempTextureName));
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-//        pickupAnimation = new Animation<>(frameDuration, atlas.findRegions(idleAnimName));
-    }
-    /** constructor for testing purposes */
-    public Collectable(String type, int health, int gold, int damage, int resist) {
-        super(1, 1);
-        batch = LevelScreen.getInstance().batch;
-        TextureAtlas atlas = new TextureAtlas(Gdx.files.local("temporary/collectables/collectables.atlas"));
-        idleAnimation = new Animation<>(frameDuration, atlas.findRegions(tempTextureName));
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        switch (type){
-            case "HEART":
-                this.type = CollectableType.HEART;
-                break;
-            case "GOLD_COIN":
-                this.type = CollectableType.GOLD_COIN;
-                break;
-            case "DAMAGE_COIN":
-                this.type = CollectableType.DAMAGE_COIN;
-                break;
-            case "DEFENSE_COIN":
-                this.type = CollectableType.DEFENSE_COIN;
-                break;
-        }
-        collectableBuffs = new CollectableBuffs(health, gold, damage, resist, false, false, false);
-    }
-/** Constructor to test Unique Collectables*/
-    public Collectable(String uniqueType){
-        super(1, 1);
-        batch = LevelScreen.getInstance().batch;
-        TextureAtlas atlas = new TextureAtlas(Gdx.files.local("temporary/collectables/collectables.atlas"));
-        idleAnimation = new Animation<>(frameDuration, atlas.findRegions(tempTextureName));
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        switch (uniqueType){
-            case "RESURRECTION_AMULET":
-                this.type = CollectableType.RESURRECTION_AMULET;
-                collectableBuffs = new CollectableBuffs(0, 0, 0, 0, true, false, false);
-                break;
-            case "VAMPIRE_AMULET":
-                this.type = CollectableType.VAMPIRE_AMULET;
-                collectableBuffs = new CollectableBuffs(0, 0, 0, 0, false, true, false);
-                break;
-            case "SPEED_BOOTS":
-                this.type = CollectableType.SPEED_BOOTS;
-                collectableBuffs = new CollectableBuffs(0, 0, 0, 0, false, false, true);
-                break;
-        }
+        EMPTY, HEART, GOLD_COIN, DAMAGE_COIN, DEFENSE_COIN, RESURRECTION_AMULET, VAMPIRE_AMULET, SPEED_BOOTS
     }
 
-    /** Json Construcor */
-    public Collectable fromJson(String json) {
+    public final CollectableAttributes collAttributes;
+    public Animation<TextureRegion> idleAnimation;
+    public Animation<TextureRegion> pickupAnimation;
+    public boolean pickedUp;
+    public float affectedStat;
+    public int id;
+    public String textureName;
+    public String tempTextureName = "key";
+    public SpriteBatch batch;
+    public float elapsedTime;
+    public float pickupElapsedTime;
+
+    /**
+     * Constructor for testing purposes
+     */
+
+    public Collectable(CollectableType type) {
+        super(1, 1);
         Gson gson = new Gson();
-        return gson.fromJson(json, Collectable.class);
+        collAttributes = Arrays.stream(
+            gson.fromJson(Gdx.files.internal("anim/tileEntities/collectables.json").reader(),
+                CollectableAttributes[].class)
+        ).filter(attribute -> attribute.type.equals(type)).findFirst().get();
 
+
+        batch = LevelScreen.getInstance().batch;
+        TextureAtlas atlas = new TextureAtlas(Gdx.files.local("temporary/collectables/collectables.atlas"));
+        idleAnimation = new Animation<>(collAttributes.frameDuration, atlas.findRegions(collAttributes.textureName));
+        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
     }
 
 
@@ -121,14 +64,14 @@ public class Collectable extends TileEntity {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         TextureRegion currentFrame;
-        elapsedTime+=delta;
-        if (!pickedUp){
+        elapsedTime += delta;
+        if (!pickedUp) {
             currentFrame = idleAnimation.getKeyFrame(elapsedTime, true);
             batch.draw(currentFrame, getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
-                    getSpriteDrawWidth(), getSpriteDrawHeight());
+                getSpriteDrawWidth(), getSpriteDrawHeight());
         }
         // TODO after creating TextureAtlas for pickup animation delete else and uncomment code below (not tested yet)
-        else{
+        else {
             //TODO: despawn collectable after picking it up
             dispose();
         }
@@ -148,11 +91,14 @@ public class Collectable extends TileEntity {
     public String toString() {
         return "Picked up";
     }
-    /** Method which executes on Collectable pickup */
+
+    /**
+     * Method which executes on Collectable pickup
+     */
     @Override
     public void onPlayerStartContact(Contact c) {
         super.onPlayerStartContact(c);
-        if (!pickedUp){
+        if (!pickedUp) {
             toDestroy = true;
             pickedUp = true;
             pickupElapsedTime = 0f;
@@ -172,24 +118,11 @@ public class Collectable extends TileEntity {
     }
 
     public CollectableType getType() {
-        return type;
+        return collAttributes.type;
     }
-    public int getNonUniqueAttribute(CollectableType type){
-        return switch (type) {
-            case HEART -> collectableBuffs.health;
-            case GOLD_COIN -> collectableBuffs.gold;
-            case DAMAGE_COIN -> collectableBuffs.damage;
-            case DEFENSE_COIN -> collectableBuffs.resist;
-            default -> 0;
-        };
 
+    public float getAffectedStat() {
+        return affectedStat;
     }
-    public boolean getUniqueAttribute(CollectableType type){
-        return switch (type) {
-            case RESURRECTION_AMULET -> collectableBuffs.resurrection;
-            case VAMPIRE_AMULET -> collectableBuffs.vampireBuff;
-            case SPEED_BOOTS -> collectableBuffs.speedBuff;
-            default -> false;
-        };
-    }
+
 }
