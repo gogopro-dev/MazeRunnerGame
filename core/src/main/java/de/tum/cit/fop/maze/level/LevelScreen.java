@@ -22,6 +22,9 @@ import de.tum.cit.fop.maze.entities.tile.TileEntityContactListener;
 import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static de.tum.cit.fop.maze.Globals.MPP;
@@ -203,9 +206,41 @@ public class LevelScreen implements Screen {
         camera.update();
 
         hud = new HUD(player);
-        Collectable collectable = new Collectable("key");
-        tileEntityManager.createTileEntity(collectable,
+//        Collectable collectable = new Collectable("HEART", 2);
+        ///  to test all collectables uncomment one of the following lines
+//        Collectable collectable = new Collectable("GOLD_COIN", random.nextInt(4));
+//        Collectable collectable = new Collectable("DAMAGE_COIN", 0.15f);
+//        Collectable collectable = new Collectable("DEFENSE_COIN", 0.15f);
+//        Collectable collectable = new Collectable("RESURRECTION_AMULET", 1);
+//        Collectable collectable = new Collectable("VAMPIRE_AMULET", 1);
+//        Collectable collectable = new Collectable("SPEED_BOOTS", 1);
+        Collectable collectable1 = new Collectable(Collectable.CollectableType.HEART);
+        Collectable collectable2 = new Collectable(Collectable.CollectableType.GOLD_COIN);
+        Collectable collectable3 = new Collectable(Collectable.CollectableType.DAMAGE_COIN);
+        Collectable collectable4 = new Collectable(Collectable.CollectableType.DEFENSE_COIN);
+        Collectable collectable5 = new Collectable(Collectable.CollectableType.SPEED_BOOTS);
+        Collectable collectable6 = new Collectable(Collectable.CollectableType.VAMPIRE_AMULET);
+        Collectable collectable7 = new Collectable(Collectable.CollectableType.RESURRECTION_AMULET);
+        tileEntityManager.createTileEntity(collectable1,
          map.widthMeters / 2 + 10, map.heightMeters / 2
+        );
+        tileEntityManager.createTileEntity(collectable2,
+            map.widthMeters / 2 + 10, map.heightMeters / 2 - 2
+        );
+        tileEntityManager.createTileEntity(collectable3,
+            map.widthMeters / 2 + 10, map.heightMeters / 2 - 4
+        );
+        tileEntityManager.createTileEntity(collectable4,
+            map.widthMeters / 2 + 10, map.heightMeters / 2 - 6
+        );
+        tileEntityManager.createTileEntity(collectable5,
+            map.widthMeters / 2 + 12, map.heightMeters / 2
+        );
+        tileEntityManager.createTileEntity(collectable6,
+            map.widthMeters / 2 + 12, map.heightMeters / 2 - 2
+        );
+        tileEntityManager.createTileEntity(collectable7,
+            map.widthMeters / 2 + 12, map.heightMeters / 2 - 4
         );
         tileEntityManager.createTileEntity(
             new Torch(Direction.UP),

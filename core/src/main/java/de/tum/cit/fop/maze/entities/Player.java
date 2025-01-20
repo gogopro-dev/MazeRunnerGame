@@ -12,10 +12,14 @@ import com.badlogic.gdx.physics.box2d.World;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.entities.tile.CollectableAttributes;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents the player character in the game.
@@ -26,6 +30,8 @@ public class Player extends Entity {
     private final Animation<TextureRegion> attackAnimation;
     private final Animation<TextureRegion> idleTorchAnimation;
     private final Animation<TextureRegion> movementTorchAnimation;
+    private CollectableAttributes collectableBuffs;
+    private final List<Collectable> inventory;
     private Animation<TextureRegion> currentAnimation;
     private float elapsedTime = 0f;
     private float elapsedTorchTime = 0f;
@@ -45,8 +51,8 @@ public class Player extends Entity {
     private static final float DAMAGE_FLASH_DURATION = 0.2f;
     private float trapAttackElapsedTime = 0f;
     private PointLight torchLight;
-    private int attackDamage = 0;
-    private int armor = 0;
+    private float atkIncrease = 0;
+    private float dmgResist = 0;
     private int gold = 0;
     private boolean hasResurrectionAmulet = false;
     private boolean hasVampireAmulet = false;
@@ -54,6 +60,7 @@ public class Player extends Entity {
 
     /**
      * Creates a new player character.
+     *
      * @param batch The sprite batch to render the player character
      */
     public Player(SpriteBatch batch) {
@@ -72,7 +79,7 @@ public class Player extends Entity {
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         /// Load movement animation
-        movementAnimation = new Animation<>(1f /40f * 3f, animAtlas.findRegions("Character_move"));
+        movementAnimation = new Animation<>(1f / 40f * 3f, animAtlas.findRegions("Character_move"));
         movementAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         /// Load hit animation
@@ -84,15 +91,19 @@ public class Player extends Entity {
         idleTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         /// Load movement torch animation
-        movementTorchAnimation = new Animation<>(1f /40f * 3f, animAtlas.findRegions("Character_move_torch"));
+        movementTorchAnimation = new Animation<>(1f / 40f * 3f, animAtlas.findRegions("Character_move_torch"));
         movementTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         health = 40;
         maxHealth = 40;
+
+        inventory = new ArrayList<>();
+        collectableBuffs = new CollectableAttributes(Collectable.CollectableType.EMPTY, "heart", 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     /**
      * Renders the player character.
+     *
      * @param deltaTime The time since the last frame in seconds
      */
     public void render(float deltaTime) {
@@ -125,7 +136,7 @@ public class Player extends Entity {
                 isDamaged = false;
                 damageFlashTimer = 0f;
                 /// Reset color back to normal
-                batch.setColor(new Color(1,1,1, 1));
+                batch.setColor(new Color(1, 1, 1, 1));
             }
         }
 
@@ -148,7 +159,7 @@ public class Player extends Entity {
 
         /// Set red tint if damaged
         if (isDamaged) {
-            batch.setColor(new Color(1,0,0, 1));
+            batch.setColor(new Color(1, 0, 0, 1));
         }
 
         /// Draw the current frame
@@ -156,7 +167,7 @@ public class Player extends Entity {
         float frameHeight = currentFrame.getRegionHeight() * scale;
         batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
 
-        if (isAttacking && !hasHit && attackElapsedTime > attackAnimation.getAnimationDuration()/2) {
+        if (isAttacking && !hasHit && attackElapsedTime > attackAnimation.getAnimationDuration() / 2) {
             System.out.println("Attack");
             hasHit = true;
             this.attackAllEnemiesInRange();
@@ -294,7 +305,7 @@ public class Player extends Entity {
         if (isAttacking) {
             currentAnimation = attackAnimation;
         } else {
-            if (isHoldingTorch){
+            if (isHoldingTorch) {
                 currentAnimation = isMoving ? movementTorchAnimation : idleTorchAnimation;
             } else {
                 currentAnimation = isMoving ? movementAnimation : idleAnimation;
@@ -439,44 +450,22 @@ public class Player extends Entity {
         LevelScreen.getInstance().hud.restoreStamina(amount);
         //hud.restoreStamina(amount);
     }
+
     /**
      * Collects a collectable item.
+     *
      * @param collectable The collectable item to collect
      */
     public void collect(Collectable collectable) {
         // add attributes of collectable to player
-        if (collectable.getType() == null){
-            throw new IllegalArgumentException("Collectable type is null");
-        }
-
-        switch (collectable.getType()) {
-            case HEART:
-                heal(collectable.getNonUniqueAttribute(collectable.getType()));
-                System.out.println("Health increased to " + health);
-                break;
-            case GOLD_COIN:
-                // TODO: add gold to player
-                gold += collectable.getNonUniqueAttribute(collectable.getType());
-                System.out.println("Gold increased to " + gold);
-                break;
-            case DAMAGE_COIN:
-                attackDamage += collectable.getNonUniqueAttribute(collectable.getType());
-                System.out.println("Attack damage increased to " + attackDamage);
-                break;
-            case DEFENSE_COIN:
-                armor += collectable.getNonUniqueAttribute(collectable.getType());
-                System.out.println("Armor increased to " + armor);
-                break;
-            case RESURRECTION_AMULET:
-                System.out.println("Resurrection amulet collected");
-                break;
-            case VAMPIRE_AMULET:
-                System.out.println("Vampire amulet collected");
-                break;
-            case SPEED_BOOTS:
-                System.out.println("Speed boots collected");
-                break;
-        }
+//        if (collectableBuffs == null) {
+//            collectableBuffs = collectable.collAttributes;
+//            System.out.println("Collectable Buffs: " + collectableBuffs);
+//            return;
+//        }
+        collectableBuffs.sum(collectable.collAttributes);
+        inventory.add(collectable);
+        System.out.println("Current Buffs: " + collectableBuffs);
     }
 
     public boolean isBeingChased() {
