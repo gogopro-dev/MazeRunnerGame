@@ -18,7 +18,7 @@ import static de.tum.cit.fop.maze.Globals.PPM;
  */
 
 
-public abstract class Entity {
+public abstract class Entity implements Attackable {
     protected int health;
     protected int maxHealth;
     protected int stamina;

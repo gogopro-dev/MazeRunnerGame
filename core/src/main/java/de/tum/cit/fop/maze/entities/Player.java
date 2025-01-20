@@ -204,15 +204,17 @@ public class Player extends Entity {
         );
         LevelScreen.getInstance().world.QueryAABB(
             fixture -> {
+                if (fixture.getBody().getUserData() instanceof Attackable attackable) {
+                    attackable.takeDamage(Globals.PLAYER_DAMAGE);
+                    System.out.println("Enemy hit");
+                }
                 if (fixture.getBody().getUserData() instanceof Enemy enemy) {
-                    enemy.takeDamage(Globals.PLAYER_DAMAGE);
                     enemy.setKnockbackVector(
                         new Vector2(
                             Globals.PLAYER_ATTACK_KNOCKBACK * Globals.CELL_SIZE_METERS * (isFacingRight() ? 1 : -1),
                             0
                         )
                     );
-                    System.out.println("Enemy hit");
                 }
                 return true;
             },
