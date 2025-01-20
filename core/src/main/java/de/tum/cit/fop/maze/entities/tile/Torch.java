@@ -43,7 +43,7 @@ public class Torch extends TileEntity {
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
         this.direction = direction;
 
-        TextureAtlas textureAtlas = new TextureAtlas("anim/tileEntities/torches.atlas");
+        TextureAtlas textureAtlas = new TextureAtlas("anim/tileEntities/tile_entities.atlas");
         switch (direction) {
             case UP -> {
                 this.torchAnimation =
