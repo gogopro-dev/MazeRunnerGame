@@ -26,6 +26,7 @@ import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import static de.tum.cit.fop.maze.Globals.*;
 import static java.lang.Math.max;
@@ -37,6 +38,7 @@ public class TileMap implements Disposable {
     public final float heightMeters;
     public final float widthMeters;
     public final EntityPathfinder pathfinder;
+    public final Random random;
     private final TextureLoader textures;
     private final MazeGenerator generator;
     private final TileEntityManager tileEntityManager;
@@ -53,6 +55,7 @@ public class TileMap implements Disposable {
         ArrayList<AbsolutePoint> torches = new ArrayList<>();
         // Always get width and height from the generator, because it always makes the parameters odd
         generator.generate();
+        this.random = generator.getRandom();
         this.width = generator.width * 3;
         this.height = generator.height * 3;
         this.tileEntityManager = LevelScreen.getInstance().tileEntityManager;

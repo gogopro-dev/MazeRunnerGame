@@ -11,6 +11,7 @@ import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -65,7 +66,7 @@ public class EnemyManager {
             rayLength = enemy.getConfig().attributes().visionRange() * Globals.CELL_SIZE_METERS * 3 / 2f;
         }
 
-        return Utils.isPlayerReachable(enemyEyes, rayLength);
+        return Utils.isPlayerExposed(enemyEyes, rayLength);
     }
 
     /**
@@ -104,24 +105,38 @@ public class EnemyManager {
     private void recalculatePaths() {
         if (launchedTasks.get() > 0) return;
         for (Enemy enemy : enemies) {
-            if (!enemy.isMovingToPlayer()) {
-                continue;
-            }
-            launchedTasks.incrementAndGet();
-            asyncExecutor.submit(() -> {
-                List<AbsolutePoint> path = LevelScreen.getInstance().map.pathfinder.aStar(
-                    enemy,
-                    LevelScreen.getInstance().player.getPosition()
-                );
-                if (path == null) {
+            /// Random movement
+            if (!enemy.isMovingToPlayer() && enemy.getPath().isEmpty()) {
+                Random random = LevelScreen.getInstance().map.random;
+                if (random.nextFloat() > Globals.ENEMY_RANDOM_WALK_PROBABILITY) continue;
+                asyncExecutor.submit(() -> {
+                    launchedTasks.incrementAndGet();
+                    enemy.updatePath(
+                        LevelScreen.getInstance().map.pathfinder.getRandomSinglePointPath(
+                            enemy,
+                            random
+                        ));
                     launchedTasks.decrementAndGet();
-                    enemy.setMovingToPlayer(false);
                     return true;
-                }
-                enemy.updatePath(path);
-                launchedTasks.decrementAndGet();
-                return true;
-            });
+                });
+                /// Smart player chase
+            } else if (enemy.isMovingToPlayer()) {
+                launchedTasks.incrementAndGet();
+                asyncExecutor.submit(() -> {
+                    List<AbsolutePoint> path = LevelScreen.getInstance().map.pathfinder.aStar(
+                        enemy,
+                        LevelScreen.getInstance().player.getPosition()
+                    );
+                    if (path == null) {
+                        launchedTasks.decrementAndGet();
+                        enemy.setMovingToPlayer(false);
+                        return true;
+                    }
+                    enemy.updatePath(path);
+                    launchedTasks.decrementAndGet();
+                    return true;
+                });
+            }
         }
 
     }
@@ -153,7 +168,7 @@ public class EnemyManager {
         if (!enemy.isMovingToPlayer() && isPlayerSeen(enemy)) {
             enemy.setMovingToPlayer(true);
         }
-        if (enemy.isMovingToPlayer()) {
+        if (!enemy.getPath().isEmpty()) {
             AbsolutePoint lastPoint = enemy.getPosition();
             AbsolutePoint currentPoint;
             for (int i = 0; i < enemy.getPath().size(); ++i) {
@@ -162,8 +177,6 @@ public class EnemyManager {
                 lastPoint = currentPoint;
             }
         }
-
-        /// Todo @Hlib move randomly*/
     }
 
     public void dispose() {

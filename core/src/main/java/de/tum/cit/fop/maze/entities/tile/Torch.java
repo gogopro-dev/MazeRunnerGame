@@ -1,8 +1,6 @@
 package de.tum.cit.fop.maze.entities.tile;
 
-import box2dLight.Light;
 import box2dLight.PointLight;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -115,7 +113,7 @@ public class Torch extends TileEntity {
         if (!lit &&
             LevelScreen.getInstance().player.isHoldingTorch() &&
             /// -1/4f for centering source point of the torch center
-            Utils.isPlayerReachable(
+            Utils.isPlayerExposed(
                 this.getPosition().addY(-1 / 4f * Globals.CELL_SIZE_METERS), TORCH_ACTIVATION_RADIUS * 2
             )
         ) {

@@ -37,7 +37,7 @@ public class LevelScreen implements Screen {
     private final EnemyManager enemyManager;
     public final TileEntityManager tileEntityManager;
     public FillViewport viewport;
-    public TileMap map;
+    public final TileMap map;
     public final OrthographicCamera camera;
     private final TiledMapRenderer tiledMapRenderer;
     public final SpriteBatch batch;

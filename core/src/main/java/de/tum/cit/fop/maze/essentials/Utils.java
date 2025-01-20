@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.Enemy;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
@@ -30,7 +29,7 @@ public class Utils {
      * @param sourcePoint The point to check from
      * @return {@code true} if the player is reachable {@code false} otherwise
      */
-    public static boolean isPlayerReachable(AbsolutePoint sourcePoint) {
+    public static boolean isPlayerExposed(AbsolutePoint sourcePoint) {
         LevelScreen levelScreen = LevelScreen.getInstance();
         AbsolutePoint playerPosition = levelScreen.player.getPosition();
         BoundingRectangle playerRect = levelScreen.player.boundingRectangle;
@@ -66,13 +65,13 @@ public class Utils {
         return finalResult;
     }
 
-    public static boolean isPlayerReachable(AbsolutePoint sourcePoint, float rayLength) {
+    public static boolean isPlayerExposed(AbsolutePoint sourcePoint, float rayLength) {
         LevelScreen levelScreen = LevelScreen.getInstance();
         AbsolutePoint playerPosition = levelScreen.player.getPosition();
         if (sourcePoint.distance(playerPosition) > rayLength) {
             return false;
         }
-        return isPlayerReachable(sourcePoint);
+        return isPlayerExposed(sourcePoint);
     }
 
     public static Texture getColoredTexture(int width, int height, Color color) {
