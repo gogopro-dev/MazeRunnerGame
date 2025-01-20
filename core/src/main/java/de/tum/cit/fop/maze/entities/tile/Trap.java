@@ -101,8 +101,6 @@ public class Trap extends TileEntity {
                     TRAP_LIGHT_RADIUS -
                         TRAP_LIGHT_RADIUS * Utils.easeOutCirc((elapsedTime - lastActivationTime) * 3f)
                 );
-            } else if (light != null) {
-                //light.setActive(false);
             }
             if (elapsedTime - lastActivationTime >= attributes.cooldown) {
                 isActivated = true;

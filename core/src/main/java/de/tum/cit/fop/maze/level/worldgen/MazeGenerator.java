@@ -371,9 +371,10 @@ public final class MazeGenerator {
         for (Room room : rooms) {
             generateRoom(room);
         }
-        fixCorners();
+
         fixReachability();
         fixDoubleWalls();
+        fixCorners();
     }
 
     private void fixDoubleWalls() {

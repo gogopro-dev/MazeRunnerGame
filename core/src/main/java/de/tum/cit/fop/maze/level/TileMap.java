@@ -507,7 +507,7 @@ public class TileMap implements Disposable {
                             temp.filter.categoryBits = BodyBits.WALL_NO_LIGHT;
                             temp.filter.maskBits = BodyBits.WALL_NO_LIGHT_MASK;
                             createRectangularHitbox(x + 1, y + 1.50f, 3f, 1.40f, temp);
-                            createRectangularHitbox(x + 1.05f, y + 2.8f, 2.95f, hy - 2.8f);
+                            createRectangularHitbox(x + 1f, y + 2.8f, 3f, hy - 2.8f);
                         }
                         y = -1;
                         hy = 0;
