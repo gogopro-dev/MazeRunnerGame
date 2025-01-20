@@ -5,7 +5,7 @@ import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.level.worldgen.rooms.Entrance;
 import de.tum.cit.fop.maze.level.worldgen.rooms.Room;
 import de.tum.cit.fop.maze.level.worldgen.rooms.Shop;
-import de.tum.cit.fop.maze.level.worldgen.rooms.SpecialRoom;
+import de.tum.cit.fop.maze.level.worldgen.rooms.ItemsRoom;
 
 import java.util.*;
 
@@ -124,7 +124,7 @@ public final class MazeGenerator {
         generateRooms(List.of(
             new Entrance(),
             new Shop(),
-            new SpecialRoom()
+            new ItemsRoom()
         ));
 
         // Surround grid with walls
@@ -146,6 +146,7 @@ public final class MazeGenerator {
             }
         }
         generateTraps();
+        generateExit();
     }
 
     private void generateTraps() {
@@ -375,6 +376,25 @@ public final class MazeGenerator {
         fixReachability();
         fixDoubleWalls();
         fixCorners();
+    }
+
+
+    /**
+     * <p>Generates an exit cell on the top of the maze</p>
+     */
+    public void generateExit() {
+        ArrayList<GeneratorCell> eligibleCells = new ArrayList<>();
+        for (int j = 0; j < width; ++j) {
+            boolean wallBelow = grid.get(1).get(j).getCellType().isWall();
+            if (!wallBelow) {
+                eligibleCells.add(grid.get(0).get(j));
+            }
+        }
+        if (eligibleCells.isEmpty()) {
+            throw new IllegalArgumentException("No eligible cells for exit door");
+        }
+        int doorPosition = random.nextInt(eligibleCells.size());
+        eligibleCells.get(doorPosition).setCellType(CellType.EXIT_DOOR);
     }
 
     private void fixDoubleWalls() {

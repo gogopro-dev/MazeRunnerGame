@@ -3,8 +3,8 @@ package de.tum.cit.fop.maze.level.worldgen.rooms;
 
 import de.tum.cit.fop.maze.level.worldgen.GeneratorStrategy;
 
-public class SpecialRoom extends Room {
-    public SpecialRoom() {
+public class ItemsRoom extends Room {
+    public ItemsRoom() {
         super(3, 3, GeneratorStrategy.RANDOM);
     }
 }

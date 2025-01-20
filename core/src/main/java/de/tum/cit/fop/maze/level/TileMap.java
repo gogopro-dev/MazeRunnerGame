@@ -16,21 +16,16 @@ import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.EntityPathfinder;
-import de.tum.cit.fop.maze.entities.tile.TileEntityManager;
-import de.tum.cit.fop.maze.entities.tile.Torch;
-import de.tum.cit.fop.maze.entities.tile.Trap;
-import de.tum.cit.fop.maze.entities.tile.TrapType;
+import de.tum.cit.fop.maze.entities.tile.*;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.level.worldgen.CellType;
 import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import static de.tum.cit.fop.maze.Globals.*;
 import static java.lang.Math.max;
@@ -91,6 +86,8 @@ public class TileMap implements Disposable {
                 final GeneratorCell cell = generator.grid.get(i).get(j);
                 int x = startJ + j * 3;
                 int y = layer.getHeight() - (startI + i * 3);
+                AbsolutePoint currentCellCenter = getCellCenterMeters(x, y);
+
                 DebugRenderer.getInstance().spawnRectangle(
                     new AbsolutePoint(x - 1, y - 1).toMetersFromCells(),
                     new AbsolutePoint(x + 2, y + 2).toMetersFromCells(),
@@ -129,6 +126,11 @@ public class TileMap implements Disposable {
                         setDecorationSquare(x, y);
                     }
 
+                }
+                if (cell.getCellType() == CellType.EXIT_DOOR) {
+                    tileEntityManager.createTileEntity(
+                        new ExitDoor(), currentCellCenter
+                    );
                 }
 
                 /// Trap
@@ -504,9 +506,11 @@ public class TileMap implements Disposable {
                             /// 1.8 is the height of the wall (less than usual 3 because of projection)
                             /// x + 1 and y + 1.8 are the starting point of the wall
                             FixtureDef temp = new FixtureDef();
-                            temp.filter.categoryBits = BodyBits.WALL_NO_LIGHT;
-                            temp.filter.maskBits = BodyBits.WALL_NO_LIGHT_MASK;
-                            createRectangularHitbox(x + 1, y + 1.50f, 3f, 1.40f, temp);
+                            temp.filter.categoryBits = BodyBits.WALL_TRANSPARENT;
+                            temp.filter.maskBits = BodyBits.WALL_TRANSPARENT_MASK;
+                            createRectangularHitbox(
+                                x + 1, y + HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, 3f,
+                                HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, temp);
                             createRectangularHitbox(x + 1f, y + 2.8f, 3f, hy - 2.8f);
                         }
                         y = -1;
@@ -516,9 +520,11 @@ public class TileMap implements Disposable {
             }
             if (y != -1 && hy > 3) {
                 FixtureDef temp = new FixtureDef();
-                temp.filter.categoryBits = BodyBits.WALL_NO_LIGHT;
-                temp.filter.maskBits = BodyBits.WALL_NO_LIGHT_MASK;
-                createRectangularHitbox(x + 1, y + 1.50f, 3f, 1.40f, temp);
+                temp.filter.categoryBits = BodyBits.WALL_TRANSPARENT;
+                temp.filter.maskBits = BodyBits.WALL_TRANSPARENT_MASK;
+                createRectangularHitbox(
+                    x + 1, y + HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, 3f,
+                    HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, temp);
                 createRectangularHitbox(x + 1, y + 3f, 3, hy - 2.8f);
             }
         }
@@ -541,9 +547,11 @@ public class TileMap implements Disposable {
                         /// x is offset for 0.025f to avoid collision with the tiny pixel
                         if (hx > 3) {
                             FixtureDef temp = new FixtureDef();
-                            temp.filter.categoryBits = BodyBits.WALL_NO_LIGHT;
-                            temp.filter.maskBits = BodyBits.WALL_NO_LIGHT_MASK;
-                            createRectangularHitbox(x + 0.07f, y + 1 + 1.5f, hx - 0.07f, 1.5f, temp);
+                            temp.filter.categoryBits = BodyBits.WALL_TRANSPARENT;
+                            temp.filter.maskBits = BodyBits.WALL_TRANSPARENT_MASK;
+                            createRectangularHitbox(
+                                x + 0.07f, y + 1 + HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, hx - 0.07f,
+                                HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, temp);
                             createRectangularHitbox(x + 0.12f, y + 3f + 0.6f, hx - 0.24f, 0.3f);
                         }
                         /*if (isIsolatedCollidable(j - 2, i + 1, wallMap)) {
@@ -559,9 +567,11 @@ public class TileMap implements Disposable {
             }
             if (x != -1 && hx > 3) {
                 FixtureDef temp = new FixtureDef();
-                temp.filter.categoryBits = BodyBits.WALL_NO_LIGHT;
-                temp.filter.maskBits = BodyBits.WALL_NO_LIGHT_MASK;
-                createRectangularHitbox(x + 0.03f, y + 1 + 1.5f, hx - 0.12f, 1.5f, temp);
+                temp.filter.categoryBits = BodyBits.WALL_TRANSPARENT;
+                temp.filter.maskBits = BodyBits.WALL_TRANSPARENT_MASK;
+                createRectangularHitbox(
+                    x + 0.07f, y + 1 + HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, hx - 0.07f,
+                    HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, temp);
                 createRectangularHitbox(x + 0.12f, y + 3f + 0.6f, hx - 0.24f, 0.3f);
             }
         }

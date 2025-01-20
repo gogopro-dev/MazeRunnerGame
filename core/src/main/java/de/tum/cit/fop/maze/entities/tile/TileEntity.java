@@ -83,7 +83,6 @@ public abstract class TileEntity {
             throw new IllegalStateException("Trap");
         }
         bodyDef.position.set(x, y);
-
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
         fixtureDef.shape.dispose();

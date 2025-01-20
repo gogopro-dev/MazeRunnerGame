@@ -1,5 +1,6 @@
 package de.tum.cit.fop.maze.entities.tile;
 
+import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
@@ -11,6 +12,10 @@ import java.util.Iterator;
  */
 public class TileEntityManager {
     private final ArrayList<TileEntity> tileEntities = new ArrayList<TileEntity>();
+
+    public void createTileEntity(TileEntity tileEntity, AbsolutePoint position) {
+        createTileEntity(tileEntity, position.x(), position.y());
+    }
 
     public void createTileEntity(TileEntity tileEntity, float x, float y) {
         tileEntities.add(tileEntity);

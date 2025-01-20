@@ -3,8 +3,8 @@ package de.tum.cit.fop.maze;
 import com.badlogic.gdx.graphics.Color;
 
 public final class Globals {
-    public static final boolean DEBUG = false;
-    public static final boolean FULLBRIGHT = false;
+    public static final boolean DEBUG = true;
+    public static final boolean FULLBRIGHT = true;
 
     /// Pixel per Meter
     public static final float PPM = 64f;
@@ -33,6 +33,10 @@ public final class Globals {
     public static final float TORCH_LIGHT_RADIUS = 10f;
     public static final float TRAP_LIGHT_RADIUS = 12f;
     public static final int RAY_AMOUNT = 100;
+    public static final float HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS = 1.5f;
+    /// Safety gap for hitboxes, so that the character won't get stuck in a single pixel.
+    /// <i>A bit of dark sorcery (i.e. magic numbers), but hey, it's documented!</i>
+    public static final float HITBOX_SAFETY_GAP = 0.15f;
     public static final Color TORCH_LIGHT_COLOR = new Color(0xffa459ff);
     public static final Color TRAP_LIGHT_COLOR = new Color(0xff0000ff);
 
