@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 
 /**
@@ -20,11 +21,17 @@ import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
  */
 public class MainMenuUI {
     private static MainMenuUI instance = null;
+    private TextureRegion menuContainerRegion;
+    private TextureRegion smallButtonPressedRegion;
+    private TextureRegion smallButtonReleasedRegion;
+    private TextureRegion playIconRegion;
+    private TextureRegion newGameIconRegion;
+    private TextureRegion creditsIconRegion;
+    private TextureRegion settingsIconRegion;
+    private TextureRegion exitIconRegion;
     private final Stage stage;
-    private final TextureAtlas playButtonAtlas;
-    private final Skin play_button_skin;
     private final BitmapFont font;
-    Container<Table> container;
+    private Container<Table> container;
 
     /**
      * @return The singleton instance of the main menu
@@ -45,7 +52,7 @@ public class MainMenuUI {
      */
     public MainMenuUI(Viewport viewport, SpriteBatch batch) {
         instance = this;
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 27;
         parameter.color = new Color(0xE0E0E0FF);
@@ -55,28 +62,43 @@ public class MainMenuUI {
         stage = new Stage(viewport, batch);
         Gdx.input.setInputProcessor(stage);
 
-        playButtonAtlas = new TextureAtlas(Gdx.files.internal("menu/button.atlas"));
-        play_button_skin = new Skin(playButtonAtlas);
+        loadTextures();
 
         setupMenu();
     }
+
+    private void loadTextures(){
+        TextureAtlas menuAtlas = LoadMenu.getInstance().assetManager.get("assets/menu/menu.atlas", TextureAtlas.class);
+        TextureAtlas iconsAtlas = LoadMenu.getInstance().assetManager.get("assets/menu/menu_icons.atlas", TextureAtlas.class);
+
+        menuContainerRegion = menuAtlas.findRegion("menu");
+        smallButtonPressedRegion = menuAtlas.findRegion("small_button_pressed");
+        smallButtonReleasedRegion = menuAtlas.findRegion("small_button_released");
+
+        playIconRegion = iconsAtlas.findRegion("play");
+        newGameIconRegion = iconsAtlas.findRegion("newGame");
+        creditsIconRegion = iconsAtlas.findRegion("credits");
+        settingsIconRegion = iconsAtlas.findRegion("settings");
+        exitIconRegion = iconsAtlas.findRegion("exit");
+
+
+    }
+
     /**
      * Sets up the main menu buttons.
      */
     private void setupMenu() {
-        TextureAtlas iconsAtlas = new TextureAtlas(Gdx.files.internal("icons/main_menu_icons.atlas"));
         Table mainTable = new Table();
 
         ImageTextButton.ImageTextButtonStyle textButtonStyle = new ImageTextButton.ImageTextButtonStyle();
         textButtonStyle.font = font;
-        textButtonStyle.up = play_button_skin.getDrawable("play_button_released");
-        textButtonStyle.down = play_button_skin.getDrawable("play_button_pressed");
+        textButtonStyle.up = new TextureRegionDrawable(smallButtonReleasedRegion);
+        textButtonStyle.down = new TextureRegionDrawable(smallButtonPressedRegion);
         textButtonStyle.pressedOffsetX = 1;
         textButtonStyle.pressedOffsetY = -1;
 
         /// Create Play button
-        TextureRegion iconRegion = iconsAtlas.findRegion("play");
-        Image image = new Image(iconRegion);
+        Image image = new Image(playIconRegion);
 
         AlignableImageTextButton playButton = new AlignableImageTextButton("Play", textButtonStyle, image, 1.5f);
         playButton.setLabelPadding(8f);
@@ -90,25 +112,23 @@ public class MainMenuUI {
             }
         });
 
-        /// Create New Game button
-        iconRegion = iconsAtlas.findRegion("newGame");
-        image = new Image(iconRegion);
+        /// Create Game Lore button
+        image = new Image(newGameIconRegion);
 
-        AlignableImageTextButton newGameButton = new AlignableImageTextButton("New Game", textButtonStyle, image, 1.2f);
-        newGameButton.setLabelPadding(12f);
-        newGameButton.setLabelTopPadding(2f);
-        newGameButton.setImagePadding(8f);
-        newGameButton.setImageTopPadding(2f);
-        newGameButton.addListener(new ClickListener(){
+        AlignableImageTextButton loreButton = new AlignableImageTextButton("Game Lore", textButtonStyle, image, 1.2f);
+        loreButton.setLabelPadding(12f);
+        loreButton.setLabelTopPadding(2f);
+        loreButton.setImagePadding(8f);
+        loreButton.setImageTopPadding(2f);
+        loreButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Menu.getInstance().toggleMenuState(MenuState.CREATE_NEW_GAME);
+                Menu.getInstance().toggleMenuState(MenuState.LORE);
             }
         });
 
         /// Create Credits button
-        iconRegion = iconsAtlas.findRegion("credits");
-        image = new Image(iconRegion);
+        image = new Image(creditsIconRegion);
 
         AlignableImageTextButton creditsButton = new AlignableImageTextButton("Credits", textButtonStyle, image, 1.2f);
         creditsButton.setLabelPadding(10f);
@@ -123,8 +143,7 @@ public class MainMenuUI {
         });
 
         /// Create Settings button
-        iconRegion = iconsAtlas.findRegion("settings");
-        image = new Image(iconRegion);
+        image = new Image(settingsIconRegion);
         AlignableImageTextButton settingsButton = new AlignableImageTextButton("Settings", textButtonStyle, image, 1.3f);
         settingsButton.setLabelPadding(12f);
         settingsButton.setLabelTopPadding(2f);
@@ -138,8 +157,7 @@ public class MainMenuUI {
         });
 
         /// Create Exit button
-        iconRegion = iconsAtlas.findRegion("exit");
-        Image exitImage = new Image(iconRegion);
+        Image exitImage = new Image(exitIconRegion);
 
         AlignableImageTextButton exitButton = new AlignableImageTextButton("Exit", textButtonStyle, exitImage, 1.5f);
         exitButton.setLabelPadding(10f);
@@ -155,17 +173,17 @@ public class MainMenuUI {
 
         mainTable.add(playButton).width(224).height(48).pad(10);
         mainTable.row();
-        mainTable.add(newGameButton).width(224).height(48).pad(10);
-        mainTable.row();
         mainTable.add(creditsButton).width(224).height(48).pad(10);
         mainTable.row();
         mainTable.add(settingsButton).width(224).height(48).pad(10);
+        mainTable.row();
+        mainTable.add(loreButton).width(224).height(48).pad(10);
         mainTable.row();
         mainTable.add(exitButton).width(224).height(48).pad(10);
 
         /// Create container for all buttons
         container = new Container<>(mainTable);
-        container.setBackground(new TextureRegionDrawable(iconsAtlas.findRegion("menu")));
+        container.setBackground(new TextureRegionDrawable(menuContainerRegion));
         container.setSize(306, 456);
 
         container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
@@ -174,6 +192,7 @@ public class MainMenuUI {
     }
 
     public void render(float delta) {
+        Gdx.input.setInputProcessor(stage);
         // Update and draw stage (buttons)
         stage.act(delta);
         stage.draw();
@@ -181,10 +200,8 @@ public class MainMenuUI {
 
     public void dispose() {
         stage.dispose();
-        playButtonAtlas.dispose();
         font.dispose();
     }
-
     /**
      * Updates the position of the container to the center of the screen.
      */

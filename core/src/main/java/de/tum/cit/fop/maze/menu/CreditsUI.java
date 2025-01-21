@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,11 +26,13 @@ import java.util.Arrays;
  */
 public class CreditsUI {
     private final Stage stage;
-    private final TextureAtlas playButtonAtlas;
     private final BitmapFont font;
     private TextureRegion exitRegion;
     private TextureRegion containerRegion;
-    FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
+    private TextureRegion smallButtonPressedRegion;
+    private TextureRegion smallButtonReleasedRegion;
+    private Container<VerticalGroup> container;
+    FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
     FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
 
@@ -40,7 +43,6 @@ public class CreditsUI {
      * @param batch SpriteBatch
      */
     public CreditsUI(Viewport viewport, SpriteBatch batch) {
-        loadTextures();
 
         fontParameter.size = 27;
         fontParameter.color = new Color(0xE0E0E0FF);
@@ -50,8 +52,7 @@ public class CreditsUI {
         stage = new Stage(viewport, batch);
         Gdx.input.setInputProcessor(stage);
 
-        playButtonAtlas = new TextureAtlas(Gdx.files.internal("menu/button.atlas"));
-
+        loadTextures();
         setupMenu();
     }
     /**
@@ -111,11 +112,11 @@ public class CreditsUI {
         Image exitSettingsImage = new Image(exitRegion);
 
         NinePatch releasedNinePatch = new NinePatch(
-            playButtonAtlas.findRegion("play_button_released"),
+            smallButtonReleasedRegion,
             7, 7, 7, 7
         );
         NinePatch pressedNinePatch = new NinePatch(
-            playButtonAtlas.findRegion("play_button_pressed"),
+            smallButtonPressedRegion,
             7, 7, 7, 7
         );
 
@@ -149,7 +150,7 @@ public class CreditsUI {
         settingElementGroup.addActor(horizontalGroup);
 
         /// Create the main texture for the settings menu to place all widgets on
-        Container<VerticalGroup> container = createContainer(settingElementGroup);
+        container = createContainer(settingElementGroup);
 
         stage.addActor(container);
     }
@@ -174,9 +175,20 @@ public class CreditsUI {
      * Loads the textures for the settings menu
      */
     private void loadTextures() {
-        exitRegion = new TextureRegion(new TextureAtlas(Gdx.files.internal("menu/settings.atlas")).findRegion("exit"));
-        containerRegion = new TextureRegion(new TextureAtlas(Gdx.files.internal("menu/credits.atlas")).findRegion("credits_container"));
+        TextureAtlas menuAtlas = LoadMenu.getInstance().assetManager.get("assets/menu/menu.atlas", TextureAtlas.class);
+        TextureAtlas menuIconsAtlas = LoadMenu.getInstance().assetManager.get("assets/menu/menu_icons.atlas", TextureAtlas.class);
+
+        exitRegion = menuIconsAtlas.findRegion("exit");
+        containerRegion = menuAtlas.findRegion("credits_container");
+        smallButtonPressedRegion = menuAtlas.findRegion("small_button_pressed");
+        smallButtonReleasedRegion = menuAtlas.findRegion("small_button_released");
+
     }
+
+    public void updateContainerPosition(){
+        container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
+    }
+
     public void render(float delta) {
         // Update and draw stage (buttons)
         stage.act(delta);
@@ -185,7 +197,6 @@ public class CreditsUI {
 
     public void dispose() {
         stage.dispose();
-        playButtonAtlas.dispose();
         font.dispose();
     }
     public void show() {

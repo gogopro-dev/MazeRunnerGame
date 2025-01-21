@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.*;
-import com.google.gson.internal.bind.util.ISO8601Utils;
+import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
@@ -27,13 +27,16 @@ import java.nio.ByteBuffer;
  */
 public class PauseScreen {
     private Texture lastFrame;
-    private final Texture pauseBackground;
+    private TextureRegion pauseBackgroundRegion;
+    private TextureRegion smallButtonPressedRegion;
+    private TextureRegion smallButtonReleasedRegion;
+    private TextureRegion playIconRegion;
+    private TextureRegion settingsIconRegion;
+    private TextureRegion exitIconRegion;
     private final Stage stage;
     private final ShapeRenderer shapeRenderer;
     private boolean isPaused;
     private boolean wasEscapePressed; // To handle key press state
-    private final TextureAtlas playButtonAtlas;
-    private final Skin play_button_skin;
     private final Table screenTable;
     private final SettingsUI settingsUI;
     private boolean isSettings = false;
@@ -54,27 +57,40 @@ public class PauseScreen {
      * Creates the pause menu.
      */
     public PauseScreen() {
-        pauseBackground = new Texture("menu/pause_menu.png");
+        instance = this;
+
         stage = new Stage(new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+
         shapeRenderer = new ShapeRenderer();
         isPaused = false;
         wasEscapePressed = false;
         screenTable = new Table();
+
         settingsUI = SettingsUI.getInstance();
 
-        playButtonAtlas = new TextureAtlas(Gdx.files.internal("menu/button.atlas"));
-        play_button_skin = new Skin(playButtonAtlas);
+        loadTextures();
+
         setupPauseMenu();
+    }
+
+    private void loadTextures(){
+        TextureAtlas menuAtlas = LoadMenu.getInstance().assetManager.get("assets/menu/menu.atlas", TextureAtlas.class);
+        TextureAtlas menuIconsAtlas = LoadMenu.getInstance().assetManager.get("assets/menu/menu_icons.atlas", TextureAtlas.class);
+
+        pauseBackgroundRegion = menuAtlas.findRegion("pause_menu");
+
+        smallButtonPressedRegion = menuAtlas.findRegion("small_button_pressed");
+        smallButtonReleasedRegion = menuAtlas.findRegion("small_button_released");
+
+        playIconRegion = menuIconsAtlas.findRegion("play");
+        settingsIconRegion = menuIconsAtlas.findRegion("settings");
+        exitIconRegion = menuIconsAtlas.findRegion("exit");
     }
 
     /**
      * Sets up the pause menu
      */
     public void setupPauseMenu(){
-        instance = this;
-        /// Load icons for buttons
-        TextureAtlas iconsAtlas = new TextureAtlas(Gdx.files.internal("icons/main_menu_icons.atlas"));
-        TextureRegion iconRegion;
 
         /// Load font for text
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
@@ -85,13 +101,13 @@ public class PauseScreen {
         /// Create style for buttons
         ImageTextButton.ImageTextButtonStyle textButtonStyle = new ImageTextButton.ImageTextButtonStyle();
         textButtonStyle.font = generator.generateFont(parameter);
-        textButtonStyle.up = play_button_skin.getDrawable("play_button_released");
-        textButtonStyle.down = play_button_skin.getDrawable("play_button_pressed");
+        textButtonStyle.up = new TextureRegionDrawable(smallButtonReleasedRegion);
+        textButtonStyle.down = new TextureRegionDrawable(smallButtonPressedRegion);
         textButtonStyle.pressedOffsetX = 1;
         textButtonStyle.pressedOffsetY = -1;
 
         /// Create table for pause menu
-        screenTable.setBackground(new TextureRegionDrawable(new TextureRegion(pauseBackground)));
+        screenTable.setBackground(new TextureRegionDrawable(pauseBackgroundRegion));
         screenTable.setSize(304*1.6f, 224*1.6f); // Adjust size as needed
         screenTable.setPosition(
             Gdx.graphics.getWidth() / 2f - screenTable.getWidth() / 2f,
@@ -106,8 +122,7 @@ public class PauseScreen {
         Label pauseLabel = new Label("Game Paused", labelStyle);
 
         /// Add buttons
-        iconRegion = iconsAtlas.findRegion("play");
-        Image playImage = new Image(iconRegion);
+        Image playImage = new Image(playIconRegion);
 
         /// Create Resume button
         AlignableImageTextButton resumeButton = new AlignableImageTextButton("Resume", textButtonStyle, playImage, 1.5f);
@@ -123,8 +138,7 @@ public class PauseScreen {
         });
 
         /// Create Settings button
-        iconRegion = iconsAtlas.findRegion("settings");
-        Image settingsImage = new Image(iconRegion);
+        Image settingsImage = new Image(settingsIconRegion);
 
         AlignableImageTextButton settingsButton = new AlignableImageTextButton("Settings", textButtonStyle, settingsImage, 1.5f);
         settingsButton.setLabelPadding(10f);
@@ -140,8 +154,7 @@ public class PauseScreen {
 
 
         /// Create Exit button
-        iconRegion = iconsAtlas.findRegion("exit");
-        Image exitImage = new Image(iconRegion);
+        Image exitImage = new Image(exitIconRegion);
 
         AlignableImageTextButton exitButton = new AlignableImageTextButton("Exit to menu", textButtonStyle, exitImage, 1.5f);
         exitButton.setLabelPadding(10f);
@@ -191,6 +204,8 @@ public class PauseScreen {
             lastFrame.dispose();
         }
         lastFrame = new Texture(pixmap);
+
+        pixmap.dispose();
     }
 
     /**
@@ -269,11 +284,9 @@ public class PauseScreen {
      * Disposes of the pause menu
      */
     public void dispose() {
-        pauseBackground.dispose();
         stage.dispose();
         shapeRenderer.dispose();
         lastFrame.dispose();
-        playButtonAtlas.dispose();
     }
 
     /**

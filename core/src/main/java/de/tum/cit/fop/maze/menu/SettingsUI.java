@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import de.tum.cit.fop.maze.level.PauseScreen;
@@ -30,7 +31,6 @@ public class SettingsUI {
     private static SettingsUI instance;
     java.util.List<String> resolutionList = new ArrayList<>(Arrays.asList("640x480", "800x600", "1024x768", "1280x720", "1280x800", "1280x960", "1400x1050", "1600x1200", "1680x1050", "1920x1080", "1920x1200", "2048x1536", "2560x1440", "2560x1600", "3840x2160", "3840x2400", "7680x4320"));
     private final Stage stage;
-    private final TextureAtlas playButtonAtlas;
     private final BitmapFont font;
     private boolean isVsyncOn = true;
     private boolean isFullScreen = false;
@@ -43,6 +43,8 @@ public class SettingsUI {
     private TextureRegion knobRegion;
     private TextureRegion dropDownMenuRegion;
     private TextureRegion containerRegion;
+    private TextureRegion smallButtonPressedRegion;
+    private TextureRegion smallButtonReleasedRegion;
     private Container<VerticalGroup> container;
 
     /**
@@ -65,7 +67,7 @@ public class SettingsUI {
         instance = this;
         loadTextures();
 
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 27;
         parameter.color = new Color(0xE0E0E0FF);
@@ -74,8 +76,6 @@ public class SettingsUI {
         /// Create stage for actors
         stage = new Stage(viewport, batch);
         Gdx.input.setInputProcessor(stage);
-
-        playButtonAtlas = new TextureAtlas(Gdx.files.internal("menu/button.atlas"));
 
         setupMenu();
     }
@@ -119,11 +119,11 @@ public class SettingsUI {
         label.setAlignment(Align.right);
 
         NinePatch releasedNinePatch = new NinePatch(
-            playButtonAtlas.findRegion("play_button_released"),
+            smallButtonReleasedRegion,
             7, 7, 7, 7
         );
         NinePatch pressedNinePatch = new NinePatch(
-            playButtonAtlas.findRegion("play_button_pressed"),
+            smallButtonPressedRegion,
             7, 7, 7, 7
         );
 
@@ -244,7 +244,6 @@ public class SettingsUI {
         /// to enable it to toggle after the full screen button is clicked
 
         SelectBox<String> selectBox = createSelectBox();
-
         /// Create the label for the resolution select box
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = font;
@@ -273,7 +272,7 @@ public class SettingsUI {
         /// Creates the section for changing resolution if full screen is off
         selectBox.setMaxListCount(4);
         selectBox.setAlignment(Align.center);
-        selectBox.getList().setAlignment(Align.center);
+        selectBox.getList().setAlignment(Align.left);
 
         selectBox.setItems(resolutionList.toArray(new String[0]));
         selectBox.setSelected("1024x768");
@@ -292,13 +291,14 @@ public class SettingsUI {
                 Menu.getInstance().SCREEN_WIDTH = Integer.parseInt(resolution[0]);
                 Menu.getInstance().resize(Integer.parseInt(resolution[0]), Integer.parseInt(resolution[1]));
                 container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
+                Menu.getInstance().updateChildPositions();
                 LevelScreen.getInstance().updateViewport();
                 PauseScreen.getInstance().updateViewport(true);
             }
         });
 
         table = new Table();
-        table.add(selectBox);
+        table.add(selectBox).height(30);
         padding = new Actor();
         padding.setHeight(15f);
 
@@ -381,7 +381,7 @@ public class SettingsUI {
                     Menu.getInstance().SCREEN_WIDTH = Gdx.graphics.getWidth();
                     /// resize the stage to the new resolution
                     Menu.getInstance().resize(Menu.getInstance().SCREEN_WIDTH, Menu.getInstance().SCREEN_HEIGHT);
-                    MainMenuUI.getInstance().updateContainerPosition();
+                    Menu.getInstance().updateChildPositions();
                 } else {
                     /// Set the button padding to 12f to center the image
                     toggleFullButton.setImagePadding(12f);
@@ -392,8 +392,8 @@ public class SettingsUI {
 
 
                     Gdx.graphics.setWindowedMode(Menu.getInstance().SCREEN_WIDTH, Menu.getInstance().SCREEN_HEIGHT);
-                    MainMenuUI.getInstance().updateContainerPosition();
                     Menu.getInstance().resize(1024, 768);
+                    Menu.getInstance().updateChildPositions();
                 }
                 LevelScreen.getInstance().updateViewport();
                 PauseScreen.getInstance().updateViewport(true);
@@ -414,10 +414,10 @@ public class SettingsUI {
     private @NotNull SelectBox<String> createSelectBox(){
         NinePatch selectBoxNinePatch = new NinePatch(
             dropDownMenuRegion,
-            7, 7, 2, 2
+            7, 15, 2, 2
         );
         SelectBox.SelectBoxStyle selectBoxStyle = new SelectBox.SelectBoxStyle();
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 22;
         parameter.color = new Color(0xE0E0E0FF);
@@ -444,7 +444,7 @@ public class SettingsUI {
         Container<VerticalGroup> container = new Container<>(settingElementGroup);
         container.setBackground(new TextureRegionDrawable(containerRegion));
         /// Set the size of the container to the size of the texture
-        container.setSize(493f, 612f);
+        container.setSize(493f, 600);
         /// Set container position to center of the screen
         container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
         container.align(Align.top);
@@ -506,17 +506,21 @@ public class SettingsUI {
      * Loads the textures for the settings menu
      */
     private void loadTextures() {
-        TextureAtlas settingsAtlas = new TextureAtlas(Gdx.files.internal("menu/settings.atlas"));
+        TextureAtlas menuAtlas = LoadMenu.getInstance().assetManager.get("assets/menu/menu.atlas", TextureAtlas.class);
+        TextureAtlas menuIconsAtlas = LoadMenu.getInstance().assetManager.get("assets/menu/menu_icons.atlas", TextureAtlas.class);
 
-        exitRegion = new TextureRegion(settingsAtlas.findRegion("exit"));
-        vsyncOnRegion = new TextureRegion(settingsAtlas.findRegion("on"));
-        vsyncOffRegion = new TextureRegion(settingsAtlas.findRegion("off"));
-        fullScreenOnRegion = new TextureRegion(settingsAtlas.findRegion("on"));
-        fullScreenOffRegion = new TextureRegion(settingsAtlas.findRegion("off"));
-        sliderRegion = new TextureRegion(settingsAtlas.findRegion("slider"));
-        knobRegion = new TextureRegion(settingsAtlas.findRegion("knob"));
-        dropDownMenuRegion = new TextureRegion(settingsAtlas.findRegion("drop_down_menu"));
-        containerRegion = new TextureRegion(settingsAtlas.findRegion("settings_container"));
+        smallButtonPressedRegion = new TextureRegion(menuAtlas.findRegion("small_button_pressed"));
+        smallButtonReleasedRegion = new TextureRegion(menuAtlas.findRegion("small_button_released"));
+        exitRegion = new TextureRegion(menuIconsAtlas.findRegion("exit"));
+        vsyncOnRegion = new TextureRegion(menuAtlas.findRegion("on"));
+        vsyncOffRegion = new TextureRegion(menuAtlas.findRegion("off"));
+        fullScreenOnRegion = new TextureRegion(menuAtlas.findRegion("on"));
+        fullScreenOffRegion = new TextureRegion(menuAtlas.findRegion("off"));
+        sliderRegion = new TextureRegion(menuAtlas.findRegion("slider"));
+        knobRegion = new TextureRegion(menuAtlas.findRegion("knob"));
+        dropDownMenuRegion = new TextureRegion(menuAtlas.findRegion("drop_down_selection"));
+        containerRegion = new TextureRegion(menuAtlas.findRegion("settings_container"));
+
     }
 
     public void render(float delta) {
@@ -527,8 +531,8 @@ public class SettingsUI {
 
     public void dispose() {
         stage.dispose();
-        playButtonAtlas.dispose();
         font.dispose();
+
     }
     public void show() {
         Gdx.input.setInputProcessor(stage);

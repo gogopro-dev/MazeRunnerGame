@@ -21,6 +21,7 @@ public class Menu implements Screen {
     private final MainMenuUI mainMenuUI;
     private final SettingsUI settingsUI;
     private final CreditsUI creditsUI;
+    private final PlayGameScreen playGameScreen;
     private static Menu instance = null;
     private final OrthographicCamera camera;
     private final Viewport viewport;
@@ -36,7 +37,7 @@ public class Menu implements Screen {
      */
     public static synchronized Menu getInstance(){
         if (instance == null){
-            instance = new Menu();
+            return new Menu();
         }
         return instance;
     }
@@ -46,6 +47,7 @@ public class Menu implements Screen {
      * Creates the stage and sets the input processor.</br>
      */
     private Menu() {
+        instance = this;
         /// Camera, Viewport nad SpriteBatch setup
         camera = new OrthographicCamera();
         viewport = new ExtendViewport(1024, 768, camera);
@@ -56,10 +58,15 @@ public class Menu implements Screen {
         mainMenuUI = new MainMenuUI(viewport, batch);
         settingsUI = new SettingsUI(viewport, batch);
         creditsUI = new CreditsUI(viewport, batch);
+        playGameScreen = new PlayGameScreen(viewport, batch);
 
         /// Load background atlas and get all regions
-        TextureAtlas backgroundAtlas = new TextureAtlas(Gdx.files.internal("background/background.atlas"));
+        TextureAtlas backgroundAtlas = new TextureAtlas(Gdx.files.local("assets/background/background.atlas"));
         backgroundRegions = backgroundAtlas.getRegions();
+    }
+
+    public MenuState getMenuState() {
+        return menuState;
     }
 
     /**
@@ -79,9 +86,10 @@ public class Menu implements Screen {
         menuState = state;
 
         Gdx.input.setInputProcessor(null);
+        System.out.println("Switching to " + menuState);
 
         switch (menuState){
-            case PLAY:
+            case GAME_SCREEN:
                 fadeOverlay.startFadeIn();
                 break;
             case MAIN_MENU:
@@ -90,7 +98,10 @@ public class Menu implements Screen {
                 }
                 mainMenuUI.show();
                 break;
-            case CREATE_NEW_GAME:
+            case PLAY:
+                playGameScreen.show();
+                break;
+            case LORE:
                 break;
             case CREDITS:
                 creditsUI.show();
@@ -103,70 +114,77 @@ public class Menu implements Screen {
 
     @Override
     public void render(float delta) {
-        /// Clear the screen
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+            /// Clear the screen
+            Gdx.gl.glClearColor(0, 0, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        /// Update animation state time
-        stateTime += delta;
+            /// Update animation state time
+            stateTime += delta;
 
-        /// Determine current frame
-        if (stateTime >= FRAME_DURATION) {
-            currentFrameIndex = (currentFrameIndex + 1) % backgroundRegions.size;
-            stateTime = 0f;
-        }
-        /// Draw current background frame
-        batch.setProjectionMatrix(camera.combined);
-        batch.begin();
-        batch.draw(
-            backgroundRegions.get(currentFrameIndex),
-            0, 0,
-            viewport.getWorldWidth(),
-            viewport.getWorldHeight()
-        );
-        batch.end();
+            /// Determine current frame
+            if (stateTime >= FRAME_DURATION) {
+                currentFrameIndex = (currentFrameIndex + 1) % backgroundRegions.size;
+                stateTime = 0f;
+            }
+            /// Draw current background frame
+            batch.setProjectionMatrix(camera.combined);
+            batch.begin();
+            batch.draw(
+                backgroundRegions.get(currentFrameIndex),
+                0, 0,
+                viewport.getWorldWidth(),
+                viewport.getWorldHeight()
+            );
+            batch.end();
 
-        switch (menuState){
-            case PLAY:
-                /// Check if fade in/out is finished
-                if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
+            switch (menuState){
+                case GAME_SCREEN:
+                    /// Check if fade in/out is finished
+                    if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
                     /// Switch to rendering level screen
-                    LevelScreen.getInstance().render(delta);
-                } else {
+                        LevelScreen.getInstance().render(delta);
+                    } else {
                     /// Continue rendering menu while fading
-                    mainMenuUI.render(delta);
-                }
+                        playGameScreen.render(delta);
+                    }
 
-                /// if fading out is not finished, render overlay
-                if (!fadeOverlay.isFinishedOut()) {
-                    fadeOverlay.render(delta);
-                }
+                    /// if fading out is not finished, render overlay
+                    if (!fadeOverlay.isFinishedOut()) {
+                        fadeOverlay.render(delta);
+                    }
+                    break;
+                case PLAY:
+                    playGameScreen.render(delta);
+                    break;
+                case MAIN_MENU:
+                    if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
+                        /// Switch to rendering menu screen
+                        mainMenuUI.render(delta);
+                    } else {
+                        /// Continue rendering level screen fading
+                        LevelScreen.getInstance().render(delta);
+                    }
 
-                break;
-            case MAIN_MENU:
-                if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
-                    /// Switch to rendering menu screen
-                    mainMenuUI.show();
-                    mainMenuUI.render(delta);
-                } else {
-                    /// Continue rendering level screen fading
-                    LevelScreen.getInstance().render(delta);
-                }
-
-                /// if fading out is not finished, render overlay
-                if (!fadeOverlay.isFinishedOut()) {
-                    fadeOverlay.render(delta);
-                }
-                break;
-            case CREATE_NEW_GAME:
-                break;
-            case CREDITS:
-                creditsUI.render(delta);
-                break;
-            case SETTINGS:
-                settingsUI.render(delta);
-                break;
+                    /// if fading out is not finished, render overlay
+                    if (!fadeOverlay.isFinishedOut()) {
+                        fadeOverlay.render(delta);
+                    }
+                    break;
+                case LORE:
+                    break;
+                case CREDITS:
+                    creditsUI.render(delta);
+                    break;
+                case SETTINGS:
+                    settingsUI.render(delta);
+                    break;
         }
+    }
+
+    public void updateChildPositions() {
+        mainMenuUI.updateContainerPosition();
+        creditsUI.updateContainerPosition();
+        playGameScreen.updateContainerPosition();
     }
 
     @Override
@@ -208,22 +226,10 @@ public class Menu implements Screen {
         creditsUI.dispose();
         fadeOverlay.dispose();
         batch.dispose();
+        playGameScreen.dispose();
     }
 
     @Override
     public void show() {
-        switch (menuState){
-            case MAIN_MENU:
-                mainMenuUI.show();
-                break;
-            case CREATE_NEW_GAME:
-                break;
-            case CREDITS:
-                creditsUI.show();
-                break;
-            case SETTINGS:
-                settingsUI.show();
-                break;
-        }
     }
 }

@@ -1,0 +1,15 @@
+menu_icons.png
+size:256,32
+repeat:none
+credits
+bounds:56,2,25,25
+delete
+bounds:83,5,17,22
+exit
+bounds:123,7,18,20
+newGame
+bounds:29,2,25,25
+play
+bounds:102,7,19,20
+settings
+bounds:1,1,26,26
