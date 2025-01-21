@@ -15,6 +15,8 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.entities.Enemy;
+import de.tum.cit.fop.maze.entities.EnemyType;
 import de.tum.cit.fop.maze.entities.EntityPathfinder;
 import de.tum.cit.fop.maze.entities.tile.*;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
@@ -26,6 +28,7 @@ import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import static de.tum.cit.fop.maze.Globals.*;
@@ -101,11 +104,20 @@ public class TileMap implements Disposable {
                     setWallSquare(x, y, wallMap);
 
                 }
-                ///  Floor
+                /// Any cell that is not a wall is walkable, floor would be a background
                 if (cell.getCellType().isWalkable()) {
                     setSquare(textures.getTextureWithVariationChance("floor"), x, y);
                     tryTorchSpawn(i, j, cell, x, y, torches);
                 }
+                if (cell.getCellType().isPath() && !cell.getCellType().isRoom()) {
+                    if (random.nextFloat() <= ENEMY_SPAWN_CHANCE) {
+                        spawnEnemies(x, y);
+                    } else if (random.nextFloat() <= LOOTCONTAINER_SPAWN_CHANCE) {
+                        spawnLootContainers(x, y, i, j);
+                        ///(i, j, cell, x, y, torches);
+                    }
+                }
+
                 ///  Room walls
                 if (cell.getCellType() == CellType.WALL || cell.getCellType() == CellType.ROOM_WALL) {
                     setDefaultWallSquare(x, y);
@@ -148,8 +160,73 @@ public class TileMap implements Disposable {
         }
         reverseCollisionMapRows(wallMap);
         generateHitboxes(wallMap);
+
         pathfinder = new EntityPathfinder();
 
+    }
+
+    public void spawnEnemies(int x, int y) {
+        AbsolutePoint current = getCellCenterMeters(x, y);
+        int enemyCount = 1;
+        for (int i = 0; i < 8; ++i) {
+            if (random.nextFloat() <= ENEMY_SPAWN_DENSITY) {
+                ++enemyCount;
+            }
+        }
+        for (int i = -1; i < 2; ++i) {
+            for (int j = -1; j < 2; ++j) {
+                if (enemyCount == 0) {
+                    return;
+                }
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                LevelScreen.getInstance().enemyManager.createEnemy(
+                    new Enemy(
+                        Arrays.stream(
+                            EnemyType.values()).skip(random.nextInt(EnemyType.values().length)
+                        ).findFirst().get()
+                    ),
+                    current.x() + i * CELL_SIZE_METERS,
+                    current.y() + j * CELL_SIZE_METERS
+                );
+                --enemyCount;
+            }
+        }
+
+    }
+
+    private void spawnLootContainers(int x, int y, int iOrigin, int jOrigin) {
+        AbsolutePoint current = getCellCenterMeters(x, y);
+        int lootContainerCount = 1;
+        for (int i = 0; i < 8; ++i) {
+            if (random.nextFloat() <= LOOTCONTAINER_SPAWN_DENSITY) {
+                ++lootContainerCount;
+            }
+        }
+        for (int i = -1; i < 2; ++i) {
+            for (int j = -1; j < 2; ++j) {
+                if (lootContainerCount == 0) {
+                    return;
+                }
+                if ((i == 0 && j == 0) || generator.grid.get(iOrigin).get(jOrigin + j).getCellType().isWall()) {
+                    continue;
+                }
+
+                LevelScreen.getInstance().tileEntityManager.createTileEntity(
+                    new LootContainer(
+                        Arrays.stream(
+                            LootContainer.LootContainerType.values()).skip(
+                            random.nextInt(LootContainer.LootContainerType.values().length
+                            )
+                        ).findFirst().get()
+                    ),
+                    current.x() + j * CELL_SIZE_METERS,
+                    current.y() + i * CELL_SIZE_METERS
+                );
+                --lootContainerCount;
+            }
+        }
     }
 
     private void tryTorchSpawn(int i, int j, GeneratorCell cell, int x, int y, ArrayList<AbsolutePoint> torches) {

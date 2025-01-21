@@ -33,8 +33,8 @@ public class Enemy extends Entity {
     private AbsolutePoint currentPathPoint;
 
 
-    public Enemy(EnemyType enemyType, SpriteBatch batch) {
-        super(batch);
+    public Enemy(EnemyType enemyType) {
+        super();
         this.bodyType = BodyDef.BodyType.DynamicBody;
         this.enemyType = enemyType;
         this.path = Collections.synchronizedList(new LinkedList<>());
@@ -44,7 +44,7 @@ public class Enemy extends Entity {
     public void render(float deltaTime) {
 
         elapsedTime += deltaTime;
-        if (path != null) this.followPath();
+        // if (path != null) this.followPath();
         if (isAttacking) {
             attackElapsedTime += deltaTime;
         }
@@ -164,15 +164,39 @@ public class Enemy extends Entity {
         return isMovingToPlayer;
     }
 
-    public List<AbsolutePoint> getPath() {
-        return path;
-    }
-
     public void updatePath(List<AbsolutePoint> path) {
         synchronized (this.path) {
             this.path.clear();
             this.path.addAll(path);
             currentPathPoint = path.isEmpty() ? null : path.get(0);
+        }
+    }
+
+    public void clearPath() {
+        synchronized (this.path) {
+            this.path.clear();
+            currentPathPoint = null;
+        }
+    }
+
+    public boolean isPathEmpty() {
+        synchronized (this.path) {
+            return this.path.isEmpty();
+        }
+    }
+
+    public int getPathSize() {
+        synchronized (this.path) {
+            return this.path.size();
+        }
+    }
+
+    public AbsolutePoint getPathElement(int index) {
+        synchronized (this.path) {
+            if (index < 0 || index >= this.path.size()) {
+                return null;
+            }
+            return this.path.get(index);
         }
     }
 

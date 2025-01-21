@@ -71,6 +71,7 @@ public class Torch extends TileEntity {
         if (lit) {
             elapsedLitTime += delta;
         }
+        light.update();
         if (torchAnimation != null && standTexture != null) {
             TextureRegion frame = lit ? torchAnimation.getKeyFrame(elapsedTime, true) : standTexture;
             if (direction == Direction.RIGHT && !frame.isFlipX()) {
@@ -88,7 +89,7 @@ public class Torch extends TileEntity {
                 Utils.easeOutCirc(elapsedLitTime * 0.77f) * TORCH_LIGHT_RADIUS
             ));
         }
-        light.update();
+
     }
 
     @Override
@@ -98,7 +99,7 @@ public class Torch extends TileEntity {
             LevelScreen.getInstance().rayHandler, RAY_AMOUNT, TORCH_LIGHT_COLOR, 0, x, y);
         light.setContactFilter(BodyBits.LIGHT, (short) 0, BodyBits.LIGHT_MASK);
         light.setActive(false);
-        light.setStaticLight(true);
+        light.setStaticLight(false);
     }
 
 

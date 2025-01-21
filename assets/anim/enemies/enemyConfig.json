@@ -7,7 +7,7 @@
       "maxHealth": 1,
       "attackDMG": 1,
       "heal": 1,
-      "visionRange": 4.3
+      "visionRange": 2
     }
   },
   {
@@ -18,7 +18,7 @@
       "maxHealth": 1,
       "attackDMG": 1,
       "heal": 1,
-      "visionRange": 4.3
+      "visionRange": 2
     }
   }
 ]

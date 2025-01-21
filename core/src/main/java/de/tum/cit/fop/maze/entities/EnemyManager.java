@@ -9,9 +9,7 @@ import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -33,7 +31,7 @@ public class EnemyManager {
     private final LevelScreen levelScreen;
     ///  The Libgdx executor for asynchronous tasks
     private final AsyncExecutor asyncExecutor;
-    private final ArrayList<Enemy> enemies;
+    private ArrayList<Enemy> enemies;
     private float accumulator = 0;
     ///  The number of launched tasks, used so that no new tasks are launched if there are already some running
     ///  (mainly for low-end devices)
@@ -87,6 +85,13 @@ public class EnemyManager {
      * @param delta The time since the last frame
      */
     public void render(float delta) {
+        // Parallel sort enemies by y coordinate
+       /* Enemy[] enemiesPrimitive = this.enemies.toArray(new Enemy[0]);
+        Arrays.parallelSort(enemiesPrimitive, (enemy1, enemy2) ->
+            Float.compare(enemy2.getPosition().y(), enemy1.getPosition().y())
+        );
+        enemies = new ArrayList<>(Arrays.asList(enemiesPrimitive));
+        */
         tickEnemies(delta);
         for (Enemy enemy : enemies) {
             enemy.render(delta);
@@ -106,7 +111,7 @@ public class EnemyManager {
         if (launchedTasks.get() > 0) return;
         for (Enemy enemy : enemies) {
             /// Random movement
-            if (!enemy.isMovingToPlayer() && enemy.getPath().isEmpty()) {
+            if (!enemy.isMovingToPlayer() && enemy.isPathEmpty()) {
                 Random random = LevelScreen.getInstance().map.random;
                 if (random.nextFloat() > Globals.ENEMY_RANDOM_WALK_PROBABILITY) continue;
                 asyncExecutor.submit(() -> {
@@ -129,6 +134,7 @@ public class EnemyManager {
                     );
                     if (path == null) {
                         launchedTasks.decrementAndGet();
+                        enemy.clearPath();
                         enemy.setMovingToPlayer(false);
                         return true;
                     }
@@ -168,16 +174,23 @@ public class EnemyManager {
         if (!enemy.isMovingToPlayer() && isPlayerSeen(enemy)) {
             enemy.setMovingToPlayer(true);
         }
-        if (!enemy.getPath().isEmpty()) {
+        if (!enemy.isPathEmpty()) {
             AbsolutePoint lastPoint = enemy.getPosition();
             AbsolutePoint currentPoint;
-            for (int i = 0; i < enemy.getPath().size(); ++i) {
-                currentPoint = enemy.getPath().get(i);
+            for (int i = 0; i < enemy.getPathSize(); ++i) {
+                currentPoint = enemy.getPathElement(i);
+                if (currentPoint == null) {
+
+                    break;
+                }
                 DebugRenderer.getInstance().drawLine(lastPoint, currentPoint, Color.RED);
                 lastPoint = currentPoint;
             }
+
+
         }
     }
+
 
     public void dispose() {
         for (Enemy enemy : enemies) {

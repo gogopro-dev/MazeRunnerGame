@@ -6,10 +6,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.entities.Enemy;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
+
+import static de.tum.cit.fop.maze.Globals.IMMUNITY_FRAME_DURATION;
 
 public class Utils {
     public static Drawable getColoredDrawable(int width, int height, Color color) {
@@ -50,7 +53,8 @@ public class Utils {
             levelScreen.world.rayCast(
                 (fixture, point, normal, fraction) -> {
                     if (fixture.getBody().getUserData() instanceof Enemy) return -1;
-                    if (fixture.getBody().getUserData() == null) {
+                    if (fixture.getFilterData().categoryBits == BodyBits.WALL ||
+                        fixture.getFilterData().categoryBits == BodyBits.WALL_TRANSPARENT) {
                         result[0] = false;
                     }
                     return fraction;
@@ -115,5 +119,17 @@ public class Utils {
         if (x > 1) return 1;
         return (float) Math.sqrt(1 - Math.pow(x - 1, 2));
 
+    }
+
+    public static Color tintInterpolation(Color tint, float progress) {
+        float differenceR = 1 - tint.r;
+        float differenceG = 1 - tint.g;
+        float differenceB = 1 - tint.b;
+        return new Color(
+            tint.r + differenceR * progress,
+            tint.g + differenceG * progress,
+            tint.b + differenceB * progress,
+            1
+        );
     }
 }

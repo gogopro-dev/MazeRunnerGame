@@ -2,6 +2,7 @@ package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.resolvers.LocalFileHandleResolver;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import de.tum.cit.fop.maze.menu.Menu;
@@ -17,14 +18,13 @@ public class LoadMenu extends Game {
     @Override
     public void create() {
         /// Initialize the AssetManager singleton and load all assets
-        assetManager = new AssetManager();
+        assetManager = new AssetManager(new LocalFileHandleResolver());
         loadAssets();
         assetManager.finishLoading();
         /// Initialize the Menu singleton and all its dependencies
         Menu menu = Menu.getInstance();
         /// Initialize the LevelScreen singleton
-        new LevelScreen();
-        setScreen(menu);
+        setScreen(new LevelScreen());
     }
 
     private void loadAssets(){
