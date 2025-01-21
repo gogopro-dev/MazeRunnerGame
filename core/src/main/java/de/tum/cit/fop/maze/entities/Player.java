@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import de.tum.cit.fop.maze.BodyBits;
+import de.tum.cit.fop.maze.entities.tile.Attributes;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.tile.CollectableAttributes;
@@ -30,7 +31,7 @@ public class Player extends Entity {
     private final Animation<TextureRegion> attackAnimation;
     private final Animation<TextureRegion> idleTorchAnimation;
     private final Animation<TextureRegion> movementTorchAnimation;
-    private CollectableAttributes collectableBuffs;
+    private Attributes collectableBuffs;
     private final List<Collectable> inventory;
     private Animation<TextureRegion> currentAnimation;
     private float elapsedTime = 0f;
@@ -98,7 +99,8 @@ public class Player extends Entity {
         maxHealth = 40;
 
         inventory = new ArrayList<>();
-        collectableBuffs = new CollectableAttributes(Collectable.CollectableType.EMPTY, "heart", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        collectableBuffs = new Attributes(0, 0, 0,
+            0, 0, 0, 0);
     }
 
     /**

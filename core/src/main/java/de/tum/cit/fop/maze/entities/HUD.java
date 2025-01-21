@@ -4,17 +4,20 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,22 +27,33 @@ public class HUD {
     private final Stage stage;
     private final List<List<Image>> matrixHPBar;
     private final Map<String, Image> statusBar;
+    private ProgressBar staminaBar;
     private final float heartsAnimationFrameDuration = 1 / 5f;
     private final SpriteBatch spriteBatch;
+    private final Label scoreLabel;
+    private final Label timeLabel;
+//    private final Table timeAndScoreTable;
+//    private final Table healthTable;
 
 
     private TextureAtlas atlas;
 
 
+    private int score = 1000;
+    private final BitmapFont font;
+    private final float fontScale = 1.1f;
+    private final Instant start = Clock.systemDefaultZone().instant();
+    private Instant now;
+    private final Table labelTable;
+
     private int receivedDmg;
     private int health;
     private int maxHealth;
 
-    private ProgressBar staminaBar;
     private float stamina = 100f;
     private final float staminaConsumptionSpeed = 0.5f;
     private final float staminaBarScaling = 1f;
-    private final float fillamentAlignmentX = 34f;
+    private final float fillamentAlignmentX = 32f;
 
     private final float statusBarSpacingFromHPBar = 10f;
     private final float statusBarInnerSpacing = 5f;
@@ -54,8 +68,9 @@ public class HUD {
     float offsetYStepHP;
     final float spacingX = 4f;
     final float spacingY = 4f;
-    final float heartsScaling = 1.5f;
+    final float heartsScaling = 1.6f;
     final float padding = 10f;
+    final float labelPadding = padding + 5f;
     final float spacingBetwHPBarAndStaminaBar = 20f;
     int amountOfHeartsInRow = 10;
 
@@ -72,19 +87,63 @@ public class HUD {
                 ), spriteBatch
             );
 
+
         matrixHPBar = new ArrayList<>();
         statusBar = new HashMap<>();
-
 
         Gdx.input.setInputProcessor(this.stage);
         this.health = player.health;
         this.maxHealth = player.maxHealth;
+
+        labelTable = new Table();
+
+        now = Clock.systemDefaultZone().instant();
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
+            Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 27;
+        parameter.color = new Color(0xE0E0E0FF);
+        parameter.borderWidth = 1;
+        parameter.borderColor = new Color(0x000000FF);
+        font = generator.generateFont(parameter);
+        Label.LabelStyle labelStyle = new Label.LabelStyle();
+        labelStyle.font = font;
+        timeLabel = new Label(getLabelTime(start, now), labelStyle);
+        scoreLabel = new Label(getLabelScore(score), labelStyle);
+        timeLabel.setFontScale(fontScale);
+        scoreLabel.setFontScale(fontScale);
+        setLabelTablePosition();
 
         loadTextures();
         updateHPBar();
         createStaminaBar();
         createDamageButton();
         createAddStatusButton();
+    }
+
+    private void setLabelTablePosition() {
+        labelTable.add(timeLabel);
+        labelTable.row();
+        labelTable.add(scoreLabel);
+        labelTable.setSize(timeLabel.getWidth(),
+            timeLabel.getHeight() + scoreLabel.getHeight());
+        labelTable.setPosition((stage.getViewport().getWorldWidth() - labelTable.getWidth())/2,
+            stage.getViewport().getWorldHeight() - labelTable.getHeight() - labelPadding);
+        labelTable.align(Align.center);
+//        labelTable.debug();
+        stage.addActor(labelTable);
+    }
+
+    private String getLabelTime(Instant start, Instant now) {
+        Duration duration = Duration.between(start, now);
+        long seconds = duration.getSeconds();
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        return String.format("Time: %02d:%02d:%02d", hours, minutes % 60, seconds % 60);
+    }
+
+    private String getLabelScore(int score) {
+        return String.format("Score: %06d", score);
     }
 
     public void loadTextures() {
@@ -172,7 +231,9 @@ public class HUD {
         TextureRegion rHEmpty = atlas.findRegion("HealthR_DMG", 2);
 
         List<Float> resultOfFirstFill =
-            fillHPBarWithHearts(health, padding + fillamentAlignmentX, offsetYStepHP / 2 + padding, lHFull, rHFull, 0);
+            fillHPBarWithHearts(health, padding + fillamentAlignmentX, offsetYStepHP / 2 + padding,
+                lHFull, rHFull, 0
+            );
         fillHPBarWithHearts(
             maxHealth, resultOfFirstFill.get(0), resultOfFirstFill.get(1), lHEmpty, rHEmpty, resultOfFirstFill.get(2)
         );
@@ -211,15 +272,17 @@ public class HUD {
 
 
     public void createStaminaBar() {
-
-        int width = (int) (300 * staminaBarScaling);
-        int height = (int) (21 * staminaBarScaling);
+        Image lastHeart = matrixHPBar.get(matrixHPBar.size() - 1).
+            get(matrixHPBar.get(matrixHPBar.size() - 1).size() - 1);
+        int width = (int) ((lastHeart.getX() - padding - fillamentAlignmentX
+            + lastHeart.getWidth()*heartsScaling) * staminaBarScaling);
+        int height = (int) (20 * staminaBarScaling);
 
         staminaBar = new ProgressBar(
             0f, stamina, staminaConsumptionSpeed, false, new ProgressBar.ProgressBarStyle()
         );
 
-        staminaBar.getStyle().background = Utils.getColoredDrawable(width, height, Color.DARK_GRAY);
+        staminaBar.getStyle().background = Utils.getColoredDrawable(width, height + 1, Color.DARK_GRAY);
         staminaBar.getStyle().knob = Utils.getColoredDrawable(0, height, Color.GOLD);
         staminaBar.getStyle().knobBefore = Utils.getColoredDrawable(width, height, Color.GOLD);
 
@@ -245,8 +308,8 @@ public class HUD {
     private void setStaminaBarBorder(int width, int height, float stBarX, float stBarY) {
         //TODO repack Atlas with proper name and get rid of "magic numbers"
         Image staminaBarBorder = new Image(atlas.findRegion("staminaBarBorder"));
-        float borderWidth = (width + 37) * staminaBarScaling;
-        float borderHeight = (height + 22) * staminaBarScaling;
+        float borderWidth = (width + 36) * staminaBarScaling;
+        float borderHeight = (height + 20) * staminaBarScaling;
         float borderAlignmentY = (height + 11) * staminaBarScaling;
 //        float borderAlignmentX = 12*staminaBarScaling;
 
@@ -328,6 +391,8 @@ public class HUD {
     }
 
 
+
+
     private boolean areAllAnimationsFinished() {
         for (Map.Entry<String, Animation<TextureRegion>> entry : animations.entrySet()) {
             if (!entry.getValue().isAnimationFinished(hitElapsedTime)) {
@@ -372,6 +437,13 @@ public class HUD {
         stage.addActor(addStatusButton);
     }
 
+    private void updateLabels(){
+        now = Clock.systemDefaultZone().instant();
+        int currentScore = score - (int) Duration.between(start, now).getSeconds();
+        timeLabel.setText(getLabelTime(start, now));
+        scoreLabel.setText(getLabelScore(currentScore));
+    }
+
     public void dispose() {
         atlas.dispose();
         stage.dispose();
@@ -379,6 +451,7 @@ public class HUD {
 
 
     public void render(float deltaTime) {
+        updateLabels();
         stage.act();
         stage.draw();
         stage.getBatch().begin();
