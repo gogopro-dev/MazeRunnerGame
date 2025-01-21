@@ -1,8 +1,0 @@
-button.png
-size:256,64
-repeat:none
-play_button_released
-bounds:129,2,125,32
-play_button_pressed
-bounds:2,2,125,32
-
