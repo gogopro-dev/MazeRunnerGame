@@ -86,12 +86,12 @@ public class EnemyManager {
      */
     public void render(float delta) {
         // Parallel sort enemies by y coordinate
-       /* Enemy[] enemiesPrimitive = this.enemies.toArray(new Enemy[0]);
+        Enemy[] enemiesPrimitive = this.enemies.toArray(new Enemy[0]);
         Arrays.parallelSort(enemiesPrimitive, (enemy1, enemy2) ->
             Float.compare(enemy2.getPosition().y(), enemy1.getPosition().y())
         );
         enemies = new ArrayList<>(Arrays.asList(enemiesPrimitive));
-        */
+
         tickEnemies(delta);
         for (Enemy enemy : enemies) {
             enemy.render(delta);
