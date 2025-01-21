@@ -9,11 +9,11 @@ public final class CollectableAttributes extends Attributes {
 
     public CollectableAttributes(
         Collectable.CollectableType type, String textureName, int immediateHealing, int immediateCoins,
-        float dropChance, float damageBoost, float resistanceBoost, float vampiricHealing, float speedBoost,
-        int amountOfResurrections, float frameDuration
+        float dropChance, float damageBoost, float resistanceBoost, float vampirism, float speedBoost,
+        int resurrections, float frameDuration
     ) {
         super(immediateHealing, immediateCoins, damageBoost, resistanceBoost,
-            vampiricHealing, amountOfResurrections, speedBoost);
+            vampirism, resurrections, speedBoost);
         assert type != null;
         assert textureName != null;
         this.type = type;
@@ -25,7 +25,6 @@ public final class CollectableAttributes extends Attributes {
     public void sum(CollectableAttributes other) {
         super.sum(other);
     }
-
     public String toString() {
         return "CollectableAttributes{" +
             "type=" + type +
@@ -36,8 +35,8 @@ public final class CollectableAttributes extends Attributes {
             ", immediateCoins=" + immediateCoins +
             ", damageBoost=" + damageBoost +
             ", resistanceBoost=" + resistanceBoost +
-            ", vampiricHealingPercent=" + vampiricHealing +
-            ", isResurrectionAmulet=" + amountOfResurrections +
+            ", vampiricHealingPercent=" + vampirism +
+            ", ressurections=" + ressurections +
             '}';
     }
 

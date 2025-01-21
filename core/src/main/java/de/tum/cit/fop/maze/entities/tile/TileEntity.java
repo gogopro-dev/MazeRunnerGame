@@ -3,6 +3,7 @@ package de.tum.cit.fop.maze.entities.tile;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
@@ -14,7 +15,7 @@ import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
  * This class represents a tile entity in the game.
  * Tile entities are static objects in the game that can be interacted with by the player.
  */
-public abstract class TileEntity {
+public abstract class TileEntity implements Disposable {
     private Body body;
     protected int width;
     protected int height;
@@ -111,6 +112,12 @@ public abstract class TileEntity {
 
     public AbsolutePoint getPosition() {
         return new AbsolutePoint(body.getPosition().x, body.getPosition().y);
+    }
+
+    public void dispose() {
+        if (body != null) {
+            body.getWorld().destroyBody(body);
+        }
     }
 
     abstract public void render(float delta);

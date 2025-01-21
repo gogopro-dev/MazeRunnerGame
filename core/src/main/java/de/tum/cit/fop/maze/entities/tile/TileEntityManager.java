@@ -23,7 +23,7 @@ public class TileEntityManager {
     }
 
     private void destroyTileEntity(TileEntity tileEntity) {
-        LevelScreen.getInstance().world.destroyBody(tileEntity.getBody());
+        tileEntity.dispose();
     }
 
 

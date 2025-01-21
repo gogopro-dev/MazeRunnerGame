@@ -70,18 +70,7 @@ public class Collectable extends TileEntity {
             batch.draw(currentFrame, getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
                 getSpriteDrawWidth(), getSpriteDrawHeight());
         }
-        // TODO after creating TextureAtlas for pickup animation delete else and uncomment code below (not tested yet)
-        else {
-            //TODO: despawn collectable after picking it up
-            dispose();
-        }
-//        else {
-//            currentFrame = pickupAnimation.getKeyFrame(pickupElapsedTime);
-//            pickupElapsedTime += delta;
-//            if(pickupAnimation.isAnimationFinished(pickupElapsedTime)){
-//                dispose();
-//            }
-//        }
+        ///  If at any point the pickup animation would be introduced, move the toDestroy assignment
     }
 
     public void dispose() {
