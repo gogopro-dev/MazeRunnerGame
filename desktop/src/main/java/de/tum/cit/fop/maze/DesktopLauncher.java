@@ -12,7 +12,7 @@ public class DesktopLauncher {
     }
 
     private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new LoadMenu(), getDefaultConfiguration());
+        return new Lwjgl3Application(LoadMenu.getInstance(), getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
