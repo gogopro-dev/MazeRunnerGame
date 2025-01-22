@@ -262,6 +262,13 @@ public class Player extends Entity {
             torchLight.setDistance(0);
             torchLight.setActive(isHoldingTorch);
         }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
+            LevelScreen.getInstance().tileEntityManager.createTileEntity(
+                new Collectable(Collectable.CollectableType.GOLD_COIN),
+                getPosition().x(), getPosition().y()
+            );
+        }
+
 
         /// Only update facing direction if not in hit animation
         if (!isAttacking) {
@@ -325,11 +332,13 @@ public class Player extends Entity {
         updateCameraPosition();
 
         /// Handle camera zoom
-        if (Gdx.input.isKeyPressed(Input.Keys.EQUALS) && camera.zoom > Globals.DEFAULT_CAMERA_ZOOM - 0.5f) {
-            camera.zoom -= 0.0002f;
+        if ((Gdx.input.isKeyPressed(Input.Keys.EQUALS) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_ADD)
+        ) && camera.zoom > Globals.DEFAULT_CAMERA_ZOOM - 0.5f) {
+            camera.zoom -= 0.0015f;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.MINUS) && camera.zoom < Globals.DEFAULT_CAMERA_ZOOM + 0.5f) {
-            camera.zoom += 0.0002f;
+        if ((Gdx.input.isKeyPressed(Input.Keys.MINUS) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_SUBTRACT))
+            && camera.zoom < Globals.DEFAULT_CAMERA_ZOOM + 0.5f) {
+            camera.zoom += 0.0015f;
         }
     }
 
