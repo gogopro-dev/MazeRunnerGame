@@ -1,0 +1,23 @@
+[
+  {
+    "type": "BARREL",
+    "textureName": "barrel",
+    "health": 8,
+    "lootAmount": 1,
+    "frameDuration": 0.165
+  },
+  {
+    "type": "CRATE",
+    "textureName": "box",
+    "health": 6,
+    "lootAmount": 1,
+    "frameDuration": 0.165
+  },
+  {
+    "type": "VASE",
+    "textureName": "vase",
+    "health": 2,
+    "lootAmount": 1,
+    "frameDuration": 0.165
+  }
+]

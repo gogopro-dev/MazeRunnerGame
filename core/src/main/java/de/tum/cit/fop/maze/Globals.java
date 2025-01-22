@@ -21,12 +21,12 @@ public final class Globals {
     public static final float TILEMAP_SCALE = 4f;
     public static final float CELL_SIZE_METERS = (CELL_SIZE / PPM) * TILEMAP_SCALE;
     public static final float TRAP_SAFETY_PADDING = CELL_SIZE_METERS / 12;
-    public static final float PATHFINDING_SAFETY_GAP = CELL_SIZE_METERS / 7f;
 
     public static final float BOX2D_TIME_STEP = 1 / 120f;
     public static final int BOX2D_VELOCITY_ITERATIONS = 8;
     public static final int BOX2D_POSITION_ITERATIONS = 3;
     public static final int TRAP_DAMAGE = 10;
+    public static final float IMMUNITY_FRAME_DURATION = 0.2f;
     public static float DEFAULT_CAMERA_ZOOM = 1.25f;
     ///  <p>What's the probability for enemy to pick a random cell to walk to each frame if it is not going anywhere
     ///  currently.</p>
@@ -37,6 +37,11 @@ public final class Globals {
     public static final float TRAP_LIGHT_RADIUS = 12f;
     public static final int RAY_AMOUNT = 100;
     public static final float HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS = 1.5f;
+    public static final float ENEMY_SPAWN_CHANCE = 0.1f;
+    public static float ENEMY_SPAWN_DENSITY = 0.05f;
+    public static final float LOOTCONTAINER_SPAWN_CHANCE = 0.2f;
+
+    public static float LOOTCONTAINER_SPAWN_DENSITY = 0.30f;
     /// Safety gap for hitboxes, so that the character won't get stuck in a single pixel.
     /// <i>A bit of dark sorcery (i.e. magic numbers), but hey, it's documented!</i>
     public static final float HITBOX_SAFETY_GAP = 0.15f;

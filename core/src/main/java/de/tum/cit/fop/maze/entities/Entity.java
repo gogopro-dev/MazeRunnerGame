@@ -38,8 +38,8 @@ public abstract class Entity implements Attackable {
     /**
      * Creates a new entity with default values.
      */
-    public Entity(SpriteBatch batch) {
-        this.batch = batch;
+    public Entity() {
+        this.batch = LevelScreen.getInstance().batch;
         this.camera = LevelScreen.getInstance().camera;
         //TODO: Change default values
         this.health = 100;

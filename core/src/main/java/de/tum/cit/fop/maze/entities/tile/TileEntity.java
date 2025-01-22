@@ -16,7 +16,7 @@ import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
  * Tile entities are static objects in the game that can be interacted with by the player.
  */
 public abstract class TileEntity implements Disposable {
-    private Body body;
+    protected Body body;
     protected int width;
     protected int height;
     protected boolean isOnPlayer = false;
@@ -42,7 +42,6 @@ public abstract class TileEntity implements Disposable {
             width * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING,
             height * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING
         );
-
         fixtureDef.shape = shape;
         fixtureDef.isSensor = true;
         fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;

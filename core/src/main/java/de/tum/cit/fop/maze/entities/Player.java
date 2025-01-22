@@ -49,7 +49,6 @@ public class Player extends Entity {
     private final float mapHeight;
     private boolean isDamaged = false;
     private float damageFlashTimer = 0f;
-    private static final float DAMAGE_FLASH_DURATION = 0.2f;
     private float trapAttackElapsedTime = 0f;
     private PointLight torchLight;
     private float atkIncrease = 0;
@@ -62,10 +61,9 @@ public class Player extends Entity {
     /**
      * Creates a new player character.
      *
-     * @param batch The sprite batch to render the player character
      */
-    public Player(SpriteBatch batch) {
-        super(batch);
+    public Player() {
+        super();
         this.mapWidth = LevelScreen.getInstance().map.widthMeters;
         this.mapHeight = LevelScreen.getInstance().map.heightMeters;
         this.mass = 5f;
@@ -134,7 +132,7 @@ public class Player extends Entity {
         /// Update damage flash timer
         if (isDamaged) {
             damageFlashTimer += deltaTime;
-            if (damageFlashTimer >= DAMAGE_FLASH_DURATION) {
+            if (damageFlashTimer >= Globals.IMMUNITY_FRAME_DURATION) {
                 isDamaged = false;
                 damageFlashTimer = 0f;
                 /// Reset color back to normal
@@ -168,7 +166,7 @@ public class Player extends Entity {
         float frameWidth = currentFrame.getRegionWidth() * scale;
         float frameHeight = currentFrame.getRegionHeight() * scale;
         batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
-
+        batch.setColor(Color.WHITE);
         if (isAttacking && !hasHit && attackElapsedTime > attackAnimation.getAnimationDuration() / 2) {
             System.out.println("Attack");
             hasHit = true;
@@ -182,13 +180,14 @@ public class Player extends Entity {
             attackElapsedTime = 0f; // Reset hit animation time
         }
 
+
     }
 
     private void attackAllEnemiesInRange() {
         AbsolutePoint playerPos = getPosition();
         AbsolutePoint rectangleStart, rectangleEnd;
-        float playerTop = playerPos.y() + boundingRectangle.height() / 2;
-        float playerBottom = playerPos.y() - boundingRectangle.height() / 2;
+        float playerTop = playerPos.y() - boundingRectangle.height() / 2;
+        float playerBottom = playerPos.y() + boundingRectangle.height() / 2;
         if (isFacingRight()) {
             rectangleStart = new AbsolutePoint(
                 playerPos.x(),
@@ -217,10 +216,14 @@ public class Player extends Entity {
         );
         LevelScreen.getInstance().world.QueryAABB(
             fixture -> {
-                /// Do not commit a self-harm attempt ^_^
-                if (fixture.getBody().getUserData() instanceof Player) return true;
+                System.out.println("Fixture detected: " + fixture);
+                /// Do not permit a self-harm attempt ^_^
+                if (fixture.getBody().getUserData() instanceof Player) {
+                    return true;
+                }
 
                 if (fixture.getBody().getUserData() instanceof Attackable attackable) {
+                    System.out.println("Hit " + attackable);
                     attackable.takeDamage(Globals.PLAYER_DAMAGE);
                 }
                 if (fixture.getBody().getUserData() instanceof Enemy enemy) {
@@ -231,6 +234,7 @@ public class Player extends Entity {
                         )
                     );
                 }
+                System.out.println("Hit " + fixture.getBody().getUserData());
                 return true;
             },
             rectangleStart.x(), rectangleStart.y(), rectangleEnd.x(), rectangleEnd.y()
@@ -242,15 +246,16 @@ public class Player extends Entity {
      */
     private void handleInput() {
         isMoving = false;
-        if (isBeingChased()) {
+        /*if (isBeingChased()) {
             isHoldingTorch = false;
             canHit = true;
             elapsedTorchTime = 0f;
             torchLight.setDistance(0);
             torchLight.setActive(isHoldingTorch);
-        }
+        }*/
+
         /// If pressed 'R', toggle torch
-        if (Gdx.input.isKeyJustPressed(Input.Keys.R) && !beingChased) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             isHoldingTorch = !isHoldingTorch;
             canHit = !isHoldingTorch;
             elapsedTorchTime = 0f;

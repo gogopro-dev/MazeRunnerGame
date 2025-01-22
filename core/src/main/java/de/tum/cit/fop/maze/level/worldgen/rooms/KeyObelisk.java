@@ -7,8 +7,8 @@ import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class KeyRoom extends Room {
-    public KeyRoom() {
+public class KeyObelisk extends Room {
+    public KeyObelisk() {
         super(3, 3, GeneratorStrategy.AROUND_CENTER);
     }
 

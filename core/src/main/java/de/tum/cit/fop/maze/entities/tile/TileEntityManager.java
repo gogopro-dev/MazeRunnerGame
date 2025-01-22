@@ -4,6 +4,7 @@ import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -11,7 +12,7 @@ import java.util.Iterator;
  * It is responsible for creating, removing and rendering the tile entities.
  */
 public class TileEntityManager {
-    private final ArrayList<TileEntity> tileEntities = new ArrayList<TileEntity>();
+    private ArrayList<TileEntity> tileEntities = new ArrayList<TileEntity>();
 
     public void createTileEntity(TileEntity tileEntity, AbsolutePoint position) {
         createTileEntity(tileEntity, position.x(), position.y());
@@ -29,6 +30,12 @@ public class TileEntityManager {
 
     public void render(float delta) {
         boolean isAnyActiveTraps = false;
+        TileEntity[] tileEntityPrimitive = tileEntities.toArray(new TileEntity[0]);
+        /// Sort the tile entities by their y position
+        Arrays.parallelSort(
+            tileEntityPrimitive, (a, b) -> Float.compare(b.getPosition().y(), a.getPosition().y())
+        );
+        this.tileEntities = new ArrayList<>(Arrays.asList(tileEntityPrimitive));
         Iterator<TileEntity> it = tileEntities.iterator();
 
         while (it.hasNext()) {

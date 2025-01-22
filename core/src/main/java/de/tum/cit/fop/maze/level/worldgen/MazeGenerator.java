@@ -2,10 +2,7 @@ package de.tum.cit.fop.maze.level.worldgen;
 
 
 import de.tum.cit.fop.maze.Globals;
-import de.tum.cit.fop.maze.level.worldgen.rooms.Entrance;
-import de.tum.cit.fop.maze.level.worldgen.rooms.Room;
-import de.tum.cit.fop.maze.level.worldgen.rooms.Shop;
-import de.tum.cit.fop.maze.level.worldgen.rooms.ItemsRoom;
+import de.tum.cit.fop.maze.level.worldgen.rooms.*;
 
 import java.util.*;
 
@@ -124,7 +121,8 @@ public final class MazeGenerator {
         generateRooms(List.of(
             new Entrance(),
             new Shop(),
-            new ItemsRoom()
+            new ItemsRoom(),
+            new KeyObelisk()
         ));
 
         // Surround grid with walls
@@ -398,13 +396,13 @@ public final class MazeGenerator {
     }
 
     private void fixDoubleWalls() {
-        for (int i = 1; i < generatorHeight - 1; i++) {
+        for (int i = 1; i < generatorHeight; i++) {
             for (int j = 1; j < generatorWidth; j++) {
                 boolean leftWall = grid.get(i).get(j - 1).getCellType() == CellType.WALL;
                 boolean currentRoomWall = grid.get(i).get(j).getCellType() == CellType.ROOM_WALL;
                 boolean currentWall = grid.get(i).get(j).getCellType().isWall();
                 boolean topWall = grid.get(i - 1).get(j).getCellType().isWall();
-                boolean bottomWall = grid.get(i + 1).get(j).getCellType().isWall();
+                boolean bottomWall = i > generatorHeight - 2 || grid.get(i + 1).get(j).getCellType().isWall();
                 if (currentRoomWall && leftWall) {
                     grid.get(i).get(j - 1).setCellType(CellType.PATH);
                 }

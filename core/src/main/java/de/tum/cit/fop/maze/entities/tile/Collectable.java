@@ -73,9 +73,6 @@ public class Collectable extends TileEntity {
         ///  If at any point the pickup animation would be introduced, move the toDestroy assignment
     }
 
-    public void dispose() {
-    }
-
     @Override
     public String toString() {
         return "Picked up";

@@ -15,6 +15,8 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.entities.Enemy;
+import de.tum.cit.fop.maze.entities.EnemyType;
 import de.tum.cit.fop.maze.entities.EntityPathfinder;
 import de.tum.cit.fop.maze.entities.tile.*;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
@@ -26,6 +28,7 @@ import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import static de.tum.cit.fop.maze.Globals.*;
@@ -98,14 +101,22 @@ public class TileMap implements Disposable {
                 );
                 /// All non-walkable cells require hitboxes
                 if (cell.getCellType().isWall()) {
-                    setWallSquare(x, y, wallMap);
-
+                    setHitboxWallSquare(x, y, wallMap);
                 }
-                ///  Floor
+                /// Any cell that is not a wall is walkable, floor would be a background
                 if (cell.getCellType().isWalkable()) {
                     setSquare(textures.getTextureWithVariationChance("floor"), x, y);
                     tryTorchSpawn(i, j, cell, x, y, torches);
                 }
+                if (cell.getCellType().isPath() && !cell.getCellType().isRoom()) {
+                    if (random.nextFloat() <= ENEMY_SPAWN_CHANCE) {
+                        spawnEnemies(x, y);
+                    } else if (random.nextFloat() <= LOOTCONTAINER_SPAWN_CHANCE) {
+                        spawnLootContainers(x, y, i, j);
+                        ///(i, j, cell, x, y, torches);
+                    }
+                }
+
                 ///  Room walls
                 if (cell.getCellType() == CellType.WALL || cell.getCellType() == CellType.ROOM_WALL) {
                     setDefaultWallSquare(x, y);
@@ -125,14 +136,25 @@ public class TileMap implements Disposable {
                         setCell(middleCorner, x, y + 1, true);
                         setCell(rightCorner, x + 1, y + 1, true);
                     }
-                    if (GenerationCases.singleWallCase(i, j, generator)) {
-                        setDecorationSquare(x, y);
-                    }
-
+                }
+                if (cell.getCellType() == CellType.KEY_OBELISK) {
+                    tileEntityManager.createTileEntity(
+                        new Collectable(Collectable.CollectableType.HEART), currentCellCenter
+                    );
+                }
+                if (cell.getCellType() == CellType.TREASURE_ROOM_ITEM) {
+                    tileEntityManager.createTileEntity(
+                        new Collectable(Collectable.CollectableType.DEFENSE_COIN), currentCellCenter
+                    );
                 }
                 if (cell.getCellType() == CellType.EXIT_DOOR) {
                     tileEntityManager.createTileEntity(
                         new ExitDoor(), currentCellCenter
+                    );
+                }
+                if (cell.getCellType() == CellType.SHOP_ITEM) {
+                    tileEntityManager.createTileEntity(
+                        new Collectable(Collectable.CollectableType.RESURRECTION_AMULET), currentCellCenter
                     );
                 }
 
@@ -148,8 +170,73 @@ public class TileMap implements Disposable {
         }
         reverseCollisionMapRows(wallMap);
         generateHitboxes(wallMap);
+
         pathfinder = new EntityPathfinder();
 
+    }
+
+    public void spawnEnemies(int x, int y) {
+        AbsolutePoint current = getCellCenterMeters(x, y);
+        int enemyCount = 1;
+        for (int i = 0; i < 8; ++i) {
+            if (random.nextFloat() <= ENEMY_SPAWN_DENSITY) {
+                ++enemyCount;
+            }
+        }
+        for (int i = -1; i < 2; ++i) {
+            for (int j = -1; j < 2; ++j) {
+                if (enemyCount == 0) {
+                    return;
+                }
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                LevelScreen.getInstance().enemyManager.createEnemy(
+                    new Enemy(
+                        Arrays.stream(
+                            EnemyType.values()).skip(random.nextInt(EnemyType.values().length)
+                        ).findFirst().get()
+                    ),
+                    current.x() + i * CELL_SIZE_METERS,
+                    current.y() + j * CELL_SIZE_METERS
+                );
+                --enemyCount;
+            }
+        }
+
+    }
+
+    private void spawnLootContainers(int x, int y, int iOrigin, int jOrigin) {
+        AbsolutePoint current = getCellCenterMeters(x, y);
+        int lootContainerCount = 1;
+        for (int i = 0; i < 8; ++i) {
+            if (random.nextFloat() <= LOOTCONTAINER_SPAWN_DENSITY) {
+                ++lootContainerCount;
+            }
+        }
+        for (int i = -1; i < 2; ++i) {
+            for (int j = -1; j < 2; ++j) {
+                if (lootContainerCount == 0) {
+                    return;
+                }
+                if ((i == 0 && j == 0) || generator.grid.get(iOrigin).get(jOrigin + j).getCellType().isWall()) {
+                    continue;
+                }
+
+                LevelScreen.getInstance().tileEntityManager.createTileEntity(
+                    new LootContainer(
+                        Arrays.stream(
+                            LootContainer.LootContainerType.values()).skip(
+                            random.nextInt(LootContainer.LootContainerType.values().length
+                            )
+                        ).findFirst().get()
+                    ),
+                    current.x() + j * CELL_SIZE_METERS,
+                    current.y() + i * CELL_SIZE_METERS
+                );
+                --lootContainerCount;
+            }
+        }
     }
 
     private void tryTorchSpawn(int i, int j, GeneratorCell cell, int x, int y, ArrayList<AbsolutePoint> torches) {
@@ -264,7 +351,7 @@ public class TileMap implements Disposable {
      * @param y       the y position
      * @param wallMap the collision map with the cells
      */
-    private void setWallSquare(int x, int y, boolean[][] wallMap) {
+    private void setHitboxWallSquare(int x, int y, boolean[][] wallMap) {
         int[][] allSurrounding = {
             {0, 0},
             {-1, 0},
@@ -548,7 +635,7 @@ public class TileMap implements Disposable {
                 } else {
                     if (x != -1) {
                         /// x is offset for 0.025f to avoid collision with the tiny pixel
-                        if (hx > 3) {
+                        if (hx > 3 || isIsolatedCollidable(j - 2, i + 1, wallMap)) {
                             FixtureDef temp = new FixtureDef();
                             temp.filter.categoryBits = BodyBits.WALL_TRANSPARENT;
                             temp.filter.maskBits = BodyBits.WALL_TRANSPARENT_MASK;
@@ -557,11 +644,6 @@ public class TileMap implements Disposable {
                                 HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, temp);
                             createRectangularHitbox(x + 0.12f, y + 3f + 0.6f, hx - 0.24f, 0.3f);
                         }
-                        /*if (isIsolatedCollidable(j - 2, i + 1, wallMap)) {
-                            FixtureDef fixtureDef = new FixtureDef();
-                            fixtureDef.filter.categoryBits = BodyBits.DECORATION;
-                            createRectangularHitbox(x + 0.025f, y + 1 + 1.5f, hx - 0.05f, 1.5f, fixtureDef);
-                        }*/
 
                         x = -1;
                         hx = 0;

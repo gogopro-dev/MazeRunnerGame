@@ -15,26 +15,22 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.*;
 import de.tum.cit.fop.maze.entities.*;
 import de.tum.cit.fop.maze.Globals;
-import de.tum.cit.fop.maze.entities.tile.TileEntityManager;
-import de.tum.cit.fop.maze.entities.tile.Torch;
+import de.tum.cit.fop.maze.entities.tile.*;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
-import de.tum.cit.fop.maze.entities.tile.TileEntityContactListener;
 import de.tum.cit.fop.maze.essentials.Direction;
-import de.tum.cit.fop.maze.entities.tile.Collectable;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static de.tum.cit.fop.maze.Globals.MPP;
-import static de.tum.cit.fop.maze.Globals.PPM;
+import static de.tum.cit.fop.maze.Globals.*;
 
 public class LevelScreen implements Screen {
     private static LevelScreen instance = null;
 
     public final float w, h;
-    private final EnemyManager enemyManager;
+    public final EnemyManager enemyManager;
     public final TileEntityManager tileEntityManager;
     public FillViewport viewport;
     public final TileMap map;
@@ -197,7 +193,7 @@ public class LevelScreen implements Screen {
 
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);
-        player = new Player(batch);
+        player = new Player();
         player.spawn(map.widthMeters / 2 + 8, map.heightMeters / 2, world);
 
         /// Set camera at the center of the players position in Box2D world
@@ -259,8 +255,22 @@ public class LevelScreen implements Screen {
             map.widthMeters / 2 + 3, map.heightMeters / 2
         );
 
-        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 10);
-        enemyManager.createEnemy(new Enemy(EnemyType.SKELETON, batch), 8.3f, 12);
+        tileEntityManager.createTileEntity(
+            new LootContainer(LootContainer.LootContainerType.CRATE),
+            map.widthMeters / 2 + 4, map.heightMeters / 2 - 1
+        );
+
+        tileEntityManager.createTileEntity(
+            new LootContainer(LootContainer.LootContainerType.BARREL),
+            map.widthMeters / 2 + 4 + CELL_SIZE_METERS, map.heightMeters / 2 - 1
+        );
+        tileEntityManager.createTileEntity(
+            new LootContainer(LootContainer.LootContainerType.VASE),
+            map.widthMeters / 2 + 4 + CELL_SIZE_METERS * 2, map.heightMeters / 2 - 1
+        );
+
+        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE), 8.3f, 10);
+        enemyManager.createEnemy(new Enemy(EnemyType.SKELETON), 8.3f, 12);
         /*enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.2f);
         enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.4f);
         enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.6f);
