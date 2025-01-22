@@ -101,8 +101,7 @@ public class TileMap implements Disposable {
                 );
                 /// All non-walkable cells require hitboxes
                 if (cell.getCellType().isWall()) {
-                    setWallSquare(x, y, wallMap);
-
+                    setHitboxWallSquare(x, y, wallMap);
                 }
                 /// Any cell that is not a wall is walkable, floor would be a background
                 if (cell.getCellType().isWalkable()) {
@@ -137,14 +136,25 @@ public class TileMap implements Disposable {
                         setCell(middleCorner, x, y + 1, true);
                         setCell(rightCorner, x + 1, y + 1, true);
                     }
-                    if (GenerationCases.singleWallCase(i, j, generator)) {
-                        setDecorationSquare(x, y);
-                    }
-
+                }
+                if (cell.getCellType() == CellType.KEY_OBELISK) {
+                    tileEntityManager.createTileEntity(
+                        new Collectable(Collectable.CollectableType.HEART), currentCellCenter
+                    );
+                }
+                if (cell.getCellType() == CellType.TREASURE_ROOM_ITEM) {
+                    tileEntityManager.createTileEntity(
+                        new Collectable(Collectable.CollectableType.DEFENSE_COIN), currentCellCenter
+                    );
                 }
                 if (cell.getCellType() == CellType.EXIT_DOOR) {
                     tileEntityManager.createTileEntity(
                         new ExitDoor(), currentCellCenter
+                    );
+                }
+                if (cell.getCellType() == CellType.SHOP_ITEM) {
+                    tileEntityManager.createTileEntity(
+                        new Collectable(Collectable.CollectableType.RESURRECTION_AMULET), currentCellCenter
                     );
                 }
 
@@ -341,7 +351,7 @@ public class TileMap implements Disposable {
      * @param y       the y position
      * @param wallMap the collision map with the cells
      */
-    private void setWallSquare(int x, int y, boolean[][] wallMap) {
+    private void setHitboxWallSquare(int x, int y, boolean[][] wallMap) {
         int[][] allSurrounding = {
             {0, 0},
             {-1, 0},
@@ -625,7 +635,7 @@ public class TileMap implements Disposable {
                 } else {
                     if (x != -1) {
                         /// x is offset for 0.025f to avoid collision with the tiny pixel
-                        if (hx > 3) {
+                        if (hx > 3 || isIsolatedCollidable(j - 2, i + 1, wallMap)) {
                             FixtureDef temp = new FixtureDef();
                             temp.filter.categoryBits = BodyBits.WALL_TRANSPARENT;
                             temp.filter.maskBits = BodyBits.WALL_TRANSPARENT_MASK;
@@ -634,11 +644,6 @@ public class TileMap implements Disposable {
                                 HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, temp);
                             createRectangularHitbox(x + 0.12f, y + 3f + 0.6f, hx - 0.24f, 0.3f);
                         }
-                        /*if (isIsolatedCollidable(j - 2, i + 1, wallMap)) {
-                            FixtureDef fixtureDef = new FixtureDef();
-                            fixtureDef.filter.categoryBits = BodyBits.DECORATION;
-                            createRectangularHitbox(x + 0.025f, y + 1 + 1.5f, hx - 0.05f, 1.5f, fixtureDef);
-                        }*/
 
                         x = -1;
                         hx = 0;

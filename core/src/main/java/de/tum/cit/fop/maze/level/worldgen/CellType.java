@@ -10,7 +10,9 @@ public enum CellType {
     ROOM_WALL(4),
     DOOR(5),
     EXIT_DOOR(6),
-    KEY_OBELISK(7);
+    KEY_OBELISK(7),
+    TREASURE_ROOM_ITEM(9),
+    SHOP_ITEM(10);
 
     public final int value;
 
@@ -44,7 +46,7 @@ public enum CellType {
      */
     public boolean isWalkable() {
         return this.isPath() || this == DOOR || this == EXIT_DOOR || this == KEY_OBELISK ||
-            this == TRAP;
+            this == TRAP || this == TREASURE_ROOM_ITEM || this == SHOP_ITEM;
     }
 
     /**

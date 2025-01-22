@@ -151,7 +151,6 @@ public abstract class Room {
         }
         this.generateDoor(mazeCells, random);
         this.generateInsides();
-
     }
 
     /**
