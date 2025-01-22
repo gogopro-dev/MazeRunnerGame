@@ -333,6 +333,10 @@ public class Player extends Entity {
         }
     }
 
+    public List<Collectable> getInventory() {
+        return inventory;
+    }
+
     /**
      * Updates the camera position based on the player's position.
      */
@@ -474,6 +478,8 @@ public class Player extends Entity {
 //        }
         collectableBuffs.sum(collectable.collAttributes);
         inventory.add(collectable);
+        LevelScreen.getInstance().hud.updateInventory(collectable.getType().toString(),
+            collectable.collAttributes.textureName);
         System.out.println("Current Buffs: " + collectableBuffs);
     }
 

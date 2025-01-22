@@ -9,15 +9,14 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,11 +41,25 @@ public class HUD {
     private int score = 1000;
     private final BitmapFont font;
     private final float fontScale = 1.1f;
-//    private final Instant start = Clock.systemDefaultZone().instant();
+    //    private final Instant start = Clock.systemDefaultZone().instant();
 //    private Instant now;
     private final Table labelTable;
+    private Label.LabelStyle labelStyle;
     public final Table spriteInventory = new Table();
     public final Table textInventory = new Table();
+    private int inventoryRows = 2;
+    private int inventoryCols = 5;
+    private int sizeOfInvIcon = 40;
+    private int invFontSize = 17;
+    private int spacingBetweenIcons = 10;
+    private float tableOffsetX = 20;
+    private float tableOffsetY = 10;
+    private float inventoryWidth = inventoryCols * sizeOfInvIcon +
+        (inventoryCols - 1) * spacingBetweenIcons;
+    private float inventoryHeight = inventoryRows * sizeOfInvIcon +
+        (inventoryRows - 1) * spacingBetweenIcons;
+    private final TextureAtlas inventoryAtlas;
+    private Map<String, Label> invInfo = new HashMap<>();
     private float elapsedTime = 0f;
 
     private int receivedDmg;
@@ -108,21 +121,66 @@ public class HUD {
         parameter.borderWidth = 1;
         parameter.borderColor = new Color(0x000000FF);
         font = generator.generateFont(parameter);
-        Label.LabelStyle labelStyle = new Label.LabelStyle();
+        labelStyle = new Label.LabelStyle();
         labelStyle.font = font;
         timeLabel = new Label(getLabelTime(elapsedTime), labelStyle);
         scoreLabel = new Label(getLabelScore(score), labelStyle);
         timeLabel.setFontScale(fontScale);
         scoreLabel.setFontScale(fontScale);
+
         setLabelTablePosition();
 
-
+        inventoryAtlas = new TextureAtlas(Gdx.files.local("assets/temporary/collectables/collectables.atlas"));
+        setupInventory();
 
         loadTextures();
         updateHPBar();
         createStaminaBar();
         createDamageButton();
-        createAddStatusButton();
+    }
+
+    private void setupInventory() {
+
+        spriteInventory.setSize(inventoryWidth, inventoryHeight);
+        spriteInventory.setPosition(stage.getViewport().getWorldWidth() - inventoryWidth - tableOffsetX - padding,
+            stage.getViewport().getWorldHeight() - inventoryHeight - padding);
+        stage.addActor(spriteInventory);
+
+        textInventory.setSize(inventoryWidth, inventoryHeight);
+        textInventory.setPosition(stage.getViewport().getWorldWidth() - inventoryWidth - padding,
+            stage.getViewport().getWorldHeight() - inventoryHeight - tableOffsetY - padding);
+        stage.addActor(textInventory);
+    }
+
+    public void updateInventory(String collectableType, String textureName) {
+        if (invInfo.get(collectableType) == null) {
+            ;
+            Drawable drawable = new TextureRegionDrawable(inventoryAtlas.findRegion(textureName));
+            drawable.setMinWidth(sizeOfInvIcon);
+            drawable.setMinHeight(sizeOfInvIcon);
+            spriteInventory.add(new Image(drawable)).width(sizeOfInvIcon).height(sizeOfInvIcon).center()
+                .padRight(spacingBetweenIcons);
+
+            Label.LabelStyle labelStyle = new Label.LabelStyle();
+            labelStyle.font = createFont(invFontSize, Color.WHITE);
+            Label label = new Label("x1", labelStyle);
+            textInventory.add(label).width(sizeOfInvIcon).height(sizeOfInvIcon).center()
+                .padRight(spacingBetweenIcons);
+
+            invInfo.put(collectableType, label);
+            if (spriteInventory.getChildren().size % inventoryCols == 0) {
+                spriteInventory.row().padTop(spacingBetweenIcons);
+                textInventory.row().padTop(spacingBetweenIcons);
+            }
+            return;
+        }
+        Label label = invInfo.get(collectableType);
+        String[] text = label.getText().toString().split("x");
+        int amount = Integer.parseInt(text[1]);
+        amount++;
+        label.setText("x" + amount);
+
+
     }
 
     private void setLabelTablePosition() {
@@ -131,7 +189,7 @@ public class HUD {
         labelTable.add(scoreLabel);
         labelTable.setSize(timeLabel.getWidth(),
             timeLabel.getHeight() + scoreLabel.getHeight());
-        labelTable.setPosition((stage.getViewport().getWorldWidth() - labelTable.getWidth())/2,
+        labelTable.setPosition((stage.getViewport().getWorldWidth() - labelTable.getWidth()) / 2,
             stage.getViewport().getWorldHeight() - labelTable.getHeight() - labelPadding);
         labelTable.align(Align.center);
 //        labelTable.debug();
@@ -278,7 +336,7 @@ public class HUD {
         Image lastHeart = matrixHPBar.get(matrixHPBar.size() - 1).
             get(matrixHPBar.get(matrixHPBar.size() - 1).size() - 1);
         int width = (int) ((lastHeart.getX() - padding - fillamentAlignmentX
-            + lastHeart.getWidth()*heartsScaling) * staminaBarScaling);
+            + lastHeart.getWidth() * heartsScaling) * staminaBarScaling);
         int height = (int) (20 * staminaBarScaling);
 
         staminaBar = new ProgressBar(
@@ -314,17 +372,10 @@ public class HUD {
         float borderWidth = (width + 36) * staminaBarScaling;
         float borderHeight = (height + 20) * staminaBarScaling;
         float borderAlignmentY = (height + 11) * staminaBarScaling;
-//        float borderAlignmentX = 12*staminaBarScaling;
 
         staminaBarBorder.setSize(borderWidth, borderHeight);
         staminaBarBorder.setPosition(stBarX, stBarY - borderAlignmentY);
         stage.addActor(staminaBarBorder);
-    }
-
-    public void updateStaminaBar(float currentStamina, float maxStamina) {
-        stamina = maxStamina;
-        staminaBar.setRange(0f, maxStamina);
-        staminaBar.setValue(currentStamina);
     }
 
     public void drainStamina(float deltaStamina) {
@@ -333,19 +384,6 @@ public class HUD {
 
     public void restoreStamina(float deltaStamina) {
         staminaBar.setValue(staminaBar.getValue() + deltaStamina);
-    }
-
-    public void addStatus(String statusName) {
-        TextureAtlas.AtlasRegion region = atlas.findRegion(statusName);
-        Image statusImg = new Image(region);
-        statusBar.put(statusName, statusImg);
-
-//        statusDurations.put(statusName, duration);
-    }
-
-    public void removeStatus(String statusName) {
-        statusBar.get(statusName).remove();
-        statusBar.remove(statusName);
     }
 
     public void renderStatusBar() {
@@ -394,8 +432,6 @@ public class HUD {
     }
 
 
-
-
     private boolean areAllAnimationsFinished() {
         for (Map.Entry<String, Animation<TextureRegion>> entry : animations.entrySet()) {
             if (!entry.getValue().isAnimationFinished(hitElapsedTime)) {
@@ -423,26 +459,21 @@ public class HUD {
         stage.addActor(takeDmgButton);
     }
 
-    public void createAddStatusButton() {
-        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.fontColor = Color.WHITE;
-        textButtonStyle.font = new BitmapFont();
-
-        Button addStatusButton = new TextButton("Add Status", textButtonStyle);
-        addStatusButton.setPosition(20, Gdx.graphics.getHeight() / 2f - 50);
-        addStatusButton.addCaptureListener(new InputListener() {
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Add status button clicked");
-                addStatus("status1");
-                return true;
-            }
-        });
-        stage.addActor(addStatusButton);
-    }
-
-    private void updateLabels(float elapsedTime){
+    private void updateLabels(float elapsedTime) {
         timeLabel.setText(getLabelTime(elapsedTime));
         scoreLabel.setText(getLabelScore(score - (int) elapsedTime));
+    }
+
+    private BitmapFont createFont(int size, Color color) {
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
+            Gdx.files.local("font/YosterIslandRegular-VqMe.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter =
+            new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = size;
+        parameter.color = color;
+        parameter.borderWidth = 1;
+        parameter.borderColor = new Color(0x000000FF);
+        return generator.generateFont(parameter);
     }
 
     public void dispose() {
