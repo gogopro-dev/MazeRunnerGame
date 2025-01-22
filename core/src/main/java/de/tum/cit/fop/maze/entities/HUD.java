@@ -42,9 +42,12 @@ public class HUD {
     private int score = 1000;
     private final BitmapFont font;
     private final float fontScale = 1.1f;
-    private final Instant start = Clock.systemDefaultZone().instant();
-    private Instant now;
+//    private final Instant start = Clock.systemDefaultZone().instant();
+//    private Instant now;
     private final Table labelTable;
+    public final Table spriteInventory = new Table();
+    public final Table textInventory = new Table();
+    private float elapsedTime = 0f;
 
     private int receivedDmg;
     private int health;
@@ -97,7 +100,6 @@ public class HUD {
 
         labelTable = new Table();
 
-        now = Clock.systemDefaultZone().instant();
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
             Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -108,11 +110,13 @@ public class HUD {
         font = generator.generateFont(parameter);
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = font;
-        timeLabel = new Label(getLabelTime(start, now), labelStyle);
+        timeLabel = new Label(getLabelTime(elapsedTime), labelStyle);
         scoreLabel = new Label(getLabelScore(score), labelStyle);
         timeLabel.setFontScale(fontScale);
         scoreLabel.setFontScale(fontScale);
         setLabelTablePosition();
+
+
 
         loadTextures();
         updateHPBar();
@@ -134,9 +138,8 @@ public class HUD {
         stage.addActor(labelTable);
     }
 
-    private String getLabelTime(Instant start, Instant now) {
-        Duration duration = Duration.between(start, now);
-        long seconds = duration.getSeconds();
+    private String getLabelTime(float elapsedTime) {
+        long seconds = (long) elapsedTime;
         long minutes = seconds / 60;
         long hours = minutes / 60;
         return String.format("Time: %02d:%02d:%02d", hours, minutes % 60, seconds % 60);
@@ -437,11 +440,9 @@ public class HUD {
         stage.addActor(addStatusButton);
     }
 
-    private void updateLabels(){
-        now = Clock.systemDefaultZone().instant();
-        int currentScore = score - (int) Duration.between(start, now).getSeconds();
-        timeLabel.setText(getLabelTime(start, now));
-        scoreLabel.setText(getLabelScore(currentScore));
+    private void updateLabels(float elapsedTime){
+        timeLabel.setText(getLabelTime(elapsedTime));
+        scoreLabel.setText(getLabelScore(score - (int) elapsedTime));
     }
 
     public void dispose() {
@@ -451,7 +452,8 @@ public class HUD {
 
 
     public void render(float deltaTime) {
-        updateLabels();
+        elapsedTime += deltaTime;
+        updateLabels(elapsedTime);
         stage.act();
         stage.draw();
         stage.getBatch().begin();
