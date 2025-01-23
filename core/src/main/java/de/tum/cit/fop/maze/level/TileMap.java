@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Disposable;
+import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.Enemy;
@@ -50,10 +51,10 @@ public class TileMap implements Disposable {
      * Create a new TileMap with a given height, width and seed
      * @param height the height of the map
      * @param width the width of the map
-     * @param seed the seed for the map
+     * @param random the random instance to use
      */
-    public TileMap(int height, int width, int seed) {
-        this.generator = new MazeGenerator(height, width, seed);
+    public TileMap(int height, int width, Random random) {
+        this.generator = new MazeGenerator(height, width, random);
         this.map = new TiledMap();
         ArrayList<AbsolutePoint> torches = new ArrayList<>();
         // Always get width and height from the generator, because it always makes the parameters odd
@@ -144,7 +145,11 @@ public class TileMap implements Disposable {
                 }
                 if (cell.getCellType() == CellType.TREASURE_ROOM_ITEM) {
                     tileEntityManager.createTileEntity(
-                        new Collectable(Collectable.CollectableType.DEFENSE_COIN), currentCellCenter
+                        new Collectable(
+                            Assets.getInstance().getTreasurePool().get(
+                                random.nextInt(Assets.getInstance().getTreasurePool().size())
+                            )
+                        ), currentCellCenter
                     );
                 }
                 if (cell.getCellType() == CellType.EXIT_DOOR) {
@@ -154,7 +159,11 @@ public class TileMap implements Disposable {
                 }
                 if (cell.getCellType() == CellType.SHOP_ITEM) {
                     tileEntityManager.createTileEntity(
-                        new Collectable(Collectable.CollectableType.RESURRECTION_AMULET), currentCellCenter
+                        new Collectable(
+                            Assets.getInstance().getShopPool().get(
+                                random.nextInt(Assets.getInstance().getShopPool().size())
+                            )
+                        ), currentCellCenter
                     );
                 }
 

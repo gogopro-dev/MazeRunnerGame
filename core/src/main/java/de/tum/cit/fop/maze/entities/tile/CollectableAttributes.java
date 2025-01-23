@@ -6,11 +6,15 @@ public final class CollectableAttributes extends Attributes {
     public final String textureName;
     public final float frameDuration;
     public final float dropChance;
+    public final boolean lootContainerPool;
+    public final boolean treasurePool;
+    public final boolean shopPool;
 
     public CollectableAttributes(
         Collectable.CollectableType type, String textureName, int immediateHealing, int immediateCoins,
         float dropChance, float damageBoost, float resistanceBoost, float vampirism, float speedBoost,
-        int resurrections, float frameDuration
+        int resurrections, float frameDuration,
+        boolean lootContainerPool, boolean treasurePool, boolean shopPool
     ) {
         super(immediateHealing, immediateCoins, damageBoost, resistanceBoost,
             vampirism, resurrections, speedBoost);
@@ -20,6 +24,9 @@ public final class CollectableAttributes extends Attributes {
         this.textureName = textureName;
         this.dropChance = dropChance;
         this.frameDuration = frameDuration;
+        this.lootContainerPool = lootContainerPool;
+        this.treasurePool = treasurePool;
+        this.shopPool = shopPool;
     }
 
     public void sum(CollectableAttributes other) {
@@ -37,6 +44,10 @@ public final class CollectableAttributes extends Attributes {
             ", resistanceBoost=" + resistanceBoost +
             ", vampiricHealingPercent=" + vampirism +
             ", ressurections=" + ressurections +
+            ", speedBoost=" + speedBoost +
+            ", lootContainerPool=" + lootContainerPool +
+            ", treasurePool=" + treasurePool +
+            ", shopPool=" + shopPool +
             '}';
     }
 

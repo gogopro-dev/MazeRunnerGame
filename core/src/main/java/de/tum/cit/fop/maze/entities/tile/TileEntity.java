@@ -35,7 +35,7 @@ public abstract class TileEntity implements Disposable {
         this.camera = LevelScreen.getInstance().camera;
         this.bodyDef = new BodyDef();
         this.fixtureDef = new FixtureDef();
-        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.fixedRotation = true;
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(

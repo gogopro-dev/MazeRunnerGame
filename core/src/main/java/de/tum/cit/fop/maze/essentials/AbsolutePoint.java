@@ -12,6 +12,10 @@ import de.tum.cit.fop.maze.Globals;
 public record AbsolutePoint(float x, float y) {
 
 
+    public AbsolutePoint(Vector2 point) {
+        this(point.x, point.y);
+    }
+
     public float distance(AbsolutePoint other) {
         return (float) Math.sqrt(Math.pow(x - other.x, 2) + Math.pow(y - other.y, 2));
     }

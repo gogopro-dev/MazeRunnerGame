@@ -57,12 +57,12 @@ public final class MazeGenerator {
      * <p>Constructor</p>
      * @param height The generatorHeight of the maze. <b>It will be adjusted to be odd.</b>
      * @param width The generatorWidth of the maze. <b>It will be adjusted to be odd.</b>
-     * @param seed The seed for the random number generator.
+     * @param random instance of Random class
      */
-    public MazeGenerator(int height, int width, long seed) {
+    public MazeGenerator(int height, int width, Random random) {
 
         this.path = new HashMap<>();
-        this.random = new Random(seed);
+        this.random = random;
         this.generatorWidth = (2 * (width / 2)) + 1;  // Make sure generatorWidth is odd
         this.generatorHeight = (2 * (height / 2)) + 1;  // Make sure generatorHeight is odd
         this.width = width + 2 + (width % 2 == 0 ? 1 : 0);

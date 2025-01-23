@@ -14,6 +14,7 @@ import java.util.Iterator;
 public class TileEntityManager {
     private ArrayList<TileEntity> tileEntities = new ArrayList<TileEntity>();
 
+
     public void createTileEntity(TileEntity tileEntity, AbsolutePoint position) {
         createTileEntity(tileEntity, position.x(), position.y());
     }
@@ -22,6 +23,7 @@ public class TileEntityManager {
         tileEntities.add(tileEntity);
         tileEntity.spawn(x, y);
     }
+
 
     private void destroyTileEntity(TileEntity tileEntity) {
         tileEntity.dispose();

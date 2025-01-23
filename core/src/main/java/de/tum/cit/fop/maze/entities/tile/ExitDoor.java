@@ -15,7 +15,7 @@ public class ExitDoor extends TileEntity {
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(
             CELL_SIZE_METERS * 1.5f + HITBOX_SAFETY_GAP,
-            HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS * CELL_SIZE_METERS / 2
+            HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS * CELL_SIZE_METERS / 2 - CELL_SIZE_METERS / 4
         );
         fixtureDef.shape = shape;
         fixtureDef.isSensor = false;

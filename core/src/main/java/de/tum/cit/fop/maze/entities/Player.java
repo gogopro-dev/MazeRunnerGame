@@ -13,7 +13,6 @@ import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.entities.tile.Attributes;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.Globals;
-import de.tum.cit.fop.maze.entities.tile.CollectableAttributes;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Utils;
@@ -264,7 +263,7 @@ public class Player extends Entity {
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
             LevelScreen.getInstance().tileEntityManager.createTileEntity(
-                new Collectable(Collectable.CollectableType.GOLD_COIN),
+                new Collectable(Collectable.CollectableType.GOLD_COIN, true),
                 getPosition().x(), getPosition().y()
             );
         }
@@ -481,14 +480,14 @@ public class Player extends Entity {
     public void collect(Collectable collectable) {
         // add attributes of collectable to player
 //        if (collectableBuffs == null) {
-//            collectableBuffs = collectable.collAttributes;
+//            collectableBuffs = collectable.collectableAttributes;
 //            System.out.println("Collectable Buffs: " + collectableBuffs);
 //            return;
 //        }
-        collectableBuffs.sum(collectable.collAttributes);
+        collectableBuffs.sum(collectable.collectableAttributes);
         inventory.add(collectable);
         LevelScreen.getInstance().hud.updateInventory(collectable.getType().toString(),
-            collectable.collAttributes.textureName);
+            collectable.collectableAttributes.textureName);
         System.out.println("Current Buffs: " + collectableBuffs);
     }
 

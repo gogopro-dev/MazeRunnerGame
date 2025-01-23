@@ -31,7 +31,7 @@ public abstract class Entity implements Attackable {
     protected final OrthographicCamera camera;
     protected float mass = 0f;
     public final BoundingRectangle boundingRectangle =
-        new BoundingRectangle(0.4f * PPM * scale, 0.24f * scale * PPM);
+        new BoundingRectangle(0.4f * PPM * scale, 0.26f * scale * PPM);
 
 
 

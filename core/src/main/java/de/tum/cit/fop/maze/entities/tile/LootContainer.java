@@ -8,14 +8,18 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.google.gson.Gson;
+import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.Attackable;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.Utils;
+import de.tum.cit.fop.maze.level.LevelScreen;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Random;
 
 import static de.tum.cit.fop.maze.Globals.*;
 
@@ -36,20 +40,21 @@ public class LootContainer extends TileEntity implements Attackable {
         CRATE, VASE,
     }
 
+    private final ArrayList<Collectable> loot = new ArrayList<>();
     private final Animation<TextureRegion> idleAnimation;
     private final Animation<TextureRegion> destroyedAnimation;
 
     public final class LootContainerAttributes {
         public int health;
-        public final int lootAmount;
+        public final int maxLootAmount;
         public final float frameDuration;
         public final String textureName;
         public final LootContainerType type;
 
         public LootContainerAttributes(
-                int lootAmount, float frameDuration, String textureName, LootContainerType type
+            int maxLootAmount, float frameDuration, String textureName, LootContainerType type
         ) {
-            this.lootAmount = lootAmount;
+            this.maxLootAmount = maxLootAmount;
             this.frameDuration = frameDuration;
             this.textureName = textureName;
             this.type = type;
@@ -91,6 +96,22 @@ public class LootContainer extends TileEntity implements Attackable {
                 Animation.PlayMode.NORMAL
 
         );
+        int passes = 0;
+        Random random = LevelScreen.getInstance().random;
+        while (passes < this.attributes.maxLootAmount && loot.size() < this.attributes.maxLootAmount) {
+            for (CollectableAttributes collectableAttributes : Assets.getInstance().getCollectables()) {
+                if (collectableAttributes.lootContainerPool) {
+                    if (random.nextFloat() <= collectableAttributes.dropChance) {
+                        loot.add(new Collectable(collectableAttributes, true));
+                        ++passes;
+                        break;
+                    }
+                }
+
+            }
+            ++passes;
+        }
+
 
     }
 
@@ -158,6 +179,7 @@ public class LootContainer extends TileEntity implements Attackable {
         }
         if (destroyed) {
             if (!collisionDisabled && destroyedAnimation.isAnimationFinished(destroyedTime * 2f)) {
+
                 Iterator<Fixture> fixtureIterator = new Array.ArrayIterator<>(body.getFixtureList());
                 while (fixtureIterator.hasNext()) {
                     body.destroyFixture(fixtureIterator.next());
@@ -167,6 +189,12 @@ public class LootContainer extends TileEntity implements Attackable {
                     lightBlockingBody.destroyFixture(fixtureIterator.next());
                 }
                 collisionDisabled = true;
+                Gdx.app.postRunnable(() -> {
+                    for (Collectable collectable : loot) {
+                        LevelScreen.getInstance().tileEntityManager.createTileEntity(collectable, this.getPosition());
+                    }
+                    this.loot.clear();
+                });
             }
             destroyedTime += delta;
             batch.draw(

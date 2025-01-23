@@ -40,6 +40,7 @@ public class LevelScreen implements Screen {
     public final Player player;
     public final HUD hud;
     public final RayHandler rayHandler;
+    public final Random random = new Random(2);
 
     /// Box2D world
     public final World world;
@@ -189,7 +190,7 @@ public class LevelScreen implements Screen {
         stage = new Stage(viewport, batch);
         tileEntityManager = new TileEntityManager();
         enemyManager = new EnemyManager();
-        map = new TileMap(15, 15, 2);
+        map = new TileMap(15, 15, random);
 
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);

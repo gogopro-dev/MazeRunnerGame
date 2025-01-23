@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 
@@ -68,8 +69,11 @@ public class MainMenuUI {
     }
 
     private void loadTextures(){
-        TextureAtlas menuAtlas = LoadMenu.getInstance().assetManager.get("assets/menu/menu.atlas", TextureAtlas.class);
-        TextureAtlas iconsAtlas = LoadMenu.getInstance().assetManager.get("assets/menu/menu_icons.atlas", TextureAtlas.class);
+        TextureAtlas menuAtlas = Assets.getInstance().getAssetManager().get(
+            "assets/menu/menu.atlas", TextureAtlas.class);
+        TextureAtlas iconsAtlas = Assets.getInstance().getAssetManager().get(
+            "assets/menu/menu_icons.atlas", TextureAtlas.class
+        );
 
         menuContainerRegion = menuAtlas.findRegion("menu");
         smallButtonPressedRegion = menuAtlas.findRegion("small_button_pressed");
