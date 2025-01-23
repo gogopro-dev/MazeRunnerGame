@@ -50,12 +50,8 @@ public class Player extends Entity {
     private float damageFlashTimer = 0f;
     private float trapAttackElapsedTime = 0f;
     private PointLight torchLight;
-    private float atkIncrease = 0;
-    private float dmgResist = 0;
-    private int gold = 0;
-    private boolean hasResurrectionAmulet = false;
-    private boolean hasVampireAmulet = false;
-    private boolean hasSpeedBoots = false;
+    private float staminaRecoveryElapsedTime = 0f;
+    private float maxStamina = 100;
 
     /**
      * Creates a new player character.
@@ -97,7 +93,7 @@ public class Player extends Entity {
 
         inventory = new ArrayList<>();
         collectableBuffs = new Attributes(0, 0, 0,
-            0, 0, 0, 0);
+            0, 0, 0, 0, false);
     }
 
     /**
@@ -302,8 +298,24 @@ public class Player extends Entity {
         if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) && stamina > 0) {
             velocityX *= 1.3f;
             velocityY *= 1.3f;
-            useStamina(1);
+            int staminaDrainPerSec = 2;
+            useStamina(staminaDrainPerSec);
+            staminaRecoveryElapsedTime = 0;
         }
+
+
+        if (!Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)){
+            if (staminaRecoveryElapsedTime == 0){
+                LevelScreen.getInstance().hud.stopStaminaDrain();
+            }
+            if(staminaRecoveryElapsedTime > 2f){
+                int staminaRecoveryPerSec = 2;
+                restoreStamina(staminaRecoveryPerSec);
+            }
+            staminaRecoveryElapsedTime += Gdx.graphics.getDeltaTime();
+        }
+
+        System.out.println(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)+ " + " + staminaRecoveryElapsedTime);
 
         //TODO stamina regen (func in hud is ready)
 
@@ -459,16 +471,24 @@ public class Player extends Entity {
     }
 
     @Override
-    public void useStamina(int amount) {
-        super.useStamina(amount);
-        LevelScreen.getInstance().hud.drainStamina(amount);
+    public void useStamina(float amount) {
+        if (stamina <= 0) {
+            stamina = 0;
+            return;
+        }
+        super.useStamina(amount*Gdx.graphics.getDeltaTime());
+        LevelScreen.getInstance().hud.beginStaminaDrain(amount);
         //hud.useStamina(amount);
     }
 
     @Override
-    public void restoreStamina(int amount) {
-        super.restoreStamina(amount);
-        LevelScreen.getInstance().hud.restoreStamina(amount);
+    public void restoreStamina(float amount) {
+        if (stamina >= maxStamina) {
+            stamina = maxStamina;
+            return;
+        }
+        super.restoreStamina(amount*Gdx.graphics.getDeltaTime());
+        LevelScreen.getInstance().hud.beginStaminaRecovery(amount);
         //hud.restoreStamina(amount);
     }
 
@@ -480,7 +500,7 @@ public class Player extends Entity {
     public void collect(Collectable collectable) {
         // add attributes of collectable to player
 //        if (collectableBuffs == null) {
-//            collectableBuffs = collectable.collectableAttributes;
+//            collectableBuffs = collectable.collAttributes;
 //            System.out.println("Collectable Buffs: " + collectableBuffs);
 //            return;
 //        }

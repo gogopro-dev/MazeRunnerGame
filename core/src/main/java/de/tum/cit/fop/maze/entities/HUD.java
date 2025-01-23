@@ -66,8 +66,16 @@ public class HUD {
     private int health;
     private int maxHealth;
 
-    private float stamina = 100f;
-    private final float staminaConsumptionSpeed = 0.5f;
+
+    private float staminaRecoveryElapsedTime = 0f;
+    private float staminaDrainElapsedTime = 0f;
+    private float maxStamina = 100f;
+    private float currentStamina = 100f;
+    private float staminaPerSecond = 10f;
+    private boolean staminaDrain = false;
+    private boolean staminaRecovery = false;
+
+    private float staminaRecoveryDelay = 2.5f;
     private final float staminaBarScaling = 1f;
     private final float fillamentAlignmentX = 32f;
 
@@ -340,7 +348,7 @@ public class HUD {
         int height = (int) (20 * staminaBarScaling);
 
         staminaBar = new ProgressBar(
-            0f, stamina, staminaConsumptionSpeed, false, new ProgressBar.ProgressBarStyle()
+            0f, maxStamina, 0.001f, false, new ProgressBar.ProgressBarStyle()
         );
 
         staminaBar.getStyle().background = Utils.getColoredDrawable(width, height + 1, Color.DARK_GRAY);
@@ -349,7 +357,7 @@ public class HUD {
 
         staminaBar.setWidth(width);
         staminaBar.setHeight(height);
-        staminaBar.setValue(stamina);
+        staminaBar.setValue(maxStamina);
         staminaBar.setAnimateDuration(0.25f);
 
 
@@ -378,27 +386,43 @@ public class HUD {
         stage.addActor(staminaBarBorder);
     }
 
-    public void drainStamina(float deltaStamina) {
-        staminaBar.setValue(staminaBar.getValue() - deltaStamina);
+    public void beginStaminaDrain(float amount) {
+        staminaDrain = true;
+        staminaRecovery = false;
+        setStaminaPerSecond(amount);
     }
 
-    public void restoreStamina(float deltaStamina) {
-        staminaBar.setValue(staminaBar.getValue() + deltaStamina);
+    public void stopStaminaDrain() {
+        staminaDrain = false;
     }
 
-    public void renderStatusBar() {
-        float x = matrixHPBar.get(0).get(amountOfHeartsInRow * 2 - 1).getX()
-            + offsetXStepHP + statusBarSpacingFromHPBar;
-        float y = matrixHPBar.get(0).get(0).getY();
-
-        for (Map.Entry<String, Image> entry : statusBar.entrySet()) {
-            Image statusImg = entry.getValue();
-            statusImg.setScale(statusScale);
-            statusImg.setPosition(x, y);
-            stage.addActor(statusImg);
-            x -= statusImg.getWidth() + statusBarInnerSpacing;
-        }
+    public void beginStaminaRecovery(float amount) {
+        staminaDrain = false;
+        staminaRecovery = true;
+        setStaminaPerSecond(amount);
     }
+
+    public void setStaminaRecoveryDelay(float delay) {
+        staminaRecoveryDelay = delay;
+    }
+
+    public void setStaminaRecovery(boolean recovery) {
+        staminaRecovery = recovery;
+    }
+
+//    public void renderStatusBar() {
+//        float x = matrixHPBar.get(0).get(amountOfHeartsInRow * 2 - 1).getX()
+//            + offsetXStepHP + statusBarSpacingFromHPBar;
+//        float y = matrixHPBar.get(0).get(0).getY();
+//
+//        for (Map.Entry<String, Image> entry : statusBar.entrySet()) {
+//            Image statusImg = entry.getValue();
+//            statusImg.setScale(statusScale);
+//            statusImg.setPosition(x, y);
+//            stage.addActor(statusImg);
+//            x -= statusImg.getWidth() + statusBarInnerSpacing;
+//        }
+//    }
 
     private void damageAnimation(float deltaTime) {
         // receivedDmg, IndexX, IndexY
@@ -496,8 +520,48 @@ public class HUD {
                 hitElapsedTime = 0f;
             }
         }
-        renderStatusBar();
+        updateStaminaBar(deltaTime);
         stage.getBatch().end();
+    }
+
+    public void setStaminaPerSecond(float staminaPerSecond) {
+        this.staminaPerSecond = staminaPerSecond;
+    }
+
+    private void updateStaminaBar(float deltaTime) {
+        if (!staminaDrain && staminaDrainElapsedTime>0 ){
+            currentStamina -= staminaDrainElapsedTime * staminaPerSecond;
+            if (currentStamina < 0){
+                currentStamina = 0;
+            }
+            staminaDrainElapsedTime = 0;
+        }
+        if (!staminaRecovery && staminaRecoveryElapsedTime>0){
+            if (currentStamina + staminaRecoveryElapsedTime * staminaPerSecond > maxStamina){
+                currentStamina = maxStamina;
+            }
+            currentStamina += staminaRecoveryElapsedTime * staminaPerSecond;
+            staminaRecoveryElapsedTime = 0;
+        }
+
+        if (staminaRecovery ){
+            staminaRecoveryElapsedTime += deltaTime;
+            staminaBar.setValue(currentStamina + staminaRecoveryElapsedTime * staminaPerSecond);
+
+        }
+        if (staminaDrain){
+            staminaDrainElapsedTime += deltaTime;
+            staminaBar.setValue(currentStamina - staminaDrainElapsedTime * staminaPerSecond);
+        }
+        if (currentStamina <= 0){
+            staminaDrain = false;
+            currentStamina = 0;
+        }
+        if (currentStamina >= maxStamina){
+            staminaRecovery = false;
+            currentStamina = maxStamina;
+        }
+        System.out.println(currentStamina+ " | " + LevelScreen.getInstance().player.stamina);
     }
 
     public void show() {

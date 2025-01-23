@@ -14,10 +14,11 @@ public final class CollectableAttributes extends Attributes {
         Collectable.CollectableType type, String textureName, int immediateHealing, int immediateCoins,
         float dropChance, float damageBoost, float resistanceBoost, float vampirism, float speedBoost,
         int resurrections, float frameDuration,
-        boolean lootContainerPool, boolean treasurePool, boolean shopPool
+        boolean lootContainerPool, boolean treasurePool, boolean shopPool,
+        boolean isConsumable
     ) {
         super(immediateHealing, immediateCoins, damageBoost, resistanceBoost,
-            vampirism, resurrections, speedBoost);
+            vampirism, resurrections, speedBoost, isConsumable);
         assert type != null;
         assert textureName != null;
         this.type = type;
