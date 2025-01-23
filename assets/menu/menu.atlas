@@ -16,7 +16,7 @@ bounds:307,121,71,11
 drop_down_selection
 bounds:433,223,71,11
 knob
-bounds:1597,391,18,15
+bounds:1597,391,5,15
 menu
 bounds:1089,204,224,304
 off
@@ -30,7 +30,7 @@ bounds:1,236,512,272
 settings_container
 bounds:807,155,280,353
 slider
-bounds:1,1,71,7
+bounds:1,1,62,7
 small_button_pressed
 bounds:1315,234,125,32
 small_button_released

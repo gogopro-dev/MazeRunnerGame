@@ -459,7 +459,7 @@ public class PlayGameScreen implements Screen {
             selectBox.getList().setAlignment(Align.center);
             selectBox.getList();
 
-            propertiesFiles = Gdx.files.local("assets/assets/mazeProperties").list();
+            propertiesFiles = Gdx.files.local("assets/mazeProperties").list();
             String[] fileNames = new String[propertiesFiles.length+1];
             fileNames[0] = "Select file";
 

@@ -8,10 +8,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
@@ -31,7 +28,6 @@ import java.util.List;
 import java.util.Set;
 
 public class GameOverScreen implements Screen {
-    private Texture lastFrame;
     private TextureRegion gameOverBackgroundRegion;
     private TextureRegion smallButtonPressedRegion;
     private TextureRegion smallButtonReleasedRegion;
@@ -39,7 +35,9 @@ public class GameOverScreen implements Screen {
     private Label timePlayedLabel;
     private Label scoreLabel;
     private Label gameOverLabel;
-    private List<Collectable> playerInventory;
+    private Table inventoryTable;
+    private Table textInventoryTable;
+    private Stack inventoryStack;
     private final Stage stage;
     private final ShapeRenderer shapeRenderer;
     private final Table screenTable;
@@ -47,13 +45,15 @@ public class GameOverScreen implements Screen {
 
     public static synchronized GameOverScreen getInstance() {
         if (instance == null) {
-            System.out.println("Creating new GameOverScreen instance");
-            return new GameOverScreen();
+            System.out.println("Creating new GameOverScreen");
+            return new GameOverScreen(new Table(), new Table());
         }
         return instance;
     }
-    private GameOverScreen() {
+    private GameOverScreen(Table inventoryTable, Table textInventoryTable) {
         instance = this;
+        this.inventoryTable = inventoryTable;
+        this.textInventoryTable = textInventoryTable;
         stage = new Stage(new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
 
         shapeRenderer = new ShapeRenderer();
@@ -135,6 +135,9 @@ public class GameOverScreen implements Screen {
         screenTable.add(exitButton).padTop(20f).width(224f * 1.2f).height(48f * 1.2f).row();
         screenTable.add(inventoryLabel).padTop(10f).row();
 
+        inventoryStack = new Stack();
+        screenTable.add(inventoryStack).padTop(10f).row();
+
         stage.addActor(screenTable);
     }
 
@@ -164,29 +167,10 @@ public class GameOverScreen implements Screen {
     }
 
     public void drawInventory(Table inventoryTable, Table textInventoryTable) {
-        inventoryTable.setPosition(
-            stage.getViewport().getWorldWidth() / 2f - inventoryTable.getWidth() / 2f,
-            stage.getViewport().getWorldHeight() / 2f - inventoryTable.getHeight() / 2f - 150
-        );
-        textInventoryTable.setPosition(
-            stage.getViewport().getWorldWidth() / 2f - textInventoryTable.getWidth() / 2f,
-            stage.getViewport().getWorldHeight() / 2f - textInventoryTable.getHeight() / 2f - 150
-        );
-
-        stage.addActor(inventoryTable);
-        stage.addActor(textInventoryTable);
-    }
-
-    private BitmapFont createFont(int size, Color color) {
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
-                Gdx.files.local("font/YosterIslandRegular-VqMe.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter =
-                new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = size;
-        parameter.color = color;
-        parameter.borderWidth = 1;
-        parameter.borderColor = new Color(0x000000FF);
-        return generator.generateFont(parameter);
+        this.inventoryTable = inventoryTable;
+        this.textInventoryTable = textInventoryTable;
+        inventoryStack.add(this.inventoryTable);
+        inventoryStack.add(this.textInventoryTable);
     }
 
     private void deleteGame(){
@@ -238,7 +222,6 @@ public class GameOverScreen implements Screen {
     public void dispose() {
         stage.dispose();
         shapeRenderer.dispose();
-        lastFrame.dispose();
     }
 
     public void setHasWon(boolean hasWon) {

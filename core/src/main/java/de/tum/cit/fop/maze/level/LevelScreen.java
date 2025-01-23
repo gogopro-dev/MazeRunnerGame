@@ -82,7 +82,6 @@ public class LevelScreen implements Screen {
 
         if (gameOver){
             pauseScreen.drawLastFrame(batch);
-            GameOverScreen.getInstance().drawInventory(hud.spriteInventory, hud.textInventory);
             GameOverScreen.getInstance().render(delta);
             return;
         }
@@ -100,6 +99,7 @@ public class LevelScreen implements Screen {
         /// while fading to the main Menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.Y)){
             pauseScreen.takeScreenshot();
+            GameOverScreen.getInstance().drawInventory(hud.spriteInventory, hud.textInventory);
             GameOverScreen.getInstance().setHasWon(true);
             GameOverScreen.getInstance().setTimePlayed("10:20:23");
             GameOverScreen.getInstance().setScore(1024);
@@ -182,6 +182,8 @@ public class LevelScreen implements Screen {
             throw new IllegalStateException("LevelScreen already exists");
         }
         instance = this;
+        /// Init GameOverScreen
+        GameOverScreen.getInstance();
         /// Init world
         RayHandler.useDiffuseLight(false);
         world = new World(new Vector2(0, 0), true);
@@ -194,8 +196,6 @@ public class LevelScreen implements Screen {
         if (Globals.FULLBRIGHT) lightColor = Color.WHITE;
         rayHandler.setAmbientLight(lightColor);
         rayHandler.setBlurNum(33);
-
-        GameOverScreen.getInstance();
 
         h = Gdx.graphics.getHeight() / PPM;
         w = Gdx.graphics.getWidth() / PPM;

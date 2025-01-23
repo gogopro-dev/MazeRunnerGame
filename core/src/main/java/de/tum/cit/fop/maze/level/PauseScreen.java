@@ -218,7 +218,9 @@ public class PauseScreen {
             /// Take a screenshot of the current frame
             /// To place the pause menu on top of it
             takeScreenshot();
+            return;
         }
+        isSettings = false;
     }
 
     /**
