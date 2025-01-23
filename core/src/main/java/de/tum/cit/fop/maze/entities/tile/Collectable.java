@@ -43,7 +43,7 @@ public class Collectable extends TileEntity {
     }
 
     public final CollectableAttributes collectableAttributes;
-    public final Animation<TextureRegion> idleAnimation;
+    public transient Animation<TextureRegion> idleAnimation;
 
     public transient boolean pickedUp;
     public transient SpriteBatch batch;
@@ -70,20 +70,24 @@ public class Collectable extends TileEntity {
 
 
         batch = LevelScreen.getInstance().batch;
-        TextureAtlas atlas = new TextureAtlas(Gdx.files.local("temporary/collectables/collectables.atlas"));
-        idleAnimation = new Animation<>(collectableAttributes.frameDuration, atlas.findRegions(collectableAttributes.textureName));
+        loadTextures();
+    }
+
+    public void loadTextures() {
+        TextureAtlas atlas = Assets.getInstance().getAssetManager().get(
+            "assets/temporary/collectables/collectables.atlas", TextureAtlas.class
+        );
+        idleAnimation = new Animation<>(
+            collectableAttributes.frameDuration, atlas.findRegions(collectableAttributes.textureName)
+        );
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        System.out.println(this.collectableAttributes);
     }
 
     public Collectable(CollectableAttributes attributes) {
         super(1, 1);
         collectableAttributes = attributes;
         batch = LevelScreen.getInstance().batch;
-        TextureAtlas atlas = new TextureAtlas(Gdx.files.local("temporary/collectables/collectables.atlas"));
-        idleAnimation = new Animation<>(collectableAttributes.frameDuration, atlas.findRegions(collectableAttributes.textureName));
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        System.out.println(this.collectableAttributes);
+        loadTextures();
     }
 
     public Collectable(CollectableAttributes attributes, boolean drop) {

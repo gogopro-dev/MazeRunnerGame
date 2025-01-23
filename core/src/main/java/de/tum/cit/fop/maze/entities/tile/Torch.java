@@ -20,14 +20,12 @@ import static de.tum.cit.fop.maze.Globals.*;
 public class Torch extends TileEntity {
 
     private boolean lit = false;
-    private PointLight light;
-    private float elapsedTime = 0f;
-    private float elapsedLitTime = 0f;
-    private final Direction direction;
-    private final @Nullable Animation<TextureAtlas.AtlasRegion> torchAnimation;
-    private final @Nullable TextureRegion standTexture;
-    private final Random random = new Random();
-
+    private transient PointLight light;
+    private transient float elapsedTime = 0f;
+    private transient float elapsedLitTime = 0f;
+    private transient final Direction direction;
+    private transient final @Nullable Animation<TextureAtlas.AtlasRegion> torchAnimation;
+    private transient final @Nullable TextureRegion standTexture;
 
     public Torch(Direction direction) {
         super(1, 1, new BodyDef(), new FixtureDef());

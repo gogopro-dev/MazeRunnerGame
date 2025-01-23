@@ -24,6 +24,7 @@ import de.tum.cit.fop.maze.menu.MenuState;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -31,27 +32,32 @@ import static de.tum.cit.fop.maze.Globals.*;
 
 public class LevelScreen implements Screen {
     private static LevelScreen instance = null;
-    private boolean gameOver;
-    public final float w, h;
+
+
+    public final Player player;
+    public final TileMap map;
     public final EnemyManager enemyManager;
     public final TileEntityManager tileEntityManager;
-    public FillViewport viewport;
-    public final TileMap map;
-    public final OrthographicCamera camera;
-    private final TiledMapRenderer tiledMapRenderer;
-    public final SpriteBatch batch;
-    public final Player player;
-    public final HUD hud;
-    public final RayHandler rayHandler;
-    public final Random random = new Random(2);
+    public final long seed = 2;
+
+    public transient float w, h;
+    public transient FillViewport viewport;
+    public transient final OrthographicCamera camera;
+    private transient final TiledMapRenderer tiledMapRenderer;
+    public transient final SpriteBatch batch;
+    public transient final HUD hud;
+    public transient final RayHandler rayHandler;
+    public transient final Random random = new Random(2);
+    public transient final EntityPathfinder pathfinder = new EntityPathfinder();
+    private transient boolean gameOver;
 
     /// Box2D world
-    public final World world;
-    public final ReentrantLock worldLock = new ReentrantLock();
-    Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
-    private float accumulator = 0;
-    private final PauseScreen pauseScreen;
-    private final Stage stage;
+    public transient final World world;
+    public transient ReentrantLock worldLock = new ReentrantLock();
+    private transient final Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
+    private transient float accumulator = 0;
+    private transient final PauseScreen pauseScreen;
+    private transient final Stage stage;
 
     private void doPhysicsStep(float deltaTime) {
         // Fixed time step
@@ -77,6 +83,11 @@ public class LevelScreen implements Screen {
             /// Update and render pause screen
             pauseScreen.update();
             pauseScreen.render(delta);
+            try {
+                SaveManager.saveGame();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             return;
         }
 
@@ -174,7 +185,13 @@ public class LevelScreen implements Screen {
         map.dispose();
         player.dispose();
         enemyManager.dispose();
+        tileEntityManager.dispose();
         pauseScreen.dispose();
+        hud.dispose();
+        rayHandler.dispose();
+        world.dispose();
+        debugRenderer.dispose();
+        instance = null;
     }
 
     public LevelScreen() {
@@ -213,7 +230,7 @@ public class LevelScreen implements Screen {
         stage = new Stage(viewport, batch);
         tileEntityManager = new TileEntityManager();
         enemyManager = new EnemyManager();
-        map = new TileMap(15, 15, random);
+        map = new TileMap(30, 30, random);
 
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);

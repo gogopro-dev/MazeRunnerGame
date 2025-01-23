@@ -1,5 +1,6 @@
 package de.tum.cit.fop.maze.entities.tile;
 
+import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
@@ -11,7 +12,7 @@ import java.util.Iterator;
  * This class manages the tile entities in the game.
  * It is responsible for creating, removing and rendering the tile entities.
  */
-public class TileEntityManager {
+public class TileEntityManager implements Disposable {
     private ArrayList<TileEntity> tileEntities = new ArrayList<TileEntity>();
 
 
@@ -58,4 +59,10 @@ public class TileEntityManager {
         LevelScreen.getInstance().player.setOnActiveTrap(isAnyActiveTraps);
     }
 
+    @Override
+    public void dispose() {
+        for (TileEntity tileEntity : tileEntities) {
+            tileEntity.dispose();
+        }
+    }
 }
