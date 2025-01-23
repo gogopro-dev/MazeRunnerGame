@@ -2,6 +2,7 @@ package de.tum.cit.fop.maze.level;
 
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -18,6 +19,8 @@ import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.tile.*;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Direction;
+import de.tum.cit.fop.maze.menu.Menu;
+import de.tum.cit.fop.maze.menu.MenuState;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -28,7 +31,7 @@ import static de.tum.cit.fop.maze.Globals.*;
 
 public class LevelScreen implements Screen {
     private static LevelScreen instance = null;
-
+    private boolean gameOver;
     public final float w, h;
     public final EnemyManager enemyManager;
     public final TileEntityManager tileEntityManager;
@@ -66,7 +69,7 @@ public class LevelScreen implements Screen {
         /// Clear the screen
         ScreenUtils.clear(0, 0, 0, 1, true);
 
-        if (pauseScreen.isPaused()){
+        if (pauseScreen.isPaused() || Menu.getInstance().getMenuState() != MenuState.GAME_SCREEN) {
             /// Render the last frame before pausing
             pauseScreen.drawLastFrame(batch);
 
@@ -76,12 +79,32 @@ public class LevelScreen implements Screen {
             return;
         }
 
+        if (gameOver){
+            pauseScreen.drawLastFrame(batch);
+            GameOverScreen.getInstance().drawInventory(hud.spriteInventory, hud.textInventory);
+            GameOverScreen.getInstance().render(delta);
+            return;
+        }
+
         /// Render the game if not paused
         renderWorld(delta);
 
         /// Update and render pause screen
         pauseScreen.update();
         pauseScreen.render(delta);
+
+        /// Render the pause screen if paused
+        /// In case menu state is not game screen then
+        /// the screenshot will be rendered to place as a placeholder
+        /// while fading to the main Menu
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Y)){
+            pauseScreen.takeScreenshot();
+            GameOverScreen.getInstance().setHasWon(true);
+            GameOverScreen.getInstance().setTimePlayed("10:20:23");
+            GameOverScreen.getInstance().setScore(1024);
+            gameOver = true;
+        }
+
     }
 
     /**
@@ -158,7 +181,6 @@ public class LevelScreen implements Screen {
             throw new IllegalStateException("LevelScreen already exists");
         }
         instance = this;
-
         /// Init world
         RayHandler.useDiffuseLight(false);
         world = new World(new Vector2(0, 0), true);
@@ -172,6 +194,7 @@ public class LevelScreen implements Screen {
         rayHandler.setAmbientLight(lightColor);
         rayHandler.setBlurNum(33);
 
+        GameOverScreen.getInstance();
 
         h = Gdx.graphics.getHeight() / PPM;
         w = Gdx.graphics.getWidth() / PPM;
@@ -217,6 +240,7 @@ public class LevelScreen implements Screen {
         Collectable collectable5 = new Collectable(Collectable.CollectableType.SPEED_BOOTS);
         Collectable collectable6 = new Collectable(Collectable.CollectableType.VAMPIRE_AMULET);
         Collectable collectable7 = new Collectable(Collectable.CollectableType.RESURRECTION_AMULET);
+        Collectable collectable8 = new Collectable(Collectable.CollectableType.HEART);
         tileEntityManager.createTileEntity(collectable1,
          map.widthMeters / 2 + 10, map.heightMeters / 2
         );
@@ -237,6 +261,9 @@ public class LevelScreen implements Screen {
         );
         tileEntityManager.createTileEntity(collectable7,
             map.widthMeters / 2 + 12, map.heightMeters / 2 - 4
+        );
+        tileEntityManager.createTileEntity(collectable8,
+            map.widthMeters / 2 + 12, map.heightMeters / 2 - 6
         );
         tileEntityManager.createTileEntity(
             new Torch(Direction.UP),

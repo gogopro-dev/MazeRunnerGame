@@ -144,8 +144,9 @@ public class Menu implements Screen {
                     /// Switch to rendering level screen
                         LevelScreen.getInstance().render(delta);
                     } else {
-                    /// Continue rendering menu while fading
+                        /// Continue rendering menu while fading
                         playGameScreen.render(delta);
+                        Gdx.input.setInputProcessor(null);
                     }
 
                     /// if fading out is not finished, render overlay
@@ -163,6 +164,7 @@ public class Menu implements Screen {
                     } else {
                         /// Continue rendering level screen fading
                         LevelScreen.getInstance().render(delta);
+                        Gdx.input.setInputProcessor(null);
                     }
 
                     /// if fading out is not finished, render overlay

@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import de.tum.cit.fop.maze.level.GameOverScreen;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import de.tum.cit.fop.maze.level.PauseScreen;
 import org.jetbrains.annotations.NotNull;
@@ -293,7 +294,8 @@ public class SettingsUI {
                 container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
                 Menu.getInstance().updateChildPositions();
                 LevelScreen.getInstance().updateViewport();
-                PauseScreen.getInstance().updateViewport(true);
+                GameOverScreen.getInstance().updateViewport();
+                PauseScreen.getInstance().updateViewport();
             }
         });
 
@@ -396,7 +398,9 @@ public class SettingsUI {
                     Menu.getInstance().updateChildPositions();
                 }
                 LevelScreen.getInstance().updateViewport();
-                PauseScreen.getInstance().updateViewport(true);
+                GameOverScreen.getInstance().updateViewport();
+                PauseScreen.getInstance().updateViewport();
+
                 container.setPosition(
                     stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2,
                     stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2

@@ -317,17 +317,13 @@ public class PauseScreen {
 
     /**
      * Updates the viewport
-     * @param hasResized True if the viewport has been resized
      */
-    public void updateViewport(boolean hasResized) {
-        if (hasResized){
-            /// Update the pause menu to match new resolution
-            LevelScreen.getInstance().renderWorld(0);
-            takeScreenshot();
-        }
+    public void updateViewport() {
+        /// Update the pause menu to match new resolution
+        LevelScreen.getInstance().renderWorld(0);
+        takeScreenshot();
         int width = Gdx.graphics.getWidth();
         int height = Gdx.graphics.getHeight();
-
         stage.getViewport().update(width, height, true);
         stage.getViewport().apply();
         screenTable.setPosition(
