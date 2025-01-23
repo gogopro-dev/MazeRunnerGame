@@ -5,10 +5,10 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.LocalFileHandleResolver;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import de.tum.cit.fop.maze.entities.Enemy;
-import de.tum.cit.fop.maze.entities.tile.Collectable;
-import de.tum.cit.fop.maze.entities.tile.CollectableAttributes;
-import de.tum.cit.fop.maze.entities.tile.Trap;
+import de.tum.cit.fop.maze.entities.tile.*;
+import de.tum.cit.fop.maze.gson.RuntimeTypeAdapterFactory;
 
 import java.util.ArrayList;
 
@@ -21,7 +21,7 @@ public final class Assets {
     private final ArrayList<CollectableAttributes> collectables = new ArrayList<>();
     private final ArrayList<Trap.TrapAttributes> traps = new ArrayList<>();
     private final ArrayList<Enemy.EnemyConfig> enemies = new ArrayList<>();
-    public static final Gson gson = new Gson();
+    public final Gson gson;
 
     public static Assets getInstance() {
         if (instance == null) {
@@ -31,16 +31,32 @@ public final class Assets {
     }
 
     private Assets() {
+
         if (instance != null) {
             throw new IllegalStateException("Assets is a singleton class");
         }
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        final RuntimeTypeAdapterFactory<TileEntity> tileEntities =
+            RuntimeTypeAdapterFactory.of(TileEntity.class, "classTypeName")
+                .registerSubtype(Collectable.class, "Collectable")
+                .registerSubtype(Trap.class, "Trap")
+                .registerSubtype(Torch.class, "Torch")
+                .registerSubtype(LootContainer.class, "LootContainer")
+                .registerSubtype(ExitDoor.class, "Enemy");
+        gsonBuilder.registerTypeAdapterFactory(tileEntities);
         instance = this;
         assetManager = new AssetManager(new LocalFileHandleResolver());
+        gson = gsonBuilder.create();
+    }
+
+    private void registerJsonAdapters() {
+
     }
 
     private void queueLoading() {
         assetManager.load("assets/menu/menu.atlas", TextureAtlas.class);
         assetManager.load("assets/menu/menu_icons.atlas", TextureAtlas.class);
+        assetManager.load("assets/temporary/collectables/collectables.atlas", TextureAtlas.class);
     }
 
     private void loadCollectables() {

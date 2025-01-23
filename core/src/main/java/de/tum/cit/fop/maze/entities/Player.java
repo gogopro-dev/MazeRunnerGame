@@ -25,48 +25,48 @@ import java.util.List;
  * Represents the player character in the game.
  */
 public class Player extends Entity {
-    private final Animation<TextureRegion> idleAnimation;
-    private final Animation<TextureRegion> movementAnimation;
-    private final Animation<TextureRegion> attackAnimation;
-    private final Animation<TextureRegion> idleTorchAnimation;
-    private final Animation<TextureRegion> movementTorchAnimation;
-    private Attributes collectableBuffs;
+
     private final List<Collectable> inventory;
-    private Animation<TextureRegion> currentAnimation;
-    private float elapsedTime = 0f;
-    private float elapsedTorchTime = 0f;
-    private float attackElapsedTime = 0f;    // Tracks time for hit animation
-    private boolean isAttacking = false;    // Track if the hit animation is active
-    private boolean isMoving = false;     // Flag to track movement state
-    private boolean facingRight = true;
-    private boolean canHit;
-    private boolean hasHit;
-    private boolean isHoldingTorch = true;
-    private boolean beingChased = false;
-    private boolean onActiveTrap = false;
-    private final float mapWidth;
-    private final float mapHeight;
-    private boolean isDamaged = false;
-    private float damageFlashTimer = 0f;
-    private float trapAttackElapsedTime = 0f;
-    private PointLight torchLight;
-    private float atkIncrease = 0;
-    private float dmgResist = 0;
     private int gold = 0;
-    private boolean hasResurrectionAmulet = false;
-    private boolean hasVampireAmulet = false;
-    private boolean hasSpeedBoots = false;
+
+
+    private transient final Animation<TextureRegion> idleAnimation;
+    private transient final Animation<TextureRegion> movementAnimation;
+    private transient final Animation<TextureRegion> attackAnimation;
+    private transient final Animation<TextureRegion> idleTorchAnimation;
+    private transient final Animation<TextureRegion> movementTorchAnimation;
+    private transient Attributes collectableBuffs;
+
+    private transient Animation<TextureRegion> currentAnimation;
+    private transient float elapsedTime = 0f;
+    private transient float elapsedTorchTime = 0f;
+    private transient float attackElapsedTime = 0f;    // Tracks time for hit animation
+    private transient boolean isAttacking = false;    // Track if the hit animation is active
+    private transient boolean isMoving = false;     // Flag to track movement state
+    private transient boolean facingRight = true;
+    private transient boolean canHit;
+    private transient boolean hasHit;
+    private transient boolean isHoldingTorch = true;
+    private transient boolean beingChased = false;
+    private transient boolean onActiveTrap = false;
+    private transient final float mapWidth;
+    private transient final float mapHeight;
+    private transient boolean isDamaged = false;
+    private transient float damageFlashTimer = 0f;
+    private transient float trapAttackElapsedTime = 0f;
+    private transient PointLight torchLight;
+
 
     /**
      * Creates a new player character.
-     *
      */
     public Player() {
         super();
         this.mapWidth = LevelScreen.getInstance().map.widthMeters;
         this.mapHeight = LevelScreen.getInstance().map.heightMeters;
         this.mass = 5f;
-
+        health = 40;
+        maxHealth = 40;
         /// Player can hit if not holding torch
         canHit = !isHoldingTorch;
 
@@ -92,8 +92,6 @@ public class Player extends Entity {
         movementTorchAnimation = new Animation<>(1f / 40f * 3f, animAtlas.findRegions("Character_move_torch"));
         movementTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        health = 40;
-        maxHealth = 40;
 
         inventory = new ArrayList<>();
         collectableBuffs = new Attributes(0, 0, 0,
@@ -105,6 +103,7 @@ public class Player extends Entity {
      *
      * @param deltaTime The time since the last frame in seconds
      */
+    @Override
     public void render(float deltaTime) {
         /// TODO Stamina regeneration?
         elapsedTime += deltaTime;

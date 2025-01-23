@@ -36,16 +36,22 @@ import static de.tum.cit.fop.maze.Globals.*;
 import static java.lang.Math.max;
 
 public class TileMap implements Disposable {
-    private final TiledMap map;
-    public final int width;
-    public final int height;
-    public final float heightMeters;
-    public final float widthMeters;
-    public final EntityPathfinder pathfinder;
-    public final Random random;
-    private final TextureLoader textures;
-    private final MazeGenerator generator;
-    private final TileEntityManager tileEntityManager;
+    private final transient TiledMap map = new TiledMap();
+    public int width;
+    public int height;
+    public transient float heightMeters;
+    public transient float widthMeters;
+    public transient Random random;
+    private transient TextureLoader textures;
+    private transient MazeGenerator generator;
+    private transient final TileEntityManager tileEntityManager;
+
+    /**
+     * Create a new TileMap from Gson
+     */
+    public TileMap() {
+        this.tileEntityManager = LevelScreen.getInstance().tileEntityManager;
+    }
 
     /**
      * Create a new TileMap with a given height, width and seed
@@ -55,7 +61,6 @@ public class TileMap implements Disposable {
      */
     public TileMap(int height, int width, Random random) {
         this.generator = new MazeGenerator(height, width, random);
-        this.map = new TiledMap();
         ArrayList<AbsolutePoint> torches = new ArrayList<>();
         // Always get width and height from the generator, because it always makes the parameters odd
         generator.generate();
@@ -179,9 +184,6 @@ public class TileMap implements Disposable {
         }
         reverseCollisionMapRows(wallMap);
         generateHitboxes(wallMap);
-
-        pathfinder = new EntityPathfinder();
-
     }
 
     public void spawnEnemies(int x, int y) {
@@ -523,6 +525,7 @@ public class TileMap implements Disposable {
     @Override
     public void dispose() {
         map.dispose();
+
     }
 
     /**

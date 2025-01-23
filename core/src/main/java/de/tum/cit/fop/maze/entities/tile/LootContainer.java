@@ -28,6 +28,9 @@ public class LootContainer extends TileEntity implements Attackable {
     public final LootContainerType type;
     private boolean destroyed = false;
     private boolean collisionDisabled = false;
+    private final ArrayList<Collectable> loot = new ArrayList<>();
+
+
     private transient float destroyedTime = 0;
     private transient float idleTime = 0;
     private transient boolean hasBeenHit = false;
@@ -40,9 +43,8 @@ public class LootContainer extends TileEntity implements Attackable {
         CRATE, VASE,
     }
 
-    private final ArrayList<Collectable> loot = new ArrayList<>();
-    private final Animation<TextureRegion> idleAnimation;
-    private final Animation<TextureRegion> destroyedAnimation;
+    private transient final Animation<TextureRegion> idleAnimation;
+    private transient final Animation<TextureRegion> destroyedAnimation;
 
     public final class LootContainerAttributes {
         public int health;

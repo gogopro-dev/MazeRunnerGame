@@ -16,14 +16,14 @@ import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
  * Tile entities are static objects in the game that can be interacted with by the player.
  */
 public abstract class TileEntity implements Disposable {
-    protected Body body;
-    protected int width;
-    protected int height;
-    protected boolean isOnPlayer = false;
-    protected final SpriteBatch batch;
-    protected final OrthographicCamera camera;
-    protected final BodyDef bodyDef;
-    protected final FixtureDef fixtureDef;
+    protected transient Body body;
+    protected transient int width;
+    protected transient int height;
+    protected transient boolean isOnPlayer = false;
+    protected transient final SpriteBatch batch;
+    protected transient final OrthographicCamera camera;
+    protected transient final BodyDef bodyDef;
+    protected transient final FixtureDef fixtureDef;
     /// Queues up tile entity for deletion
     public boolean toDestroy = false;
 
@@ -87,7 +87,6 @@ public abstract class TileEntity implements Disposable {
         body.createFixture(fixtureDef);
         fixtureDef.shape.dispose();
         body.setUserData(this);
-
     }
 
     public void contactTick(float delta) {

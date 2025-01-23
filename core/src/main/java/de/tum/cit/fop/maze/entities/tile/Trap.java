@@ -24,13 +24,12 @@ import static de.tum.cit.fop.maze.Globals.*;
  */
 public class Trap extends TileEntity {
     private static final String TRAP_ANIMATION_PATH = "anim/tileEntities/tile_entities.atlas";
-    private final Animation<TextureRegion> trapAnimation;
-    private float elapsedTime = 0f;
-    private float lastActivationTime = 0f;
+    private transient final Animation<TextureRegion> trapAnimation;
+    private transient float elapsedTime = 0f;
+    private transient float lastActivationTime = 0f;
     private boolean isActivated = false;
-    private final TrapType type;
     public final TrapAttributes attributes;
-    private @Nullable PointLight light;
+    private transient @Nullable PointLight light;
 
     /**
      * The attributes of a trap
@@ -74,7 +73,6 @@ public class Trap extends TileEntity {
             height * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING
         );
         this.attributes = attributes;
-        this.type = type;
 
         TextureAtlas textureAtlas = new TextureAtlas(Gdx.files.internal(TRAP_ANIMATION_PATH));
         trapAnimation = new Animation<>(

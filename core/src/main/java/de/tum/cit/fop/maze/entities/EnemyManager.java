@@ -28,14 +28,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </p>
  */
 public class EnemyManager {
-    private final LevelScreen levelScreen;
+    private transient final LevelScreen levelScreen;
     ///  The Libgdx executor for asynchronous tasks
-    private final AsyncExecutor asyncExecutor;
+    private transient final AsyncExecutor asyncExecutor;
     private ArrayList<Enemy> enemies;
-    private float accumulator = 0;
+    private transient float accumulator = 0;
     ///  The number of launched tasks, used so that no new tasks are launched if there are already some running
     ///  (mainly for low-end devices)
-    private final AtomicInteger launchedTasks = new AtomicInteger(0);
+    private final transient AtomicInteger launchedTasks = new AtomicInteger(0);
 
     public EnemyManager() {
         this.enemies = new ArrayList<>();
@@ -117,7 +117,7 @@ public class EnemyManager {
                 asyncExecutor.submit(() -> {
                     launchedTasks.incrementAndGet();
                     enemy.updatePath(
-                        LevelScreen.getInstance().map.pathfinder.getRandomSinglePointPath(
+                        LevelScreen.getInstance().pathfinder.getRandomSinglePointPath(
                             enemy,
                             random
                         ));
@@ -128,7 +128,7 @@ public class EnemyManager {
             } else if (enemy.isMovingToPlayer()) {
                 launchedTasks.incrementAndGet();
                 asyncExecutor.submit(() -> {
-                    List<AbsolutePoint> path = LevelScreen.getInstance().map.pathfinder.aStar(
+                    List<AbsolutePoint> path = LevelScreen.getInstance().pathfinder.aStar(
                         enemy,
                         LevelScreen.getInstance().player.getPosition()
                     );
@@ -198,4 +198,9 @@ public class EnemyManager {
         }
         enemies.clear();
     }
+
+    public ArrayList<Enemy> getEnemies() {
+        return enemies;
+    }
+
 }

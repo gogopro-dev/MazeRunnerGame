@@ -12,25 +12,24 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class Enemy extends Entity {
-    private Animation<TextureRegion> idleAnimation;
-    private Animation<TextureRegion> movementAnimation;
-    private Animation<TextureRegion> movementTPAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> dieAnimation;
-    private Animation<TextureRegion> currentAnimation;
-    private final EnemyType enemyType;
-    private Vector2 knockbackVector = new Vector2(0, 0);
-    private float knockbackActivationElapsedTime = 0;
+    private transient Animation<TextureRegion> idleAnimation;
+    private transient Animation<TextureRegion> movementAnimation;
+    private transient Animation<TextureRegion> movementTPAnimation;
+    private transient Animation<TextureRegion> attackAnimation;
+    private transient Animation<TextureRegion> dieAnimation;
+    private transient Animation<TextureRegion> currentAnimation;
+    private EnemyType enemyType;
+    private transient Vector2 knockbackVector = new Vector2(0, 0);
+    private transient float knockbackActivationElapsedTime = 0;
     private EnemyConfig config;
-    private float elapsedTime = 0f;
-    private boolean isAttacking = false;
-    private float attackElapsedTime = 0f;    // Tracks time for attack animation
+    private transient float elapsedTime = 0f;
+    private transient boolean isAttacking = false;
+    private transient float attackElapsedTime = 0f;    // Tracks time for attack animation
     private boolean isMovingToPlayer = false;
     private boolean facingRight = true;
-    private boolean canHit = true;
-
-    private final List<AbsolutePoint> path;
-    private AbsolutePoint currentPathPoint;
+    private transient boolean canHit = true;
+    private transient final List<AbsolutePoint> path;
+    private transient AbsolutePoint currentPathPoint;
 
 
     public Enemy(EnemyType enemyType) {
@@ -41,8 +40,17 @@ public class Enemy extends Entity {
         loadAnimations();
     }
 
-    public void render(float deltaTime) {
+    /// Gson constructor
+    /// DO NOT USE NORMALLY
+    public Enemy() {
+        super();
+        this.bodyType = BodyDef.BodyType.DynamicBody;
+        this.path = Collections.synchronizedList(new LinkedList<>());
+    }
 
+    @Override
+    public void render(float deltaTime) {
+        super.render(deltaTime);
         elapsedTime += deltaTime;
         // if (path != null) this.followPath();
         if (isAttacking) {

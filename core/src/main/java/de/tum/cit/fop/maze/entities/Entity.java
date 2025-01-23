@@ -22,15 +22,16 @@ public abstract class Entity implements Attackable {
     protected int health;
     protected int maxHealth;
     protected int stamina;
-    protected final float scale = 4 * Globals.MPP;
+    protected AbsolutePoint position;
+    protected transient final float scale = 4 * Globals.MPP;
     /// Entity movement speed (in chicken per second)
-    protected float entitySpeed = 7f;
-    protected Body body;
-    protected BodyDef.BodyType bodyType = BodyDef.BodyType.DynamicBody;
-    protected final SpriteBatch batch;
-    protected final OrthographicCamera camera;
-    protected float mass = 0f;
-    public final BoundingRectangle boundingRectangle =
+    protected transient float entitySpeed = 7f;
+    protected transient Body body;
+    protected transient BodyDef.BodyType bodyType = BodyDef.BodyType.DynamicBody;
+    protected transient final SpriteBatch batch;
+    protected transient final OrthographicCamera camera;
+    protected transient float mass = 0f;
+    public final transient BoundingRectangle boundingRectangle =
         new BoundingRectangle(0.4f * PPM * scale, 0.26f * scale * PPM);
 
 
@@ -150,5 +151,9 @@ public abstract class Entity implements Attackable {
 
     public AbsolutePoint getPosition() {
         return new AbsolutePoint(body.getPosition().x, body.getPosition().y);
+    }
+
+    public void render(float delta) {
+        this.position = getPosition();
     }
 }
