@@ -39,7 +39,7 @@ public class Collectable extends TileEntity {
 
     /// Enum for Collectable types
     public enum CollectableType {
-        EMPTY, HEART, GOLD_COIN, DAMAGE_COIN, DEFENSE_COIN, RESURRECTION_AMULET, VAMPIRE_AMULET, SPEED_BOOTS
+        EMPTY, HEART, GOLD_COIN, DAMAGE_COIN, DEFENSE_COIN, RESURRECTION_AMULET, VAMPIRE_AMULET, SPEED_BOOTS, FIREBALL
     }
 
     public final CollectableAttributes collectableAttributes;

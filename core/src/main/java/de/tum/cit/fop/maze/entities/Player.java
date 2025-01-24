@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.entities.tile.Attributes;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
@@ -17,10 +18,8 @@ import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
-
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * Represents the player character in the game.
  */
@@ -71,7 +70,7 @@ public class Player extends Entity {
         canHit = !isHoldingTorch;
 
 
-        TextureAtlas animAtlas = new TextureAtlas(Gdx.files.internal("anim/player/character.atlas"));
+        TextureAtlas animAtlas = Assets.getInstance().getAssetManager().get("assets/anim/player/character.atlas", TextureAtlas.class);
         /// Load idle animation
         idleAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle"));
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
@@ -301,7 +300,7 @@ public class Player extends Entity {
         if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) && stamina > 0) {
             velocityX *= 1.3f;
             velocityY *= 1.3f;
-            useStamina(1);
+            useStamina(0);
         }
 
         //TODO stamina regen (func in hud is ready)
@@ -510,5 +509,4 @@ public class Player extends Entity {
     public boolean isHoldingTorch() {
         return isHoldingTorch;
     }
-
 }
