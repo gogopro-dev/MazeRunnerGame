@@ -58,6 +58,7 @@ public class LevelScreen implements Screen {
     private transient float accumulator = 0;
     private transient final PauseScreen pauseScreen;
     private transient final Stage stage;
+    private boolean endGame = false;
 
     private void doPhysicsStep(float deltaTime) {
         // Fixed time step
@@ -76,6 +77,10 @@ public class LevelScreen implements Screen {
         /// Clear the screen
         ScreenUtils.clear(0, 0, 0, 1, true);
 
+        /// Render the pause screen if paused
+        /// In case menu state is not game screen then
+        /// the screenshot will be rendered to place as a placeholder
+        /// while fading to the main Menu
         if (pauseScreen.isPaused() || Menu.getInstance().getMenuState() != MenuState.GAME_SCREEN) {
             /// Render the last frame before pausing
             pauseScreen.drawLastFrame(batch);
@@ -83,11 +88,11 @@ public class LevelScreen implements Screen {
             /// Update and render pause screen
             pauseScreen.update();
             pauseScreen.render(delta);
-            try {
-                SaveManager.saveGame();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+//            try {
+//                SaveManager.saveGame();
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
             return;
         }
 
@@ -104,11 +109,7 @@ public class LevelScreen implements Screen {
         pauseScreen.update();
         pauseScreen.render(delta);
 
-        /// Render the pause screen if paused
-        /// In case menu state is not game screen then
-        /// the screenshot will be rendered to place as a placeholder
-        /// while fading to the main Menu
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Y)){
+        if (endGame){
             pauseScreen.takeScreenshot();
             GameOverScreen.getInstance().drawInventory(hud.spriteInventory, hud.textInventory);
             GameOverScreen.getInstance().setHasWon(true);
@@ -230,7 +231,7 @@ public class LevelScreen implements Screen {
         stage = new Stage(viewport, batch);
         tileEntityManager = new TileEntityManager();
         enemyManager = new EnemyManager();
-        map = new TileMap(30, 30, random);
+        map = new TileMap(15, 15, random);
 
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);
@@ -351,6 +352,10 @@ public class LevelScreen implements Screen {
 
         hud.resize();
         viewport.apply();
+    }
+    public void endGame(boolean hasWon) {
+        this.endGame = true;
+        GameOverScreen.getInstance().setHasWon(hasWon);
     }
 
     /**
