@@ -8,8 +8,10 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
+import de.tum.cit.fop.maze.entities.tile.Attributes;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
@@ -504,8 +506,7 @@ public class Player extends Entity {
     public void collect(Collectable collectable) {
         collectableBuffs.sum(collectable.getCollectableAttributes());
         inventory.add(collectable);
-        LevelScreen.getInstance().hud.updateInventory(collectable.getType().toString(),
-            collectable.getCollectableAttributes().textureName);
+        LevelScreen.getInstance().hud.addItemToInventory(collectable);;
         System.out.println("Current Buffs: " + collectableBuffs);
     }
 
@@ -529,5 +530,4 @@ public class Player extends Entity {
     public boolean isHoldingTorch() {
         return isHoldingTorch;
     }
-
 }

@@ -14,13 +14,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class HUD {
     private final Stage stage;
@@ -30,23 +29,27 @@ public class HUD {
     private final float heartsAnimationFrameDuration = 1 / 5f;
     private final SpriteBatch spriteBatch;
     private final Label scoreLabel;
-    private final Label timeLabel;
-//    private final Table timeAndScoreTable;
+    private final Label time;
+
+    private final Label coins;
+    private final Label keys;
+    private final Table coinsAndKeysTable = new Table();
 //    private final Table healthTable;
 
 
     private TextureAtlas atlas;
 
 
-    private int score = 1000;
-    private final BitmapFont font;
+    private int currentScore = 1000;
     private final float fontScale = 1.1f;
     //    private final Instant start = Clock.systemDefaultZone().instant();
 //    private Instant now;
-    private final Table labelTable;
-    private Label.LabelStyle labelStyle;
+    private final Table timeAndScoreTable;
+    private Label.LabelStyle descriptionStyle;
     public final Table spriteInventory = new Table();
     public final Table textInventory = new Table();
+    public final Table descriptionTable = new Table();
+    public final Container<Table> descriptionContainer = new Container<>(descriptionTable);
     private int inventoryRows = 2;
     private int inventoryCols = 5;
     private int sizeOfInvIcon = 40;
@@ -54,9 +57,9 @@ public class HUD {
     private int spacingBetweenIcons = 10;
     private float tableOffsetX = 20;
     private float tableOffsetY = 10;
-    private float inventoryWidth = inventoryCols * sizeOfInvIcon +
+    private final float inventoryWidth = inventoryCols * sizeOfInvIcon +
         (inventoryCols - 1) * spacingBetweenIcons;
-    private float inventoryHeight = inventoryRows * sizeOfInvIcon +
+    private final float inventoryHeight = inventoryRows * sizeOfInvIcon +
         (inventoryRows - 1) * spacingBetweenIcons;
     private final TextureAtlas inventoryAtlas;
     private Map<String, Label> invInfo = new HashMap<>();
@@ -75,7 +78,6 @@ public class HUD {
     private boolean staminaDrain = false;
     private boolean staminaRecovery = false;
 
-    private float staminaRecoveryDelay = 2.5f;
     private final float staminaBarScaling = 1f;
     private final float fillamentAlignmentX = 32f;
 
@@ -110,8 +112,6 @@ public class HUD {
                     Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera()
                 ), spriteBatch
             );
-
-
         matrixHPBar = new ArrayList<>();
         statusBar = new HashMap<>();
 
@@ -119,7 +119,7 @@ public class HUD {
         this.health = player.health;
         this.maxHealth = player.maxHealth;
 
-        labelTable = new Table();
+        timeAndScoreTable = new Table();
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
             Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
@@ -128,15 +128,40 @@ public class HUD {
         parameter.color = new Color(0xE0E0E0FF);
         parameter.borderWidth = 1;
         parameter.borderColor = new Color(0x000000FF);
-        font = generator.generateFont(parameter);
-        labelStyle = new Label.LabelStyle();
-        labelStyle.font = font;
-        timeLabel = new Label(getLabelTime(elapsedTime), labelStyle);
-        scoreLabel = new Label(getLabelScore(score), labelStyle);
-        timeLabel.setFontScale(fontScale);
+        Label.LabelStyle timeAndScoreStyle = new Label.LabelStyle();
+        timeAndScoreStyle.font = generator.generateFont(parameter);
+        time = new Label(getLabelTime(elapsedTime), timeAndScoreStyle);
+        scoreLabel = new Label(getLabelScore(currentScore), timeAndScoreStyle);
+        time.setFontScale(fontScale);
         scoreLabel.setFontScale(fontScale);
 
-        setLabelTablePosition();
+        Label.LabelStyle coinsAndKeysLabelStyle = new Label.LabelStyle();
+        coinsAndKeysLabelStyle.font = generator.generateFont(parameter);
+
+        coins = new Label(": 0", coinsAndKeysLabelStyle);
+        keys = new Label(": 0", coinsAndKeysLabelStyle);
+
+//        initCoinsAndKeysTable();
+
+
+
+        descriptionStyle = new Label.LabelStyle();
+        parameter.size = 17; // font size
+        parameter.borderWidth = 0;
+        parameter.color = new Color(1, 1, 1, 0.7f);
+        parameter.gamma = 4f;
+        descriptionStyle.font = generator.generateFont(parameter);
+        //TODO change background to png
+
+        descriptionContainer.setBackground(Utils.getColoredDrawable(200, 200,
+            new Color(0, 0, 0, 0.7f)));
+
+
+        generator.dispose();
+        initTimeAndScoreTable();
+
+        // setItemDescription("LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOng description");
+
 
         inventoryAtlas = new TextureAtlas(Gdx.files.local("assets/temporary/collectables/collectables.atlas"));
         setupInventory();
@@ -147,21 +172,98 @@ public class HUD {
         createDamageButton();
     }
 
+    private void setItemDescription(String description) {
+        float labelWidth = 300;
+//        for (int i = 0; i < description.length()/lenOfCharsInRow; i ++) {
+//            Label itemDescription = new Label(description.substring(i * lenOfCharsInRow,
+//                (i + 1) * lenOfCharsInRow - 1), descriptionStyle);
+//            descriptionTable.add(itemDescription);
+//            descriptionTable.row();
+//        }
+//        if (description.length() % lenOfCharsInRow > 0) {
+//            Label itemDescription = new Label(description.substring(description.length()
+//                - description.length() % lenOfCharsInRow), descriptionStyle);
+//            descriptionTable.add(itemDescription);
+//            descriptionTable.row();
+//        }
+//        descriptionTable.setPosition(padding + descriptionTable.getWidth()/2,
+//            padding + descriptionTable.getHeight()/2);
+//        stage.addActor(descriptionTable);
+        Label itemDescription = new Label(description, descriptionStyle);
+        itemDescription.setWrap(true);
+        itemDescription.setWidth(labelWidth);
+        itemDescription.setBounds(0, 0, labelWidth, itemDescription.getPrefHeight());
+        itemDescription.setAlignment(Align.topRight);
+//        itemDescription.setAlignment(Align.bottomLeft);
+       descriptionTable.add(itemDescription).width(labelWidth).pad(padding);
+       descriptionTable.setSize(labelWidth, itemDescription.getPrefHeight());
+
+        updateDescriptionPosition();
+
+        spriteInventory.setVisible(false);
+        textInventory.setVisible(false);
+        stage.addActor(descriptionContainer);
+    }
+
+    private void updateDescriptionPosition() {
+
+        float containerWidth = descriptionTable.getWidth()+15;
+        float containerHeight = descriptionTable.getHeight()+15;
+        descriptionContainer.setSize(containerWidth, containerHeight);
+
+        float containerX = stage.getViewport().getWorldWidth() - containerWidth - padding;
+        float containerY = stage.getViewport().getWorldHeight() - containerHeight - padding;
+        descriptionContainer.setPosition(containerX, containerY);
+    }
+
+    private void deleteDescription() {
+
+        descriptionTable.clear();
+        spriteInventory.setVisible(true);
+        textInventory.setVisible(true);
+    }
+
+    private void heal(int value){
+        health = Math.min(health + value, maxHealth);
+        updateHPBar();
+    }
     private void setupInventory() {
 
         spriteInventory.setSize(inventoryWidth, inventoryHeight);
-        spriteInventory.setPosition(stage.getViewport().getWorldWidth() - inventoryWidth - tableOffsetX - padding,
-            stage.getViewport().getWorldHeight() - inventoryHeight - padding);
-        stage.addActor(spriteInventory);
-
         textInventory.setSize(inventoryWidth, inventoryHeight);
-        textInventory.setPosition(stage.getViewport().getWorldWidth() - inventoryWidth - padding,
-            stage.getViewport().getWorldHeight() - inventoryHeight - tableOffsetY - padding);
+
+        updateInventoryPosition();
+
+
         stage.addActor(textInventory);
     }
 
-    public void updateInventory(String collectableType, String textureName) {
-        if (invInfo.get(collectableType) == null) {
+    private void updateInventoryPosition() {
+        spriteInventory.setPosition(stage.getViewport().getWorldWidth() - inventoryWidth - tableOffsetX - padding,
+            stage.getViewport().getWorldHeight() - inventoryHeight - padding);
+        stage.addActor(spriteInventory);
+        textInventory.setPosition(stage.getViewport().getWorldWidth() - inventoryWidth - padding,
+            stage.getViewport().getWorldHeight() - inventoryHeight - tableOffsetY - padding);
+    }
+
+    public void addItemToInventory(Collectable collectable) {
+        Collectable.CollectableType collectableType = collectable.getType();
+        String textureName = collectable.getCollectableAttributes().textureName;
+        if (invInfo.get(collectableType.name()) == null) {
+            if (Objects.equals(collectableType, Collectable.CollectableType.HEART)){
+                heal(collectable.getCollectableAttributes().getImmediateHealing());
+                return;
+            }
+
+            if (Objects.equals(collectableType, Collectable.CollectableType.KEY)){
+                addKey(collectable.getCollectableAttributes().getImmediateCoins());
+                return;
+            }
+
+            if(Objects.equals(collectableType, Collectable.CollectableType.GOLD_COIN)){
+                addCoin(collectable.getCollectableAttributes().getImmediateCoins());
+                return;
+            }
 
             Drawable drawable = new TextureRegionDrawable(inventoryAtlas.findRegion(textureName));
             drawable.setMinWidth(sizeOfInvIcon);
@@ -175,14 +277,14 @@ public class HUD {
             textInventory.add(label).width(sizeOfInvIcon).height(sizeOfInvIcon).center()
                 .padRight(spacingBetweenIcons);
 
-            invInfo.put(collectableType, label);
+            invInfo.put(collectableType.name(), label);
             if (spriteInventory.getChildren().size % inventoryCols == 0) {
                 spriteInventory.row().padTop(spacingBetweenIcons);
                 textInventory.row().padTop(spacingBetweenIcons);
             }
             return;
         }
-        Label label = invInfo.get(collectableType);
+        Label label = invInfo.get(collectableType.name());
         String[] text = label.getText().toString().split("x");
         int amount = Integer.parseInt(text[1]);
         amount++;
@@ -191,17 +293,29 @@ public class HUD {
 
     }
 
-    private void setLabelTablePosition() {
-        labelTable.add(timeLabel);
-        labelTable.row();
-        labelTable.add(scoreLabel);
-        labelTable.setSize(timeLabel.getWidth(),
-            timeLabel.getHeight() + scoreLabel.getHeight());
-        labelTable.setPosition((stage.getViewport().getWorldWidth() - labelTable.getWidth()) / 2,
-            stage.getViewport().getWorldHeight() - labelTable.getHeight() - labelPadding);
-        labelTable.align(Align.center);
+    private void addKey(int immediateCoins) {
+
+    }
+
+    private void addCoin(int immediateCoins) {
+        return;
+    }
+
+    private void initTimeAndScoreTable() {
+        timeAndScoreTable.add(time);
+        timeAndScoreTable.row();
+        timeAndScoreTable.add(scoreLabel);
+        updateLabelTablePosition();
 //        labelTable.debug();
-        stage.addActor(labelTable);
+        stage.addActor(timeAndScoreTable);
+    }
+
+    private void updateLabelTablePosition() {
+        timeAndScoreTable.setSize(time.getWidth(),
+            time.getHeight() + scoreLabel.getHeight());
+        timeAndScoreTable.setPosition((stage.getViewport().getWorldWidth() - timeAndScoreTable.getWidth()) / 2,
+            stage.getViewport().getWorldHeight() - timeAndScoreTable.getHeight() - labelPadding);
+        timeAndScoreTable.align(Align.center);
     }
 
     private String getLabelTime(float elapsedTime) {
@@ -213,6 +327,10 @@ public class HUD {
 
     private String getLabelScore(int score) {
         return String.format("Score: %06d", score);
+    }
+
+    private void addScore(int val){
+        currentScore += val;
     }
 
     public void loadTextures() {
@@ -403,7 +521,6 @@ public class HUD {
     }
 
     public void setStaminaRecoveryDelay(float delay) {
-        staminaRecoveryDelay = delay;
     }
 
     public void setStaminaRecovery(boolean recovery) {
@@ -484,8 +601,8 @@ public class HUD {
     }
 
     private void updateLabels(float elapsedTime) {
-        timeLabel.setText(getLabelTime(elapsedTime));
-        scoreLabel.setText(getLabelScore(score - (int) elapsedTime));
+        time.setText(getLabelTime(elapsedTime));
+        scoreLabel.setText(getLabelScore(currentScore - (int) elapsedTime));
     }
 
     private BitmapFont createFont(int size, Color color) {
@@ -561,7 +678,6 @@ public class HUD {
             staminaRecovery = false;
             currentStamina = maxStamina;
         }
-        System.out.println(currentStamina+ " | " + LevelScreen.getInstance().player.stamina);
     }
 
     public void show() {
@@ -570,6 +686,9 @@ public class HUD {
 
     public void resize() {
         stage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+        updateLabelTablePosition();
+        updateDescriptionPosition();
+        updateInventoryPosition();
     }
 }
 

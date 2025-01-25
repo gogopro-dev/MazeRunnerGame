@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze.entities;
+package de.tum.cit.fop.maze.entities.tile;
 
 
 public class Attributes {
@@ -55,5 +55,37 @@ public class Attributes {
             ", amountOfResurrections=" + ressurections +
             ", speedBoost=" + speedBoost +
             '}';
+    }
+
+    public int getImmediateHealing() {
+        return immediateHealing;
+    }
+
+    public boolean isConsumable() {
+        return isConsumable;
+    }
+
+    public int getImmediateCoins() {
+        return immediateCoins;
+    }
+
+    public float getSpeedBoost() {
+        return speedBoost;
+    }
+
+    public int getRessurections() {
+        return ressurections;
+    }
+
+    public float getVampirism() {
+        return vampirism;
+    }
+
+    public float getResistanceBoost() {
+        return resistanceBoost;
+    }
+
+    public float getDamageBoost() {
+        return damageBoost;
     }
 }
