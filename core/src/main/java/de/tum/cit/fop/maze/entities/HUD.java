@@ -352,11 +352,15 @@ public class HUD {
         long seconds = (long) elapsedTime;
         long minutes = seconds / 60;
         long hours = minutes / 60;
-        return String.format("Time: %02d:%02d:%02d", hours, minutes % 60, seconds % 60);
+        return String.format(
+            Locale.getDefault(), "Time: %02d:%02d:%02d", hours, minutes % 60, seconds % 60
+        );
     }
 
     private String getLabelScore(int score) {
-        return String.format("Score: %06d", score);
+        return String.format(
+            Locale.getDefault(), "Score: %06d", score
+        );
     }
 
     private void addScore(int val) {
