@@ -21,7 +21,7 @@ import static de.tum.cit.fop.maze.Globals.PPM;
 public abstract class Entity implements Attackable {
     protected int health;
     protected int maxHealth;
-    protected int stamina;
+    protected float stamina;
     protected AbsolutePoint position;
     protected transient final float scale = 4 * Globals.MPP;
     /// Entity movement speed (in chicken per second)
@@ -78,7 +78,7 @@ public abstract class Entity implements Attackable {
      * Uses stamina from the entity.
      * @param amount The amount of stamina to use.
      */
-    public void useStamina(int amount) {
+    public void useStamina(float amount) {
         stamina -= amount;
     }
 
@@ -86,7 +86,7 @@ public abstract class Entity implements Attackable {
      * Restores stamina to the entity.
      * @param amount The amount of stamina to restore.
      */
-    public void restoreStamina(int amount) {
+    public void restoreStamina(float amount) {
         stamina += amount;
     }
 
