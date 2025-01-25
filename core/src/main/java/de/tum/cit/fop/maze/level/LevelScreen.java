@@ -265,12 +265,12 @@ public class LevelScreen implements Screen {
             );
         }
         hud = new HUD(player);
-        for (Collectable collectable : player.getInventory()) {
+        /*for (Collectable collectable : player.getInventory()) {
             hud.updateInventory(
                 collectable.getType().toString(),
                 collectable.getCollectableAttributes().textureName
             );
-        }
+        }*/
 
         /// Set camera at the center of the players position in Box2D world
         if (player.getPosition() != null) {

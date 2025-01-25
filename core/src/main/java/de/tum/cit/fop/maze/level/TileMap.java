@@ -236,7 +236,7 @@ public class TileMap implements Disposable {
                 }
                 if (cell.getCellType() == CellType.KEY_OBELISK) {
                     tileEntityManager.createTileEntity(
-                        new Collectable(Collectable.CollectableType.HEART), currentCellCenter
+                        new Collectable(Collectable.CollectableType.KEY), currentCellCenter
                     );
                 }
                 if (cell.getCellType() == CellType.TREASURE_ROOM_ITEM) {
