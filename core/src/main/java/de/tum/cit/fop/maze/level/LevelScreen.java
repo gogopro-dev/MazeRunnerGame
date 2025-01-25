@@ -44,6 +44,7 @@ public class LevelScreen implements Screen {
     public transient final SpriteBatch batch;
     public transient HUD hud;
     public transient final RayHandler rayHandler;
+
     public transient final Random random = new Random(2);
     public transient final EntityPathfinder pathfinder = new EntityPathfinder();
     private transient boolean gameOver;

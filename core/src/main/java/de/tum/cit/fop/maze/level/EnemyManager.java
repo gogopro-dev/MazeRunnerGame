@@ -110,6 +110,7 @@ public class EnemyManager {
     private void recalculatePaths() {
         if (launchedTasks.get() > 0) return;
         for (Enemy enemy : enemies) {
+            if (enemy.isDead()) continue;
             /// Random movement
             if (!enemy.isMovingToPlayer() && enemy.isPathEmpty()) {
                 Random random = LevelScreen.getInstance().map.random;

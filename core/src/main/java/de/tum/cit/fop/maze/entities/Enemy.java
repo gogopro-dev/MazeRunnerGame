@@ -2,16 +2,21 @@ package de.tum.cit.fop.maze.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
 import com.google.gson.Gson;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
+import de.tum.cit.fop.maze.essentials.DebugRenderer;
+import de.tum.cit.fop.maze.level.LevelScreen;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class Enemy extends Entity {
+public class Enemy extends Entity implements Attackable {
     private transient Animation<TextureRegion> idleAnimation;
     private transient Animation<TextureRegion> movementAnimation;
     private transient Animation<TextureRegion> movementTPAnimation;
@@ -22,7 +27,7 @@ public class Enemy extends Entity {
     private transient Vector2 knockbackVector = new Vector2(0, 0);
     private transient float knockbackActivationElapsedTime = 0;
     private EnemyConfig config;
-    private transient float elapsedTime = 0f;
+    private float elapsedTime = 0f;
     private transient boolean isAttacking = false;
     private transient float attackElapsedTime = 0f;    // Tracks time for attack animation
     private boolean isMovingToPlayer = false;
@@ -30,7 +35,9 @@ public class Enemy extends Entity {
     private transient boolean canHit = true;
     private transient final List<AbsolutePoint> path;
     private transient AbsolutePoint currentPathPoint;
-
+    private transient boolean isDamaged = false;
+    private boolean deadAnimationReset = false;
+    private float damageFlashTimer = 0f;
 
     public Enemy(EnemyType enemyType) {
         this();
@@ -48,17 +55,50 @@ public class Enemy extends Entity {
     @Override
     public void render(float deltaTime) {
         elapsedTime += deltaTime;
-        // if (path != null) this.followPath();
+        if (path != null && !isAttacking && !isDead()) this.followPath();
+        if (isDead() && !deadAnimationReset) {
+            deadAnimationReset = true;
+            elapsedTime = 0f;
+        }
+        if (isDead()) {
+            this.getBody().setLinearVelocity(Vector2.Zero);
+        }
+        if (isDead() && body.getFixtureList().size > 0) {
+            Iterator<Fixture> fixtureIterator = new Array.ArrayIterator<>(body.getFixtureList());
+            List<Fixture> toDestroy = new ArrayList<>();
+            while (fixtureIterator.hasNext()) {
+                toDestroy.add(fixtureIterator.next());
+            }
+            for (Fixture fixture : toDestroy) {
+                body.destroyFixture(fixture);
+            }
+        }
         if (isAttacking) {
+            this.body.setLinearVelocity(Vector2.Zero);
+            this.facingRight = getPosition().onTheLeftFrom(LevelScreen.getInstance().player.getPosition());
             attackElapsedTime += deltaTime;
         }
 
+        if (isDamaged) {
+            damageFlashTimer += deltaTime;
+            if (damageFlashTimer >= Globals.IMMUNITY_FRAME_DURATION) {
+                isDamaged = false;
+                damageFlashTimer = 0f;
+                /// Reset color back to normal
+                batch.setColor(new Color(1, 1, 1, 1));
+            }
+            /// Set red tint if damaged
+            batch.setColor(new Color(1, 0, 0, 1));
+        }
+        // todo only call once per isAttack
         if (isAttacking && attackAnimation.getAnimationDuration() / 2 < attackElapsedTime) {
-            //TODO: Attack player
+            attackPlayer();
         }
 
         // Check if hit animation is finished
-        if (isAttacking && attackAnimation.isAnimationFinished(attackElapsedTime)) {
+        if (isDead()) {
+            currentAnimation = dieAnimation;
+        } else if (isAttacking && attackAnimation.isAnimationFinished(attackElapsedTime)) {
             isAttacking = false; // Reset hit state
             canHit = true; // Reset hit cooldownI
             attackElapsedTime = 0f; // Reset hit animation time
@@ -66,24 +106,30 @@ public class Enemy extends Entity {
             currentAnimation = movementTPAnimation;
         } else if (isMoving() && !isMovingToPlayer) {
             currentAnimation = movementAnimation;
+        } else if (isAttacking) {
+            currentAnimation = attackAnimation;
         } else {
             currentAnimation = idleAnimation;
         }
         // Get the current animation frame
-        TextureRegion currentFrame = currentAnimation.getKeyFrame(elapsedTime, true);
+        TextureRegion currentFrame = currentAnimation.getKeyFrame(elapsedTime, !isDead());
 
         // Draw the current frame
         float frameWidth = currentFrame.getRegionWidth() * scale;
         float frameHeight = currentFrame.getRegionHeight() * scale;
-        if (this.body != null && isMoving()) {
-            this.facingRight = (this.body.getLinearVelocity().x > 0 + config.attributes.speed / 2f);
-
+        if (this.body != null && isMoving() && !isAttacking) {
+            if (this.body.getLinearVelocity() != Vector2.Zero) {
+                this.facingRight = (this.body.getLinearVelocity().x > 0 + config.attributes.speed / 2f);
+            }
+        }
+        if (!isDead()) {
             if (facingRight && currentFrame.isFlipX()) {
                 currentFrame.flip(true, false); // Flip horizontally if facing right
             } else if (!facingRight && !currentFrame.isFlipX()) {
                 currentFrame.flip(true, false); // Flip horizontally if facing left
             }
         }
+
         if (!knockbackVector.isZero()) {
             knockbackActivationElapsedTime += deltaTime;
             body.setLinearVelocity(knockbackVector);
@@ -92,8 +138,14 @@ public class Enemy extends Entity {
             }
         }
 
+        if (
+            LevelScreen.getInstance().player.getPosition().distance(getPosition()) <= Globals.ENEMY_ATTACK_DISTANCE &&
+                !isDead()) {
+            attack();
+        }
 
         batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
+        batch.setColor(new Color(1, 1, 1, 1));
     }
 
     @Override
@@ -101,12 +153,65 @@ public class Enemy extends Entity {
         loadAnimations();
     }
 
+    private void attackPlayer() {
+        AbsolutePoint enemyPosition = getPosition();
+        AbsolutePoint rectangleStart, rectangleEnd;
+        float enemyTop = enemyPosition.y() - boundingRectangle.height() / 2;
+        float enemyBottom = enemyPosition.y() + boundingRectangle.height() / 2;
+        if (isFacingRight()) {
+            rectangleStart = new AbsolutePoint(
+                enemyPosition.x(),
+                enemyTop
+            );
+            rectangleEnd =
+                new AbsolutePoint(
+                    enemyPosition.x() + Globals.ENEMY_ATTACK_DISTANCE,
+                    enemyBottom
+                );
+        } else {
+            rectangleStart = new AbsolutePoint(
+                enemyPosition.x() - Globals.ENEMY_ATTACK_DISTANCE,
+                enemyTop
+            );
+            rectangleEnd =
+                new AbsolutePoint(
+                    enemyPosition.x(),
+                    enemyBottom
+                );
+        }
+        DebugRenderer.getInstance().spawnRectangle(
+            rectangleStart,
+            rectangleEnd,
+            Color.PINK
+        );
+        LevelScreen.getInstance().world.QueryAABB(
+            fixture -> {
+                if (fixture.getBody().getUserData() instanceof Player player) {
+                    player.takeDamage(1);
+                    return false;
+                }
+                return true;
+            },
+            rectangleStart.x(), rectangleStart.y(), rectangleEnd.x(), rectangleEnd.y()
+        );
+    }
+
+    @Override
+    public void takeDamage(int damage) {
+        if (isDamaged) return;
+        super.takeDamage(damage);
+        isDamaged = true;
+        damageFlashTimer = 0f;
+    }
+
     public void die() {
-        currentAnimation = dieAnimation;
+        elapsedTime = 0;
     }
 
     public void attack() {
+
         if (canHit) {
+            this.body.setLinearVelocity(Vector2.Zero);
             isAttacking = true;
             canHit = false;
             currentAnimation = attackAnimation;
@@ -119,13 +224,18 @@ public class Enemy extends Entity {
     public void loadAnimations() {
         Gson gson = new Gson();
         FileHandle file = Gdx.files.internal("anim/enemies/enemyConfig.json");
-        Enemy.EnemyConfig[] enemyConfigs = gson.fromJson(file.readString(), EnemyConfig[].class);
-        for (Enemy.EnemyConfig enemyConfig : enemyConfigs) {
-            if (enemyConfig.enemyType == enemyType) {
-                config = enemyConfig;
-                break;
+        if (this.config == null) {
+            Enemy.EnemyConfig[] enemyConfigs = gson.fromJson(file.readString(), EnemyConfig[].class);
+            for (Enemy.EnemyConfig enemyConfig : enemyConfigs) {
+                if (enemyConfig.enemyType == enemyType) {
+                    config = enemyConfig;
+                    break;
+                }
             }
+
+            this.health = (int) config.attributes.maxHealth;
         }
+
 
         // Load idle animation
         TextureAtlas animationAtlas = new TextureAtlas(Gdx.files.internal(config.pathToAnim));

@@ -3,8 +3,8 @@ package de.tum.cit.fop.maze;
 import com.badlogic.gdx.graphics.Color;
 
 public final class Globals {
-    public static final boolean DEBUG = false;
-    public static final boolean FULLBRIGHT = false;
+    public static final boolean DEBUG = true;
+    public static final boolean FULLBRIGHT = true;
 
     /// Pixel per Meter
     public static final float PPM = 64f;
@@ -26,7 +26,7 @@ public final class Globals {
     public static final int BOX2D_VELOCITY_ITERATIONS = 8;
     public static final int BOX2D_POSITION_ITERATIONS = 3;
     public static final int TRAP_DAMAGE = 10;
-    public static final float IMMUNITY_FRAME_DURATION = 0.2f;
+    public static final float IMMUNITY_FRAME_DURATION = 0.5f;
     public static float DEFAULT_CAMERA_ZOOM = 1.25f;
     ///  <p>What's the probability for enemy to pick a random cell to walk to each frame if it is not going anywhere
     ///  currently.</p>
@@ -50,5 +50,6 @@ public final class Globals {
 
     public static final int PLAYER_DAMAGE = 2;
     public static final float PLAYER_ATTACK_DISTANCE = CELL_SIZE_METERS;
+    public static final float ENEMY_ATTACK_DISTANCE = CELL_SIZE_METERS;
     public static final float PLAYER_ATTACK_KNOCKBACK = 10f;
 }

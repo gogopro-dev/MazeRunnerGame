@@ -52,7 +52,6 @@ public class Player extends Entity {
     private transient boolean onActiveTrap = false;
     private transient boolean isDamaged = false;
     private transient float damageFlashTimer = 0f;
-    private transient float trapAttackElapsedTime = 0f;
     private transient PointLight torchLight;
 
 
@@ -92,14 +91,12 @@ public class Player extends Entity {
                 );
             }
         }
-        trapAttackElapsedTime += deltaTime;
         if (isAttacking) {
             attackElapsedTime += deltaTime;
         }
 
-        if (onActiveTrap && trapAttackElapsedTime > 0.75f) {
+        if (onActiveTrap) {
             takeDamage(Globals.TRAP_DAMAGE);
-            trapAttackElapsedTime = 0f;
         }
         /// Update damage flash timer
         if (isDamaged) {
@@ -110,6 +107,8 @@ public class Player extends Entity {
                 /// Reset color back to normal
                 batch.setColor(new Color(1, 1, 1, 1));
             }
+            /// Set red tint if damaged
+            batch.setColor(new Color(1, 0, 0, 1));
         }
 
         /// Handle player input and movement
@@ -129,10 +128,7 @@ public class Player extends Entity {
             currentFrame.flip(true, false); // Flip horizontally if facing left
         }
 
-        /// Set red tint if damaged
-        if (isDamaged) {
-            batch.setColor(new Color(1, 0, 0, 1));
-        }
+
 
         /// Draw the current frame
         float frameWidth = currentFrame.getRegionWidth() * scale;
@@ -464,6 +460,7 @@ public class Player extends Entity {
 
     @Override
     public void takeDamage(int damage) {
+        if (isDamaged) return;
         super.takeDamage(damage);
         isDamaged = true;
         damageFlashTimer = 0f;

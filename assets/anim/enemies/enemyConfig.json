@@ -5,7 +5,7 @@
     "attributes": {
       "speed": 7.1,
       "maxHealth": 1,
-      "attackDMG": 1,
+      "attackDMG": 2,
       "heal": 1,
       "visionRange": 2
     }
@@ -16,7 +16,7 @@
     "attributes": {
       "speed": 7.1,
       "maxHealth": 1,
-      "attackDMG": 1,
+      "attackDMG": 2,
       "heal": 1,
       "visionRange": 2
     }
