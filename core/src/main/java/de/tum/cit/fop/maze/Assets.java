@@ -56,6 +56,8 @@ public final class Assets {
     private void queueLoading() {
         assetManager.load("assets/menu/menu.atlas", TextureAtlas.class);
         assetManager.load("assets/menu/menu_icons.atlas", TextureAtlas.class);
+        assetManager.load("assets/anim/player/character.atlas", TextureAtlas.class);
+        assetManager.load("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class);
         assetManager.load("assets/temporary/collectables/collectables.atlas", TextureAtlas.class);
     }
 

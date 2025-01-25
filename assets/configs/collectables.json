@@ -17,6 +17,14 @@
     "lootContainerPool": true
   },
   {
+    "type": "FIREBALL",
+    "textureName": "fireball",
+    "damage": 3,
+    "frameDuration": 0.17,
+    "dropChance": 0.25,
+    "lootContainerPool": true
+  },
+  {
     "type": "DEFENSE_COIN",
     "textureName": "shield_orb",
     "resistanceBoost": 0.15,

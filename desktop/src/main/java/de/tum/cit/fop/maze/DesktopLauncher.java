@@ -7,7 +7,17 @@ import com.badlogic.gdx.graphics.glutils.HdpiMode;
 /** Launches the desktop (LWJGL3) application. */
 public class DesktopLauncher {
     public static void main(String[] args) {
-        if (de.tum.cit.fop.maze.StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
+        /*
+         * If you use StartupHelper (automatically generated)
+         * instead of just adding -XstartOnFirstThread,
+         * the game will freeze after some amount of time on macOS.
+         * This is due to the issues with (re-)starting new JVM on macOS.
+         * Just adding -XstartOnFirstThread in JVM options will resolve
+         * the issue on macOS.
+         * However, StartupHelper might be helpful if you are on windows.
+         * Check StartupHelper class for more info
+         */
+//        if (de.tum.cit.fop.maze.StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
         createApplication();
     }
 

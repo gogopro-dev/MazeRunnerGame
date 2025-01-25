@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.entities.tile.Attributes;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
@@ -17,57 +18,60 @@ import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
-
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * Represents the player character in the game.
  */
 public class Player extends Entity {
-    private final Animation<TextureRegion> idleAnimation;
-    private final Animation<TextureRegion> movementAnimation;
-    private final Animation<TextureRegion> attackAnimation;
-    private final Animation<TextureRegion> idleTorchAnimation;
-    private final Animation<TextureRegion> movementTorchAnimation;
-    private Attributes collectableBuffs;
+
     private final List<Collectable> inventory;
-    private Animation<TextureRegion> currentAnimation;
-    private float elapsedTime = 0f;
-    private float elapsedTorchTime = 0f;
-    private float attackElapsedTime = 0f;    // Tracks time for hit animation
-    private boolean isAttacking = false;    // Track if the hit animation is active
-    private boolean isMoving = false;     // Flag to track movement state
-    private boolean facingRight = true;
-    private boolean canHit;
-    private boolean hasHit;
-    private boolean isHoldingTorch = true;
-    private boolean beingChased = false;
-    private boolean onActiveTrap = false;
-    private final float mapWidth;
-    private final float mapHeight;
-    private boolean isDamaged = false;
-    private float damageFlashTimer = 0f;
-    private float trapAttackElapsedTime = 0f;
-    private PointLight torchLight;
+    private int gold = 0;
+
+
+    private transient final Animation<TextureRegion> idleAnimation;
+    private transient final Animation<TextureRegion> movementAnimation;
+    private transient final Animation<TextureRegion> attackAnimation;
+    private transient final Animation<TextureRegion> idleTorchAnimation;
+    private transient final Animation<TextureRegion> movementTorchAnimation;
+    private transient Attributes collectableBuffs;
+
+    private transient Animation<TextureRegion> currentAnimation;
+    private transient float elapsedTime = 0f;
+    private transient float elapsedTorchTime = 0f;
+    private transient float attackElapsedTime = 0f;    // Tracks time for hit animation
+    private transient boolean isAttacking = false;    // Track if the hit animation is active
+    private transient boolean isMoving = false;     // Flag to track movement state
+    private transient boolean facingRight = true;
+    private transient boolean canHit;
+    private transient boolean hasHit;
+    private transient boolean isHoldingTorch = true;
+    private transient boolean beingChased = false;
+    private transient boolean onActiveTrap = false;
+    private transient final float mapWidth;
+    private transient final float mapHeight;
+    private transient boolean isDamaged = false;
+    private transient float damageFlashTimer = 0f;
+    private transient float trapAttackElapsedTime = 0f;
+    private transient PointLight torchLight;
     private float staminaRecoveryElapsedTime = 0f;
     private float maxStamina = 100;
 
     /**
      * Creates a new player character.
-     *
      */
     public Player() {
         super();
         this.mapWidth = LevelScreen.getInstance().map.widthMeters;
         this.mapHeight = LevelScreen.getInstance().map.heightMeters;
         this.mass = 5f;
-
+        health = 40;
+        maxHealth = 40;
         /// Player can hit if not holding torch
         canHit = !isHoldingTorch;
 
 
-        TextureAtlas animAtlas = new TextureAtlas(Gdx.files.internal("anim/player/character.atlas"));
+        TextureAtlas animAtlas = Assets.getInstance().getAssetManager().get("assets/anim/player/character.atlas", TextureAtlas.class);
         /// Load idle animation
         idleAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle"));
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
@@ -88,8 +92,6 @@ public class Player extends Entity {
         movementTorchAnimation = new Animation<>(1f / 40f * 3f, animAtlas.findRegions("Character_move_torch"));
         movementTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        health = 40;
-        maxHealth = 40;
 
         inventory = new ArrayList<>();
         collectableBuffs = new Attributes(0, 0, 0,
@@ -101,6 +103,7 @@ public class Player extends Entity {
      *
      * @param deltaTime The time since the last frame in seconds
      */
+    @Override
     public void render(float deltaTime) {
         /// TODO Stamina regeneration?
         elapsedTime += deltaTime;
@@ -298,8 +301,7 @@ public class Player extends Entity {
         if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) && stamina > 0) {
             velocityX *= 1.3f;
             velocityY *= 1.3f;
-            int staminaDrainPerSec = 2;
-            useStamina(staminaDrainPerSec);
+            useStamina(2); // amount of stamina drained per second of running
             staminaRecoveryElapsedTime = 0;
         }
 
@@ -498,12 +500,6 @@ public class Player extends Entity {
      * @param collectable The collectable item to collect
      */
     public void collect(Collectable collectable) {
-        // add attributes of collectable to player
-//        if (collectableBuffs == null) {
-//            collectableBuffs = collectable.collAttributes;
-//            System.out.println("Collectable Buffs: " + collectableBuffs);
-//            return;
-//        }
         collectableBuffs.sum(collectable.collectableAttributes);
         inventory.add(collectable);
         LevelScreen.getInstance().hud.updateInventory(collectable.getType().toString(),
@@ -531,5 +527,4 @@ public class Player extends Entity {
     public boolean isHoldingTorch() {
         return isHoldingTorch;
     }
-
 }
