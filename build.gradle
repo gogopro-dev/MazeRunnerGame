@@ -9,8 +9,7 @@ buildscript {
     maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:8.7.0-rc01'
-
+    classpath 'com.android.tools.build:gradle:8.7.3'
   }
 }
 
