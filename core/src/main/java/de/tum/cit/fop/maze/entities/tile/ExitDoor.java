@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
+import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
@@ -37,7 +38,9 @@ public class ExitDoor extends TileEntity {
         fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
 
-        Array<TextureAtlas.AtlasRegion> doorFrames = new TextureAtlas(Gdx.files.local("assets/tiles/exit.atlas")).findRegions("door");
+        Array<TextureAtlas.AtlasRegion> doorFrames = Assets.getInstance().getAssetManager()
+            .get("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class)
+            .findRegions("door");
         doorOpeningAnimation = new Animation<>(0.175f, doorFrames);
         doorOpeningAnimation.setPlayMode(Animation.PlayMode.NORMAL);
     }
