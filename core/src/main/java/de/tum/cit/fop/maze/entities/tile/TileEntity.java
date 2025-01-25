@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
-import de.tum.cit.fop.maze.essentials.PostProcessable;
+import de.tum.cit.fop.maze.essentials.GSONRestorable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
@@ -16,7 +16,7 @@ import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
  * This class represents a tile entity in the game.
  * Tile entities are static objects in the game that can be interacted with by the player.
  */
-public abstract class TileEntity implements Disposable, PostProcessable {
+public abstract class TileEntity implements Disposable, GSONRestorable {
 
     protected int width;
     protected int height;
@@ -31,7 +31,6 @@ public abstract class TileEntity implements Disposable, PostProcessable {
     protected transient FixtureDef fixtureDef;
     private transient boolean initialized = false;
     /// Queues up tile entity for deletion
-
 
     private TileEntity() {
         this.bodyDef = new BodyDef();
@@ -123,8 +122,6 @@ public abstract class TileEntity implements Disposable, PostProcessable {
     protected void onPlayerEndContact(Contact c) {
     }
 
-    ;
-
     public AbsolutePoint getPosition() {
         return new AbsolutePoint(body.getPosition().x, body.getPosition().y);
     }
@@ -139,17 +136,17 @@ public abstract class TileEntity implements Disposable, PostProcessable {
         return isOnPlayer;
     }
 
-    public final void postProcess() {
-        System.out.println("pizdabobra");
+    public final void restore() {
         createBody();
         init();
     }
+
+    protected abstract void init();
 
     public AbsolutePoint getSavedPosition() {
         return savedPosition;
     }
 
-    protected abstract void init();
 
     public void initialize() {
         if (initialized) {

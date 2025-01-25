@@ -7,9 +7,8 @@ import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.BoundingRectangle;
-import de.tum.cit.fop.maze.essentials.PostProcessable;
+import de.tum.cit.fop.maze.essentials.GSONRestorable;
 import de.tum.cit.fop.maze.level.LevelScreen;
-import org.jetbrains.annotations.NotNull;
 
 import static de.tum.cit.fop.maze.Globals.CELL_SIZE_METERS;
 import static de.tum.cit.fop.maze.Globals.PPM;
@@ -19,7 +18,7 @@ import static de.tum.cit.fop.maze.Globals.PPM;
  */
 
 
-public abstract class Entity implements Attackable, PostProcessable {
+public abstract class Entity implements Attackable, GSONRestorable {
     protected int health;
     protected int maxHealth;
     protected float stamina;
@@ -154,7 +153,7 @@ public abstract class Entity implements Attackable, PostProcessable {
         return new AbsolutePoint(body.getPosition().x, body.getPosition().y);
     }
 
-    public void postProcess() {
+    public void restore() {
         init();
     }
 

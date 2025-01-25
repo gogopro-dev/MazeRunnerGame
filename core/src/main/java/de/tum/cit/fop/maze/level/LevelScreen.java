@@ -254,7 +254,7 @@ public class LevelScreen implements Screen {
             this.tileEntityManager.restore();
             this.enemyManager.restore();
             this.map.restore();
-            player.postProcess();
+            player.restore();
             player.spawn(
                 player.getSavedPosition().x(),
                 player.getSavedPosition().y()
@@ -266,10 +266,6 @@ public class LevelScreen implements Screen {
             );
         }
         hud = new HUD(player);
-        /*for (Collectable collectable : player.getInventory()) {
-            hud.addItemToInventory(collectable);
-        }*/
-
         /// Set camera at the center of the players position in Box2D world
         if (player.getPosition() != null) {
             camera.position.set(player.getPosition().x(), player.getPosition().y(), 0);

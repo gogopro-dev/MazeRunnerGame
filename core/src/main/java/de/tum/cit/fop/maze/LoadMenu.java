@@ -2,19 +2,9 @@ package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.resolvers.LocalFileHandleResolver;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import de.tum.cit.fop.maze.essentials.PostProcessable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
-
-import java.beans.Transient;
-import java.lang.reflect.Field;
-import java.lang.reflect.InaccessibleObjectException;
-import java.util.HashMap;
-import java.util.HashSet;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class LoadMenu extends Game {
@@ -39,7 +29,6 @@ public class LoadMenu extends Game {
         );
         screen.init();
         setScreen(screen);
-
         //setScreen(new LevelScreen(true));
 
     }

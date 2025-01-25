@@ -194,7 +194,7 @@ public class EnemyManager {
 
     public void restore() {
         for (Enemy enemy : enemies) {
-            enemy.postProcess();
+            enemy.restore();
             enemy.spawn(
                     enemy.getSavedPosition().x(),
                     enemy.getSavedPosition().y()

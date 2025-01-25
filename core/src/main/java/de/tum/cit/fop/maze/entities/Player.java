@@ -27,6 +27,8 @@ public class Player extends Entity {
 
     private final List<Collectable> inventory;
     private int gold = 0;
+    private float staminaRecoveryElapsedTime = 0f;
+    private float maxStamina = 100;
 
 
     private transient Animation<TextureRegion> idleAnimation;
@@ -52,8 +54,7 @@ public class Player extends Entity {
     private transient float damageFlashTimer = 0f;
     private transient float trapAttackElapsedTime = 0f;
     private transient PointLight torchLight;
-    private float staminaRecoveryElapsedTime = 0f;
-    private float maxStamina = 100;
+
 
     /**
      * Creates a new player character.
