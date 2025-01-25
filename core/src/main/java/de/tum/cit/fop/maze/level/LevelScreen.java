@@ -266,10 +266,7 @@ public class LevelScreen implements Screen {
         }
         hud = new HUD(player);
         for (Collectable collectable : player.getInventory()) {
-            hud.updateInventory(
-                collectable.getType().toString(),
-                collectable.getCollectableAttributes().textureName
-            );
+            hud.addItemToInventory(collectable);
         }
 
         /// Set camera at the center of the players position in Box2D world
@@ -292,6 +289,7 @@ public class LevelScreen implements Screen {
         Collectable collectable6 = new Collectable(Collectable.CollectableType.VAMPIRE_AMULET);
         Collectable collectable7 = new Collectable(Collectable.CollectableType.RESURRECTION_AMULET);
         Collectable collectable8 = new Collectable(Collectable.CollectableType.HEART);
+        Collectable collectable9 = new Collectable(Collectable.CollectableType.KEY);
         tileEntityManager.createTileEntity(collectable1,
             map.widthMeters / 2 + 10, map.heightMeters / 2
         );
@@ -315,6 +313,9 @@ public class LevelScreen implements Screen {
         );
         tileEntityManager.createTileEntity(collectable8,
             map.widthMeters / 2 + 12, map.heightMeters / 2 - 6
+        );
+        tileEntityManager.createTileEntity(collectable9,
+            map.widthMeters / 2 + 14, map.heightMeters / 2 - 8
         );
         tileEntityManager.createTileEntity(
             new Torch(Direction.UP),
