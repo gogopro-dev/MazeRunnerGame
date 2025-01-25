@@ -65,6 +65,8 @@ public class HUD {
     private Map<String, Label> invInfo = new HashMap<>();
     private float elapsedTime = 0f;
 
+    private Sprite exitArrow;
+
     private int receivedDmg;
     private int health;
     private int maxHealth;
@@ -98,7 +100,6 @@ public class HUD {
     final float padding = 10f;
     final float labelPadding = padding + 5f;
     final float spacingBetwHPBarAndStaminaBar = 20f;
-    private int currentCoins = 0;
     int amountOfHeartsInRow = 10;
 
     int indexXOfLastFullHalf;
@@ -163,18 +164,38 @@ public class HUD {
         loadTextures();
         updateHPBar();
         createStaminaBar();
-        createDamageButton();
 
-        coins = new Label(String.format(": " + currentCoins), coinsAndKeysLabelStyle);
+        coins = new Label(String.format(": " + LevelScreen.getInstance().player.getGold()), coinsAndKeysLabelStyle);
 
         initCoinsAndKeysTable();
+
+        exitArrow = new Sprite(atlas.findRegion("arrow"));
+        initExitArrow();
+    }
+
+    public void initExitArrow() {
+
+        float arrowSize = 50;
+        exitArrow.setSize(arrowSize, arrowSize);
+        updateArrowPosition();
+    }
+
+    private void updateArrowPosition() {
+        float arrowPadding = 20;
+        exitArrow.setPosition(stage.getViewport().getWorldWidth() - exitArrow.getWidth() - arrowPadding,
+            arrowPadding);
+    }
+
+    public void drawExitArrow(float angle) {
+        exitArrow.setRotation(angle);
+        exitArrow.draw(spriteBatch);
     }
 
     private void pickUpCoin(int value){
         float spacingFromStaminaBar = 10;
 
-        currentCoins += value;
-        coins.setText(": " + currentCoins);
+        LevelScreen.getInstance().player.addGold(value);
+        coins.setText(": " + LevelScreen.getInstance().player.getGold());
         coinsAndKeysTable.setPosition(padding + coinsAndKeysTable.getPrefWidth() / 2,
             staminaBar.getY() - spacingFromStaminaBar - coinsAndKeysTable.getPrefHeight() / 2);
 
@@ -616,24 +637,6 @@ public class HUD {
         return true;
     }
 
-
-    public void createDamageButton() {
-        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.fontColor = Color.WHITE;
-        textButtonStyle.font = new BitmapFont();
-
-        Button takeDmgButton = new TextButton("Take Damage", textButtonStyle);
-        takeDmgButton.setPosition(20, Gdx.graphics.getHeight() / 2f);
-        takeDmgButton.addCaptureListener(new InputListener() {
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Damage button clicked");
-                takeDmg(30);
-                return true;
-            }
-        });
-        stage.addActor(takeDmgButton);
-    }
-
     private void updateLabels(float elapsedTime) {
         time.setText(getLabelTime(elapsedTime));
         scoreLabel.setText(getLabelScore(currentScore - (int) elapsedTime));
@@ -672,6 +675,7 @@ public class HUD {
             }
         }
         updateStaminaBar(deltaTime);
+        drawExitArrow(0);
         stage.getBatch().end();
     }
 
@@ -723,6 +727,7 @@ public class HUD {
         updateLabelTablePosition();
         updateDescriptionPosition();
         updateInventoryPosition();
+        updateArrowPosition();
     }
 }
 
