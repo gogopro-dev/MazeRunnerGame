@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
@@ -32,7 +33,6 @@ public class HUD {
     private final Label time;
 
     private final Label coins;
-    private final Label keys;
     private final Table coinsAndKeysTable = new Table();
 //    private final Table healthTable;
 
@@ -98,6 +98,7 @@ public class HUD {
     final float padding = 10f;
     final float labelPadding = padding + 5f;
     final float spacingBetwHPBarAndStaminaBar = 20f;
+    private int currentCoins = 0;
     int amountOfHeartsInRow = 10;
 
     int indexXOfLastFullHalf;
@@ -138,13 +139,6 @@ public class HUD {
         Label.LabelStyle coinsAndKeysLabelStyle = new Label.LabelStyle();
         coinsAndKeysLabelStyle.font = generator.generateFont(parameter);
 
-        coins = new Label(": 0", coinsAndKeysLabelStyle);
-        keys = new Label(": 0", coinsAndKeysLabelStyle);
-
-//        initCoinsAndKeysTable();
-
-
-
         descriptionStyle = new Label.LabelStyle();
         parameter.size = 17; // font size
         parameter.borderWidth = 0;
@@ -170,6 +164,49 @@ public class HUD {
         updateHPBar();
         createStaminaBar();
         createDamageButton();
+
+        coins = new Label(String.format(": " + currentCoins), coinsAndKeysLabelStyle);
+
+        initCoinsAndKeysTable();
+    }
+
+    private void pickUpCoin(int value){
+        float spacingFromStaminaBar = 10;
+
+        currentCoins += value;
+        coins.setText(": " + currentCoins);
+        coinsAndKeysTable.setPosition(padding + coinsAndKeysTable.getPrefWidth() / 2,
+            staminaBar.getY() - spacingFromStaminaBar - coinsAndKeysTable.getPrefHeight() / 2);
+
+    }
+
+    private void pickUpKey() {
+
+        float spacingFromStaminaBar = 10;
+        float keyWidth = 45;
+        float keyHeight = 35;
+
+        Drawable keysIcon = new TextureRegionDrawable(inventoryAtlas.findRegion("key", 1));
+        keysIcon.setMinHeight(keyHeight);
+        keysIcon.setMinWidth(keyWidth);
+        coinsAndKeysTable.add(new Image(keysIcon)).width(keyWidth).height(keyHeight);
+        coinsAndKeysTable.setPosition(padding + coinsAndKeysTable.getPrefWidth() / 2,
+            staminaBar.getY() - spacingFromStaminaBar - coinsAndKeysTable.getPrefHeight() / 2);
+    }
+
+    private void initCoinsAndKeysTable() {
+
+        Drawable coinsIcon = new TextureRegionDrawable(inventoryAtlas.findRegion("coin"));
+        float iconSize = 40;
+        coinsIcon.setMinWidth(iconSize);
+        coinsIcon.setMinHeight(iconSize);
+        coinsAndKeysTable.add(new Image(coinsIcon)).width(iconSize).height(iconSize);
+        coinsAndKeysTable.add(coins);
+        coinsAndKeysTable.row();
+        float spacingFromStaminaBar = 10;
+        coinsAndKeysTable.setPosition(padding + coinsAndKeysTable.getPrefWidth() / 2,
+            staminaBar.getY() - spacingFromStaminaBar - coinsAndKeysTable.getPrefHeight() / 2);
+        stage.addActor(coinsAndKeysTable);
     }
 
     private void setItemDescription(String description) {
@@ -195,8 +232,8 @@ public class HUD {
         itemDescription.setBounds(0, 0, labelWidth, itemDescription.getPrefHeight());
         itemDescription.setAlignment(Align.topRight);
 //        itemDescription.setAlignment(Align.bottomLeft);
-       descriptionTable.add(itemDescription).width(labelWidth).pad(padding);
-       descriptionTable.setSize(labelWidth, itemDescription.getPrefHeight());
+        descriptionTable.add(itemDescription).width(labelWidth).pad(padding);
+        descriptionTable.setSize(labelWidth, itemDescription.getPrefHeight());
 
         updateDescriptionPosition();
 
@@ -207,8 +244,8 @@ public class HUD {
 
     private void updateDescriptionPosition() {
 
-        float containerWidth = descriptionTable.getWidth()+15;
-        float containerHeight = descriptionTable.getHeight()+15;
+        float containerWidth = descriptionTable.getWidth() + 15;
+        float containerHeight = descriptionTable.getHeight() + 15;
         descriptionContainer.setSize(containerWidth, containerHeight);
 
         float containerX = stage.getViewport().getWorldWidth() - containerWidth - padding;
@@ -223,10 +260,11 @@ public class HUD {
         textInventory.setVisible(true);
     }
 
-    private void heal(int value){
+    private void heal(int value) {
         health = Math.min(health + value, maxHealth);
         updateHPBar();
     }
+
     private void setupInventory() {
 
         spriteInventory.setSize(inventoryWidth, inventoryHeight);
@@ -250,18 +288,18 @@ public class HUD {
         Collectable.CollectableType collectableType = collectable.getType();
         String textureName = collectable.getCollectableAttributes().textureName;
         if (invInfo.get(collectableType.name()) == null) {
-            if (Objects.equals(collectableType, Collectable.CollectableType.HEART)){
+            if (Objects.equals(collectableType, Collectable.CollectableType.HEART)) {
                 heal(collectable.getCollectableAttributes().getImmediateHealing());
                 return;
             }
 
-            if (Objects.equals(collectableType, Collectable.CollectableType.KEY)){
-                addKey(collectable.getCollectableAttributes().getImmediateCoins());
+            if (Objects.equals(collectableType, Collectable.CollectableType.KEY)) {
+                pickUpKey();
                 return;
             }
 
-            if(Objects.equals(collectableType, Collectable.CollectableType.GOLD_COIN)){
-                addCoin(collectable.getCollectableAttributes().getImmediateCoins());
+            if (Objects.equals(collectableType, Collectable.CollectableType.GOLD_COIN)) {
+                pickUpCoin(collectable.getCollectableAttributes().getImmediateCoins());
                 return;
             }
 
@@ -293,14 +331,6 @@ public class HUD {
 
     }
 
-    private void addKey(int immediateCoins) {
-
-    }
-
-    private void addCoin(int immediateCoins) {
-        return;
-    }
-
     private void initTimeAndScoreTable() {
         timeAndScoreTable.add(time);
         timeAndScoreTable.row();
@@ -329,7 +359,7 @@ public class HUD {
         return String.format("Score: %06d", score);
     }
 
-    private void addScore(int val){
+    private void addScore(int val) {
         currentScore += val;
     }
 
@@ -646,35 +676,35 @@ public class HUD {
     }
 
     private void updateStaminaBar(float deltaTime) {
-        if (!staminaDrain && staminaDrainElapsedTime>0 ){
+        if (!staminaDrain && staminaDrainElapsedTime > 0) {
             currentStamina -= staminaDrainElapsedTime * staminaPerSecond;
-            if (currentStamina < 0){
+            if (currentStamina < 0) {
                 currentStamina = 0;
             }
             staminaDrainElapsedTime = 0;
         }
-        if (!staminaRecovery && staminaRecoveryElapsedTime>0){
-            if (currentStamina + staminaRecoveryElapsedTime * staminaPerSecond > maxStamina){
+        if (!staminaRecovery && staminaRecoveryElapsedTime > 0) {
+            if (currentStamina + staminaRecoveryElapsedTime * staminaPerSecond > maxStamina) {
                 currentStamina = maxStamina;
             }
             currentStamina += staminaRecoveryElapsedTime * staminaPerSecond;
             staminaRecoveryElapsedTime = 0;
         }
 
-        if (staminaRecovery ){
+        if (staminaRecovery) {
             staminaRecoveryElapsedTime += deltaTime;
             staminaBar.setValue(currentStamina + staminaRecoveryElapsedTime * staminaPerSecond);
 
         }
-        if (staminaDrain){
+        if (staminaDrain) {
             staminaDrainElapsedTime += deltaTime;
             staminaBar.setValue(currentStamina - staminaDrainElapsedTime * staminaPerSecond);
         }
-        if (currentStamina <= 0){
+        if (currentStamina <= 0) {
             staminaDrain = false;
             currentStamina = 0;
         }
-        if (currentStamina >= maxStamina){
+        if (currentStamina >= maxStamina) {
             staminaRecovery = false;
             currentStamina = maxStamina;
         }
