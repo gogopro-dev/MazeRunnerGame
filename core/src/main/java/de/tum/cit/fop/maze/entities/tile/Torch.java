@@ -104,7 +104,7 @@ public class Torch extends TileEntity {
         light = new PointLight(
             LevelScreen.getInstance().rayHandler, RAY_AMOUNT, TORCH_LIGHT_COLOR, 0, x, y);
         light.setContactFilter(BodyBits.LIGHT, (short) 0, BodyBits.LIGHT_MASK);
-        light.setActive(false);
+        light.setActive(lit);
         light.setStaticLight(false);
     }
 
