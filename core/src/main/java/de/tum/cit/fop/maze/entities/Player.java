@@ -318,8 +318,6 @@ public class Player extends Entity {
             staminaRecoveryElapsedTime += Gdx.graphics.getDeltaTime();
         }
 
-        System.out.println(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)+ " + " + staminaRecoveryElapsedTime);
-
         //TODO stamina regen (func in hud is ready)
 
         body.setLinearVelocity(velocityX, velocityY);
@@ -505,7 +503,6 @@ public class Player extends Entity {
         collectableBuffs.sum(collectable.getCollectableAttributes());
         inventory.add(collectable);
         LevelScreen.getInstance().hud.addItemToInventory(collectable);;
-        System.out.println("Current Buffs: " + collectableBuffs);
     }
 
     public boolean isBeingChased() {
@@ -527,5 +524,13 @@ public class Player extends Entity {
 
     public boolean isHoldingTorch() {
         return isHoldingTorch;
+    }
+
+    public int getGold() {
+        return gold;
+    }
+
+    public void addGold(int gold) {
+        this.gold += gold;
     }
 }
