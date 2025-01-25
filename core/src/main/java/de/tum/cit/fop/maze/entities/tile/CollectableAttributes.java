@@ -1,5 +1,7 @@
 package de.tum.cit.fop.maze.entities.tile;
 
+import de.tum.cit.fop.maze.entities.Attributes;
+
 public final class CollectableAttributes extends Attributes {
 
     public final Collectable.CollectableType type;

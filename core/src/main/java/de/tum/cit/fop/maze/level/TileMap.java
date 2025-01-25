@@ -13,12 +13,15 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Disposable;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
-import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.TileTextureHelper;
 import de.tum.cit.fop.maze.entities.Enemy;
 import de.tum.cit.fop.maze.entities.EnemyType;
-import de.tum.cit.fop.maze.entities.EntityPathfinder;
 import de.tum.cit.fop.maze.entities.tile.*;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
@@ -28,21 +31,108 @@ import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 
 import static de.tum.cit.fop.maze.Globals.*;
 import static java.lang.Math.max;
 
 public class TileMap implements Disposable {
-    private final transient TiledMap map = new TiledMap();
+    private final TiledMap map = new TiledMap();
+
+    public static class TiledMapAdapter extends TypeAdapter<TiledMap> {
+        @Override
+        public void write(JsonWriter jsonWriter, TiledMap tiledMap) throws IOException {
+            TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+            TileTextureHelper.TextureWithIndex[][] textures =
+                new TileTextureHelper.TextureWithIndex[layer.getWidth()][layer.getHeight()];
+            for (int i = 0; i < layer.getWidth(); i++) {
+                for (int j = 0; j < layer.getHeight(); j++) {
+                    Cell cell = layer.getCell(i, j);
+                    if (cell == null) {
+                        continue;
+                    }
+                    String textureName = (String) cell.getTile().getProperties().get("textureName");
+                    int index = (int) cell.getTile().getProperties().get("index");
+                    textures[i][j] = new TileTextureHelper.TextureWithIndex(textureName, index);
+                }
+            }
+            jsonWriter.beginObject();
+            jsonWriter.name("width").value(layer.getWidth());
+            jsonWriter.name("height").value(layer.getHeight());
+            jsonWriter.name("tiles");
+            jsonWriter.jsonValue(
+                Assets.getInstance().gson.toJson(textures)
+            );
+            jsonWriter.endObject();
+        }
+
+        @Override
+        public TiledMap read(JsonReader jsonReader) throws IOException {
+            int width = 0, height = 0;
+            jsonReader.beginObject();
+            String fieldname = null;
+            TiledMap map = new TiledMap();
+            while (jsonReader.hasNext()) {
+                JsonToken token = jsonReader.peek();
+
+                if (token.equals(JsonToken.NAME)) {
+                    //get the current token
+                    fieldname = jsonReader.nextName();
+                }
+                switch (Objects.requireNonNull(fieldname)) {
+                    case "width" -> width = jsonReader.nextInt();
+                    case "height" -> height = jsonReader.nextInt();
+                    case "tiles" -> {
+                        if (width == 0 || height == 0) {
+                            throw new IOException("Width and height must be set before tiles");
+                        }
+                        TileTextureHelper.TextureWithIndex[][] textures =
+                            Assets.getInstance().gson.fromJson(jsonReader, TileTextureHelper.TextureWithIndex[][].class);
+
+                        TiledMapTileLayer layer =
+                            new TiledMapTileLayer(width, height,
+                                CELL_SIZE,
+                                CELL_SIZE
+                            );
+                        for (int i = 0; i < width; i++) {
+                            for (int j = 0; j < height; j++) {
+                                if (textures[i][j] == null) {
+                                    continue;
+                                }
+                                Cell mapCell = new Cell();
+                                TextureRegion result =
+                                    Assets.getInstance().tileTextureHelper.getTexture(
+                                        textures[i][j].texture(), textures[i][j].index()
+                                    );
+                                mapCell.setTile(
+                                    new StaticTiledMapTile(
+                                        result
+                                    )
+                                );
+                                mapCell.getTile().getProperties().put("textureName", textures[i][j].texture());
+                                mapCell.getTile().getProperties().put("index", textures[i][j].index());
+                                layer.setCell(i, j, mapCell);
+                            }
+                        }
+                        map.getLayers().add(layer);
+                    }
+                }
+            }
+            jsonReader.endObject();
+            return map;
+        }
+    }
+
     public int width;
     public int height;
+    boolean[][] wallMap;
     public transient float heightMeters;
     public transient float widthMeters;
     public transient Random random;
-    private transient TextureLoader textures;
     private transient MazeGenerator generator;
     private transient final TileEntityManager tileEntityManager;
 
@@ -51,6 +141,17 @@ public class TileMap implements Disposable {
      */
     public TileMap() {
         this.tileEntityManager = LevelScreen.getInstance().tileEntityManager;
+        this.random = LevelScreen.getInstance().random;
+    }
+
+
+    public void restore() {
+        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);
+        this.width = layer.getWidth();
+        this.height = layer.getHeight();
+        this.widthMeters = this.width * CELL_SIZE_METERS;
+        this.heightMeters = this.height * CELL_SIZE_METERS;
+        generateHitboxes();
     }
 
     /**
@@ -71,19 +172,16 @@ public class TileMap implements Disposable {
         System.out.println(generator);
         widthMeters = this.width * CELL_SIZE_METERS;
         heightMeters = this.height * CELL_SIZE_METERS;
-        boolean[][] wallMap = new boolean[this.height][this.width];
-
-        textures = new TextureLoader("assets/tiles/tiles.atlas", generator.getRandom());
+        wallMap = new boolean[this.height][this.width];
         createDebugLayer();
         System.out.println(generator);
-
 
         ///  Dimensions x3 since we want to have 3x3 tiles for each cell,
         ///  so we create larger environment for fights, etc.
         TiledMapTileLayer layer =
             new TiledMapTileLayer(this.width, this.height,
-                Globals.CELL_SIZE,
-                Globals.CELL_SIZE
+                CELL_SIZE,
+                CELL_SIZE
             );
         map.getLayers().add(layer);
 
@@ -111,7 +209,7 @@ public class TileMap implements Disposable {
                 }
                 /// Any cell that is not a wall is walkable, floor would be a background
                 if (cell.getCellType().isWalkable()) {
-                    setSquare(textures.getTextureWithVariationChance("floor"), x, y);
+                    setSquare("floor", x, y);
                     tryTorchSpawn(i, j, cell, x, y, torches);
                 }
                 if (cell.getCellType().isPath() && !cell.getCellType().isRoom()) {
@@ -131,16 +229,9 @@ public class TileMap implements Disposable {
                     }
                     if (GenerationCases.topVerticalCase(i, j, generator)) {
                         setVerticalWallSquare(x, y);
-                        TextureRegion leftCorner =
-                            textures.getTextureWithVariationChance("wallVerticalLeftCorner");
-                        TextureRegion middleCorner =
-                            textures.getTextureWithVariationChance("wallVerticalMiddleCorner");
-                        TextureRegion rightCorner =
-                            textures.getTextureWithVariationChance("wallVerticalRightCorner");
-
-                        setCell(leftCorner, x - 1, y + 1, true);
-                        setCell(middleCorner, x, y + 1, true);
-                        setCell(rightCorner, x + 1, y + 1, true);
+                        setCell("wallVerticalLeftCorner", x - 1, y + 1);
+                        setCell("wallVerticalMiddleCorner", x, y + 1);
+                        setCell("wallVerticalRightCorner", x + 1, y + 1);
                     }
                 }
                 if (cell.getCellType() == CellType.KEY_OBELISK) {
@@ -183,7 +274,7 @@ public class TileMap implements Disposable {
             }
         }
         reverseCollisionMapRows(wallMap);
-        generateHitboxes(wallMap);
+        generateHitboxes();
     }
 
     public void spawnEnemies(int x, int y) {
@@ -243,7 +334,7 @@ public class TileMap implements Disposable {
                         ).findFirst().get()
                     ),
                     current.x() + j * CELL_SIZE_METERS,
-                    current.y() + i * CELL_SIZE_METERS
+                    current.y() + i * CELL_SIZE_METERS + CELL_SIZE_METERS / 1.5f
                 );
                 --lootContainerCount;
             }
@@ -380,31 +471,31 @@ public class TileMap implements Disposable {
         }
     }
 
-    private void setHorizontalWallStack(TextureRegion top, TextureRegion middle, TextureRegion bottom, int x, int y) {
+    private void setHorizontalWallStack(int x, int y) {
         for (int k = -1; k < 2; ++k) {
-            setCell(top, x + k, y + 1);
+            setCell("wallTop", x + k, y + 1);
         }
 
         for (int k = -1; k < 2; ++k) {
-            setCell(middle, x + k, y);
+            setCell("wallMiddle", x + k, y);
         }
 
         for (int k = -1; k < 2; ++k) {
-            setCell(bottom, x + k, y - 1);
+            setCell("wallBottom", x + k, y - 1);
         }
     }
 
-    private void setVerticalWallStack(TextureRegion left, TextureRegion middle, TextureRegion right, int x, int y) {
+    private void setVerticalWallStack(int x, int y) {
         for (int k = -1; k < 2; ++k) {
-            setCell(left, x - 1, y + k, true);
+            setCell("wallVerticalLeft", x - 1, y + k);
         }
 
         for (int k = -1; k < 2; ++k) {
-            setCell(middle, x, y + k);
+            setCell("wallVerticalMiddle", x, y + k);
         }
 
         for (int k = -1; k < 2; ++k) {
-            setCell(right, x + 1, y + k);
+            setCell("wallVerticalRight", x + 1, y + k);
         }
     }
 
@@ -414,11 +505,8 @@ public class TileMap implements Disposable {
      * @param y the y position
      */
     private void setVerticalWallSquare(int x, int y) {
-        TextureRegion wallLeft =  textures.getTextureWithVariationChance("wallVerticalLeft");
-        TextureRegion wallMiddle = textures.getTextureWithVariationChance("wallVerticalMiddle");
-        TextureRegion wallRight = textures.getTextureWithVariationChance("wallVerticalRight");
-
-        setVerticalWallStack(wallLeft, wallMiddle, wallRight, x, y);
+        setVerticalWallStack(
+            x, y);
     }
 
     /**
@@ -427,30 +515,18 @@ public class TileMap implements Disposable {
      * @param y the y position
      */
     private void setDefaultWallSquare(int x, int y) {
-        TextureRegion wallTop = textures.getTextureWithVariationChance("wallTop");
-        TextureRegion wallMiddle = textures.getTextureWithVariationChance("wallMiddle");
-        TextureRegion wallBottom = textures.getTextureWithVariationChance("wallBottom");
-
-        setHorizontalWallStack(wallTop, wallMiddle, wallBottom, x, y);
-    }
-
-    /**
-     * Spawn a decoration at {@code x} {@code y} position
-     * @param x the x position
-     * @param y the y position
-     */
-    private void setDecorationSquare(int x, int y) {
-        TextureRegion decoration = textures.getTextureWithVariationChance("decorWater");
-        setSquare(decoration, x, y);
+        setHorizontalWallStack(
+            x, y
+        );
     }
 
     /**
      * Set square 3x3 at x y position to be {@code cell}
-     * @param texture the texture to set
+     * @param textureName the texture to set
      * @param x the x position
      * @param y the y position
      */
-    private void setSquare(TextureRegion texture, int x, int y) {
+    private void setSquare(String textureName, int x, int y) {
         int[][] allSurrounding = {
             {0, 0},
             {-1, 0},
@@ -463,36 +539,36 @@ public class TileMap implements Disposable {
             {1, 1}
         };
         for (int[] surrounding : allSurrounding) {
-            setCell(texture, x + surrounding[0], y + surrounding[1]);
+            setCell(textureName, x + surrounding[0], y + surrounding[1]);
         }
     }
 
     /**
      * Set cell at x y position to be {@code texture}
-     * @param texture the texture to set
+     * @param textureName the texture to set
      * @param x the x position
      * @param y the y position
-     * @param topLayer if the cell should be set in the top layer
      */
-    private void setCell(TextureRegion texture, int x, int y, boolean topLayer) {
+    private void setCell(String textureName, int x, int y) {
         Cell mapCell = new Cell();
+        TileTextureHelper.TextureResult result = Assets.getInstance().
+            tileTextureHelper.getTextureWithVariationChance(textureName, random);
         mapCell.setTile(
-            new StaticTiledMapTile(texture)
+            new StaticTiledMapTile(
+                result.textureRegion()
+            )
+        );
+        mapCell.getTile().getProperties().put(
+            "textureName", textureName
+        );
+        mapCell.getTile().getProperties().put(
+            "index", result.index()
         );
         ///  1 is always the top layer and 0 is the bottom layer
-        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(topLayer ? 1 : 0);
+        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);
         layer.setCell(x, y, mapCell);
     }
 
-    /**
-     * Set cell at x y position to be {@code texture}
-     * @param texture the texture to set
-     * @param x the x position
-     * @param y the y position
-     */
-    private void setCell(TextureRegion texture, int x, int y) {
-        setCell(texture, x, y, false);
-    }
 
     public TiledMap getMap() {
         return map;
@@ -504,10 +580,10 @@ public class TileMap implements Disposable {
     public void createDebugLayer() {
         TiledMapTileLayer layer =
             new TiledMapTileLayer(this.width, this.height,
-                Globals.CELL_SIZE,
-                Globals.CELL_SIZE
+                CELL_SIZE,
+                CELL_SIZE
             );
-        Pixmap pixmap = new Pixmap(Globals.CELL_SIZE, Globals.CELL_SIZE, Pixmap.Format.RGBA8888);
+        Pixmap pixmap = new Pixmap(CELL_SIZE, CELL_SIZE, Pixmap.Format.RGBA8888);
         pixmap.setColor(1, 0, 0, 1);
         pixmap.fill();
         Cell cell = new Cell();
@@ -579,17 +655,16 @@ public class TileMap implements Disposable {
      *
      * @param x       the x position
      * @param y       the y position
-     * @param wallMap the collision map with the cells
      * @return {@code true} if the cell is isolated
      */
-    private boolean isIsolatedCollidable(int x, int y, boolean[][] wallMap) {
+    private boolean isIsolatedCollidable(int x, int y) {
         if (y - 2 <= 0 || x - 2 <= 0 || y + 2 >= height || x + 2 >= width) {
             return false;
         }
         return !wallMap[y - 2][x] && !wallMap[y + 2][x] && !wallMap[y][x - 2] && !wallMap[y][x + 2];
     }
 
-    private void generateVerticalHitboxes(boolean[][] wallMap) {
+    private void generateVerticalHitboxes() {
         for (int j = 0; j < width; j += 3) {
             int x = (j - 1);
             int y = -1;
@@ -633,7 +708,7 @@ public class TileMap implements Disposable {
 
     }
 
-    private void generateHorizontalHitboxes(boolean[][] wallMap) {
+    private void generateHorizontalHitboxes() {
         for (int i = 0; i < height; i += 3) {
             int x = -1;
             int y = (i - 1);
@@ -647,7 +722,7 @@ public class TileMap implements Disposable {
                 } else {
                     if (x != -1) {
                         /// x is offset for 0.025f to avoid collision with the tiny pixel
-                        if (hx > 3 || isIsolatedCollidable(j - 2, i + 1, wallMap)) {
+                        if (hx > 3 || isIsolatedCollidable(j - 2, i + 1)) {
                             FixtureDef temp = new FixtureDef();
                             temp.filter.categoryBits = BodyBits.WALL_TRANSPARENT;
                             temp.filter.maskBits = BodyBits.WALL_TRANSPARENT_MASK;
@@ -676,11 +751,9 @@ public class TileMap implements Disposable {
 
     /**
      * Generate hitboxes for the map
-     *
-     * @param wallMap the collision map with the cells
      */
-    private void generateHitboxes(boolean[][] wallMap) {
-        generateVerticalHitboxes(wallMap);
-        generateHorizontalHitboxes(wallMap);
+    private void generateHitboxes() {
+        generateVerticalHitboxes();
+        generateHorizontalHitboxes();
     }
 }

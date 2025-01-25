@@ -1,6 +1,5 @@
 package de.tum.cit.fop.maze.entities.tile;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Bezier;
@@ -20,13 +19,13 @@ import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 
 public class Collectable extends TileEntity {
+
     /*Итак мои предложения к коллектблам:
 Сердечки = выпадают с каким то шансом с убитых мобов. Восстанавливают 1(?) фулл сердце
 Монетки = выпадают с мобов в количестве от 1 до 4(рандом). За них можно купить бафы в магазе
@@ -43,38 +42,41 @@ public class Collectable extends TileEntity {
         KEY, FIREBALL
     }
 
-    public final CollectableAttributes collectableAttributes;
-    public transient Animation<TextureRegion> idleAnimation;
 
-    public transient boolean pickedUp;
-    public transient SpriteBatch batch;
+    private CollectableAttributes collectableAttributes;
+    private transient Animation<TextureRegion> idleAnimation;
+
+    public transient boolean pickedUp = false;
     public transient float elapsedTime;
     public transient float pickupElapsedTime;
     private transient final ArrayList<AbsolutePoint> dropPositions = new ArrayList<>();
     private transient float dropPathLength = 0f;
     private transient float dropElapsedTime = 0f;
     private transient PrismaticJoint joint;
+
+
     private transient boolean hasBeenDropped = true;
 
     /**
      * Constructor for testing purposes
      */
 
-    public Collectable(CollectableType type) {
+    private Collectable() {
         super(1, 1);
+    }
+
+    public Collectable(CollectableType type) {
+        this();
         collectableAttributes = Assets.getInstance().getCollectables().stream().filter(
                 collectableAttributes -> collectableAttributes.type == type).findFirst()
             .orElse(null);
         if (collectableAttributes == null) {
             throw new JsonSyntaxException("Collectable type not found in collectables.json");
         }
-
-
-        batch = LevelScreen.getInstance().batch;
-        loadTextures();
+        init();
     }
 
-    public void loadTextures() {
+    public void init() {
         TextureAtlas atlas = Assets.getInstance().getAssetManager().get(
             "assets/temporary/collectables/collectables.atlas", TextureAtlas.class
         );
@@ -82,13 +84,13 @@ public class Collectable extends TileEntity {
             collectableAttributes.frameDuration, atlas.findRegions(collectableAttributes.textureName)
         );
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
     }
 
     public Collectable(CollectableAttributes attributes) {
         super(1, 1);
         collectableAttributes = attributes;
-        batch = LevelScreen.getInstance().batch;
-        loadTextures();
+        init();
     }
 
     public Collectable(CollectableAttributes attributes, boolean drop) {
@@ -102,9 +104,9 @@ public class Collectable extends TileEntity {
         this.hasBeenDropped = !drop;
     }
 
-
     @Override
     public void render(float delta) {
+        super.render(delta);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         TextureRegion currentFrame;
@@ -154,6 +156,7 @@ public class Collectable extends TileEntity {
         }
     }
 
+
     public void setBatch(SpriteBatch batch) {
         this.batch = batch;
     }
@@ -193,7 +196,7 @@ public class Collectable extends TileEntity {
     }
 
     @Override
-    protected void spawn(float x, float y) {
+    public void spawn(float x, float y) {
         super.spawn(x, y);
         if (hasBeenDropped) {
             return;
@@ -207,6 +210,10 @@ public class Collectable extends TileEntity {
             fixture.setFilterData(filter);
             fixture.setSensor(false);
         }
+    }
+
+    public void setHasBeenDropped(boolean hasBeenDropped) {
+        this.hasBeenDropped = hasBeenDropped;
     }
 
     private Body createTempBody(float x, float y) {
@@ -259,5 +266,10 @@ public class Collectable extends TileEntity {
             joint.getBodyB().setTransform(dropPositions.get(0).x(), dropPositions.get(0).y(), 0);
         }
     }
+
+    public CollectableAttributes getCollectableAttributes() {
+        return collectableAttributes;
+    }
+
 
 }

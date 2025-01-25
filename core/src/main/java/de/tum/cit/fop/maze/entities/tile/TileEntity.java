@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
+import de.tum.cit.fop.maze.essentials.PostProcessable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
@@ -15,26 +16,38 @@ import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
  * This class represents a tile entity in the game.
  * Tile entities are static objects in the game that can be interacted with by the player.
  */
-public abstract class TileEntity implements Disposable {
-    protected transient Body body;
-    protected transient int width;
-    protected transient int height;
-    protected transient boolean isOnPlayer = false;
-    protected transient final SpriteBatch batch;
-    protected transient final OrthographicCamera camera;
-    protected transient final BodyDef bodyDef;
-    protected transient final FixtureDef fixtureDef;
-    /// Queues up tile entity for deletion
+public abstract class TileEntity implements Disposable, PostProcessable {
+
+    protected int width;
+    protected int height;
+    protected boolean isOnPlayer = false;
     public boolean toDestroy = false;
+    protected AbsolutePoint savedPosition;
+
+    protected transient Body body;
+    protected transient SpriteBatch batch;
+    protected transient OrthographicCamera camera;
+    protected transient BodyDef bodyDef;
+    protected transient FixtureDef fixtureDef;
+    private transient boolean initialized = false;
+    /// Queues up tile entity for deletion
 
 
-    public TileEntity(int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.batch = LevelScreen.getInstance().batch;
-        this.camera = LevelScreen.getInstance().camera;
+    private TileEntity() {
         this.bodyDef = new BodyDef();
         this.fixtureDef = new FixtureDef();
+        this.batch = LevelScreen.getInstance().batch;
+        this.camera = LevelScreen.getInstance().camera;
+    }
+
+    public TileEntity(int width, int height) {
+        this();
+        this.width = width;
+        this.height = height;
+        createBody();
+    }
+
+    private void createBody() {
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.fixedRotation = true;
         PolygonShape shape = new PolygonShape();
@@ -46,8 +59,8 @@ public abstract class TileEntity implements Disposable {
         fixtureDef.isSensor = true;
         fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
-
     }
+
 
     public TileEntity(int width, int height, BodyDef bodyDef, FixtureDef fixtureDef) {
         this.width = width;
@@ -77,11 +90,12 @@ public abstract class TileEntity implements Disposable {
     }
 
 
-    protected void spawn(float x, float y) {
+    public void spawn(float x, float y) {
         World world = LevelScreen.getInstance().world;
         if (body != null) {
             throw new IllegalStateException("Trap");
         }
+
         bodyDef.position.set(x, y);
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
@@ -92,21 +106,24 @@ public abstract class TileEntity implements Disposable {
     public void contactTick(float delta) {
     }
 
-    public void onPlayerStartContact(Contact c) {
+    public final void startContact(Contact c) {
         this.isOnPlayer = true;
+        onPlayerStartContact(c);
     }
 
-    public boolean isOnPlayer() {
-        return isOnPlayer;
+    protected void onPlayerStartContact(Contact c) {
     }
 
-    public void onPlayerEndContact(Contact c) {
+
+    public final void endContact(Contact c) {
         this.isOnPlayer = false;
+        onPlayerEndContact(c);
     }
 
-    public Body getBody() {
-        return body;
+    protected void onPlayerEndContact(Contact c) {
     }
+
+    ;
 
     public AbsolutePoint getPosition() {
         return new AbsolutePoint(body.getPosition().x, body.getPosition().y);
@@ -118,5 +135,35 @@ public abstract class TileEntity implements Disposable {
         }
     }
 
-    abstract public void render(float delta);
+    public boolean isOnPlayer() {
+        return isOnPlayer;
+    }
+
+    public final void postProcess() {
+        System.out.println("pizdabobra");
+        createBody();
+        init();
+    }
+
+    public AbsolutePoint getSavedPosition() {
+        return savedPosition;
+    }
+
+    protected abstract void init();
+
+    public void initialize() {
+        if (initialized) {
+            return;
+        }
+        this.initialized = true;
+        init();
+    }
+
+    protected void render(float delta) {
+    }
+
+    public final void renderTileEntity(float delta) {
+        this.savedPosition = getPosition();
+        render(delta);
+    }
 }

@@ -33,16 +33,13 @@ public class Enemy extends Entity {
 
 
     public Enemy(EnemyType enemyType) {
-        super();
-        this.bodyType = BodyDef.BodyType.DynamicBody;
+        this();
         this.enemyType = enemyType;
-        this.path = Collections.synchronizedList(new LinkedList<>());
-        loadAnimations();
+        init();
     }
 
     /// Gson constructor
-    /// DO NOT USE NORMALLY
-    public Enemy() {
+    private Enemy() {
         super();
         this.bodyType = BodyDef.BodyType.DynamicBody;
         this.path = Collections.synchronizedList(new LinkedList<>());
@@ -50,7 +47,6 @@ public class Enemy extends Entity {
 
     @Override
     public void render(float deltaTime) {
-        super.render(deltaTime);
         elapsedTime += deltaTime;
         // if (path != null) this.followPath();
         if (isAttacking) {
@@ -99,6 +95,12 @@ public class Enemy extends Entity {
 
         batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
     }
+
+    @Override
+    void init() {
+        loadAnimations();
+    }
+
     public void die() {
         currentAnimation = dieAnimation;
     }

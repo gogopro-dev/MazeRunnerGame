@@ -2,7 +2,6 @@ package de.tum.cit.fop.maze.level;
 
 import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -22,8 +21,6 @@ import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
@@ -34,18 +31,18 @@ public class LevelScreen implements Screen {
     private static LevelScreen instance = null;
 
 
-    public final Player player;
-    public final TileMap map;
-    public final EnemyManager enemyManager;
-    public final TileEntityManager tileEntityManager;
+    public Player player;
+    public TileMap map;
+    public EnemyManager enemyManager;
+    public TileEntityManager tileEntityManager;
     public final long seed = 2;
 
     public transient float w, h;
     public transient FillViewport viewport;
     public transient final OrthographicCamera camera;
-    private transient final TiledMapRenderer tiledMapRenderer;
+    private transient TiledMapRenderer tiledMapRenderer;
     public transient final SpriteBatch batch;
-    public transient final HUD hud;
+    public transient HUD hud;
     public transient final RayHandler rayHandler;
     public transient final Random random = new Random(2);
     public transient final EntityPathfinder pathfinder = new EntityPathfinder();
@@ -58,6 +55,7 @@ public class LevelScreen implements Screen {
     private transient float accumulator = 0;
     private transient final PauseScreen pauseScreen;
     private transient final Stage stage;
+    private transient boolean needsRestoring = false;
     private boolean endGame = false;
 
     private void doPhysicsStep(float deltaTime) {
@@ -88,11 +86,11 @@ public class LevelScreen implements Screen {
             /// Update and render pause screen
             pauseScreen.update();
             pauseScreen.render(delta);
-//            try {
-//                SaveManager.saveGame();
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
+            try {
+                SaveManager.saveGame();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             return;
         }
 
@@ -142,7 +140,7 @@ public class LevelScreen implements Screen {
         batch.begin();
         tileEntityManager.render(delta);
         enemyManager.render(delta);
-        player.render(delta);
+        player.renderEntity(delta);
         batch.end();
 
         rayHandler.setCombinedMatrix(camera);
@@ -195,10 +193,13 @@ public class LevelScreen implements Screen {
         instance = null;
     }
 
-    public LevelScreen() {
+    private LevelScreen() {
+        this.pauseScreen = new PauseScreen();
+        this.batch = new SpriteBatch();
         if (instance != null) {
             throw new IllegalStateException("LevelScreen already exists");
         }
+        needsRestoring = true;
         instance = this;
         /// Init GameOverScreen
         GameOverScreen.getInstance();
@@ -224,34 +225,65 @@ public class LevelScreen implements Screen {
         viewport = new FillViewport(w,h, camera);
         viewport.apply();
 
-        pauseScreen = new PauseScreen();
-
-        this.batch = new SpriteBatch();
         batch.setProjectionMatrix(camera.combined);
         stage = new Stage(viewport, batch);
         tileEntityManager = new TileEntityManager();
         enemyManager = new EnemyManager();
-        map = new TileMap(15, 15, random);
-
-
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);
         player = new Player();
-        player.spawn(map.widthMeters / 2 + 8, map.heightMeters / 2, world);
+    }
+
+    public LevelScreen(boolean generate) {
+        this();
+        this.needsRestoring = false;
+        if (generate) {
+            generate();
+            spawnDebug();
+        }
+        init();
+    }
+
+    private void generate() {
+        map = new TileMap(15, 15, random);
+    }
+
+
+    public void init() {
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);
+        if (needsRestoring) {
+            this.tileEntityManager.restore();
+            this.enemyManager.restore();
+            this.map.restore();
+            player.postProcess();
+            player.spawn(
+                player.getSavedPosition().x(),
+                player.getSavedPosition().y()
+            );
+
+        } else {
+            player.spawn(
+                map.widthMeters / 2, map.heightMeters / 2
+            );
+        }
+        hud = new HUD(player);
+        for (Collectable collectable : player.getInventory()) {
+            hud.updateInventory(
+                collectable.getType().toString(),
+                collectable.getCollectableAttributes().textureName
+            );
+        }
 
         /// Set camera at the center of the players position in Box2D world
-        camera.position.set(player.getPosition().x(), player.getPosition().y(), 0);
+        if (player.getPosition() != null) {
+            camera.position.set(player.getPosition().x(), player.getPosition().y(), 0);
+        } else {
+            camera.position.set(map.widthMeters / 2, map.heightMeters / 2, 0);
+        }
+        batch.setProjectionMatrix(camera.combined);
         camera.zoom = Globals.DEFAULT_CAMERA_ZOOM;
         camera.update();
+    }
 
-        hud = new HUD(player);
-//        Collectable collectable = new Collectable("HEART", 2);
-        ///  to test all collectables uncomment one of the following lines
-//        Collectable collectable = new Collectable("GOLD_COIN", random.nextInt(4));
-//        Collectable collectable = new Collectable("DAMAGE_COIN", 0.15f);
-//        Collectable collectable = new Collectable("DEFENSE_COIN", 0.15f);
-//        Collectable collectable = new Collectable("RESURRECTION_AMULET", 1);
-//        Collectable collectable = new Collectable("VAMPIRE_AMULET", 1);
-//        Collectable collectable = new Collectable("SPEED_BOOTS", 1);
+    public void spawnDebug() {
         Collectable collectable1 = new Collectable(Collectable.CollectableType.HEART);
         Collectable collectable2 = new Collectable(Collectable.CollectableType.GOLD_COIN);
         Collectable collectable3 = new Collectable(Collectable.CollectableType.DAMAGE_COIN);
@@ -261,7 +293,7 @@ public class LevelScreen implements Screen {
         Collectable collectable7 = new Collectable(Collectable.CollectableType.RESURRECTION_AMULET);
         Collectable collectable8 = new Collectable(Collectable.CollectableType.HEART);
         tileEntityManager.createTileEntity(collectable1,
-         map.widthMeters / 2 + 10, map.heightMeters / 2
+            map.widthMeters / 2 + 10, map.heightMeters / 2
         );
         tileEntityManager.createTileEntity(collectable2,
             map.widthMeters / 2 + 10, map.heightMeters / 2 - 2
@@ -317,14 +349,6 @@ public class LevelScreen implements Screen {
 
         enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE), 8.3f, 10);
         enemyManager.createEnemy(new Enemy(EnemyType.SKELETON), 8.3f, 12);
-        /*enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.2f);
-        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.4f);
-        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.6f);
-        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.3f, 11.7f);
-        enemyManager.createEnemy(new Enemy(EnemyType.ZOMBIE, batch), 8.1f, 11.5f);*/
-
-        //enemyManager.createEnemy(; = new Enemy(map.widthMeters, map.heightMeters, EnemyType.ZOMBIE, camera);
-
     }
 
     /**

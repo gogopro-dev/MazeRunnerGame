@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze.entities.tile;
+package de.tum.cit.fop.maze.entities;
 
 
 public class Attributes {

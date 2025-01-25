@@ -8,10 +8,8 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
-import de.tum.cit.fop.maze.entities.tile.Attributes;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
@@ -29,11 +27,11 @@ public class Player extends Entity {
     private int gold = 0;
 
 
-    private transient final Animation<TextureRegion> idleAnimation;
-    private transient final Animation<TextureRegion> movementAnimation;
-    private transient final Animation<TextureRegion> attackAnimation;
-    private transient final Animation<TextureRegion> idleTorchAnimation;
-    private transient final Animation<TextureRegion> movementTorchAnimation;
+    private transient Animation<TextureRegion> idleAnimation;
+    private transient Animation<TextureRegion> movementAnimation;
+    private transient Animation<TextureRegion> attackAnimation;
+    private transient Animation<TextureRegion> idleTorchAnimation;
+    private transient Animation<TextureRegion> movementTorchAnimation;
     private transient Attributes collectableBuffs;
 
     private transient Animation<TextureRegion> currentAnimation;
@@ -48,8 +46,6 @@ public class Player extends Entity {
     private transient boolean isHoldingTorch = true;
     private transient boolean beingChased = false;
     private transient boolean onActiveTrap = false;
-    private transient final float mapWidth;
-    private transient final float mapHeight;
     private transient boolean isDamaged = false;
     private transient float damageFlashTimer = 0f;
     private transient float trapAttackElapsedTime = 0f;
@@ -62,40 +58,15 @@ public class Player extends Entity {
      */
     public Player() {
         super();
-        this.mapWidth = LevelScreen.getInstance().map.widthMeters;
-        this.mapHeight = LevelScreen.getInstance().map.heightMeters;
         this.mass = 5f;
+        inventory = new ArrayList<>();
+        collectableBuffs = new Attributes(0, 0, 0,
+            0, 0, 0, 0, true);
         health = 40;
         maxHealth = 40;
         /// Player can hit if not holding torch
         canHit = !isHoldingTorch;
-
-
-        TextureAtlas animAtlas = Assets.getInstance().getAssetManager().get("assets/anim/player/character.atlas", TextureAtlas.class);
-        /// Load idle animation
-        idleAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle"));
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-
-        /// Load movement animation
-        movementAnimation = new Animation<>(1f / 40f * 3f, animAtlas.findRegions("Character_move"));
-        movementAnimation.setPlayMode(Animation.PlayMode.LOOP);
-
-        /// Load hit animation
-        attackAnimation = new Animation<>(1f / 30f, animAtlas.findRegions("Character_hit"));
-        attackAnimation.setPlayMode(Animation.PlayMode.LOOP);
-
-        /// Load idle torch animation
-        idleTorchAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle_torch"));
-        idleTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
-
-        /// Load movement torch animation
-        movementTorchAnimation = new Animation<>(1f / 40f * 3f, animAtlas.findRegions("Character_move_torch"));
-        movementTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
-
-
-        inventory = new ArrayList<>();
-        collectableBuffs = new Attributes(0, 0, 0,
-            0, 0, 0, 0, false);
+        init();
     }
 
     /**
@@ -104,7 +75,7 @@ public class Player extends Entity {
      * @param deltaTime The time since the last frame in seconds
      */
     @Override
-    public void render(float deltaTime) {
+    protected void render(float deltaTime) {
         /// TODO Stamina regeneration?
         elapsedTime += deltaTime;
         if (isHoldingTorch) {
@@ -179,6 +150,37 @@ public class Player extends Entity {
         }
 
 
+    }
+
+    private void loadAnimations() {
+        TextureAtlas animAtlas = Assets.getInstance().getAssetManager().get("assets/anim/player/character.atlas", TextureAtlas.class);
+        /// Load idle animation
+        idleAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle"));
+        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        /// Load movement animation
+        movementAnimation = new Animation<>(1f / 40f * 3f, animAtlas.findRegions("Character_move"));
+        movementAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        /// Load hit animation
+        attackAnimation = new Animation<>(1f / 30f, animAtlas.findRegions("Character_hit"));
+        attackAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        /// Load idle torch animation
+        idleTorchAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle_torch"));
+        idleTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        /// Load movement torch animation
+        movementTorchAnimation = new Animation<>(1f / 40f * 3f, animAtlas.findRegions("Character_move_torch"));
+        movementTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
+    }
+
+    @Override
+    void init() {
+        loadAnimations();
+        for (Collectable collectable : inventory) {
+            collectable.init();
+        }
     }
 
     private void attackAllEnemiesInRange() {
@@ -413,12 +415,12 @@ public class Player extends Entity {
 
         /// Prevent showing area beyond left and right edges
         float minX = effectiveViewportWidth / 2;
-        float maxX = mapWidth - effectiveViewportWidth / 2;
+        float maxX = LevelScreen.getInstance().map.widthMeters - effectiveViewportWidth / 2;
         newCameraX = Math.min(maxX, Math.max(minX, newCameraX));
 
         /// Prevent showing area beyond top and bottom edges
         float minY = effectiveViewportHeight / 2;
-        float maxY = mapHeight - effectiveViewportHeight / 2;
+        float maxY = LevelScreen.getInstance().map.heightMeters - effectiveViewportHeight / 2;
         newCameraY = Math.min(maxY, Math.max(minY, newCameraY));
 
         /// Update camera position
@@ -442,8 +444,8 @@ public class Player extends Entity {
     }
 
     @Override
-    public void spawn(float x, float y, World world) {
-        super.spawn(x, y, world);
+    public void spawn(float x, float y) {
+        super.spawn(x, y);
         torchLight = new PointLight(
             LevelScreen.getInstance().rayHandler, Globals.RAY_AMOUNT, Globals.TORCH_LIGHT_COLOR, 0, x, y
         );
@@ -500,10 +502,10 @@ public class Player extends Entity {
      * @param collectable The collectable item to collect
      */
     public void collect(Collectable collectable) {
-        collectableBuffs.sum(collectable.collectableAttributes);
+        collectableBuffs.sum(collectable.getCollectableAttributes());
         inventory.add(collectable);
         LevelScreen.getInstance().hud.updateInventory(collectable.getType().toString(),
-            collectable.collectableAttributes.textureName);
+            collectable.getCollectableAttributes().textureName);
         System.out.println("Current Buffs: " + collectableBuffs);
     }
 
@@ -527,4 +529,5 @@ public class Player extends Entity {
     public boolean isHoldingTorch() {
         return isHoldingTorch;
     }
+
 }

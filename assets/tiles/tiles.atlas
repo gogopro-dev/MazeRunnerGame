@@ -25,7 +25,7 @@ floor
 index:6
 bounds:217,1,16,16
 floor
-index:3
+index:0
 bounds:289,1,16,16
 floor
 index:11
@@ -34,7 +34,7 @@ floor
 index:8
 bounds:379,1,16,16
 floor
-index:0
+index:3
 bounds:397,1,16,16
 floor
 index:5

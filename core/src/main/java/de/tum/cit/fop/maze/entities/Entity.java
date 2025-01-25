@@ -7,6 +7,7 @@ import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.BoundingRectangle;
+import de.tum.cit.fop.maze.essentials.PostProcessable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,11 +19,12 @@ import static de.tum.cit.fop.maze.Globals.PPM;
  */
 
 
-public abstract class Entity implements Attackable {
+public abstract class Entity implements Attackable, PostProcessable {
     protected int health;
     protected int maxHealth;
     protected float stamina;
-    protected AbsolutePoint position;
+
+    protected AbsolutePoint savedPosition;
     protected transient final float scale = 4 * Globals.MPP;
     /// Entity movement speed (in chicken per second)
     protected transient float entitySpeed = 7f;
@@ -35,6 +37,9 @@ public abstract class Entity implements Attackable {
         new BoundingRectangle(0.4f * PPM * scale, 0.26f * scale * PPM);
 
 
+    protected abstract void render(float delta);
+
+    abstract void init();
 
     /**
      * Creates a new entity with default values.
@@ -98,14 +103,11 @@ public abstract class Entity implements Attackable {
         return body.getPosition().y - CELL_SIZE_METERS * 0.95f;
     }
 
-    public @NotNull Body getBody() {
-        if (body == null) {
-            throw new IllegalStateException("Entity not spawned");
-        }
+    public Body getBody() {
         return body;
     }
 
-    public void spawn(float x, float y, World world) {
+    public void spawn(float x, float y) {
         if (body != null) {
             throw new IllegalStateException("Entity already spawned");
         }
@@ -121,7 +123,7 @@ public abstract class Entity implements Attackable {
         fixtureDef.friction = 0.3f;
         fixtureDef.filter.categoryBits = BodyBits.ENTITY;
         fixtureDef.filter.maskBits = BodyBits.ENTITY_MASK;
-        body = world.createBody(bodyDef);
+        body = LevelScreen.getInstance().world.createBody(bodyDef);
         body.createFixture(fixtureDef);
         body.setUserData(this);
         shape.dispose();
@@ -144,7 +146,6 @@ public abstract class Entity implements Attackable {
         this.body.createFixture(fixtureDef);
         shape.dispose();
     }
-
     public void dispose() {
         body.getWorld().destroyBody(body);
     }
@@ -153,7 +154,16 @@ public abstract class Entity implements Attackable {
         return new AbsolutePoint(body.getPosition().x, body.getPosition().y);
     }
 
-    public void render(float delta) {
-        this.position = getPosition();
+    public void postProcess() {
+        init();
+    }
+
+    public void renderEntity(float delta) {
+        this.savedPosition = getPosition();
+        render(delta);
+    }
+
+    public AbsolutePoint getSavedPosition() {
+        return savedPosition;
     }
 }

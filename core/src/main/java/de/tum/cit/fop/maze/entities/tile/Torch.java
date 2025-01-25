@@ -20,14 +20,14 @@ import static de.tum.cit.fop.maze.Globals.*;
 public class Torch extends TileEntity {
 
     private boolean lit = false;
+    private Direction direction;
     private transient PointLight light;
     private transient float elapsedTime = 0f;
     private transient float elapsedLitTime = 0f;
-    private transient final Direction direction;
-    private transient final @Nullable Animation<TextureAtlas.AtlasRegion> torchAnimation;
-    private transient final @Nullable TextureRegion standTexture;
+    private transient Animation<TextureAtlas.AtlasRegion> torchAnimation;
+    private transient TextureRegion standTexture;
 
-    public Torch(Direction direction) {
+    public Torch() {
         super(1, 1, new BodyDef(), new FixtureDef());
         bodyDef.type = BodyDef.BodyType.StaticBody;
         bodyDef.fixedRotation = true;
@@ -37,8 +37,15 @@ public class Torch extends TileEntity {
         fixtureDef.isSensor = true;
         fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
-        this.direction = direction;
+    }
 
+    public Torch(Direction direction) {
+        this();
+        this.direction = direction;
+        init();
+    }
+
+    protected void init() {
         TextureAtlas textureAtlas = new TextureAtlas("anim/tileEntities/tile_entities.atlas");
         switch (direction) {
             case UP -> {
@@ -60,7 +67,6 @@ public class Torch extends TileEntity {
                 this.standTexture = null;
             }
         }
-
     }
 
     @Override
@@ -91,7 +97,7 @@ public class Torch extends TileEntity {
     }
 
     @Override
-    protected void spawn(float x, float y) {
+    public void spawn(float x, float y) {
         super.spawn(x, y);
         light = new PointLight(
             LevelScreen.getInstance().rayHandler, RAY_AMOUNT, TORCH_LIGHT_COLOR, 0, x, y);

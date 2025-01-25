@@ -12,9 +12,9 @@ public class TileEntityContactListener implements ContactListener {
             return;
         }
         if (a.getUserData() instanceof TileEntity && b.getUserData() instanceof Player) {
-            ((TileEntity) a.getUserData()).onPlayerStartContact(contact);
+            ((TileEntity) a.getUserData()).startContact(contact);
         } else if (a.getUserData() instanceof Player && b.getUserData() instanceof TileEntity) {
-            ((TileEntity) b.getUserData()).onPlayerStartContact(contact);
+            ((TileEntity) b.getUserData()).startContact(contact);
         }
     }
 
@@ -29,9 +29,9 @@ public class TileEntityContactListener implements ContactListener {
             return;
         }
         if (a.getUserData() instanceof TileEntity && b.getUserData() instanceof Player) {
-            ((TileEntity) a.getUserData()).onPlayerEndContact(contact);
+            ((TileEntity) a.getUserData()).endContact(contact);
         } else if (a.getUserData() instanceof Player && b.getUserData() instanceof TileEntity) {
-            ((TileEntity) b.getUserData()).onPlayerEndContact(contact);
+            ((TileEntity) b.getUserData()).endContact(contact);
         }
     }
 

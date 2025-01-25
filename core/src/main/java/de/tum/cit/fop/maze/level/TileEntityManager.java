@@ -1,8 +1,9 @@
-package de.tum.cit.fop.maze.entities.tile;
+package de.tum.cit.fop.maze.level;
 
 import com.badlogic.gdx.utils.Disposable;
+import de.tum.cit.fop.maze.entities.tile.TileEntity;
+import de.tum.cit.fop.maze.entities.tile.Trap;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
-import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.Iterator;
  * It is responsible for creating, removing and rendering the tile entities.
  */
 public class TileEntityManager implements Disposable {
+    private transient boolean loaded = false;
     private ArrayList<TileEntity> tileEntities = new ArrayList<TileEntity>();
 
 
@@ -54,7 +56,7 @@ public class TileEntityManager implements Disposable {
                 }
                 tileEntity.contactTick(delta);
             }
-            tileEntity.render(delta);
+            tileEntity.renderTileEntity(delta);
         }
         LevelScreen.getInstance().player.setOnActiveTrap(isAnyActiveTraps);
     }
@@ -63,6 +65,21 @@ public class TileEntityManager implements Disposable {
     public void dispose() {
         for (TileEntity tileEntity : tileEntities) {
             tileEntity.dispose();
+        }
+    }
+
+    public void restore() {
+        if (loaded) {
+            throw new IllegalStateException("Tile entity has already been loaded");
+        }
+        loaded = true;
+
+        for (TileEntity tileEntity : tileEntities) {
+            tileEntity.initialize();
+            tileEntity.spawn(
+                    tileEntity.getSavedPosition().x(),
+                    tileEntity.getSavedPosition().y()
+            );
         }
     }
 }

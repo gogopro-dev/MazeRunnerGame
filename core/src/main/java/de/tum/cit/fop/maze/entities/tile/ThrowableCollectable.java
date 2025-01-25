@@ -8,29 +8,27 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
-public class ThrowableCollectable extends Collectable {
+public class ThrowableCollectable extends TileEntity {
     private transient Animation<TextureRegion> idleAnimation;
     private transient Animation<TextureRegion> flyingAnimation;
     private transient Animation<TextureRegion> explodeAnimation;
-
     private transient State currentState = State.IDLE;
     private transient float stateTime = 0f;
     private transient Vector2 throwDirection;
-    private transient float throwSpeed = 10f;
-    private transient SpriteBatch batch = new SpriteBatch();
+    private transient final float throwSpeed = 10f;
 
     public enum State {
         IDLE, FLYING, EXPLODING, DONE
     }
 
-    public ThrowableCollectable(CollectableType collectableType) {
-        super(collectableType);
+    public ThrowableCollectable() {
+        super(2, 1);
         currentState = State.IDLE;
-        loadAnimations();
+        init();
     }
 
-    private void loadAnimations() {
-
+    @Override
+    protected void init() {
         TextureAtlas atlas = new TextureAtlas(Gdx.files.local(
             "assets/temporary/collectables/fireball_throwable.atlas"
         ));
@@ -44,6 +42,7 @@ public class ThrowableCollectable extends Collectable {
         this.explodeAnimation = new Animation<>(0.15f, atlas.findRegions("fireball_explode"));
         this.explodeAnimation.setPlayMode(Animation.PlayMode.NORMAL);
     }
+
 
     @Override
     public void render(float delta) {
@@ -67,9 +66,9 @@ public class ThrowableCollectable extends Collectable {
 
         if (currentState != State.IDLE) {
             TextureRegion currentFrame = getCurrentFrame();
-            this.batch.begin();
-            this.batch.draw(currentFrame, LevelScreen.getInstance().player.getPosition().x()+200, LevelScreen.getInstance().player.getPosition().y()+50);
-            this.batch.end();
+            batch.begin();
+            batch.draw(currentFrame, LevelScreen.getInstance().player.getPosition().x() + 200, LevelScreen.getInstance().player.getPosition().y() + 50);
+            batch.end();
         };
     }
 

@@ -162,7 +162,7 @@ public class HUD {
 
     public void updateInventory(String collectableType, String textureName) {
         if (invInfo.get(collectableType) == null) {
-            ;
+
             Drawable drawable = new TextureRegionDrawable(inventoryAtlas.findRegion(textureName));
             drawable.setMinWidth(sizeOfInvIcon);
             drawable.setMinHeight(sizeOfInvIcon);

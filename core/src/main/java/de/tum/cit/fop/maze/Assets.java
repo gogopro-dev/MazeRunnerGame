@@ -4,11 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.LocalFileHandleResolver;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import de.tum.cit.fop.maze.entities.Enemy;
 import de.tum.cit.fop.maze.entities.tile.*;
 import de.tum.cit.fop.maze.gson.RuntimeTypeAdapterFactory;
+import de.tum.cit.fop.maze.level.TileMap;
 
 import java.util.ArrayList;
 
@@ -21,6 +23,7 @@ public final class Assets {
     private final ArrayList<CollectableAttributes> collectables = new ArrayList<>();
     private final ArrayList<Trap.TrapAttributes> traps = new ArrayList<>();
     private final ArrayList<Enemy.EnemyConfig> enemies = new ArrayList<>();
+    public final TileTextureHelper tileTextureHelper;
     public final Gson gson;
 
     public static Assets getInstance() {
@@ -36,15 +39,23 @@ public final class Assets {
             throw new IllegalStateException("Assets is a singleton class");
         }
         GsonBuilder gsonBuilder = new GsonBuilder();
+
         final RuntimeTypeAdapterFactory<TileEntity> tileEntities =
             RuntimeTypeAdapterFactory.of(TileEntity.class, "classTypeName")
                 .registerSubtype(Collectable.class, "Collectable")
                 .registerSubtype(Trap.class, "Trap")
                 .registerSubtype(Torch.class, "Torch")
                 .registerSubtype(LootContainer.class, "LootContainer")
-                .registerSubtype(ExitDoor.class, "Enemy");
+                .registerSubtype(ExitDoor.class, "ExitDoor")
+                .registerSubtype(ThrowableCollectable.class, "throwableCollectable");
+        gsonBuilder.enableComplexMapKeySerialization();
         gsonBuilder.registerTypeAdapterFactory(tileEntities);
+        gsonBuilder.registerTypeAdapter(
+            TiledMap.class,
+            new TileMap.TiledMapAdapter()
+        );
         instance = this;
+        tileTextureHelper = new TileTextureHelper("assets/tiles/tiles.atlas");
         assetManager = new AssetManager(new LocalFileHandleResolver());
         gson = gsonBuilder.create();
     }
@@ -80,6 +91,7 @@ public final class Assets {
     }
 
     public void loadAllBlocking() {
+        tileTextureHelper.loadTextures();
         queueLoading();
         assetManager.finishLoading();
         loadCollectables();

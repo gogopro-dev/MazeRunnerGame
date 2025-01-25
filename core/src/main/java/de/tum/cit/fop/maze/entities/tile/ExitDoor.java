@@ -18,12 +18,13 @@ import java.util.List;
 import static de.tum.cit.fop.maze.Globals.*;
 
 public class ExitDoor extends TileEntity {
-
-    private Animation<TextureRegion> doorOpeningAnimation;
     private boolean isOpen = false;
-    private float elapsedTime = 0;
-    TextureRegion texture;
-    private FixtureDef sensorFixtureDef;
+
+    private transient Animation<TextureRegion> doorOpeningAnimation;
+    private transient float elapsedTime = 0;
+    private transient TextureRegion texture;
+    private transient FixtureDef sensorFixtureDef;
+
     public ExitDoor() {
         super(3, 3, new BodyDef(), new FixtureDef());
         bodyDef.type = BodyDef.BodyType.StaticBody;
@@ -31,42 +32,47 @@ public class ExitDoor extends TileEntity {
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(
             CELL_SIZE_METERS * 1.5f + HITBOX_SAFETY_GAP,
-            HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS * CELL_SIZE_METERS / 2 - CELL_SIZE_METERS / 4
+            HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS - CELL_SIZE_METERS * 1.6f
         );
         fixtureDef.shape = shape;
         fixtureDef.isSensor = false;
         fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
+        init();
+    }
 
+
+    public void init() {
         TextureAtlas atlas = Assets.getInstance().getAssetManager()
             .get("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class);
         Array<TextureAtlas.AtlasRegion> doorFrames =
             atlas.findRegions("door");
         doorOpeningAnimation = new Animation<>(0.175f, doorFrames);
         doorOpeningAnimation.setPlayMode(Animation.PlayMode.NORMAL);
-
         texture = atlas.findRegion("door_locked");
     }
 
     @Override
     public void render(float delta) {
-        /// if the door is not open, render nothing
+        /// if the door is not open, render closed door
         if (!isOpen) {
-            batch.draw(texture, getSpriteDrawPosition().x(), getSpriteDrawPosition().y() - (CELL_SIZE_METERS / (4f / 3f)),
-                getSpriteDrawWidth(), getSpriteDrawHeight());
+            batch.draw(
+                texture, getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
+                getSpriteDrawWidth(), getSpriteDrawHeight()
+            );
             return;
         }
         /// if the door is open, render the open door
         if (doorOpeningAnimation.isAnimationFinished(elapsedTime)) {
             batch.draw(doorOpeningAnimation.getKeyFrame(2.8f),
-                getSpriteDrawPosition().x(), getSpriteDrawPosition().y() - (CELL_SIZE_METERS / (4f / 3f)),
+                getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
                 getSpriteDrawWidth(), getSpriteDrawHeight());
             return;
         }
 
         elapsedTime += delta;
         batch.draw(doorOpeningAnimation.getKeyFrame(elapsedTime),
-            getSpriteDrawPosition().x(), getSpriteDrawPosition().y()-(CELL_SIZE_METERS / (4f / 3f)),
+            getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
             getSpriteDrawWidth(), getSpriteDrawHeight()
         );
     }
@@ -95,8 +101,8 @@ public class ExitDoor extends TileEntity {
     }
 
     @Override
-    protected void spawn(float x, float y) {
-        super.spawn(x, y + HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS * CELL_SIZE_METERS / 2);
+    public void spawn(float x, float y) {
+        super.spawn(x, y);
         sensorFixtureDef = new FixtureDef();
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(

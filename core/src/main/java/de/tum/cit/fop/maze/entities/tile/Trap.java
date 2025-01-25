@@ -24,11 +24,11 @@ import static de.tum.cit.fop.maze.Globals.*;
  */
 public class Trap extends TileEntity {
     private static final String TRAP_ANIMATION_PATH = "anim/tileEntities/tile_entities.atlas";
-    private transient final Animation<TextureRegion> trapAnimation;
+    private transient Animation<TextureRegion> trapAnimation;
     private transient float elapsedTime = 0f;
     private transient float lastActivationTime = 0f;
     private boolean isActivated = false;
-    public final TrapAttributes attributes;
+    public TrapAttributes attributes;
     private transient @Nullable PointLight light;
 
     /**
@@ -53,6 +53,9 @@ public class Trap extends TileEntity {
     ) {
     }
 
+    private Trap() {
+        super(0, 0);
+    }
 
     /**
      * Creates a new trap from a given type
@@ -60,23 +63,25 @@ public class Trap extends TileEntity {
      * @param type the type of the trap
      */
     public Trap(TrapType type) {
-        super(0, 0);
+        this();
         Gson gson = new Gson();
-
-        TrapAttributes attributes = Arrays.stream(
+        this.attributes = Arrays.stream(
             gson.fromJson(Gdx.files.internal("anim/tileEntities/trapConfig.json").reader(), TrapAttributes[].class)
         ).filter(attribute -> attribute.type.equals(type)).findFirst().get();
+        init();
+    }
+
+    protected void init() {
         this.width = attributes.width;
         this.height = attributes.height;
         ((PolygonShape) this.fixtureDef.shape).setAsBox(
             width * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING,
             height * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING
         );
-        this.attributes = attributes;
-
         TextureAtlas textureAtlas = new TextureAtlas(Gdx.files.internal(TRAP_ANIMATION_PATH));
         trapAnimation = new Animation<>(
-            this.attributes.frameDuration, textureAtlas.findRegions(type.name()), Animation.PlayMode.NORMAL
+            this.attributes.frameDuration, textureAtlas.findRegions(
+            this.attributes.type.name()), Animation.PlayMode.NORMAL
         );
     }
 
@@ -124,7 +129,7 @@ public class Trap extends TileEntity {
     }
 
     @Override
-    protected void spawn(float x, float y) {
+    public void spawn(float x, float y) {
         super.spawn(x, y);
         if (attributes.emitsLight) {
             light = new PointLight(

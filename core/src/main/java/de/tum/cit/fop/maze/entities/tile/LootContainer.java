@@ -24,17 +24,14 @@ import java.util.Random;
 import static de.tum.cit.fop.maze.Globals.*;
 
 public class LootContainer extends TileEntity implements Attackable {
-    public final transient LootContainerAttributes attributes;
-    public final LootContainerType type;
+    private LootContainerAttributes attributes;
     private boolean destroyed = false;
-    private boolean collisionDisabled = false;
+    private transient boolean collisionDisabled = false;
     private final ArrayList<Collectable> loot = new ArrayList<>();
-
-
-    private transient float destroyedTime = 0;
-    private transient float idleTime = 0;
-    private transient boolean hasBeenHit = false;
-    private transient float timeSinceLastHit = 0;
+    private float destroyedTime = 0;
+    private float idleTime = 0;
+    private boolean hasBeenHit = false;
+    private float timeSinceLastHit = 0;
     private transient Body lightBlockingBody;
 
 
@@ -43,10 +40,10 @@ public class LootContainer extends TileEntity implements Attackable {
         CRATE, VASE,
     }
 
-    private transient final Animation<TextureRegion> idleAnimation;
-    private transient final Animation<TextureRegion> destroyedAnimation;
+    private transient Animation<TextureRegion> idleAnimation;
+    private transient Animation<TextureRegion> destroyedAnimation;
 
-    public final class LootContainerAttributes {
+    private class LootContainerAttributes {
         public int health;
         public final int maxLootAmount;
         public final float frameDuration;
@@ -63,7 +60,11 @@ public class LootContainer extends TileEntity implements Attackable {
         }
     }
 
-    public LootContainer(LootContainerType type) {
+
+    /**
+     * This constructor will be used by gson
+     */
+    private LootContainer() {
         super(1, 2, new BodyDef(), new FixtureDef());
         bodyDef.type = BodyDef.BodyType.StaticBody;
         bodyDef.fixedRotation = true;
@@ -76,28 +77,18 @@ public class LootContainer extends TileEntity implements Attackable {
 
         fixtureDef.filter.categoryBits = BodyBits.WALL;
         fixtureDef.filter.maskBits = BodyBits.WALL_MASK;
+    }
 
-        Gson gson = new Gson();
+    public LootContainer(LootContainerType type) {
+        this();
+        Gson gson = Assets.getInstance().gson;
         this.attributes = Arrays.stream(
                 gson.fromJson(
                         Gdx.files.internal("configs/lootContainers.json").reader(),
                         LootContainerAttributes[].class
                 )
         ).filter(attribute -> attribute.type.equals(type)).findFirst().get();
-        this.type = type;
-        TextureAtlas atlas =
-                new TextureAtlas(Gdx.files.internal("anim/tileEntities/tile_entities.atlas"));
-        this.idleAnimation = new Animation<>(
-                this.attributes.frameDuration,
-                atlas.findRegions(this.attributes.textureName),
-                Animation.PlayMode.LOOP
-        );
-        this.destroyedAnimation = new Animation<>(
-                this.attributes.frameDuration,
-                atlas.findRegions(this.attributes.textureName + "_destroyed"),
-                Animation.PlayMode.NORMAL
-
-        );
+        init();
         int passes = 0;
         Random random = LevelScreen.getInstance().random;
         while (passes < this.attributes.maxLootAmount && loot.size() < this.attributes.maxLootAmount) {
@@ -114,8 +105,26 @@ public class LootContainer extends TileEntity implements Attackable {
             ++passes;
         }
 
-
     }
+
+    protected void init() {
+        TextureAtlas atlas =
+            new TextureAtlas(Gdx.files.internal("anim/tileEntities/tile_entities.atlas"));
+        this.idleAnimation = new Animation<>(
+            this.attributes.frameDuration,
+            atlas.findRegions(this.attributes.textureName),
+            Animation.PlayMode.LOOP
+        );
+        this.destroyedAnimation = new Animation<>(
+            this.attributes.frameDuration,
+            atlas.findRegions(this.attributes.textureName + "_destroyed"),
+            Animation.PlayMode.NORMAL
+        );
+        for (Collectable collectable : loot) {
+            collectable.init();
+        }
+    }
+
 
     @Override
     public void takeDamage(int damage) {
@@ -149,8 +158,8 @@ public class LootContainer extends TileEntity implements Attackable {
     }
 
     @Override
-    protected void spawn(float x, float y) {
-        super.spawn(x, y + CELL_SIZE_METERS / 1.5f);
+    public void spawn(float x, float y) {
+        super.spawn(x, y);
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(CELL_SIZE_METERS / 2, CELL_SIZE_METERS / 1.5f);
         FixtureDef fixtureDef = new FixtureDef();
@@ -168,6 +177,7 @@ public class LootContainer extends TileEntity implements Attackable {
 
     @Override
     public void render(float delta) {
+        super.render(delta);
         if (hasBeenHit) {
             timeSinceLastHit += delta;
             if (timeSinceLastHit > IMMUNITY_FRAME_DURATION) {
@@ -193,6 +203,7 @@ public class LootContainer extends TileEntity implements Attackable {
                 collisionDisabled = true;
                 Gdx.app.postRunnable(() -> {
                     for (Collectable collectable : loot) {
+                        collectable.setHasBeenDropped(false);
                         LevelScreen.getInstance().tileEntityManager.createTileEntity(collectable, this.getPosition());
                     }
                     this.loot.clear();

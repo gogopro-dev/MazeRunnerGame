@@ -1,13 +1,13 @@
-package de.tum.cit.fop.maze.entities;
+package de.tum.cit.fop.maze.level;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.entities.Enemy;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.BoundingRectangle;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Utils;
-import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -75,7 +75,7 @@ public class EnemyManager {
      * @param y     The y coordinate of the enemy
      */
     public void createEnemy(Enemy enemy, float x, float y) {
-        enemy.spawn(x, y, levelScreen.world);
+        enemy.spawn(x, y);
         enemies.add(enemy);
     }
 
@@ -94,7 +94,7 @@ public class EnemyManager {
 
         tickEnemies(delta);
         for (Enemy enemy : enemies) {
-            enemy.render(delta);
+            enemy.renderEntity(delta);
         }
 
     }
@@ -189,8 +189,18 @@ public class EnemyManager {
 
 
         }
+
     }
 
+    public void restore() {
+        for (Enemy enemy : enemies) {
+            enemy.postProcess();
+            enemy.spawn(
+                    enemy.getSavedPosition().x(),
+                    enemy.getSavedPosition().y()
+            );
+        }
+    }
 
     public void dispose() {
         for (Enemy enemy : enemies) {

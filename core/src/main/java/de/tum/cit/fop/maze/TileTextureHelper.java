@@ -1,26 +1,28 @@
-package de.tum.cit.fop.maze.level;
+package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import de.tum.cit.fop.maze.Globals;
 
 import java.util.*;
 
 /**
  * Singleton class, preprocessing and scaling textures, necessary
  */
-public class TextureLoader {
+public class TileTextureHelper {
     private boolean texturesLoaded = false;
     private final String texturePath;
-    private final Random random;
     private final Map<String, List<TextureRegion>> textures;
 
-    public TextureLoader(String texturePath, Random random) {
-        this.texturePath = texturePath;
-        this.random = random;
-        this.textures = new HashMap<>();
+    public record TextureResult(TextureRegion textureRegion, int index) {
+    }
 
+    public record TextureWithIndex(String texture, int index) {
+    }
+
+    public TileTextureHelper(String texturePath) {
+        this.texturePath = texturePath;
+        this.textures = new HashMap<>();
         loadTextures();
     }
 
@@ -55,7 +57,7 @@ public class TextureLoader {
         try {
             return textures.get(name).get(index);
         } catch (IndexOutOfBoundsException e) {
-            return null;
+            throw new IndexOutOfBoundsException("Texture not found: " + name + " index: " + index);
         }
     }
 
@@ -65,7 +67,7 @@ public class TextureLoader {
      * @param defaultTileChance the chance {@code 0.0 - 1} of the default tile to be chosen
      * @return {@link TextureRegion} the texture
      */
-    public TextureRegion getTextureWithVariationChance(String name, double defaultTileChance) {
+    public TextureResult getTextureWithVariationChance(String name, double defaultTileChance, Random random) {
         List<TextureRegion> textureRegions = textures.get(name);
         if (textureRegions == null) {
             throw new IllegalArgumentException("Texture not found: " + name);
@@ -73,9 +75,13 @@ public class TextureLoader {
         defaultTileChance = Math.min(1, Math.max(0, defaultTileChance));
         ///  If there is only one texture, return it or if the random float is less than the default tile chance
         if (textureRegions.size() == 1 || random.nextDouble() < defaultTileChance) {
-            return textureRegions.get(0);
+            return new TextureResult(
+                    textureRegions.get(0),
+                    0
+            );
         }
-        return textureRegions.get(random.nextInt(textureRegions.size() - 1) + 1);
+        int index = random.nextInt(textureRegions.size() - 1) + 1;
+        return new TextureResult(textureRegions.get(index), index);
     }
 
 
@@ -84,8 +90,8 @@ public class TextureLoader {
      * @param name the name of the texture (e.g. "floor", "wall", etc.)
      * @return {@link TextureRegion} the texture
      */
-    public TextureRegion getTextureWithVariationChance(String name) {
-        return getTextureWithVariationChance(name, 0.95);
+    public TextureResult getTextureWithVariationChance(String name, Random random) {
+        return getTextureWithVariationChance(name, 0.7, random);
     }
 
     /**
