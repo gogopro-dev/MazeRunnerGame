@@ -2,13 +2,12 @@ package de.tum.cit.fop.maze.entities.tile;
 
 import box2dLight.PointLight;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.google.gson.Gson;
-import com.google.gson.internal.bind.ArrayTypeAdapter;
+import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.Utils;
@@ -78,7 +77,8 @@ public class Trap extends TileEntity {
             width * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING,
             height * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING
         );
-        TextureAtlas textureAtlas = new TextureAtlas(Gdx.files.internal(TRAP_ANIMATION_PATH));
+        TextureAtlas textureAtlas = Assets.getInstance().getAssetManager()
+            .get("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class);
         trapAnimation = new Animation<>(
             this.attributes.frameDuration, textureAtlas.findRegions(
             this.attributes.type.name()), Animation.PlayMode.NORMAL

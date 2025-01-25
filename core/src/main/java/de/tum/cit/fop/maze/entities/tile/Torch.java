@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
+import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.Direction;
@@ -46,7 +47,8 @@ public class Torch extends TileEntity {
     }
 
     protected void init() {
-        TextureAtlas textureAtlas = new TextureAtlas("anim/tileEntities/tile_entities.atlas");
+        TextureAtlas textureAtlas = Assets.getInstance().getAssetManager()
+            .get("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class);
         switch (direction) {
             case UP -> {
                 this.torchAnimation =
