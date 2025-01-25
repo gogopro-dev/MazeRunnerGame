@@ -5,7 +5,8 @@
     "immediateHealing": 2,
     "frameDuration": 0.1,
     "dropChance": 0.01,
-    "lootContainerPool": true
+    "lootContainerPool": true,
+    "isConsumable": true
   },
   {
     "type": "GOLD_COIN",
@@ -61,5 +62,10 @@
     "speedBoost": 0.15,
     "frameDuration": 0.1,
     "shopPool": true
+  },
+  {
+    "type": "KEY",
+    "textureName": "key",
+    "frameDuration": 0.1
   }
 ]
