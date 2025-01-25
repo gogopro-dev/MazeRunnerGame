@@ -1,9 +1,7 @@
 package de.tum.cit.fop.maze.entities.tile;
 
-import box2dLight.PointLight;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -17,8 +15,16 @@ import java.util.List;
 
 import static de.tum.cit.fop.maze.Globals.*;
 
+/**
+ * ExitDoor class represents the exit door in the game.
+ * The door is initially locked and can be opened by the player if he has a key.
+ * The door will open and the player can exit the level if the player has a key and interacts with the door.
+ */
 public class ExitDoor extends TileEntity {
     private boolean isOpen = false;
+    /**
+     * Creates a new Exit door.
+     */
 
     private transient Animation<TextureRegion> doorOpeningAnimation;
     private transient float elapsedTime = 0;
@@ -27,6 +33,8 @@ public class ExitDoor extends TileEntity {
 
     public ExitDoor() {
         super(3, 3, new BodyDef(), new FixtureDef());
+
+        /// Create the body definition and fixture definition for the door
         bodyDef.type = BodyDef.BodyType.StaticBody;
         bodyDef.fixedRotation = true;
         PolygonShape shape = new PolygonShape();
@@ -41,12 +49,14 @@ public class ExitDoor extends TileEntity {
         init();
     }
 
+        /// Load the door texture and the door opening animation
 
     public void init() {
         TextureAtlas atlas = Assets.getInstance().getAssetManager()
             .get("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class);
         Array<TextureAtlas.AtlasRegion> doorFrames =
             atlas.findRegions("door");
+
         doorOpeningAnimation = new Animation<>(0.175f, doorFrames);
         doorOpeningAnimation.setPlayMode(Animation.PlayMode.NORMAL);
         texture = atlas.findRegion("door_locked");
@@ -80,21 +90,44 @@ public class ExitDoor extends TileEntity {
     @Override
     public void contactTick(float delta) {
         super.contactTick(delta);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && !isOpen){
-            Fixture sensorFixtureDef = body.getFixtureList().get(1);
-            body.destroyFixture(sensorFixtureDef);
-            PolygonShape shape = new PolygonShape();
-            shape.setAsBox(
-                CELL_SIZE_METERS * 1.5f + HITBOX_SAFETY_GAP,
-                (CELL_SIZE_METERS * 1.5f + HITBOX_SAFETY_GAP) / 1.5f
-            );
-            this.sensorFixtureDef.shape = shape;
-            this.sensorFixtureDef.isSensor = true;
-            this.sensorFixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
-            this.sensorFixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
-            body.createFixture(this.sensorFixtureDef);
-            isOpen = true;
+
+        List<Collectable> inventory = LevelScreen.getInstance().player.getInventory();
+        boolean hasKey = inventory.stream().anyMatch(collectable -> collectable.getType() == Collectable.CollectableType.KEY);
+
+        if (!isOpen && hasKey) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+                /// Delete the previous sensor fixture
+                Fixture sensorFixture = body.getFixtureList().get(1);
+                body.destroyFixture(sensorFixture);
+
+                /// Create a new sensor fixture with a smaller hitbox
+                PolygonShape shape = new PolygonShape();
+                shape.setAsBox(
+                    (CELL_SIZE_METERS * 1.5f + HITBOX_SAFETY_GAP) / 3f,
+                    (CELL_SIZE_METERS * 1.5f + HITBOX_SAFETY_GAP) / 1.5f
+                );
+                FixtureDef sensorFixtureDef = new FixtureDef();
+                sensorFixtureDef.shape = shape;
+                sensorFixtureDef.isSensor = true;
+                sensorFixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
+                sensorFixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
+                body.createFixture(sensorFixtureDef);
+
+                /// Open the door
+                isOpen = true;
+                return;
+            }
+
+            //TODO: set a message to the player that he can open the door using Enter
         }
+
+        /// If the player does not have a key, create a message to the player
+        if (!hasKey){
+            //TODO: set a message to the player that he needs a key to open the door
+            return;
+        }
+
+        /// End the game if the door opening animation is finished
         if (doorOpeningAnimation.isAnimationFinished(elapsedTime)){
             LevelScreen.getInstance().endGame(true);
         }
