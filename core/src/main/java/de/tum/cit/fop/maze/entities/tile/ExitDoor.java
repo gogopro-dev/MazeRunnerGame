@@ -22,7 +22,7 @@ public class ExitDoor extends TileEntity {
     private Animation<TextureRegion> doorOpeningAnimation;
     private boolean isOpen = false;
     private float elapsedTime = 0;
-    TextureRegion texture = new TextureAtlas(Gdx.files.local("assets/tiles/exit.atlas")).findRegion("door_locked");
+    TextureRegion texture;
     private FixtureDef sensorFixtureDef;
     public ExitDoor() {
         super(3, 3, new BodyDef(), new FixtureDef());
@@ -38,11 +38,14 @@ public class ExitDoor extends TileEntity {
         fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
 
-        Array<TextureAtlas.AtlasRegion> doorFrames = Assets.getInstance().getAssetManager()
-            .get("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class)
-            .findRegions("door");
+        TextureAtlas atlas = Assets.getInstance().getAssetManager()
+            .get("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class);
+        Array<TextureAtlas.AtlasRegion> doorFrames =
+            atlas.findRegions("door");
         doorOpeningAnimation = new Animation<>(0.175f, doorFrames);
         doorOpeningAnimation.setPlayMode(Animation.PlayMode.NORMAL);
+
+        texture = atlas.findRegion("door_locked");
     }
 
     @Override
