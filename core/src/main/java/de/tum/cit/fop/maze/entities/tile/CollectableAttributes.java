@@ -9,11 +9,15 @@ public final class CollectableAttributes extends Attributes {
     public final boolean lootContainerPool;
     public final boolean treasurePool;
     public final boolean shopPool;
+    public final int shopPrice;
+
+    public final String name;
+    public final String description;
 
     public CollectableAttributes(
         Collectable.CollectableType type, String textureName, int immediateHealing, int immediateCoins,
         float dropChance, float damageBoost, float resistanceBoost, float vampirism, float speedBoost,
-        int resurrections, float frameDuration,
+        int resurrections, float frameDuration, int shopPrice, String name, String description,
         boolean lootContainerPool, boolean treasurePool, boolean shopPool,
         boolean isConsumable
     ) {
@@ -21,6 +25,7 @@ public final class CollectableAttributes extends Attributes {
             vampirism, resurrections, speedBoost, isConsumable);
         assert type != null;
         assert textureName != null;
+
         this.type = type;
         this.textureName = textureName;
         this.dropChance = dropChance;
@@ -28,6 +33,9 @@ public final class CollectableAttributes extends Attributes {
         this.lootContainerPool = lootContainerPool;
         this.treasurePool = treasurePool;
         this.shopPool = shopPool;
+        this.shopPrice = shopPrice;
+        this.name = name;
+        this.description = description;
     }
 
     public void sum(CollectableAttributes other) {
@@ -44,12 +52,24 @@ public final class CollectableAttributes extends Attributes {
             ", damageBoost=" + damageBoost +
             ", resistanceBoost=" + resistanceBoost +
             ", vampiricHealingPercent=" + vampirism +
-            ", ressurections=" + ressurections +
+            ", resurrections=" + resurrections +
             ", speedBoost=" + speedBoost +
             ", lootContainerPool=" + lootContainerPool +
             ", treasurePool=" + treasurePool +
             ", shopPool=" + shopPool +
             '}';
+    }
+
+    public String toPrettyDescription() {
+        StringBuilder sb = new StringBuilder();
+        if (name != null) {
+            sb.append(name).append(":\n");
+        }
+        if (description != null) {
+            sb.append(description).append("\n");
+        }
+        sb.append(super.toPrettyDescription());
+        return sb.toString();
     }
 
 }

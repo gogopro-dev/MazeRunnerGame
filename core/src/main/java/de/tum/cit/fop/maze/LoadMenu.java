@@ -24,12 +24,12 @@ public class LoadMenu extends Game {
         menu.toggleMenuState(MenuState.GAME_SCREEN);
         /// Initialize the LevelScreen singleton
 
-        /*LevelScreen screen = Assets.getInstance().gson.fromJson(
+        LevelScreen screen = Assets.getInstance().gson.fromJson(
             Gdx.files.local("level.json").reader(), LevelScreen.class
         );
         screen.init();
-        setScreen(screen);*/
-        setScreen(new LevelScreen(true));
+        setScreen(screen);
+        //setScreen(new LevelScreen(2));
 
     }
 

@@ -114,13 +114,6 @@ public class Torch extends TileEntity {
         light.setStaticLight(false);
     }
 
-
-    @Override
-    public void onPlayerStartContact(Contact c) {
-        super.onPlayerStartContact(c);
-
-    }
-
     @Override
     public void contactTick(float delta) {
         if (!lit &&

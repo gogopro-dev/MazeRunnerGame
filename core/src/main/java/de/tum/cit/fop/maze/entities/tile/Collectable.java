@@ -4,22 +4,21 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Bezier;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Filter;
-import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.utils.Array;
 import com.google.gson.*;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Random;
 
 import static com.badlogic.gdx.math.MathUtils.random;
@@ -62,7 +61,15 @@ public class Collectable extends TileEntity {
      */
 
     private Collectable() {
-        super(1, 1);
+        super(1, 1, new BodyDef(), new FixtureDef());
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.fixedRotation = true;
+        CircleShape shape = new CircleShape();
+        shape.setRadius(Globals.COLLECTABLE_DESCRIPTION_RANGE * Globals.CELL_SIZE_METERS);
+        fixtureDef.shape = shape;
+        fixtureDef.isSensor = true;
+        fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
+        fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
     }
 
     public Collectable(CollectableType type) {
@@ -88,7 +95,7 @@ public class Collectable extends TileEntity {
     }
 
     public Collectable(CollectableAttributes attributes) {
-        super(1, 1);
+        this();
         collectableAttributes = attributes;
         init();
     }
@@ -106,14 +113,19 @@ public class Collectable extends TileEntity {
 
     @Override
     public void render(float delta) {
-        super.render(delta);
+        AbsolutePoint position = this.getPosition();
+        this.render(delta, position.x(), position.y());
+        ///  If at any point the pickup animation would be introduced, move the toDestroy assignment
+    }
+
+    public void render(float delta, float x, float y) {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         TextureRegion currentFrame;
         elapsedTime += delta;
         if (!pickedUp) {
             currentFrame = idleAnimation.getKeyFrame(elapsedTime, true);
-            batch.draw(currentFrame, getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
+            batch.draw(currentFrame, x, y,
                 getSpriteDrawWidth(), getSpriteDrawHeight());
         }
         if (this.dropPositions.isEmpty() && !hasBeenDropped) {
@@ -121,10 +133,12 @@ public class Collectable extends TileEntity {
             updateDropPositions();
         }
 
-        AbsolutePoint prev = this.getPosition();
-        for (AbsolutePoint point : dropPositions) {
-            DebugRenderer.getInstance().drawLine(prev, point, Color.PURPLE);
-            prev = point;
+        if (!dropPositions.isEmpty()) {
+            AbsolutePoint prev = this.getPosition();
+            for (AbsolutePoint point : dropPositions) {
+                DebugRenderer.getInstance().drawLine(prev, point, Color.PURPLE);
+                prev = point;
+            }
         }
         animateDrop(delta);
         ///  If at any point the pickup animation would be introduced, move the toDestroy assignment
@@ -146,13 +160,31 @@ public class Collectable extends TileEntity {
 
     @Override
     public void contactTick(float delta) {
-        super.contactTick(delta);
-        if (!pickedUp) {
+        if (!pickedUp && this.getPosition().distance(LevelScreen.getInstance().player.getPosition()) <
+            Globals.COLLECTABLE_PICKUP_RADIUS) {
             toDestroy = true;
             pickedUp = true;
             pickupElapsedTime = 0f;
             ///  Collectable pickup logic is hasBeenDropped in Player class
             LevelScreen.getInstance().player.collect(this);
+        }
+    }
+
+    @Override
+    public void onPlayerStartContact(Contact c) {
+        if (!this.collectableAttributes.isConsumable) {
+            LevelScreen.getInstance().hud.setItemDescription(
+                this.collectableAttributes.toPrettyDescription()
+            );
+        }
+    }
+
+    @Override
+    public void onPlayerEndContact(Contact c) {
+        if (!this.collectableAttributes.isConsumable &&
+            Objects.equals(LevelScreen.getInstance().hud.getItemDescription(),
+                this.collectableAttributes.toPrettyDescription())) {
+            LevelScreen.getInstance().hud.deleteDescription();
         }
     }
 

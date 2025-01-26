@@ -8,7 +8,7 @@ public class Attributes {
     protected float damageBoost;
     protected float resistanceBoost;
     protected float vampirism;
-    protected int ressurections;
+    protected int resurrections;
     protected float speedBoost;
     protected boolean isConsumable;
     /*Итак, мои предложения к коллектблам:
@@ -29,7 +29,7 @@ public class Attributes {
         this.damageBoost = damageBoost;
         this.resistanceBoost = resistanceBoost;
         this.vampirism = vampirism;
-        this.ressurections = ressurections;
+        this.resurrections = ressurections;
         this.speedBoost = speedBoost;
         this.isConsumable = isConsumable;
     }
@@ -40,7 +40,7 @@ public class Attributes {
         this.immediateCoins += other.immediateCoins;
         this.resistanceBoost += other.resistanceBoost;
         this.vampirism += other.vampirism;
-        this.ressurections += other.ressurections;
+        this.resurrections += other.resurrections;
         this.speedBoost += other.speedBoost;
     }
 
@@ -52,9 +52,48 @@ public class Attributes {
             ", damageBoost=" + damageBoost +
             ", resistanceBoost=" + resistanceBoost +
             ", vampiricHealing=" + vampirism +
-            ", amountOfResurrections=" + ressurections +
+            ", amountOfResurrections=" + resurrections +
             ", speedBoost=" + speedBoost +
             '}';
+    }
+
+
+    // Ingore immediately applied ones since
+    public String toPrettyDescription() {
+        StringBuilder sb = new StringBuilder();
+        if (this.immediateHealing > 0) {
+            sb.append("Heals for ")
+                .append(this.immediateHealing).append("HP\n");
+        }
+        if (this.immediateCoins > 0) {
+            sb.append("Gives you ")
+                .append(this.immediateCoins).append("Coins\n");
+        }
+        if (this.speedBoost > 0) {
+            sb.append("Increases speed by ")
+                .append(Math.round(this.speedBoost * 100)).append("%\n");
+        }
+        if (this.damageBoost > 0) {
+            sb.append("Increases damage by ")
+                .append(Math.round(this.damageBoost * 100)).append("%\n");
+        }
+        if (this.resistanceBoost > 0) {
+            sb.append("Increases resistance by ")
+                .append(Math.round(this.resistanceBoost * 100)).append("%\n");
+        }
+        if (this.vampirism > 0) {
+            sb.append("Increases vampirism by ")
+                .append(Math.round(this.vampirism * 100)).append("%\n");
+        }
+        if (this.resurrections > 0) {
+            if (this.resurrections == 1) {
+                sb.append("Gives you one resurrection\n");
+            } else {
+                sb.append("Gives you ").append(this.resurrections).append("resurrections\n");
+            }
+        }
+        return sb.toString().stripTrailing();
+
     }
 
     public int getImmediateHealing() {
@@ -73,8 +112,8 @@ public class Attributes {
         return speedBoost;
     }
 
-    public int getRessurections() {
-        return ressurections;
+    public int getResurrections() {
+        return resurrections;
     }
 
     public float getVampirism() {

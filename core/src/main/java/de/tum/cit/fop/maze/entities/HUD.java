@@ -139,15 +139,17 @@ public class HUD {
         time.setFontScale(fontScale);
         scoreLabel.setFontScale(fontScale);
 
+
         Label.LabelStyle coinsAndKeysLabelStyle = new Label.LabelStyle();
         coinsAndKeysLabelStyle.font = generator.generateFont(parameter);
-
+        FreeTypeFontGenerator labelFontGenerator = new FreeTypeFontGenerator(
+            Gdx.files.internal("font/VT323-Regular.ttf"));
         descriptionStyle = new Label.LabelStyle();
-        parameter.size = 17; // font size
+        parameter.size = 25; // font size
         parameter.borderWidth = 0;
         parameter.color = new Color(1, 1, 1, 0.7f);
         parameter.gamma = 4f;
-        descriptionStyle.font = generator.generateFont(parameter);
+        descriptionStyle.font = labelFontGenerator.generateFont(parameter);
         //TODO change background to png
 
         descriptionContainer.setBackground(Utils.getColoredDrawable(200, 200,
@@ -160,6 +162,7 @@ public class HUD {
         initTimeAndScoreTable();
 
         itemDescription = new Label("", descriptionStyle);
+
 //        setItemDescription("LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOng description");
 
 
@@ -247,7 +250,7 @@ public class HUD {
         descriptionContainer.setVisible(true);
         itemDescription.setBounds(0, 0, itemDescription.getWidth(),
             itemDescription.getPrefHeight());
-        itemDescription.setAlignment(Align.topRight);
+        itemDescription.setAlignment(Align.center);
         descriptionTable.add(itemDescription).width(itemDescription.getWidth())
             .height(itemDescription.getPrefHeight())
             .pad(padding);

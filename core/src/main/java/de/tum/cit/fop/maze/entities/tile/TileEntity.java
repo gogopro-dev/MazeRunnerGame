@@ -156,8 +156,7 @@ public abstract class TileEntity implements Disposable, GSONRestorable {
         init();
     }
 
-    protected void render(float delta) {
-    }
+    abstract void render(float delta);
 
     public final void renderTileEntity(float delta) {
         this.savedPosition = getPosition();

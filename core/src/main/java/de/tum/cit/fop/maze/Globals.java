@@ -48,6 +48,9 @@ public final class Globals {
     public static final Color TORCH_LIGHT_COLOR = new Color(0xffa459ff);
     public static final Color TRAP_LIGHT_COLOR = new Color(0xff0000ff);
 
+    public static final float COLLECTABLE_DESCRIPTION_RANGE = 2f;
+    public static final float COLLECTABLE_PICKUP_RADIUS = 1f;
+
     public static final int PLAYER_DAMAGE = 2;
     public static final float PLAYER_ATTACK_DISTANCE = CELL_SIZE_METERS;
     public static final float ENEMY_ATTACK_DISTANCE = CELL_SIZE_METERS;

@@ -263,9 +263,10 @@ public class TileMap implements Disposable, GSONRestorable {
                 }
                 if (cell.getCellType() == CellType.SHOP_ITEM) {
                     tileEntityManager.createTileEntity(
-                        new Collectable(
-                            Assets.getInstance().getShopPool().get(
+                        new ShopItem(
+                            new Collectable(Assets.getInstance().getShopPool().get(
                                 random.nextInt(Assets.getInstance().getShopPool().size())
+                            )
                             )
                         ), currentCellCenter
                     );

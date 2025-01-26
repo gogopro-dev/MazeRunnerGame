@@ -14,15 +14,18 @@
     "immediateCoins": 1,
     "frameDuration": 0.17,
     "dropChance": 0.25,
-    "lootContainerPool": true
+    "lootContainerPool": true,
+    "isConsumable": true
   },
   {
     "type": "FIREBALL",
     "textureName": "fireball",
     "damage": 3,
     "frameDuration": 0.17,
+    "name": "Fireball",
+    "description": "A ball of fire that magically doesn't seem to want to kill you, and instead wants to become friends.\n You can throw it if you want ",
     "dropChance": 0.25,
-    "lootContainerPool": true
+    "treasurePool": true
   },
   {
     "type": "DEFENSE_COIN",
@@ -31,7 +34,9 @@
     "frameDuration": 0.1,
     "dropChance": 0.02,
     "lootContainerPool": true,
-    "treasurePool": true
+    "treasurePool": true,
+    "name": "Defense buff",
+    "description": "A wise old man once said:\n \"Yo, you better kow how to defend yo' ass.\" "
   },
   {
   "type": "DAMAGE_COIN",
@@ -45,14 +50,14 @@
   {
     "type": "RESURRECTION_AMULET",
     "textureName": "health_amulet",
-    "amountOfResurrections": 1,
+    "resurrections": 1,
     "frameDuration": 0.1,
     "shopPool": true
   },
   {
     "type": "VAMPIRE_AMULET",
     "textureName": "vampire_amulet",
-    "vampiricHealing": 0.15,
+    "vampirism": 0.15,
     "frameDuration": 0.1,
     "shopPool": true
   },
@@ -66,6 +71,7 @@
   {
     "type": "KEY",
     "textureName": "key",
-    "frameDuration": 0.1
+    "frameDuration": 0.2,
+    "isConsumable": true
   }
 ]

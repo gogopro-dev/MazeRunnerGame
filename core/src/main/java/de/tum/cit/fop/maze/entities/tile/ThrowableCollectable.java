@@ -46,8 +46,6 @@ public class ThrowableCollectable extends TileEntity {
 
     @Override
     public void render(float delta) {
-        super.render(delta);
-
         // Update fireball state
         stateTime += delta;
 
