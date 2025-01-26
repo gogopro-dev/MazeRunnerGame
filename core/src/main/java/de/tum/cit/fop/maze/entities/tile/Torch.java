@@ -58,15 +58,18 @@ public class Torch extends TileEntity {
                 this.standTexture = textureAtlas.findRegion("front_torch_stand");
             }
             case LEFT, RIGHT -> {
+
                 this.torchAnimation =
                     new Animation<>(
                         0.1f, textureAtlas.findRegions("side_torch"), Animation.PlayMode.LOOP
                     );
                 this.standTexture = textureAtlas.findRegion("side_torch_stand");
             }
-            default -> {
-                this.torchAnimation = null;
-                this.standTexture = null;
+            case DOWN -> {
+                this.torchAnimation = new Animation<>(
+                    0.1f, textureAtlas.findRegions("back_torch"), Animation.PlayMode.LOOP
+                );
+                this.standTexture = textureAtlas.findRegion("back_torch_stand");
             }
         }
     }
@@ -80,7 +83,7 @@ public class Torch extends TileEntity {
         light.update();
         if (torchAnimation != null && standTexture != null) {
             TextureRegion frame = lit ? torchAnimation.getKeyFrame(elapsedTime, true) : standTexture;
-            if (direction == Direction.RIGHT && !frame.isFlipX()) {
+            if (direction == Direction.RIGHT) {
                 frame.flip(true, false);
             }
 
@@ -88,6 +91,9 @@ public class Torch extends TileEntity {
                 getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
                 getSpriteDrawWidth(), getSpriteDrawHeight()
             );
+            if (direction == Direction.RIGHT) {
+                frame.flip(true, false);
+            }
         }
         if (lit && light.getDistance() < TORCH_LIGHT_RADIUS) {
             light.setDistance(Math.min(
