@@ -45,7 +45,7 @@ public class LevelScreen implements Screen {
     public transient HUD hud;
     public transient final RayHandler rayHandler;
 
-    public transient final Random random = new Random(2);
+    transient Random random = new Random(2);
     public transient final EntityPathfinder pathfinder = new EntityPathfinder();
     private transient boolean gameOver;
 
@@ -232,13 +232,12 @@ public class LevelScreen implements Screen {
         player = new Player();
     }
 
-    public LevelScreen(boolean generate) {
+    public LevelScreen(long seed) {
         this();
         this.needsRestoring = false;
-        if (generate) {
-            generate();
-            spawnDebug();
-        }
+        this.random = new Random(seed);
+        generate();
+        spawnDebug();
         init();
     }
 
