@@ -16,7 +16,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import de.tum.cit.fop.maze.level.GameOverScreen;
 import de.tum.cit.fop.maze.level.LevelScreen;
@@ -25,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static de.tum.cit.fop.maze.Globals.*;
 
 /**
  * Class for the settings menu
@@ -291,12 +292,16 @@ public class SettingsUI {
                 Gdx.graphics.setWindowedMode(Integer.parseInt(resolution[0]), Integer.parseInt(resolution[1]));
                 Menu.getInstance().SCREEN_HEIGHT = Integer.parseInt(resolution[1]);
                 Menu.getInstance().SCREEN_WIDTH = Integer.parseInt(resolution[0]);
+                CURRENT_SCREEN_WIDTH_WINDOWED = Integer.parseInt(resolution[0]);
+                CURRENT_SCREEN_HEIGHT_WINDOWED = Integer.parseInt(resolution[1]);
                 Menu.getInstance().resize(Integer.parseInt(resolution[0]), Integer.parseInt(resolution[1]));
                 container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
                 Menu.getInstance().updateChildPositions();
-                LevelScreen.getInstance().updateViewport();
+                if (LevelScreen.getInstance() != null) {
+                    LevelScreen.getInstance().updateViewport();
+                    PauseScreen.getInstance().updateViewport();
+                }
                 GameOverScreen.getInstance().updateViewport();
-                PauseScreen.getInstance().updateViewport();
             }
         });
 
@@ -325,6 +330,11 @@ public class SettingsUI {
         exitSettingsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if (PauseScreen.getInstance() == null) {
+                    Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU);
+                    return;
+                }
+
                 if (PauseScreen.getInstance().isSettings()) {
                     PauseScreen.getInstance().setSettings(false);
                 } else {
@@ -390,17 +400,18 @@ public class SettingsUI {
                     toggleFullButton.setImagePadding(12f);
                     toggleFullScreenImage.setDrawable(new TextureRegionDrawable(fullScreenOffRegion));
                     /// Set the screen to the default resolution
-                    Menu.getInstance().SCREEN_HEIGHT = 768;
-                    Menu.getInstance().SCREEN_WIDTH = 1024;
-
+                    Menu.getInstance().SCREEN_HEIGHT = CURRENT_SCREEN_HEIGHT_WINDOWED;
+                    Menu.getInstance().SCREEN_WIDTH = CURRENT_SCREEN_WIDTH_WINDOWED;
 
                     Gdx.graphics.setWindowedMode(Menu.getInstance().SCREEN_WIDTH, Menu.getInstance().SCREEN_HEIGHT);
-                    Menu.getInstance().resize(1024, 768);
+                    Menu.getInstance().resize( CURRENT_SCREEN_WIDTH_WINDOWED, CURRENT_SCREEN_HEIGHT_WINDOWED);
                     Menu.getInstance().updateChildPositions();
                 }
-                LevelScreen.getInstance().updateViewport();
+                if (LevelScreen.getInstance() != null) {
+                    LevelScreen.getInstance().updateViewport();
+                    PauseScreen.getInstance().updateViewport();
+                }
                 GameOverScreen.getInstance().updateViewport();
-                PauseScreen.getInstance().updateViewport();
 
                 container.setPosition(
                     stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2,
@@ -437,6 +448,7 @@ public class SettingsUI {
         selectBoxStyle.listStyle.selection = new NinePatchDrawable(selectBoxNinePatch);
         selectBoxStyle.listStyle.background = new NinePatchDrawable(selectBoxNinePatch);
         selectBoxStyle.disabledFontColor = new Color(0x404040FF);
+        generator.dispose();
         return new SelectBox<>(selectBoxStyle);
     }
 

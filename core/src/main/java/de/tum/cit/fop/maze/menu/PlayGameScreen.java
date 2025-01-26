@@ -5,6 +5,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -23,8 +25,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import de.tum.cit.fop.maze.level.LevelScreen;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
@@ -67,7 +69,7 @@ public class PlayGameScreen implements Screen {
         loadTextures();
 
         isNewGame = new boolean[3];
-        gameTime = new String[]{"0:00", "0:00", "0:00"};
+        gameTime = new String[]{"", "", ""};
         setupMenu();
     }
 
@@ -86,12 +88,17 @@ public class PlayGameScreen implements Screen {
         exitIconRegion = menuIconsAtlas.findRegion("exit");
 
         containerRegion = menuAtlas.findRegion("play_container");
-
-//        menuAtlas.dispose();
-//        menuIconsAtlas.dispose();
     }
 
     private void setupMenu() {
+        for (int i = 0; i < 3; i++){
+            isNewGame[i] =
+                !Gdx.files.local("saves/" + i + ".png").exists() &&
+                    !Gdx.files.local("saves/" + i + ".json").exists();
+            if (!isNewGame[i]){
+                gameTime[i] = "00:00:00";
+            }
+        }
         fontParameter.size = 30;
         fontParameter.color = new Color(0xE0E0E0FF);
         font = generator.generateFont(fontParameter);
@@ -156,7 +163,8 @@ public class PlayGameScreen implements Screen {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                //TODO: Delete the actual save file
+                Gdx.files.local("saves/" + index + ".png").delete();
+                Gdx.files.local("saves/" + index + ".json").delete();
                 gameButton.isNewGame = true;
                 isNewGame[index] = true;
                 gameTime[index] = "";
@@ -176,8 +184,8 @@ public class PlayGameScreen implements Screen {
         textButtonStyle.pressedOffsetX = 1;
         textButtonStyle.pressedOffsetY = -1;
 
-        AlignableImageTextButton playButton = new AlignableImageTextButton("", textButtonStyle, image, isNewGame[index] ? 3 : 1);
-        playButton.setImagePadding(isNewGame[index] ? 70f : 11f);
+        AlignableImageTextButton playButton = new AlignableImageTextButton("", textButtonStyle, image, isNewGame[index] ? 3 : 1f);
+        playButton.setImagePadding(isNewGame[index] ? 70f : 13f);
         playButton.setImageTopPadding(2f);
         playButton.addListener(new ClickListener() {
             @Override
@@ -186,7 +194,10 @@ public class PlayGameScreen implements Screen {
                     isCreateNewGameDialogOpen = true;
                     createNewGameScreen = new CreateNewGameScreen(stage.getViewport(), (SpriteBatch) stage.getBatch(), index);
                 } else {
-                    System.out.println("Load game " + index);
+                    LevelScreen levelScreen = Assets.getInstance().gson.fromJson(
+                        Gdx.files.local("saves/" + index + ".json").reader(), LevelScreen.class
+                    );
+                    levelScreen.init();
                     Menu.getInstance().toggleMenuState(MenuState.GAME_SCREEN);
                 }
             }
@@ -205,23 +216,34 @@ public class PlayGameScreen implements Screen {
 
         /// Create buttons for each game slot
         for (int i = 0; i < 3; i++) {
-            // TODO: Update these from save folder
-            boolean isNewGame = this.isNewGame[i];
-
             /// Create game image
             Image gameImage;
-            if (isNewGame) {
+            if (isNewGame[i]) {
                 gameImage = new Image(new TextureRegionDrawable(newGameIconRegion));
             } else {
-                /// TODO: Load game screenshot
-                gameImage = new Image(new TextureRegionDrawable(newGameIconRegion).tint(Color.GRAY));
+                /// Load game screenshot
+                /// if it does not exist, create a black as a placeholder
+                Texture texture;
+                if (Gdx.files.local("saves/" + i + ".png").exists()){
+                    texture = new Texture(Gdx.files.local("saves/" + i + ".png"));
+                } else {
+                    Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+                    pixmap.setColor(Color.BLACK);
+                    pixmap.fill();
+                    texture = new Texture(pixmap);
+                    pixmap.dispose();
+                }
+                gameImage = new Image(new TextureRegionDrawable(texture).tint(Color.GRAY));
             }
 
             /// Create game button
             gameButtons[i] = new GameButton(
                 createPlayButton(gameImage, i),
-                isNewGame
+                isNewGame[i]
             );
+            if (!isNewGame[i]) {
+                gameButtons[i].button.updateImage(124 * 1.5f, 100 * 1.5f);
+            }
 
             Table gameTable = new Table();
 
@@ -240,7 +262,7 @@ public class PlayGameScreen implements Screen {
 
             /// Create and add delete button
             AlignableImageTextButton deleteButton = createDeleteButton(gameButtons[i], i);
-            if (isNewGame) {
+            if (isNewGame[i]) {
                 deleteButton.setDisabled(true);
                 deleteButton.setVisible(false);
             }
@@ -277,6 +299,11 @@ public class PlayGameScreen implements Screen {
 
     public void updateContainerPosition(){
         container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
+    }
+
+    public void updateScreen(){
+        stage.clear();
+        setupMenu();
     }
 
     @Override
@@ -326,8 +353,8 @@ public class PlayGameScreen implements Screen {
         createNewGameScreen.dispose();
     }
 
-    private static class GameButton {
-        public AlignableImageTextButton button;
+    public static class GameButton {
+        private final AlignableImageTextButton button;
         public boolean isNewGame;
 
         public GameButton(AlignableImageTextButton button, boolean isNewGame){
@@ -348,7 +375,7 @@ public class PlayGameScreen implements Screen {
         private TextureRegion exitIconRegion;
         private VerticalGroup verticalGroup;
         private Container<VerticalGroup> container;
-        private int gameIndex;
+        private final int gameIndex;
         private FileHandle[] propertiesFiles;
         private int seed;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
@@ -504,18 +531,20 @@ public class PlayGameScreen implements Screen {
                         if (!textField.getText().isEmpty()){
                             seed = textField.getText().hashCode();
                         }
-                        /// TODO: Create new game with seed
+                        new LevelScreen(seed);
+                        LevelScreen.getInstance().setLevelIndex(gameIndex);
+                        Menu.getInstance().toggleMenuState(MenuState.GAME_SCREEN, true);
+                        LevelScreen.getInstance().render(0);
+                        LevelScreen.getInstance().saveGame();
                     } else {
                         /// TODO: Load maze properties from file
                         FileHandle file = propertiesFiles[selectBox.getSelectedIndex()-1];
                         System.out.println("File: " + file.name());
                     }
-                    /// TODO: Create new game  with seed
+                    // TODO: Create new game  with seed
                     PlayGameScreen.getInstance().isNewGame[gameIndex] = false;
-                    PlayGameScreen.getInstance().gameTime[gameIndex] = "0:00";
                     PlayGameScreen.getInstance().isCreateNewGameDialogOpen = false;
-                    PlayGameScreen.getInstance().stage.clear();
-                    PlayGameScreen.getInstance().setupMenu();
+                    PlayGameScreen.getInstance().updateScreen();
                 }
             });
 

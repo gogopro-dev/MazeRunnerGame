@@ -58,6 +58,7 @@ public class LevelScreen implements Screen {
     private transient final Stage stage;
     private transient boolean needsRestoring = false;
     private transient boolean endGame = false;
+    private transient int levelIndex;
 
     private void doPhysicsStep(float deltaTime) {
         // Fixed time step
@@ -87,11 +88,6 @@ public class LevelScreen implements Screen {
             /// Update and render pause screen
             pauseScreen.update();
             pauseScreen.render(delta);
-            try {
-                SaveManager.saveGame();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
             return;
         }
 
@@ -115,6 +111,14 @@ public class LevelScreen implements Screen {
             GameOverScreen.getInstance().setTimePlayed(hud.getTime());
             GameOverScreen.getInstance().setScore(hud.getScore());
             gameOver = true;
+        }
+    }
+
+    public void saveGame(){
+        try {
+            SaveManager.saveGame(levelIndex);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -216,8 +220,8 @@ public class LevelScreen implements Screen {
         rayHandler.setAmbientLight(lightColor);
         rayHandler.setBlurNum(33);
 
-        h = Gdx.graphics.getHeight() / PPM;
-        w = Gdx.graphics.getWidth() / PPM;
+        w = DEFAULT_SCREEN_WIDTH_WINDOWED / PPM;
+        h = DEFAULT_SCREEN_HEIGHT_WINDOWED / PPM;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, w / 2, h / 2);
@@ -273,6 +277,10 @@ public class LevelScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
         camera.zoom = Globals.DEFAULT_CAMERA_ZOOM;
         camera.update();
+
+        updateViewport();
+        PauseScreen.getInstance().updateViewport();
+        hud.resize();
     }
 
     public void spawnDebug() {
@@ -384,9 +392,6 @@ public class LevelScreen implements Screen {
      * @return The instance of the LevelScreen
      */
     public static LevelScreen getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("LevelScreen not yet created");
-        }
         return instance;
     }
 
@@ -396,5 +401,13 @@ public class LevelScreen implements Screen {
 
     public Stage getStage() {
         return stage;
+    }
+
+    public void setLevelIndex(int levelIndex) {
+        this.levelIndex = levelIndex;
+    }
+
+    public int getLevelIndex() {
+        return levelIndex;
     }
 }
