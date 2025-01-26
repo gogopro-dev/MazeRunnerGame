@@ -67,7 +67,7 @@ public class HUD {
     private Map<String, Label> invInfo = new HashMap<>();
     private float elapsedTime = 0f;
 
-    private Sprite exitArrow;
+    private ExitArrow exitArrow;
 
     private int receivedDmg;
     private int health;
@@ -173,29 +173,30 @@ public class HUD {
 
 //        coins = new Label(String.format(": " + LevelScreen.getInstance().player.getGold()), coinsAndKeysLabelStyle);
 
-        exitArrow = new Sprite(atlas.findRegion("arrow"));
+        exitArrow = new ExitArrow(atlas, stage);
+//        exitArrow = new Sprite(atlas.findRegion("arrow"));
 
-        initExitArrow();
+//        initExitArrow();
     }
 
-    public void initExitArrow() {
-
-        float arrowSize = 50;
-        exitArrow.setSize(arrowSize, arrowSize);
-        updateArrowPosition();
-    }
-
-    private void updateArrowPosition() {
-        float arrowPadding = 20;
-        exitArrow.setPosition(stage.getViewport().getWorldWidth() - exitArrow.getWidth() - arrowPadding,
-            arrowPadding);
-        exitArrow.setOriginCenter();
-    }
-
-    public void drawExitArrow(float angle) {
-        exitArrow.setRotation(angle);
-        exitArrow.draw(spriteBatch);
-    }
+//    public void initExitArrow() {
+//
+//        float arrowSize = 50;
+//        exitArrow.setSize(arrowSize, arrowSize);
+//        updateArrowPosition();
+//    }
+//
+//    private void updateArrowPosition() {
+//        float arrowPadding = 20;
+//        exitArrow.setPosition(stage.getViewport().getWorldWidth() - exitArrow.getWidth() - arrowPadding,
+//            arrowPadding);
+//        exitArrow.setOriginCenter();
+//    }
+//
+//    public void drawExitArrow(float angle) {
+//        exitArrow.setRotation(angle);
+//        exitArrow.draw(spriteBatch);
+//    }
 
     public void setItemDescription(String description) {
         if (descriptionTable.getChildren().size > 0) {
@@ -613,7 +614,7 @@ public class HUD {
             }
         }
         updateStaminaBar(deltaTime);
-        drawExitArrow(LevelScreen.getInstance().player.getPosition().angle(
+        exitArrow.drawExitArrow(spriteBatch, LevelScreen.getInstance().player.getPosition().angle(
             LevelScreen.getInstance().map.getExitPosition()
         ));
         stage.getBatch().end();
@@ -667,7 +668,7 @@ public class HUD {
         updateLabelTablePosition();
         updateDescriptionPosition();
         updateInventoryPosition();
-        updateArrowPosition();
+        exitArrow.updateArrowPosition(stage);
     }
 
     public int getScore() {
