@@ -186,6 +186,7 @@ public class HUD {
         float arrowPadding = 20;
         exitArrow.setPosition(stage.getViewport().getWorldWidth() - exitArrow.getWidth() - arrowPadding,
             arrowPadding);
+        exitArrow.setOriginCenter();
     }
 
     public void drawExitArrow(float angle) {
