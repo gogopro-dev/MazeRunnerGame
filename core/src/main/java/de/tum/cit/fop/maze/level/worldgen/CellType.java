@@ -60,7 +60,7 @@ public enum CellType {
      * @return {@code true} if the cell type is a room
      */
     public boolean isRoom() {
-        return this == ROOM_PATH || this == ROOM_WALL;
+        return this == ROOM_PATH || this == ROOM_WALL || this == TREASURE_ROOM_ITEM || this == SHOP_ITEM;
     }
 
 }
