@@ -55,11 +55,11 @@ public class ExitDoor extends TileEntity {
         TextureAtlas atlas = Assets.getInstance().getAssetManager()
             .get("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class);
         Array<TextureAtlas.AtlasRegion> doorFrames =
-            atlas.findRegions("door");
+            atlas.findRegions("door_front");
 
         doorOpeningAnimation = new Animation<>(0.175f, doorFrames);
         doorOpeningAnimation.setPlayMode(Animation.PlayMode.NORMAL);
-        texture = atlas.findRegion("door_locked");
+        texture = atlas.findRegion("door_front_locked");
     }
 
     @Override
