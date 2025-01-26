@@ -230,7 +230,9 @@ public class HUD {
         stage.addActor(coinsAndKeysTable);
     }
 
-    private void setItemDescription(String description) {
+    public void setItemDescription(String description) {
+        deleteDescription();
+        descriptionContainer.setVisible(true);
         float labelWidth = 300;
 //        for (int i = 0; i < description.length()/lenOfCharsInRow; i ++) {
 //            Label itemDescription = new Label(description.substring(i * lenOfCharsInRow,
@@ -274,9 +276,10 @@ public class HUD {
         descriptionContainer.setPosition(containerX, containerY);
     }
 
-    private void deleteDescription() {
+    public void deleteDescription() {
 
         descriptionTable.clear();
+        descriptionContainer.setVisible(false);
         spriteInventory.setVisible(true);
         textInventory.setVisible(true);
     }
@@ -729,5 +732,14 @@ public class HUD {
         updateInventoryPosition();
         updateArrowPosition();
     }
+
+    public int getScore() {
+        return Integer.parseInt(scoreLabel.getText().replace("Score: ", "").toString());
+    }
+
+    public String getTime() {
+        return time.getText().replace("Time: ", "").toString();
+    }
+
 }
 

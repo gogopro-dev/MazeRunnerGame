@@ -3,8 +3,8 @@ package de.tum.cit.fop.maze;
 import com.badlogic.gdx.graphics.Color;
 
 public final class Globals {
-    public static final boolean DEBUG = true;
-    public static final boolean FULLBRIGHT = true;
+    public static final boolean DEBUG = false;
+    public static final boolean FULLBRIGHT = false;
 
     /// Pixel per Meter
     public static final float PPM = 64f;
@@ -52,4 +52,5 @@ public final class Globals {
     public static final float PLAYER_ATTACK_DISTANCE = CELL_SIZE_METERS;
     public static final float ENEMY_ATTACK_DISTANCE = CELL_SIZE_METERS;
     public static final float PLAYER_ATTACK_KNOCKBACK = 10f;
+    public static final String PLAYER_SCARED_TEXT = "I am scared of the dark...\nI need to get out of the shadow!";
 }

@@ -57,7 +57,7 @@ public class LevelScreen implements Screen {
     private transient final PauseScreen pauseScreen;
     private transient final Stage stage;
     private transient boolean needsRestoring = false;
-    private boolean endGame = false;
+    private transient boolean endGame = false;
 
     private void doPhysicsStep(float deltaTime) {
         // Fixed time step
@@ -112,12 +112,10 @@ public class LevelScreen implements Screen {
         if (endGame){
             pauseScreen.takeScreenshot();
             GameOverScreen.getInstance().drawInventory(hud.spriteInventory, hud.textInventory);
-            GameOverScreen.getInstance().setHasWon(true);
-            GameOverScreen.getInstance().setTimePlayed("10:20:23");
-            GameOverScreen.getInstance().setScore(1024);
+            GameOverScreen.getInstance().setTimePlayed(hud.getTime());
+            GameOverScreen.getInstance().setScore(hud.getScore());
             gameOver = true;
         }
-
     }
 
     /**

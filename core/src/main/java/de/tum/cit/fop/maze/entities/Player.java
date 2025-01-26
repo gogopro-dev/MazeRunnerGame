@@ -1,6 +1,7 @@
 package de.tum.cit.fop.maze.entities;
 
 import box2dLight.PointLight;
+import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -8,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.entities.tile.Attributes;
@@ -20,6 +21,9 @@ import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import java.util.ArrayList;
 import java.util.List;
+
+import static de.tum.cit.fop.maze.Globals.PLAYER_SCARED_TEXT;
+
 /**
  * Represents the player character in the game.
  */
@@ -29,6 +33,7 @@ public class Player extends Entity {
     private int gold = 0;
     private float staminaRecoveryElapsedTime = 0f;
     private float maxStamina = 100;
+    private boolean hasKey = false;
 
 
     private transient Animation<TextureRegion> idleAnimation;
@@ -53,6 +58,7 @@ public class Player extends Entity {
     private transient boolean isDamaged = false;
     private transient float damageFlashTimer = 0f;
     private transient PointLight torchLight;
+    private transient float shadowWaitElapsedTime;
 
 
     /**
@@ -148,6 +154,10 @@ public class Player extends Entity {
             attackElapsedTime = 0f; // Reset hit animation time
         }
 
+
+        shadowWaitElapsedTime += deltaTime;
+
+        checkPlayerInShadow(shadowWaitElapsedTime);
 
     }
 
@@ -354,6 +364,34 @@ public class Player extends Entity {
         }
     }
 
+    /**
+     * Check if the player is in the shadow
+     * and if so, attack the player</br>
+     * If the player is in the shadow for more than 3 seconds,
+     * the player will be attacked
+     * @param shadowWaitElapsedTime The time elapsed since the player entered the shadow
+     */
+    public void checkPlayerInShadow(float shadowWaitElapsedTime) {
+        HUD hud = LevelScreen.getInstance().hud;
+        RayHandler rayHandler = LevelScreen.getInstance().rayHandler;
+        if (!rayHandler.pointAtShadow(getPosition().x(), getPosition().y())){
+            if (!hud.descriptionTable.getChildren().isEmpty() &&
+                ((Label) hud.descriptionTable.getChild(0)).getText().toString().equals(PLAYER_SCARED_TEXT)) {
+                hud.deleteDescription();
+            }
+            this.shadowWaitElapsedTime = 0;
+            return;
+        }
+        if (hud.descriptionTable.getChildren().isEmpty()) {
+            hud.setItemDescription(PLAYER_SCARED_TEXT);
+        }
+        if (shadowWaitElapsedTime < 3f) {
+            return;
+        }
+
+        takeDamage(1);
+    }
+
     public List<Collectable> getInventory() {
         return inventory;
     }
@@ -500,6 +538,9 @@ public class Player extends Entity {
      * @param collectable The collectable item to collect
      */
     public void collect(Collectable collectable) {
+        if (collectable.getCollectableAttributes().type == Collectable.CollectableType.KEY) {
+            hasKey = true;
+        }
         collectableBuffs.sum(collectable.getCollectableAttributes());
         inventory.add(collectable);
         LevelScreen.getInstance().hud.addItemToInventory(collectable);;
@@ -524,6 +565,10 @@ public class Player extends Entity {
 
     public boolean isHoldingTorch() {
         return isHoldingTorch;
+    }
+
+    public boolean hasKey() {
+        return hasKey;
     }
 
     public int getGold() {
