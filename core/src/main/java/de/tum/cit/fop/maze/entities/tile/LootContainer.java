@@ -90,7 +90,7 @@ public class LootContainer extends TileEntity implements Attackable {
         ).filter(attribute -> attribute.type.equals(type)).findFirst().get();
         init();
         int passes = 0;
-        Random random = LevelScreen.getInstance().random;
+        Random random = LevelScreen.getInstance().getRandom();
         while (passes < this.attributes.maxLootAmount && loot.size() < this.attributes.maxLootAmount) {
             for (CollectableAttributes collectableAttributes : Assets.getInstance().getCollectables()) {
                 if (collectableAttributes.lootContainerPool) {
@@ -177,7 +177,6 @@ public class LootContainer extends TileEntity implements Attackable {
 
     @Override
     public void render(float delta) {
-        super.render(delta);
         if (hasBeenHit) {
             timeSinceLastHit += delta;
             if (timeSinceLastHit > IMMUNITY_FRAME_DURATION) {

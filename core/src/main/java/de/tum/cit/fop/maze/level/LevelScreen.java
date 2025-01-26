@@ -390,6 +390,10 @@ public class LevelScreen implements Screen {
         return instance;
     }
 
+    public Random getRandom() {
+        return random;
+    }
+
     public Stage getStage() {
         return stage;
     }
