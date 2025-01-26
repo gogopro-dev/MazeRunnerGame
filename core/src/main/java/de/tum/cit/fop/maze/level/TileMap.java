@@ -130,6 +130,7 @@ public class TileMap implements Disposable, GSONRestorable {
 
     public int width;
     public int height;
+    private AbsolutePoint exitPosition;
     boolean[][] wallMap;
     public transient float heightMeters;
     public transient float widthMeters;
@@ -253,6 +254,7 @@ public class TileMap implements Disposable, GSONRestorable {
                     tileEntityManager.createTileEntity(
                         new ExitDoor(), currentCellCenter
                     );
+                    this.exitPosition = currentCellCenter;
                 }
                 if (cell.getCellType() == CellType.SHOP_ITEM) {
                     tileEntityManager.createTileEntity(
@@ -757,4 +759,9 @@ public class TileMap implements Disposable, GSONRestorable {
         generateVerticalHitboxes();
         generateHorizontalHitboxes();
     }
+
+    public AbsolutePoint getExitPosition() {
+        return exitPosition;
+    }
+
 }
