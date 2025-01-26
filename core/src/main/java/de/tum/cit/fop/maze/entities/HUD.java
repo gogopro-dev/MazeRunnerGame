@@ -33,8 +33,8 @@ public class HUD {
     private final Label scoreLabel;
     private final Label time;
 
-    private final Label coins;
-    private final Table coinsAndKeysTable = new Table();
+//    private final Label coins;
+//    private final Table coinsAndKeysTable = new Table();
 //    private final Table healthTable;
 
 
@@ -85,10 +85,6 @@ public class HUD {
     private final float staminaBarScaling = 1f;
     private final float fillamentAlignmentX = 32f;
 
-    private final float statusBarSpacingFromHPBar = 10f;
-    private final float statusBarInnerSpacing = 5f;
-    private final float statusScale = 1.5f;
-
 
     private boolean gotHit = false;
     private Map<String, Animation<TextureRegion>> animations;
@@ -106,6 +102,8 @@ public class HUD {
 
     int indexXOfLastFullHalf;
     int indexYOfLastFullHalf;
+
+    private final CoinsAndKeys coinsAndKeys;
 
 
     public HUD(Player player) {
@@ -170,9 +168,10 @@ public class HUD {
         updateHPBar();
         createStaminaBar();
 
-        coins = new Label(String.format(": " + LevelScreen.getInstance().player.getGold()), coinsAndKeysLabelStyle);
+        coinsAndKeys = new CoinsAndKeys(stage, inventoryAtlas,
+            coinsAndKeysLabelStyle, padding, staminaBar.getY() - 10);
 
-        initCoinsAndKeysTable();
+//        coins = new Label(String.format(": " + LevelScreen.getInstance().player.getGold()), coinsAndKeysLabelStyle);
 
         exitArrow = new Sprite(atlas.findRegion("arrow"));
 
@@ -196,45 +195,6 @@ public class HUD {
     public void drawExitArrow(float angle) {
         exitArrow.setRotation(angle);
         exitArrow.draw(spriteBatch);
-    }
-
-    private void pickUpCoin(int value){
-        float spacingFromStaminaBar = 10;
-
-        LevelScreen.getInstance().player.addGold(value);
-        coins.setText(": " + LevelScreen.getInstance().player.getGold());
-        coinsAndKeysTable.setPosition(padding + coinsAndKeysTable.getPrefWidth() / 2,
-            staminaBar.getY() - spacingFromStaminaBar - coinsAndKeysTable.getPrefHeight() / 2);
-
-    }
-
-    private void pickUpKey() {
-
-        float spacingFromStaminaBar = 10;
-        float keyWidth = 45;
-        float keyHeight = 35;
-
-        Drawable keysIcon = new TextureRegionDrawable(inventoryAtlas.findRegion("key", 1));
-        keysIcon.setMinHeight(keyHeight);
-        keysIcon.setMinWidth(keyWidth);
-        coinsAndKeysTable.add(new Image(keysIcon)).width(keyWidth).height(keyHeight);
-        coinsAndKeysTable.setPosition(padding + coinsAndKeysTable.getPrefWidth() / 2,
-            staminaBar.getY() - spacingFromStaminaBar - coinsAndKeysTable.getPrefHeight() / 2);
-    }
-
-    private void initCoinsAndKeysTable() {
-
-        Drawable coinsIcon = new TextureRegionDrawable(inventoryAtlas.findRegion("coin"));
-        float iconSize = 40;
-        coinsIcon.setMinWidth(iconSize);
-        coinsIcon.setMinHeight(iconSize);
-        coinsAndKeysTable.add(new Image(coinsIcon)).width(iconSize).height(iconSize);
-        coinsAndKeysTable.add(coins);
-        coinsAndKeysTable.row();
-        float spacingFromStaminaBar = 10;
-        coinsAndKeysTable.setPosition(padding + coinsAndKeysTable.getPrefWidth() / 2,
-            staminaBar.getY() - spacingFromStaminaBar - coinsAndKeysTable.getPrefHeight() / 2);
-        stage.addActor(coinsAndKeysTable);
     }
 
     public void setItemDescription(String description) {
@@ -318,12 +278,12 @@ public class HUD {
             }
 
             if (Objects.equals(collectableType, Collectable.CollectableType.KEY)) {
-                pickUpKey();
+                coinsAndKeys.pickUpKey();
                 return;
             }
 
             if (Objects.equals(collectableType, Collectable.CollectableType.GOLD_COIN)) {
-                pickUpCoin(collectable.getCollectableAttributes().getImmediateCoins());
+                coinsAndKeys.pickUpCoin(collectable.getCollectableAttributes().getImmediateCoins());
                 return;
             }
 
