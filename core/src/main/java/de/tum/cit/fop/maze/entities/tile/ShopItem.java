@@ -57,6 +57,7 @@ public class ShopItem extends TileEntity {
 
     @Override
     public void onPlayerStartContact(Contact c) {
+        /// Raycast isn't necessary here, since in the shop you won't be able to see a collectable through the wall
         LevelScreen.getInstance().hud.setItemDescription(
                 description()
         );

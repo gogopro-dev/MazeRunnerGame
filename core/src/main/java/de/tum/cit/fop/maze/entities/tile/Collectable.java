@@ -14,6 +14,7 @@ import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
+import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class Collectable extends TileEntity {
     private transient float dropPathLength = 0f;
     private transient float dropElapsedTime = 0f;
     private transient PrismaticJoint joint;
-
+    private transient boolean descriptionIsShown = false;
 
     private transient boolean hasBeenDropped = true;
 
@@ -168,11 +169,8 @@ public class Collectable extends TileEntity {
             ///  Collectable pickup logic is hasBeenDropped in Player class
             LevelScreen.getInstance().player.collect(this);
         }
-    }
-
-    @Override
-    public void onPlayerStartContact(Contact c) {
-        if (!this.collectableAttributes.isConsumable) {
+        if (!this.collectableAttributes.isConsumable && !descriptionIsShown && Utils.isPlayerExposed(getPosition())) {
+            descriptionIsShown = true;
             LevelScreen.getInstance().hud.setItemDescription(
                 this.collectableAttributes.toPrettyDescription()
             );
@@ -181,6 +179,7 @@ public class Collectable extends TileEntity {
 
     @Override
     public void onPlayerEndContact(Contact c) {
+        descriptionIsShown = false;
         if (!this.collectableAttributes.isConsumable &&
             Objects.equals(LevelScreen.getInstance().hud.getItemDescription(),
                 this.collectableAttributes.toPrettyDescription())) {
