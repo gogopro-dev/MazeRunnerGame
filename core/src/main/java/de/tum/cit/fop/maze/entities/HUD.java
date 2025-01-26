@@ -51,6 +51,7 @@ public class HUD {
     public final Table textInventory = new Table();
     public final Table descriptionTable = new Table();
     public final Container<Table> descriptionContainer = new Container<>(descriptionTable);
+    private Label itemDescription;
     private int inventoryRows = 2;
     private int inventoryCols = 5;
     private int sizeOfInvIcon = 40;
@@ -151,12 +152,15 @@ public class HUD {
 
         descriptionContainer.setBackground(Utils.getColoredDrawable(200, 200,
             new Color(0, 0, 0, 0.7f)));
+        descriptionContainer.setVisible(false);
+        stage.addActor(descriptionContainer);
 
 
         generator.dispose();
         initTimeAndScoreTable();
 
-        // setItemDescription("LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOng description");
+        itemDescription = new Label("", descriptionStyle);
+//        setItemDescription("LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOng description");
 
 
         inventoryAtlas = new TextureAtlas(Gdx.files.local("assets/temporary/collectables/collectables.atlas"));
@@ -234,38 +238,31 @@ public class HUD {
     }
 
     public void setItemDescription(String description) {
-        deleteDescription();
-        descriptionContainer.setVisible(true);
-        float labelWidth = 300;
-//        for (int i = 0; i < description.length()/lenOfCharsInRow; i ++) {
-//            Label itemDescription = new Label(description.substring(i * lenOfCharsInRow,
-//                (i + 1) * lenOfCharsInRow - 1), descriptionStyle);
-//            descriptionTable.add(itemDescription);
-//            descriptionTable.row();
-//        }
-//        if (description.length() % lenOfCharsInRow > 0) {
-//            Label itemDescription = new Label(description.substring(description.length()
-//                - description.length() % lenOfCharsInRow), descriptionStyle);
-//            descriptionTable.add(itemDescription);
-//            descriptionTable.row();
-//        }
-//        descriptionTable.setPosition(padding + descriptionTable.getWidth()/2,
-//            padding + descriptionTable.getHeight()/2);
-//        stage.addActor(descriptionTable);
-        Label itemDescription = new Label(description, descriptionStyle);
+        if (descriptionTable.getChildren().size > 0) {
+            descriptionTable.clear();
+        }
+        itemDescription.setText(description);
         itemDescription.setWrap(true);
-        itemDescription.setWidth(labelWidth);
-        itemDescription.setBounds(0, 0, labelWidth, itemDescription.getPrefHeight());
+        itemDescription.setWidth(300);
+        descriptionContainer.setVisible(true);
+        itemDescription.setBounds(0, 0, itemDescription.getWidth(),
+            itemDescription.getPrefHeight());
         itemDescription.setAlignment(Align.topRight);
-//        itemDescription.setAlignment(Align.bottomLeft);
-        descriptionTable.add(itemDescription).width(labelWidth).pad(padding);
-        descriptionTable.setSize(labelWidth, itemDescription.getPrefHeight());
+        descriptionTable.add(itemDescription).width(itemDescription.getWidth())
+            .height(itemDescription.getPrefHeight())
+            .pad(padding);
+        descriptionTable.setSize(itemDescription.getWidth(), itemDescription.getPrefHeight());
 
         updateDescriptionPosition();
 
         spriteInventory.setVisible(false);
         textInventory.setVisible(false);
-        stage.addActor(descriptionContainer);
+//        stage.addActor(descriptionContainer);
+        System.out.println(getItemDescription());
+    }
+
+    public String getItemDescription() {
+        return itemDescription.getText().toString();
     }
 
     private void updateDescriptionPosition() {
