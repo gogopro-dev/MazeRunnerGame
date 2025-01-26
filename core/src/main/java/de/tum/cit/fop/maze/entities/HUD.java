@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
+import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
@@ -170,6 +171,7 @@ public class HUD {
         initCoinsAndKeysTable();
 
         exitArrow = new Sprite(atlas.findRegion("arrow"));
+
         initExitArrow();
     }
 
@@ -675,7 +677,9 @@ public class HUD {
             }
         }
         updateStaminaBar(deltaTime);
-        drawExitArrow(0);
+        drawExitArrow(LevelScreen.getInstance().player.getPosition().angle(
+            LevelScreen.getInstance().map.getExitPosition()
+        ));
         stage.getBatch().end();
     }
 

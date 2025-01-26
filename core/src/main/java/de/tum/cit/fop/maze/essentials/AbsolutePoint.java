@@ -25,7 +25,11 @@ public record AbsolutePoint(float x, float y) {
     }
 
     public float angle(AbsolutePoint other) {
-        return (float) Math.atan2(other.y - y, other.x - x);
+        double theta = Math.atan2(other.y - y, other.x - x);
+        float angle = (float) Math.toDegrees(theta);
+        angle -= 90;
+        if (angle < 0) angle += 360;
+        return angle;
     }
 
     public boolean onTheRightFrom(AbsolutePoint other) {
