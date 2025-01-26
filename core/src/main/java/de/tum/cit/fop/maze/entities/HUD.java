@@ -577,6 +577,10 @@ public class HUD {
         staminaRecovery = recovery;
     }
 
+    public boolean isDescriptionSet() {
+        return !descriptionTable.getChildren().isEmpty();
+    }
+
     private void damageAnimation(float deltaTime) {
         for (int i = health; i < health+receivedDmg; i++) {
             int row = i / (amountOfHeartsInRow*2);

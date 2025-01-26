@@ -8,7 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.entities.Enemy;
+import de.tum.cit.fop.maze.entities.Entity;
 import de.tum.cit.fop.maze.level.LevelScreen;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -22,7 +24,6 @@ public class Utils {
         pixmap.fill();
         TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture(pixmap)));
         pixmap.dispose();
-
         return drawable;
     }
 
@@ -34,18 +35,7 @@ public class Utils {
      */
     public static boolean isPlayerExposed(AbsolutePoint sourcePoint) {
         LevelScreen levelScreen = LevelScreen.getInstance();
-        AbsolutePoint playerPosition = levelScreen.player.getPosition();
-        BoundingRectangle playerRect = levelScreen.player.boundingRectangle;
-        ArrayList<AbsolutePoint> playerTrackingPoints = new ArrayList<>();
-        /// We will track the player with 3 points on the top, middle and bottom of the player
-        for (int i = 1; i <= 3; ++i) {
-            playerTrackingPoints.add(
-                new AbsolutePoint(
-                    playerPosition.x(),
-                    playerPosition.y() - playerRect.height() / 1.7f + playerRect.height() * i / 3
-                )
-            );
-        }
+        ArrayList<AbsolutePoint> playerTrackingPoints = getTrackingPoits(levelScreen.player);
         boolean finalResult = false;
 
         for (AbsolutePoint playerTrackingPoint : playerTrackingPoints) {
@@ -67,6 +57,38 @@ public class Utils {
 
         }
         return finalResult;
+    }
+
+    private static @NotNull ArrayList<AbsolutePoint> getTrackingPoits(Entity entity) {
+        AbsolutePoint position = entity.getPosition();
+        BoundingRectangle entityRectangle = entity.boundingRectangle;
+        ArrayList<AbsolutePoint> trackingPoints = new ArrayList<>();
+        /// We will track the player with 3 points on the top, middle and bottom of the player
+        for (int i = 1; i <= 3; ++i) {
+            trackingPoints.add(
+                new AbsolutePoint(
+                    position.x(),
+                    position.y() - entityRectangle.height() / 1.7f + entityRectangle.height() * i / 3
+                )
+            );
+        }
+        return trackingPoints;
+    }
+
+    public static boolean isEntityInShadow(Entity entity) {
+        ArrayList<AbsolutePoint> trackingPoints = getTrackingPoits(entity);
+        boolean inShadow = true;
+        for (AbsolutePoint trackingPoint : trackingPoints) {
+            inShadow &= LevelScreen.getInstance().rayHandler.pointAtShadow(
+                trackingPoint.x(),
+                trackingPoint.y()
+            );
+        }
+        return inShadow;
+    }
+
+    public static boolean isEntityInLight(Entity entity) {
+        return !isEntityInShadow(entity);
     }
 
     public static boolean isPlayerExposed(AbsolutePoint sourcePoint, float rayLength) {

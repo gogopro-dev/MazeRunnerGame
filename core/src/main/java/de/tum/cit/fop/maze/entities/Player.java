@@ -21,6 +21,7 @@ import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static de.tum.cit.fop.maze.Globals.PLAYER_SCARED_TEXT;
 
@@ -52,7 +53,7 @@ public class Player extends Entity {
     private transient boolean facingRight = true;
     private transient boolean canHit;
     private transient boolean hasHit;
-    private transient boolean isHoldingTorch = true;
+    private transient boolean isHoldingTorch = false;
     private transient boolean beingChased = false;
     private transient boolean onActiveTrap = false;
     private transient boolean isDamaged = false;
@@ -373,16 +374,15 @@ public class Player extends Entity {
      */
     public void checkPlayerInShadow(float shadowWaitElapsedTime) {
         HUD hud = LevelScreen.getInstance().hud;
-        RayHandler rayHandler = LevelScreen.getInstance().rayHandler;
-        if (!rayHandler.pointAtShadow(getPosition().x(), getPosition().y())){
-            if (!hud.descriptionTable.getChildren().isEmpty() &&
-                ((Label) hud.descriptionTable.getChild(0)).getText().toString().equals(PLAYER_SCARED_TEXT)) {
+        if (Utils.isEntityInLight(this)) {
+            if (hud.isDescriptionSet() && Objects.equals(hud.getItemDescription(), PLAYER_SCARED_TEXT)) {
                 hud.deleteDescription();
             }
             this.shadowWaitElapsedTime = 0;
             return;
         }
-        if (hud.descriptionTable.getChildren().isEmpty()) {
+        /// Deprioritize fear of the dark lable
+        if (!hud.isDescriptionSet()) {
             hud.setItemDescription(PLAYER_SCARED_TEXT);
         }
         if (shadowWaitElapsedTime < 3f) {
