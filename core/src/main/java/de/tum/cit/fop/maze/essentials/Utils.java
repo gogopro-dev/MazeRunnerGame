@@ -28,7 +28,7 @@ public class Utils {
     }
 
     /**
-     * Check if the player is reachable (not blocked by any obstacles and within the vision range)
+     * Check if the player is reachable (not blocked by any obstacles and within the vision range) using Box2D raycast
      *
      * @param sourcePoint The point to check from
      * @return {@code true} if the player is reachable {@code false} otherwise

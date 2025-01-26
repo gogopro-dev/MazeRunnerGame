@@ -54,23 +54,23 @@ public class Collectable extends TileEntity {
     private transient float dropElapsedTime = 0f;
     private transient PrismaticJoint joint;
     private transient boolean descriptionIsShown = false;
+    private transient CircleShape circleShape;
+    private transient FixtureDef circleFixtureDef = new FixtureDef();
 
-    private transient boolean hasBeenDropped = true;
+    private boolean hasBeenDropped = true;
 
     /**
      * Constructor for testing purposes
      */
 
     private Collectable() {
-        super(1, 1, new BodyDef(), new FixtureDef());
-        bodyDef.type = BodyDef.BodyType.StaticBody;
-        bodyDef.fixedRotation = true;
-        CircleShape shape = new CircleShape();
-        shape.setRadius(Globals.COLLECTABLE_DESCRIPTION_RANGE * Globals.CELL_SIZE_METERS);
-        fixtureDef.shape = shape;
-        fixtureDef.isSensor = true;
-        fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
-        fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
+        super(1, 1);
+        circleShape = new CircleShape();
+        circleShape.setRadius(Globals.COLLECTABLE_DESCRIPTION_RANGE * Globals.CELL_SIZE_METERS);
+        circleFixtureDef.shape = circleShape;
+        circleFixtureDef.isSensor = true;
+        circleFixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
+        circleFixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
     }
 
     public Collectable(CollectableType type) {
@@ -114,7 +114,7 @@ public class Collectable extends TileEntity {
 
     @Override
     public void render(float delta) {
-        AbsolutePoint position = this.getPosition();
+        AbsolutePoint position = this.getSpriteDrawPosition();
         this.render(delta, position.x(), position.y());
         ///  If at any point the pickup animation would be introduced, move the toDestroy assignment
     }
@@ -134,13 +134,6 @@ public class Collectable extends TileEntity {
             updateDropPositions();
         }
 
-        if (!dropPositions.isEmpty()) {
-            AbsolutePoint prev = this.getPosition();
-            for (AbsolutePoint point : dropPositions) {
-                DebugRenderer.getInstance().drawLine(prev, point, Color.PURPLE);
-                prev = point;
-            }
-        }
         animateDrop(delta);
         ///  If at any point the pickup animation would be introduced, move the toDestroy assignment
     }
@@ -162,7 +155,7 @@ public class Collectable extends TileEntity {
     @Override
     public void contactTick(float delta) {
         if (!pickedUp && this.getPosition().distance(LevelScreen.getInstance().player.getPosition()) <
-            Globals.COLLECTABLE_PICKUP_RADIUS) {
+            Globals.COLLECTABLE_PICKUP_RADIUS && this.dropPositions.isEmpty()) {
             toDestroy = true;
             pickedUp = true;
             pickupElapsedTime = 0f;
@@ -229,18 +222,19 @@ public class Collectable extends TileEntity {
     @Override
     public void spawn(float x, float y) {
         super.spawn(x, y);
+        if (!this.collectableAttributes.isConsumable) {
+            body.createFixture(circleFixtureDef);
+            circleShape.dispose();
+        }
         if (hasBeenDropped) {
             return;
         }
         Filter filter = new Filter();
         filter.categoryBits = BodyBits.ENTITY;
         filter.maskBits = BodyBits.ENTITY_MASK;
-        Iterator<Fixture> iter = new Array.ArrayIterator<>(body.getFixtureList());
-        while (iter.hasNext()) {
-            var fixture = iter.next();
-            fixture.setFilterData(filter);
-            fixture.setSensor(false);
-        }
+        Fixture fixture = body.getFixtureList().get(0);
+        fixture.setSensor(false);
+        fixture.setFilterData(filter);
     }
 
     public void setHasBeenDropped(boolean hasBeenDropped) {
@@ -255,16 +249,18 @@ public class Collectable extends TileEntity {
     }
 
     public void animateDrop(float delta) {
-
         if (dropPositions.isEmpty()) {
             return;
+        }
+        AbsolutePoint prev = this.getPosition();
+        for (AbsolutePoint point : dropPositions) {
+            DebugRenderer.getInstance().drawLine(prev, point, Color.PURPLE);
+            prev = point;
         }
         dropElapsedTime += delta;
         if (joint == null) {
             PrismaticJointDef jointDef = new PrismaticJointDef();
             jointDef.bodyA = body;
-            System.out.println(body.getFixtureList().get(0).getFilterData().categoryBits);
-
             jointDef.bodyB = createTempBody(dropPositions.get(0).x(), dropPositions.get(0).y());
             jointDef.collideConnected = true;
             jointDef.enableMotor = true;
