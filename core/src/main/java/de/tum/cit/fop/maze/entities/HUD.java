@@ -510,14 +510,6 @@ public class HUD {
         updateHPBar();
     }
 
-    private void drawHeartAnimation(String animationName, int y, int x) {
-        TextureRegion currentFrame = animations.get(animationName).getKeyFrame(hitElapsedTime);
-        Image heart = matrixHPBar.get(y).get(x);
-        float width = heart.getImageWidth() * heartsScaling;
-        float height = heart.getImageHeight() * heartsScaling;
-        spriteBatch.draw(currentFrame, heart.getX(), heart.getY(), width, height);
-    }
-
 
     public void createStaminaBar() {
         Image lastHeart = matrixHPBar.get(matrixHPBar.size() - 1).
@@ -588,51 +580,30 @@ public class HUD {
         staminaRecovery = recovery;
     }
 
-//    public void renderStatusBar() {
-//        float x = matrixHPBar.get(0).get(amountOfHeartsInRow * 2 - 1).getX()
-//            + offsetXStepHP + statusBarSpacingFromHPBar;
-//        float y = matrixHPBar.get(0).get(0).getY();
-//
-//        for (Map.Entry<String, Image> entry : statusBar.entrySet()) {
-//            Image statusImg = entry.getValue();
-//            statusImg.setScale(statusScale);
-//            statusImg.setPosition(x, y);
-//            stage.addActor(statusImg);
-//            x -= statusImg.getWidth() + statusBarInnerSpacing;
-//        }
-//    }
-
     private void damageAnimation(float deltaTime) {
-        // receivedDmg, IndexX, IndexY
-        int heartsToAnimate = receivedDmg;
-        if (receivedDmg <= 0) {
-            return;
+        for (int i = health; i < health+receivedDmg; i++) {
+            int row = i / (amountOfHeartsInRow*2);
+            int column = i % (amountOfHeartsInRow*2);
+            drawHeartAnimation(row, column);
         }
-        int tempIndexX = indexXOfLastFullHalf % (amountOfHeartsInRow * 2 - 1) == 0 ? 0 : indexXOfLastFullHalf + 1;
-//        int tempIndexX = indexXOfLastHeartToAnimate;
-        int tempIndexY = indexXOfLastFullHalf % (amountOfHeartsInRow * 2 - 1) == 0 ? indexYOfLastFullHalf + 1 :
-            indexYOfLastFullHalf;
-
-        if (indexXOfLastFullHalf % 2 == 0) {
-            drawHeartAnimation("lHalfFullToFull", indexYOfLastFullHalf, indexXOfLastFullHalf);
-        }
-
-        while (heartsToAnimate > 0) {
-            if (tempIndexX % 2 == 0) {
-                drawHeartAnimation("lHalfFullToEmpty", tempIndexY, tempIndexX);
-            } else {
-                drawHeartAnimation("rHalfFullToEmpty", tempIndexY, tempIndexX);
-            }
-            tempIndexX++;
-            heartsToAnimate--;
-            if (tempIndexX >= amountOfHeartsInRow * 2) {
-                tempIndexY++;
-                tempIndexX = 0;
-            }
-        }
-
     }
 
+    private void drawHeartAnimation(int row, int column) {
+
+        Animation<TextureRegion> animation;
+        Image heart = matrixHPBar.get(row).get(column);
+        float width = heart.getImageWidth() * heartsScaling;
+        float height = heart.getImageHeight() * heartsScaling;
+        if (column%2 == 0) {
+            animation = animations.get("lHalfFullToEmpty");
+        } else {
+            animation = animations.get("rHalfFullToEmpty");
+        }
+        TextureRegion currentFrame = animation.getKeyFrame(hitElapsedTime);
+        spriteBatch.draw(currentFrame, heart.getX(), heart.getY(),
+            width, height
+        );
+    }
 
     private boolean areAllAnimationsFinished() {
         for (Map.Entry<String, Animation<TextureRegion>> entry : animations.entrySet()) {
