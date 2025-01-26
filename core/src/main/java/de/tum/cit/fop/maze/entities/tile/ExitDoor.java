@@ -91,11 +91,9 @@ public class ExitDoor extends TileEntity {
     public void contactTick(float delta) {
         super.contactTick(delta);
 
-        List<Collectable> inventory = LevelScreen.getInstance().player.getInventory();
-        boolean hasKey = inventory.stream().anyMatch(collectable -> collectable.getType() == Collectable.CollectableType.KEY);
-
-        if (!isOpen && hasKey) {
+        if (!isOpen && LevelScreen.getInstance().player.hasKey()) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+                LevelScreen.getInstance().hud.deleteDescription();
                 /// Delete the previous sensor fixture
                 Fixture sensorFixture = body.getFixtureList().get(1);
                 body.destroyFixture(sensorFixture);
@@ -118,19 +116,34 @@ public class ExitDoor extends TileEntity {
                 return;
             }
 
-            //TODO: set a message to the player that he can open the door using Enter
-        }
-
-        /// If the player does not have a key, create a message to the player
-        if (!hasKey){
-            //TODO: set a message to the player that he needs a key to open the door
-            return;
         }
 
         /// End the game if the door opening animation is finished
         if (doorOpeningAnimation.isAnimationFinished(elapsedTime)){
             LevelScreen.getInstance().endGame(true);
         }
+    }
+
+    @Override
+    protected void onPlayerStartContact(Contact c) {
+        if (isOpen){
+            return;
+        }
+        /// If the player does not have a key, create a message to the player
+        if (!LevelScreen.getInstance().player.hasKey()){
+            LevelScreen.getInstance().hud.setItemDescription(
+                "You need a key to open the door"
+            );
+            return;
+        }
+        LevelScreen.getInstance().hud.setItemDescription(
+            "Press Enter to open the door"
+        );
+    }
+
+    @Override
+    protected void onPlayerEndContact(Contact c) {
+        LevelScreen.getInstance().hud.deleteDescription();
     }
 
     @Override
