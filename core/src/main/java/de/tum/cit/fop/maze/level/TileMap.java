@@ -30,6 +30,7 @@ import de.tum.cit.fop.maze.essentials.GSONRestorable;
 import de.tum.cit.fop.maze.level.worldgen.CellType;
 import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
+import de.tum.cit.fop.maze.level.worldgen.rooms.Entrance;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -211,7 +212,11 @@ public class TileMap implements Disposable, GSONRestorable {
                 }
                 /// Any cell that is not a wall is walkable, floor would be a background
                 if (cell.getCellType().isWalkable()) {
-                    setSquare("floor", x, y);
+                    if (cell.getCellType().isRoom() && !(cell.getRoom() instanceof Entrance)) {
+                        setSquare("floor_room", x, y);
+                    } else {
+                        setSquare("floor", x, y);
+                    }
                     tryTorchSpawn(i, j, cell, x, y, torches);
                 }
                 if (cell.getCellType().isPath() && !cell.getCellType().isRoom()) {
