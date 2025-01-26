@@ -15,12 +15,15 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.*;
 import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.LoadMenu;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
+import de.tum.cit.fop.maze.menu.PlayGameScreen;
 import de.tum.cit.fop.maze.menu.SettingsUI;
 import java.nio.ByteBuffer;
+
+import static de.tum.cit.fop.maze.Globals.*;
 
 /**
  * Class for the pause screen.</br>
@@ -42,14 +45,12 @@ public class PauseScreen {
     private final SettingsUI settingsUI;
     private boolean isSettings = false;
     private static PauseScreen instance = null;
+    private static Pixmap pauseTexturePixmap;
 
     /**
      * @return The singleton instance of the pause screen
      */
     public static PauseScreen getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("PauseScreen has not been initialized yet.");
-        }
         return instance;
     }
 
@@ -60,7 +61,7 @@ public class PauseScreen {
     public PauseScreen() {
         instance = this;
 
-        stage = new Stage(new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        stage = new Stage(new ExtendViewport(DEFAULT_SCREEN_WIDTH_WINDOWED, DEFAULT_SCREEN_HEIGHT_WINDOWED));
 
         shapeRenderer = new ShapeRenderer();
         isPaused = false;
@@ -166,6 +167,7 @@ public class PauseScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 togglePause();
+                PlayGameScreen.getInstance().updateScreen();
                 Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU, true);
             }
         });
@@ -192,9 +194,9 @@ public class PauseScreen {
      * Takes a screenshot of the current frame </br>
      * Used to display the pause menu
      */
-    public void takeScreenshot() {
-        Pixmap pixmap = Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
-        ByteBuffer pixels = pixmap.getPixels();
+    public void takeScreenshot(boolean save) {
+        pauseTexturePixmap = Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
+        ByteBuffer pixels = pauseTexturePixmap.getPixels();
         // This loop makes sure the whole screenshot is opaque and looks exactly like what the user is seeing
         int size = Gdx.graphics.getBackBufferWidth() * Gdx.graphics.getBackBufferHeight() * 4;
         for (int i = 3; i < size; i += 4) {
@@ -204,10 +206,33 @@ public class PauseScreen {
         if(lastFrame != null) {
             lastFrame.dispose();
         }
-        lastFrame = new Texture(pixmap);
 
-        pixmap.dispose();
+        /// Flip the image vertically
+        for (int y = 0; y < pauseTexturePixmap.getHeight() / 2; y++) {
+            for (int x = 0; x < pauseTexturePixmap.getWidth(); x++) {
+                int topPixel = pauseTexturePixmap.getPixel(x, y);
+                int bottomPixel = pauseTexturePixmap.getPixel(x, pauseTexturePixmap.getHeight() - 1 - y);
+
+                pauseTexturePixmap.drawPixel(x, y, bottomPixel);
+                pauseTexturePixmap.drawPixel(x, pauseTexturePixmap.getHeight() - 1 - y, topPixel);
+            }
+        }
+        if (save) {
+            PixmapIO.writePNG(Gdx.files.local(
+                "saves/" + LevelScreen.getInstance().getLevelIndex() + ".png"
+            ), pauseTexturePixmap);
+        }
+
+        lastFrame = new Texture(pauseTexturePixmap);
     }
+
+    /**
+     * Calls {@link #takeScreenshot(boolean save)} with save set to false
+     */
+    public void takeScreenshot(){
+        takeScreenshot(false);
+    }
+
 
     /**
      * Toggles the pause state
@@ -290,6 +315,7 @@ public class PauseScreen {
         stage.dispose();
         shapeRenderer.dispose();
         lastFrame.dispose();
+        pauseTexturePixmap.dispose();
     }
 
     /**
@@ -300,7 +326,7 @@ public class PauseScreen {
         batch.begin();
         batch.draw(lastFrame, 0, 0, stage.getViewport().getWorldWidth(), stage.getViewport().getWorldHeight(),
             0, 0, lastFrame.getWidth(), lastFrame.getHeight(),
-            false, true);
+            false, false);
         batch.end();
     }
 

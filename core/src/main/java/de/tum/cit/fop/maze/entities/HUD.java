@@ -10,18 +10,18 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
-import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.*;
 import java.util.List;
+
+import static de.tum.cit.fop.maze.Globals.*;
 
 public class HUD {
     private final Stage stage;
@@ -111,7 +111,7 @@ public class HUD {
         this.stage =
             new Stage(
                 new ExtendViewport(
-                    Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera()
+                    (float) DEFAULT_SCREEN_WIDTH_WINDOWED, (float) DEFAULT_SCREEN_HEIGHT_WINDOWED, new OrthographicCamera()
                 ), spriteBatch
             );
         matrixHPBar = new ArrayList<>();

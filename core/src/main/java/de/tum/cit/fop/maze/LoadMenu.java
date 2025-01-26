@@ -21,15 +21,16 @@ public class LoadMenu extends Game {
         //Assets.getInstance().tileTextureHelper.getTexture()
         /// Initialize the Menu singleton and all its dependencies
         Menu menu = Menu.getInstance();
-        menu.toggleMenuState(MenuState.GAME_SCREEN);
+//        menu.toggleMenuState(MenuState.GAME_SCREEN);
         /// Initialize the LevelScreen singleton
 
-        LevelScreen screen = Assets.getInstance().gson.fromJson(
+        /*LevelScreen screen = Assets.getInstance().gson.fromJson(
             Gdx.files.local("level.json").reader(), LevelScreen.class
         );
         screen.init();
-        setScreen(screen);
-        //setScreen(new LevelScreen(2));
+        setScreen(screen);*/
+//        setScreen(new LevelScreen(true));
+        setScreen(menu);
 
     }
 

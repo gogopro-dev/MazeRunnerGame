@@ -56,4 +56,8 @@ public final class Globals {
     public static final float ENEMY_ATTACK_DISTANCE = CELL_SIZE_METERS;
     public static final float PLAYER_ATTACK_KNOCKBACK = 10f;
     public static final String PLAYER_SCARED_TEXT = "I am scared of the dark...\nI need to get out of the shadow!";
+    public static final int DEFAULT_SCREEN_WIDTH_WINDOWED = 1024;
+    public static final int DEFAULT_SCREEN_HEIGHT_WINDOWED = 768;
+    public static int CURRENT_SCREEN_WIDTH_WINDOWED = DEFAULT_SCREEN_WIDTH_WINDOWED;
+    public static int CURRENT_SCREEN_HEIGHT_WINDOWED = DEFAULT_SCREEN_HEIGHT_WINDOWED;
 }

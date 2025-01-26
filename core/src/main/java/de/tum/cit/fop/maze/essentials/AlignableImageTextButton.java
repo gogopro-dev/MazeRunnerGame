@@ -23,6 +23,8 @@ public class AlignableImageTextButton extends Button {
     private float labelPadding = 0f;
     private float labelTopPadding = 0f;
     private ImageTextButtonStyle style;
+    private float imageHeight;
+    private float imageWidth;
 
     /**
      * Creates a new button with the provided text, style and image scale.
@@ -70,7 +72,11 @@ public class AlignableImageTextButton extends Button {
 
     @Override
     public void draw (Batch batch, float parentAlpha) {
-        updateImage();
+        if (imageHeight != 0 && imageWidth != 0){
+            updateImage(imageWidth, imageHeight);
+        } else {
+            updateImage();
+        }
         updateLabel();
         label.getStyle().fontColor = getFontColor();
         super.draw(batch, parentAlpha);
@@ -83,6 +89,14 @@ public class AlignableImageTextButton extends Button {
     protected void updateImage(){
         image.setHeight(image.getDrawable().getMinHeight() * imageScale);
         image.setWidth(image.getDrawable().getMinWidth() * imageScale);
+        image.setPosition(imagePadding, (getHeight() - image.getHeight())/2 + imageTopPadding);
+    }
+
+    public void updateImage(float width, float height){
+        imageHeight = height;
+        imageWidth = width;
+        image.setHeight(height);
+        image.setWidth(width);
         image.setPosition(imagePadding, (getHeight() - image.getHeight())/2 + imageTopPadding);
     }
 

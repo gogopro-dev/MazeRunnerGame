@@ -94,11 +94,15 @@ public class Menu implements Screen {
                 break;
             case MAIN_MENU:
                 if (fadeIn) {
+                    /// If the state changes from game screen to main menu,
+                    /// save the game
+                    LevelScreen.getInstance().saveGame();
                     fadeOverlay.startFadeIn();
                 }
                 mainMenuUI.show();
                 break;
             case PLAY:
+                PlayGameScreen.getInstance().updateScreen();
                 playGameScreen.show();
                 break;
             case LORE:
@@ -159,6 +163,9 @@ public class Menu implements Screen {
                     break;
                 case MAIN_MENU:
                     if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
+                        if (menuState != MenuState.GAME_SCREEN && LevelScreen.getInstance() != null) {
+                            LevelScreen.getInstance().dispose();
+                        }
                         /// Switch to rendering menu screen
                         mainMenuUI.render(delta);
                     } else {
