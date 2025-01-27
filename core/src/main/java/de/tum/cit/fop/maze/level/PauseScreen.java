@@ -15,12 +15,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.*;
 import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
 import de.tum.cit.fop.maze.menu.PlayGameScreen;
-import de.tum.cit.fop.maze.menu.SettingsUI;
+import de.tum.cit.fop.maze.menu.SettingsScreen;
+
 import java.nio.ByteBuffer;
 
 import static de.tum.cit.fop.maze.Globals.*;
@@ -42,7 +42,7 @@ public class PauseScreen {
     private boolean isPaused;
     private boolean wasEscapePressed; // To handle key press state
     private final Table screenTable;
-    private final SettingsUI settingsUI;
+    private final SettingsScreen settingsScreen;
     private boolean isSettings = false;
     private static PauseScreen instance = null;
     private static Pixmap pauseTexturePixmap;
@@ -68,7 +68,7 @@ public class PauseScreen {
         wasEscapePressed = false;
         screenTable = new Table();
 
-        settingsUI = SettingsUI.getInstance();
+        settingsScreen = SettingsScreen.getInstance();
 
         loadTextures();
 
@@ -193,6 +193,7 @@ public class PauseScreen {
     /**
      * Takes a screenshot of the current frame </br>
      * Used to display the pause menu
+     * @param save whether the screenshot should be saved or not
      */
     public void takeScreenshot(boolean save) {
         pauseTexturePixmap = Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
@@ -227,7 +228,7 @@ public class PauseScreen {
     }
 
     /**
-     * Calls {@link #takeScreenshot(boolean save)} with save set to false
+     * Calls {@link #takeScreenshot(boolean)} with {@code save} set to false
      */
     public void takeScreenshot(){
         takeScreenshot(false);
@@ -294,8 +295,8 @@ public class PauseScreen {
             stage.act();
             stage.draw();
         } else {
-            settingsUI.show();
-            settingsUI.render(delta);
+            settingsScreen.show();
+            settingsScreen.render(delta);
         }
     }
 

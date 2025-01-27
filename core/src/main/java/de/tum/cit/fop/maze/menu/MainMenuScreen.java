@@ -1,6 +1,7 @@
 package de.tum.cit.fop.maze.menu;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,14 +15,15 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 
 /**
- * Class for the main screen in menu.
+ * Class for the UI of the main menu.</br>
+ * This class is a singleton and is used to switch between
+ * different menu screens with the help of the {@link Menu} class.
  */
-public class MainMenuUI {
-    private static MainMenuUI instance = null;
+public class MainMenuScreen implements Screen {
+    private static MainMenuScreen instance = null;
     private TextureRegion menuContainerRegion;
     private TextureRegion smallButtonPressedRegion;
     private TextureRegion smallButtonReleasedRegion;
@@ -37,27 +39,28 @@ public class MainMenuUI {
     /**
      * @return The singleton instance of the main menu
      */
-    public static synchronized MainMenuUI getInstance() {
+    public static synchronized MainMenuScreen getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("MainMenuUI has not been initialized yet.");
+            throw new IllegalStateException("MainMenuScreen has not been initialized yet.");
         }
         return instance;
     }
 
     /**
-     * Constructor for the main menu.</br>
      * Creates the stage and sets the input processor.</br>
-     * Creates the buttons for the main menu.
+     * Creates the buttons for the main menu and
+     * loads the textures for the buttons.
      * @param viewport The viewport for the stage
      * @param batch The sprite batch for the stage
      */
-    public MainMenuUI(Viewport viewport, SpriteBatch batch) {
+    public MainMenuScreen(Viewport viewport, SpriteBatch batch) {
         instance = this;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 27;
         parameter.color = new Color(0xE0E0E0FF);
         font = generator.generateFont(parameter);
+        generator.dispose();
 
         /// Create stage for actors
         stage = new Stage(viewport, batch);
@@ -68,6 +71,9 @@ public class MainMenuUI {
         setupMenu();
     }
 
+    /**
+     * Loads the textures for the MainMenuScreen.
+     */
     private void loadTextures(){
         TextureAtlas menuAtlas = Assets.getInstance().getAssetManager().get(
             "assets/menu/menu.atlas", TextureAtlas.class);
@@ -192,20 +198,10 @@ public class MainMenuUI {
 
         container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
 
+        /// Add everything to the stage
         stage.addActor(container);
     }
 
-    public void render(float delta) {
-        Gdx.input.setInputProcessor(stage);
-        // Update and draw stage (buttons)
-        stage.act(delta);
-        stage.draw();
-    }
-
-    public void dispose() {
-        stage.dispose();
-        font.dispose();
-    }
     /**
      * Updates the position of the container to the center of the screen.
      */
@@ -217,7 +213,41 @@ public class MainMenuUI {
 
     }
 
+    @Override
+    public void render(float delta) {
+        Gdx.input.setInputProcessor(stage);
+        // Update and draw stage (buttons)
+        stage.act(delta);
+        stage.draw();
+    }
+    @Override
+    public void dispose() {
+        stage.dispose();
+        font.dispose();
+    }
+
+    @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
+    }
+
+    @Override
+    public void resize(int width, int height) {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
     }
 }

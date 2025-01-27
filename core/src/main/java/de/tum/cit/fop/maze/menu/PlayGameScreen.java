@@ -31,7 +31,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
-
+/**
+ * Creates the screen for the play game menu.</br>
+ * The player can choose to start a new game or load an existing one.</br>
+ * There are 3 possible slots for the games:
+ * <ul>
+ *  <li>By default, no game is present in the slots</li>
+ *  <li>The player can delete a game from a slot or
+ *  start a new game in an empty slot</li>
+ *  <li>If the player chooses to start a new game, a new {@link CreateNewGameScreen} will appear
+ *  on top of the screen</li>
+ * </ul>
+ */
 public class PlayGameScreen implements Screen {
     private final boolean[] isNewGame;
     private final String[] gameTime;
@@ -50,17 +61,26 @@ public class PlayGameScreen implements Screen {
     private VerticalGroup verticalGroup;
     private Container<VerticalGroup> container;
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
-    FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
-    FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
+    private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
+    private final FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
     private static PlayGameScreen instance = null;
 
+    /**
+     * @return The singleton instance of the play game screen
+     */
     public static synchronized PlayGameScreen getInstance(){
         if (instance == null){
             throw new IllegalStateException("PlayGameScreen has not been initialized yet.");
         }
         return instance;
     }
+
+    /**
+     * Creates the stage and sets the input processor.</br>
+     * Loads the textures and sets up the menu.
+     * @param viewport Viewport
+     * @param batch Spritebatch
+     */
     public PlayGameScreen(Viewport viewport, SpriteBatch batch) {
         instance = this;
         this.stage = new Stage(viewport, batch);
@@ -71,11 +91,16 @@ public class PlayGameScreen implements Screen {
         isNewGame = new boolean[3];
         gameTime = new String[]{"", "", ""};
         setupMenu();
+
+        generator.dispose();
     }
 
+    /**
+     * Load all textures for the play game screen
+     */
     private void loadTextures(){
-        TextureAtlas menuAtlas = new TextureAtlas("menu/menu.atlas");
-        TextureAtlas menuIconsAtlas = new TextureAtlas("menu/menu_icons.atlas");
+        TextureAtlas menuAtlas = Assets.getInstance().getAssetManager().get("assets/menu/menu.atlas", TextureAtlas.class);
+        TextureAtlas menuIconsAtlas = Assets.getInstance().getAssetManager().get("assets/menu/menu_icons.atlas", TextureAtlas.class);
 
         smallButtonPressedRegion = menuAtlas.findRegion("small_button_pressed");
         smallButtonReleasedRegion = menuAtlas.findRegion("small_button_released");
@@ -90,6 +115,9 @@ public class PlayGameScreen implements Screen {
         containerRegion = menuAtlas.findRegion("play_container");
     }
 
+    /**
+     * Creates all the UI elements for the play game screen
+     */
     private void setupMenu() {
         for (int i = 0; i < 3; i++){
             isNewGame[i] =
@@ -139,7 +167,12 @@ public class PlayGameScreen implements Screen {
         stage.addActor(container);
     }
 
-    public AlignableImageTextButton createDeleteButton(GameButton gameButton, int index){
+    /**
+     * Creates a delete button for a game slot
+     * @param index The index of the game slot
+     * @return {@link AlignableImageTextButton}
+     */
+    public AlignableImageTextButton createDeleteButton(int index){
         ImageTextButton.ImageTextButtonStyle textButtonStyle = new ImageTextButton.ImageTextButtonStyle();
 
         NinePatch releasedNinePatch = new NinePatch(
@@ -165,7 +198,6 @@ public class PlayGameScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.files.local("saves/" + index + ".png").delete();
                 Gdx.files.local("saves/" + index + ".json").delete();
-                gameButton.isNewGame = true;
                 isNewGame[index] = true;
                 gameTime[index] = "";
 
@@ -176,6 +208,12 @@ public class PlayGameScreen implements Screen {
         return playButton;
     }
 
+    /**
+     * Creates a play button for a game slot
+     * @param image {@link Image} to display on the button
+     * @param index The index of the game slot
+     * @return {@link AlignableImageTextButton}
+     */
     public AlignableImageTextButton createPlayButton(Image image, int index){
         ImageTextButton.ImageTextButtonStyle textButtonStyle = new ImageTextButton.ImageTextButtonStyle();
         textButtonStyle.font = font;
@@ -205,8 +243,14 @@ public class PlayGameScreen implements Screen {
         return playButton;
     }
 
+    /**
+     * Creates the buttons for each game slot
+     * and adds them to the vertical group
+     * in the play game screen
+     * @see #setupMenu()
+     */
     public void createButtons() {
-        GameButton[] gameButtons = new GameButton[3];
+        AlignableImageTextButton[] gameButtons = new AlignableImageTextButton[3];
 
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = font;
@@ -237,12 +281,9 @@ public class PlayGameScreen implements Screen {
             }
 
             /// Create game button
-            gameButtons[i] = new GameButton(
-                createPlayButton(gameImage, i),
-                isNewGame[i]
-            );
+            gameButtons[i] = createPlayButton(gameImage, i);
             if (!isNewGame[i]) {
-                gameButtons[i].button.updateImage(124 * 1.5f, 100 * 1.5f);
+                gameButtons[i].updateImage(124 * 1.5f, 100 * 1.5f);
             }
 
             Table gameTable = new Table();
@@ -254,14 +295,14 @@ public class PlayGameScreen implements Screen {
             gameTable.add(nameLabel).row();
 
             /// Add button
-            gameTable.add(gameButtons[i].button)
+            gameTable.add(gameButtons[i])
                 .width(124 * 1.7f)
                 .height(100 * 1.7f)
                 .pad(12 * 1.7f, 12 * 1.7f, 6*1.7f, 12 * 1.7f)
                 .row();
 
             /// Create and add delete button
-            AlignableImageTextButton deleteButton = createDeleteButton(gameButtons[i], i);
+            AlignableImageTextButton deleteButton = createDeleteButton(i);
             if (isNewGame[i]) {
                 deleteButton.setDisabled(true);
                 deleteButton.setVisible(false);
@@ -297,17 +338,21 @@ public class PlayGameScreen implements Screen {
         verticalGroup.addActor(exitTable);
     }
 
+    /**
+     * Updates the position of the container
+     * to the center of the screen.
+     */
     public void updateContainerPosition(){
         container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
     }
 
+    /**
+     * Updates the screen by clearing the stage
+     * and setting up the menu again.
+     */
     public void updateScreen(){
         stage.clear();
         setupMenu();
-    }
-
-    @Override
-    public void show() {
     }
 
     @Override
@@ -327,23 +372,23 @@ public class PlayGameScreen implements Screen {
     }
 
     @Override
+    public void show() {
+    }
+
+    @Override
     public void resize(int width, int height) {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public void pause() {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public void resume() {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public void hide() {
-        // TODO Auto-generated method stub
     }
 
     @Override
@@ -353,17 +398,14 @@ public class PlayGameScreen implements Screen {
         createNewGameScreen.dispose();
     }
 
-    public static class GameButton {
-        private final AlignableImageTextButton button;
-        public boolean isNewGame;
-
-        public GameButton(AlignableImageTextButton button, boolean isNewGame){
-            this.button = button;
-            this.isNewGame = isNewGame;
-        }
-    }
-
-    private static class CreateNewGameScreen {
+    /**
+     * Creates a new game screen for the play game screen.</br>
+     * The player can enter a seed or choose a file to load maze properties.</br>
+     * The player can then create a new game with the seed or load the maze properties from the file.
+     * The player can also exit the screen.
+     * @see PlayGameScreen
+     */
+    private static class CreateNewGameScreen{
         private final Stage stage;
         private BitmapFont font;
         private TextureRegion smallButtonPressedRegion;
@@ -373,21 +415,33 @@ public class PlayGameScreen implements Screen {
         private TextureRegion textFieldRegion;
         private TextureRegion dropDownMenuRegion;
         private TextureRegion exitIconRegion;
-        private VerticalGroup verticalGroup;
-        private Container<VerticalGroup> container;
         private final int gameIndex;
         private FileHandle[] propertiesFiles;
         private int seed;
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
+        private final FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        /**
+         * Creates the stage.</br>
+         * Loads the textures and sets up the menu.
+         * @param viewport Viewport
+         * @param batch SpriteBatch
+         * @param index The index of the game slot
+         */
         public CreateNewGameScreen(Viewport viewport, SpriteBatch batch, int index) {
             this.stage = new Stage(viewport, batch);
             this.gameIndex = index;
 
             loadTextures();
             setupMenu();
+
+            generator.dispose();
         }
 
+        /**
+         * Load all textures for the create new game screen
+         * @see #setupMenu()
+         */
         private void loadTextures(){
             TextureAtlas menuAtlas = Assets.getInstance().getAssetManager().get("assets/menu/menu.atlas", TextureAtlas.class);
             TextureAtlas menuIconsAtlas = Assets.getInstance().getAssetManager().get("assets/menu/menu_icons.atlas", TextureAtlas.class);
@@ -402,12 +456,16 @@ public class PlayGameScreen implements Screen {
             exitIconRegion = menuIconsAtlas.findRegion("exit");
         }
 
+        /**
+         * Creates all the UI elements for the CreateNewGameScreen
+         * @see #CreateNewGameScreen(Viewport, SpriteBatch, int)
+         */
         private void setupMenu(){
             fontParameter.size = 30;
             fontParameter.color = new Color(0xE0E0E0FF);
             font = generator.generateFont(fontParameter);
 
-            verticalGroup = new VerticalGroup();
+            VerticalGroup verticalGroup = new VerticalGroup();
             verticalGroup.top();
 
             Label.LabelStyle style = new Label.LabelStyle();
@@ -432,8 +490,7 @@ public class PlayGameScreen implements Screen {
             font = generator.generateFont(fontParameter);
             style.font = font;
 
-            ///
-
+            /// Create the seed label
             label = new Label("Enter a seed or choose\na file to load maze properties", style);
             label.setTouchable(Touchable.disabled);
             label.setAlignment(Align.center);
@@ -446,6 +503,7 @@ public class PlayGameScreen implements Screen {
             padding.setHeight(10f);
             verticalGroup.addActor(padding);
 
+            /// Create the textField for the seed
             TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
             textFieldStyle.cursor = new TextureRegionDrawable(cursorRegion);
             textFieldStyle.font = font;
@@ -486,6 +544,7 @@ public class PlayGameScreen implements Screen {
             selectBox.getList().setAlignment(Align.center);
             selectBox.getList();
 
+            /// Load all properties files
             propertiesFiles = Gdx.files.local("assets/mazeProperties").list();
             String[] fileNames = new String[propertiesFiles.length+1];
             fileNames[0] = "Select file";
@@ -505,7 +564,6 @@ public class PlayGameScreen implements Screen {
                     } else {
                         textField.setText(textField.getText().isEmpty() ? "" : textField.getText());
                         textField.setDisabled(true);
-                        /// TODO: Load maze properties from file
                     }
                 }
             });
@@ -523,6 +581,7 @@ public class PlayGameScreen implements Screen {
             font = generator.generateFont(fontParameter);
             textButtonStyle.font = font;
 
+            /// Create the create button
             TextButton createButton = new TextButton("Create", textButtonStyle);
             createButton.addListener(new ClickListener(){
                 @Override
@@ -537,11 +596,10 @@ public class PlayGameScreen implements Screen {
                         LevelScreen.getInstance().render(0);
                         LevelScreen.getInstance().saveGame();
                     } else {
-                        /// TODO: Load maze properties from file
+                        // TODO: Load maze properties from file
                         FileHandle file = propertiesFiles[selectBox.getSelectedIndex()-1];
                         System.out.println("File: " + file.name());
                     }
-                    // TODO: Create new game  with seed
                     PlayGameScreen.getInstance().isNewGame[gameIndex] = false;
                     PlayGameScreen.getInstance().isCreateNewGameDialogOpen = false;
                     PlayGameScreen.getInstance().updateScreen();
@@ -551,7 +609,6 @@ public class PlayGameScreen implements Screen {
             Table buttonTable = new Table();
             buttonTable.add(createButton).width(125 * 1.8f).height(32 * 1.8f).padTop(10);
             verticalGroup.addActor(buttonTable);
-
 
 
             ImageTextButton.ImageTextButtonStyle imageButtonStyle = new ImageTextButton.ImageTextButtonStyle();
@@ -572,7 +629,7 @@ public class PlayGameScreen implements Screen {
             imageButtonStyle.pressedOffsetY = -1;
 
 
-            //exit button
+            /// Create exit button
             AlignableImageTextButton exitButton = new AlignableImageTextButton("", imageButtonStyle, new Image(new TextureRegionDrawable(exitIconRegion)), 1.5f);
             exitButton.setImagePadding(8f);
             exitButton.setImageTopPadding(2f);
@@ -588,17 +645,20 @@ public class PlayGameScreen implements Screen {
 
             verticalGroup.addActor(exitTable);
 
-            ///
-
-            container = new Container<>(verticalGroup);
+            Container<VerticalGroup> container = new Container<>(verticalGroup);
             container.setBackground(new TextureRegionDrawable(containerRegion));
             container.setSize(280 * 1.7f, 240 * 1.7f);
             container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
             container.align(Align.top);
 
+            /// Add everything to the stage
             stage.addActor(container);
         }
 
+        /**
+         * Creates a select box for the CreateNewGameScreen
+         * @return {@link SelectBox}
+         */
         private @NotNull SelectBox<String> createSelectBox(){
             NinePatch selectBoxNinePatch = new NinePatch(
                     dropDownMenuRegion,
@@ -627,12 +687,18 @@ public class PlayGameScreen implements Screen {
             return new SelectBox<>(selectBoxStyle);
         }
 
+        /**
+         * Renders the stage
+         */
         public void render() {
             Gdx.input.setInputProcessor(stage);
             stage.act();
             stage.draw();
         }
 
+        /**
+         * Disposes the stage and font
+         */
         public void dispose() {
             stage.dispose();
             font.dispose();

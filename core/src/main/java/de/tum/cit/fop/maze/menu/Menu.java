@@ -12,15 +12,19 @@ import de.tum.cit.fop.maze.essentials.FadeOverlay;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 /**
- * Class for the main menu.
+ * Class for the main menu.</br>
+ * This class is a singleton, and it handles the
+ * switching between different menu screens.</br>
+ * It handles the rendering of the background in the main menu and all the children's screens.</br>
+ * When switching between {@link LevelScreen} and {@link MainMenuScreen}, it fades in and out.
  */
 public class Menu implements Screen {
     public int SCREEN_WIDTH = 1024;
     public int SCREEN_HEIGHT = 768;
     private MenuState menuState = MenuState.MAIN_MENU;
-    private final MainMenuUI mainMenuUI;
-    private final SettingsUI settingsUI;
-    private final CreditsUI creditsUI;
+    private final MainMenuScreen mainMenuScreen;
+    private final SettingsScreen settingsScreen;
+    private final CreditsScreen creditsScreen;
     private final PlayGameScreen playGameScreen;
     private static Menu instance = null;
     private final OrthographicCamera camera;
@@ -45,6 +49,7 @@ public class Menu implements Screen {
     /**
      * Constructor for the main menu.</br>
      * Creates the stage and sets the input processor.</br>
+     * Creates the buttons for the main menu.
      */
     private Menu() {
         instance = this;
@@ -55,9 +60,10 @@ public class Menu implements Screen {
 
         fadeOverlay = new FadeOverlay();
 
-        mainMenuUI = new MainMenuUI(viewport, batch);
-        settingsUI = new SettingsUI(viewport, batch);
-        creditsUI = new CreditsUI(viewport, batch);
+        /// Initialize all menu screens
+        mainMenuScreen = new MainMenuScreen(viewport, batch);
+        settingsScreen = new SettingsScreen(viewport, batch);
+        creditsScreen = new CreditsScreen(viewport, batch);
         playGameScreen = new PlayGameScreen(viewport, batch);
 
         /// Load background atlas and get all regions
@@ -65,12 +71,15 @@ public class Menu implements Screen {
         backgroundRegions = backgroundAtlas.getRegions();
     }
 
+    /**
+     * @return The current menu state.
+     */
     public MenuState getMenuState() {
         return menuState;
     }
 
     /**
-     * Toggles the menu state.
+     * Calls the {@link #toggleMenuState(MenuState, boolean)} method with the given state.
      * @param state The state to toggle to.
      */
     public void toggleMenuState(MenuState state){
@@ -99,7 +108,7 @@ public class Menu implements Screen {
                     LevelScreen.getInstance().saveGame();
                     fadeOverlay.startFadeIn();
                 }
-                mainMenuUI.show();
+                mainMenuScreen.show();
                 break;
             case PLAY:
                 PlayGameScreen.getInstance().updateScreen();
@@ -108,10 +117,10 @@ public class Menu implements Screen {
             case LORE:
                 break;
             case CREDITS:
-                creditsUI.show();
+                creditsScreen.show();
                 break;
             case SETTINGS:
-                settingsUI.show();
+                settingsScreen.show();
                 break;
         }
     }
@@ -167,7 +176,7 @@ public class Menu implements Screen {
                             LevelScreen.getInstance().dispose();
                         }
                         /// Switch to rendering menu screen
-                        mainMenuUI.render(delta);
+                        mainMenuScreen.render(delta);
                     } else {
                         /// Continue rendering level screen fading
                         LevelScreen.getInstance().render(delta);
@@ -182,17 +191,20 @@ public class Menu implements Screen {
                 case LORE:
                     break;
                 case CREDITS:
-                    creditsUI.render(delta);
+                    creditsScreen.render(delta);
                     break;
                 case SETTINGS:
-                    settingsUI.render(delta);
+                    settingsScreen.render(delta);
                     break;
         }
     }
 
+    /**
+     * Updates the positions of the children's main containers.
+     */
     public void updateChildPositions() {
-        mainMenuUI.updateContainerPosition();
-        creditsUI.updateContainerPosition();
+        mainMenuScreen.updateContainerPosition();
+        creditsScreen.updateContainerPosition();
         playGameScreen.updateContainerPosition();
     }
 
@@ -208,9 +220,19 @@ public class Menu implements Screen {
         );
 
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
-        MainMenuUI.getInstance().updateContainerPosition();
+        MainMenuScreen.getInstance().updateContainerPosition();
 //        viewportManager.update(width, height);
         camera.update();
+    }
+
+    @Override
+    public void dispose() {
+        mainMenuScreen.dispose();
+        settingsScreen.dispose();
+        creditsScreen.dispose();
+        fadeOverlay.dispose();
+        batch.dispose();
+        playGameScreen.dispose();
     }
 
     @Override
@@ -226,16 +248,6 @@ public class Menu implements Screen {
     @Override
     public void hide() {
 
-    }
-
-    @Override
-    public void dispose() {
-        mainMenuUI.dispose();
-        settingsUI.dispose();
-        creditsUI.dispose();
-        fadeOverlay.dispose();
-        batch.dispose();
-        playGameScreen.dispose();
     }
 
     @Override

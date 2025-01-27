@@ -83,7 +83,9 @@ public class Torch extends TileEntity {
         light.update();
         if (torchAnimation != null && standTexture != null) {
             TextureRegion frame = lit ? torchAnimation.getKeyFrame(elapsedTime, true) : standTexture;
-            if (direction == Direction.RIGHT) {
+            if (direction == Direction.RIGHT && !frame.isFlipX()) {
+                frame.flip(true, false);
+            } else if (direction == Direction.LEFT && frame.isFlipX()) {
                 frame.flip(true, false);
             }
 
@@ -91,9 +93,6 @@ public class Torch extends TileEntity {
                 getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
                 getSpriteDrawWidth(), getSpriteDrawHeight()
             );
-            if (direction == Direction.RIGHT) {
-                frame.flip(true, false);
-            }
         }
         if (lit && light.getDistance() < TORCH_LIGHT_RADIUS) {
             light.setDistance(Math.min(

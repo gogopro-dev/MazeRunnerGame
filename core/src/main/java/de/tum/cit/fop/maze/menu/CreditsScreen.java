@@ -1,6 +1,7 @@
 package de.tum.cit.fop.maze.menu;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -15,7 +16,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,9 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Class for the settings menu
+ * Singleton class for the UI of the credits screen.</br>
+ * This class is used to display the credits of the game.
  */
-public class CreditsUI {
+public class CreditsScreen implements Screen {
     private final Stage stage;
     private final BitmapFont font;
     private TextureRegion exitRegion;
@@ -33,17 +34,16 @@ public class CreditsUI {
     private TextureRegion smallButtonPressedRegion;
     private TextureRegion smallButtonReleasedRegion;
     private Container<VerticalGroup> container;
-    FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
-    FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+    private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
+    private final FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
 
     /**
-     * Constructor for the settings menu.
      * Loads textures and sets up the menu
      * @param viewport Viewport
      * @param batch SpriteBatch
      */
-    public CreditsUI(Viewport viewport, SpriteBatch batch) {
+    public CreditsScreen(Viewport viewport, SpriteBatch batch) {
 
         fontParameter.size = 27;
         fontParameter.color = new Color(0xE0E0E0FF);
@@ -55,7 +55,10 @@ public class CreditsUI {
 
         loadTextures();
         setupMenu();
+
+        generator.dispose();
     }
+
     /**
      * Creates all widgets and adds them to the stage
      */
@@ -63,7 +66,6 @@ public class CreditsUI {
         VerticalGroup settingElementGroup = new VerticalGroup();
         settingElementGroup.setBounds(0, 0, 336, 456);
 
-//        settingElementGroup.center().top();
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = font;
         style.fontColor = new Color(0xE0E0E0FF);
@@ -81,13 +83,12 @@ public class CreditsUI {
         ArrayList<String> students = new ArrayList<>(Arrays.asList("Hlib Zabudko", "Eriks Spaks", "Maxim Kaskeev"));
         Label.LabelStyle studentStyle = new Label.LabelStyle();
 
-        fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fontParameter.size = 22;
         fontParameter.color = new Color(0xE0E0E0FF);
         studentStyle.font = generator.generateFont(fontParameter);
         studentStyle.fontColor = new Color(0xE0E0E0FF);
 
-        Label studentLabel = new Label("This game was created by \nfollowing students of the \nTechnical University of Munich:\n", studentStyle);
+        Label studentLabel = new Label("This game was created by \nthe following students of the \nTechnical University of Munich:\n", studentStyle);
         studentLabel.setTouchable(Touchable.disabled);
         studentLabel.setAlignment(Align.center);
 
@@ -158,8 +159,8 @@ public class CreditsUI {
 
     /**
      * Creates a container for the settings menu
-     * @param settingElementGroup VerticalGroup containing all widgets
-     * @return Container<VerticalGroup>
+     * @param settingElementGroup {@link VerticalGroup} containing all widgets
+     * @return {@link Container<VerticalGroup>}
      */
     private @NotNull Container<VerticalGroup> createContainer(VerticalGroup settingElementGroup) {
         Container<VerticalGroup> container = new Container<>(settingElementGroup);
@@ -186,22 +187,48 @@ public class CreditsUI {
 
     }
 
+    /**
+     * Updates the position of the container to the center of the screen
+     */
     public void updateContainerPosition(){
         container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
     }
 
+    @Override
     public void render(float delta) {
         // Update and draw stage (buttons)
         stage.act(delta);
         stage.draw();
     }
 
+    @Override
     public void dispose() {
         stage.dispose();
         font.dispose();
     }
+
+    @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
     }
 
+    @Override
+    public void resize(int width, int height) {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
+    }
 }

@@ -1,6 +1,7 @@
 package de.tum.cit.fop.maze.menu;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -28,10 +29,24 @@ import java.util.Arrays;
 import static de.tum.cit.fop.maze.Globals.*;
 
 /**
- * Class for the settings menu
+ * Creates the Settings screen.</br>
+ * In this screen the player can change the settings of the game:
+ * <ul>
+ *  <li>Audio settings:</li>
+ *      <ul>
+ *          <li>Music volume</li>
+ *          <li>SFX volume</li>
+ *      </ul>
+ *  <li>Graphics settings:</li>
+ *      <ul>
+ *          <li>Vsync</li>
+ *          <li>Full screen</li>
+ *          <li>Resolution (if full screen is turned off)</li>
+ *      </ul>
+ * </ul>
  */
-public class SettingsUI {
-    private static SettingsUI instance;
+public class SettingsScreen implements Screen {
+    private static SettingsScreen instance;
     java.util.List<String> resolutionList = new ArrayList<>(Arrays.asList("640x480", "800x600", "1024x768", "1280x720", "1280x800", "1280x960", "1400x1050", "1600x1200", "1680x1050", "1920x1080", "1920x1200", "2048x1536", "2560x1440", "2560x1600", "3840x2160", "3840x2400", "7680x4320"));
     private final Stage stage;
     private final BitmapFont font;
@@ -49,29 +64,29 @@ public class SettingsUI {
     private TextureRegion smallButtonPressedRegion;
     private TextureRegion smallButtonReleasedRegion;
     private Container<VerticalGroup> container;
+    private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
+    private final FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
 
     /**
      * @return The singleton instance of the settings menu
      */
-    public static SettingsUI getInstance() {
+    public static synchronized SettingsScreen getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("SettingsUI has not been initialized yet");
+            throw new IllegalStateException("SettingsScreen has not been initialized yet");
         }
         return instance;
     }
 
     /**
-     * Constructor for the settings menu.
      * Loads textures and sets up the menu
      * @param viewport Viewport
      * @param batch SpriteBatch
      */
-    public SettingsUI(Viewport viewport, SpriteBatch batch) {
+    public SettingsScreen(Viewport viewport, SpriteBatch batch) {
         instance = this;
         loadTextures();
 
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 27;
         parameter.color = new Color(0xE0E0E0FF);
         font = generator.generateFont(parameter);
@@ -81,6 +96,8 @@ public class SettingsUI {
         Gdx.input.setInputProcessor(stage);
 
         setupMenu();
+
+        generator.dispose();
     }
     /**
      * Creates all widgets and adds them to the stage
@@ -139,21 +156,14 @@ public class SettingsUI {
 
         Slider sliderMusic = createSlider();
 
-        /// Wrap the button in a table to scale it, because
-        /// toggleSoundButton.setSize does not set the size of the button correctly
-        Table table = new Table();
-        table.add(sliderMusic);
-
-
         /// Wrap the label and the table in a horizontal group
         /// to center them without changing the alignment of other children in the vertical group
-        float paddingSlider = label.getPrefWidth();
         HorizontalGroup horizontalGroup = new HorizontalGroup();
         horizontalGroup.addActor(label);
         Actor actor = new Actor();
         actor.setWidth(100f);
         horizontalGroup.addActor(actor);
-        horizontalGroup.addActor(table);
+        horizontalGroup.addActor(sliderMusic);
         horizontalGroup.center();
 
         padding = new Actor();
@@ -170,13 +180,13 @@ public class SettingsUI {
 
         Slider sliderSFX = createSlider();
 
-        table = new Table();
+        Table table = new Table();
         table.add(sliderSFX);
 
         horizontalGroup = new HorizontalGroup();
         horizontalGroup.addActor(label);
         actor = new Actor();
-        actor.setWidth(paddingSlider - label.getPrefWidth() + 100f);
+        actor.setWidth(100f);
         horizontalGroup.addActor(actor);
         horizontalGroup.addActor(table);
         horizontalGroup.center();
@@ -278,7 +288,7 @@ public class SettingsUI {
         selectBox.getList().setAlignment(Align.left);
 
         selectBox.setItems(resolutionList.toArray(new String[0]));
-        selectBox.setSelected("1024x768");
+        selectBox.setSelected(CURRENT_SCREEN_WIDTH_WINDOWED + "x" + CURRENT_SCREEN_HEIGHT_WINDOWED);
 
         selectBox.setDisabled(isFullScreen);
         if (isFullScreen) {
@@ -433,8 +443,6 @@ public class SettingsUI {
             7, 15, 2, 2
         );
         SelectBox.SelectBoxStyle selectBoxStyle = new SelectBox.SelectBoxStyle();
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 22;
         parameter.color = new Color(0xE0E0E0FF);
         selectBoxStyle.font = generator.generateFont(parameter);
@@ -448,7 +456,6 @@ public class SettingsUI {
         selectBoxStyle.listStyle.selection = new NinePatchDrawable(selectBoxNinePatch);
         selectBoxStyle.listStyle.background = new NinePatchDrawable(selectBoxNinePatch);
         selectBoxStyle.disabledFontColor = new Color(0x404040FF);
-        generator.dispose();
         return new SelectBox<>(selectBoxStyle);
     }
 
@@ -540,19 +547,41 @@ public class SettingsUI {
 
     }
 
+    @Override
     public void render(float delta) {
         // Update and draw stage (buttons)
         stage.act();
         stage.draw();
     }
 
+    @Override
     public void dispose() {
         stage.dispose();
         font.dispose();
-
     }
+
+    @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
     }
 
+    @Override
+    public void resize(int width, int height) {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
+    }
 }
