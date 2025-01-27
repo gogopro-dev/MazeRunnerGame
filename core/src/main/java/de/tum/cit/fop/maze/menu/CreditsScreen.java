@@ -23,17 +23,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Singleton class for the UI of the credits screen.</br>
+ * Class for the UI of the credits screen.</br>
  * This class is used to display the credits of the game.
  */
 public class CreditsScreen implements Screen {
-    private final Stage stage;
-    private final BitmapFont font;
     private TextureRegion exitRegion;
     private TextureRegion containerRegion;
     private TextureRegion smallButtonPressedRegion;
     private TextureRegion smallButtonReleasedRegion;
     private Container<VerticalGroup> container;
+    private final Stage stage;
+    private final BitmapFont font;
     private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
     private final FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
@@ -61,8 +61,8 @@ public class CreditsScreen implements Screen {
      * Creates all widgets and adds them to the stage
      */
     private void setupMenu() {
-        VerticalGroup settingElementGroup = new VerticalGroup();
-        settingElementGroup.setBounds(0, 0, 336, 456);
+        VerticalGroup creditsElementGroup = new VerticalGroup();
+        creditsElementGroup.setBounds(0, 0, 336, 456);
 
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = font;
@@ -75,8 +75,8 @@ public class CreditsScreen implements Screen {
         label.setAlignment(Align.center);
         Actor padding = new Actor();
         padding.setHeight(12f);
-        settingElementGroup.addActor(padding);
-        settingElementGroup.addActor(label);
+        creditsElementGroup.addActor(padding);
+        creditsElementGroup.addActor(label);
 
         ArrayList<String> students = new ArrayList<>(Arrays.asList("Hlib Zabudko", "Eriks Spaks", "Maxim Kaskeev"));
         Label.LabelStyle studentStyle = new Label.LabelStyle();
@@ -93,8 +93,8 @@ public class CreditsScreen implements Screen {
         padding = new Actor();
         padding.setHeight(30f);
 
-        settingElementGroup.addActor(padding);
-        settingElementGroup.addActor(studentLabel);
+        creditsElementGroup.addActor(padding);
+        creditsElementGroup.addActor(studentLabel);
 
         fontParameter.size = 20;
         fontParameter.color = new Color(0xE0E0E0FF);
@@ -103,7 +103,7 @@ public class CreditsScreen implements Screen {
             Label studentName = new Label(student, studentStyle);
             studentName.setTouchable(Touchable.disabled);
             studentName.setAlignment(Align.center);
-            settingElementGroup.addActor(studentName);
+            creditsElementGroup.addActor(studentName);
         }
 
 
@@ -146,22 +146,22 @@ public class CreditsScreen implements Screen {
 
         padding = new Actor();
         padding.setHeight(40f);
-        settingElementGroup.addActor(padding);
-        settingElementGroup.addActor(horizontalGroup);
+        creditsElementGroup.addActor(padding);
+        creditsElementGroup.addActor(horizontalGroup);
 
         /// Create the main texture for the settings menu to place all widgets on
-        container = createContainer(settingElementGroup);
+        container = createContainer(creditsElementGroup);
 
         stage.addActor(container);
     }
 
     /**
      * Creates a container for the settings menu
-     * @param settingElementGroup {@link VerticalGroup} containing all widgets
+     * @param creditsElementGroup {@link VerticalGroup} containing all widgets
      * @return {@link Container<VerticalGroup>}
      */
-    private @NotNull Container<VerticalGroup> createContainer(VerticalGroup settingElementGroup) {
-        Container<VerticalGroup> container = new Container<>(settingElementGroup);
+    private @NotNull Container<VerticalGroup> createContainer(VerticalGroup creditsElementGroup) {
+        Container<VerticalGroup> container = new Container<>(creditsElementGroup);
         container.setBackground(new TextureRegionDrawable(containerRegion));
         /// Set the size of the container to the size of the texture
         container.setSize(493f, 612f);

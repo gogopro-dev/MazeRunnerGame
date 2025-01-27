@@ -6,7 +6,7 @@ package de.tum.cit.fop.maze.menu;
 public enum MenuState {
     MAIN_MENU,
     PLAY,
-    LORE,
+    CONTROLS,
     CREDITS,
     SETTINGS,
     GAME_SCREEN

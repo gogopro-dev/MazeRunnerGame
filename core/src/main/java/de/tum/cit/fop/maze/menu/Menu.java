@@ -26,6 +26,7 @@ public class Menu implements Screen {
     private final SettingsScreen settingsScreen;
     private final CreditsScreen creditsScreen;
     private final PlayGameScreen playGameScreen;
+    private final ControlsScreen controlsScreen;
     private static Menu instance = null;
     private final OrthographicCamera camera;
     private final Viewport viewport;
@@ -65,6 +66,7 @@ public class Menu implements Screen {
         settingsScreen = new SettingsScreen(viewport, batch);
         creditsScreen = new CreditsScreen(viewport, batch);
         playGameScreen = new PlayGameScreen(viewport, batch);
+        controlsScreen = new ControlsScreen(viewport, batch);
 
         /// Load background atlas and get all regions
         TextureAtlas backgroundAtlas = new TextureAtlas(Gdx.files.local("assets/background/background.atlas"));
@@ -114,7 +116,8 @@ public class Menu implements Screen {
                 PlayGameScreen.getInstance().updateScreen();
                 playGameScreen.show();
                 break;
-            case LORE:
+            case CONTROLS:
+                controlsScreen.show();
                 break;
             case CREDITS:
                 creditsScreen.show();
@@ -188,7 +191,8 @@ public class Menu implements Screen {
                         fadeOverlay.render(delta);
                     }
                     break;
-                case LORE:
+                case CONTROLS:
+                    controlsScreen.render(delta);
                     break;
                 case CREDITS:
                     creditsScreen.render(delta);
@@ -207,6 +211,7 @@ public class Menu implements Screen {
         creditsScreen.updateContainerPosition();
         playGameScreen.updateContainerPosition();
         settingsScreen.updateContainerPosition();
+        controlsScreen.updateContainerPosition();
     }
 
     @Override
@@ -231,9 +236,10 @@ public class Menu implements Screen {
         mainMenuScreen.dispose();
         settingsScreen.dispose();
         creditsScreen.dispose();
+        controlsScreen.dispose();
+        playGameScreen.dispose();
         fadeOverlay.dispose();
         batch.dispose();
-        playGameScreen.dispose();
     }
 
     @Override

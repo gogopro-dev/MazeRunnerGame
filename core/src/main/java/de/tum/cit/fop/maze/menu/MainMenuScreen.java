@@ -28,7 +28,7 @@ public class MainMenuScreen implements Screen {
     private TextureRegion smallButtonPressedRegion;
     private TextureRegion smallButtonReleasedRegion;
     private TextureRegion playIconRegion;
-    private TextureRegion newGameIconRegion;
+    private TextureRegion controlsIconRegion;
     private TextureRegion creditsIconRegion;
     private TextureRegion settingsIconRegion;
     private TextureRegion exitIconRegion;
@@ -86,7 +86,7 @@ public class MainMenuScreen implements Screen {
         smallButtonReleasedRegion = menuAtlas.findRegion("small_button_released");
 
         playIconRegion = iconsAtlas.findRegion("play");
-        newGameIconRegion = iconsAtlas.findRegion("newGame");
+        controlsIconRegion = iconsAtlas.findRegion("controls");
         creditsIconRegion = iconsAtlas.findRegion("credits");
         settingsIconRegion = iconsAtlas.findRegion("settings");
         exitIconRegion = iconsAtlas.findRegion("exit");
@@ -123,17 +123,17 @@ public class MainMenuScreen implements Screen {
         });
 
         /// Create Game Lore button
-        image = new Image(newGameIconRegion);
+        image = new Image(controlsIconRegion);
 
-        AlignableImageTextButton loreButton = new AlignableImageTextButton("Game Lore", textButtonStyle, image, 1.2f);
-        loreButton.setLabelPadding(12f);
-        loreButton.setLabelTopPadding(2f);
-        loreButton.setImagePadding(8f);
-        loreButton.setImageTopPadding(2f);
-        loreButton.addListener(new ClickListener(){
+        AlignableImageTextButton controlsButton = new AlignableImageTextButton("Controls", textButtonStyle, image, 3f);
+        controlsButton.setLabelPadding(12f);
+        controlsButton.setLabelTopPadding(2f);
+        controlsButton.setImagePadding(10f);
+        controlsButton.setImageTopPadding(2f);
+        controlsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Menu.getInstance().toggleMenuState(MenuState.LORE);
+                Menu.getInstance().toggleMenuState(MenuState.CONTROLS);
             }
         });
 
@@ -187,7 +187,7 @@ public class MainMenuScreen implements Screen {
         mainTable.row();
         mainTable.add(settingsButton).width(224).height(48).pad(10);
         mainTable.row();
-        mainTable.add(loreButton).width(224).height(48).pad(10);
+        mainTable.add(controlsButton).width(224).height(48).pad(10);
         mainTable.row();
         mainTable.add(exitButton).width(224).height(48).pad(10);
 
