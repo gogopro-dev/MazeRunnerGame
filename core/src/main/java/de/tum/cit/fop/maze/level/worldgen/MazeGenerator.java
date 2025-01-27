@@ -4,7 +4,13 @@ package de.tum.cit.fop.maze.level.worldgen;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.level.worldgen.rooms.*;
 
+import java.io.File;
+import java.io.FileReader;
+import java.nio.charset.StandardCharsets;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -26,13 +32,15 @@ import java.util.*;
 public final class MazeGenerator {
     /// Auxiliary arrays
     /// The path from the current cell to the next cell
-    private final HashMap<GeneratorCell, Integer> path;
+    private final HashMap<GeneratorCell, Integer> path = new HashMap<>();
+    ;
     ///  The visited cells
-    private final short[][] visited;
+    private short[][] visited;
     /// The wilson's cell grid of booleans to mark walls
-    private final List<List<Boolean>> willsonsCellGrid;
-    private final ArrayList<GeneratorCell> visitedCells;
-    private final ArrayList<GeneratorCell> unvisitedCells;
+    private final List<List<Boolean>> willsonsCellGrid = new ArrayList<>();
+    ;
+    private final ArrayList<GeneratorCell> visitedCells = new ArrayList<>();
+    private final ArrayList<GeneratorCell> unvisitedCells = new ArrayList<>();
     /// The directions to move in the maze
     private final List<List<Integer>> directions = Arrays.asList(
             Arrays.asList(0, 1),
@@ -41,17 +49,92 @@ public final class MazeGenerator {
             Arrays.asList(-1, 0)
     );
     /// The width value to use for generation
-    private final int generatorWidth;
+    private int generatorWidth;
     /// The height value to use for generation
-    private final int generatorHeight;
+    private int generatorHeight;
 
     public final int width;
     public final int height;
 
     /// Final grid
     public final ArrayList<ArrayList<GeneratorCell>> grid = new ArrayList<>();
+    public final boolean loadedFromProperties;
 
-    private final Random random;
+    private Random random;
+
+    /**
+     * Initializes MazeGenerator from pre-generated .properties file
+     *
+     * @param file FileReader instance to read from the file
+     */
+    public MazeGenerator(FileReader file) {
+        int tempWidth = 0;
+        int tempHeight = 0;
+        try (BufferedReader reader = new BufferedReader(file)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                ArrayList<Integer> cellData = Arrays.stream(line.split("[,=]")).mapToInt(
+                    Integer::parseInt
+                ).boxed().collect(Collectors.toCollection(ArrayList::new));
+                int x = cellData.get(0);
+                int y = cellData.get(1);
+                int type = cellData.get(2);
+                CellType actualType = switch (type) {
+                    case 0 -> CellType.WALL;
+                    case 1 -> CellType.PLAYER;
+                    case 2 -> CellType.EXIT_DOOR;
+                    case 3 -> CellType.TRAP;
+                    case 4 -> CellType.ENEMY;
+                    case 5 -> CellType.KEY_OBELISK;
+                    default -> throw new IllegalArgumentException("Invalid cell type");
+                };
+                tempWidth = Math.max(tempWidth, x);
+                tempHeight = Math.max(tempHeight, y);
+                while (y >= grid.size()) {
+                    grid.add(new ArrayList<>());
+                }
+                while (x >= grid.get(y).size()) {
+                    grid.get(y).add(new GeneratorCell(y, x, CellType.NONE));
+                }
+                grid.get(y).set(x, new GeneratorCell(y, x, actualType));
+            }
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+        for (int i = 0; i < grid.size(); i++) {
+            for (int j = 0; j < grid.get(i).size(); j++) {
+                GeneratorCell cell = grid.get(i).get(j);
+                cell.setJ(j);
+                cell.setJ(i);
+                if (cell.getCellType() == CellType.NONE) {
+                    cell.setCellType(CellType.PATH);
+                }
+            }
+        }
+        tempHeight += 3;
+        tempWidth += 3;
+        grid.add(0, new ArrayList<>());
+        grid.add(new ArrayList<>());
+        for (int i = 0; i < tempWidth; i++) {
+            grid.get(0).add(new GeneratorCell(0, i, CellType.WALL));
+            grid.get(tempHeight - 1).add(new GeneratorCell(tempHeight - 1, i, CellType.WALL));
+        }
+        for (int i = 0; i < tempHeight; i++) {
+            grid.get(i).add(0, new GeneratorCell(i, 0, CellType.WALL));
+            grid.get(i).add(new GeneratorCell(i, tempWidth - 1, CellType.WALL));
+        }
+        /// Update all cells coordinates
+        for (int i = 0; i < tempHeight; i++) {
+            for (int j = 0; j < tempWidth; j++) {
+                grid.get(i).get(j).setI(i);
+                grid.get(i).get(j).setJ(j);
+            }
+        }
+        random = new Random();
+        width = tempWidth;
+        height = tempHeight;
+        loadedFromProperties = true;
+    }
 
     /**
      * <p>Constructor</p>
@@ -60,19 +143,18 @@ public final class MazeGenerator {
      * @param random instance of Random class
      */
     public MazeGenerator(int height, int width, Random random) {
-
-        this.path = new HashMap<>();
         this.random = random;
         this.generatorWidth = (2 * (width / 2)) + 1;  // Make sure generatorWidth is odd
         this.generatorHeight = (2 * (height / 2)) + 1;  // Make sure generatorHeight is odd
         this.width = width + 2 + (width % 2 == 0 ? 1 : 0);
         this.height = height + 2 + (height % 2 == 0 ? 1 : 0);
         this.visited = new short[this.generatorHeight][this.generatorWidth];
+        loadedFromProperties = false;
 
         for (int i = 0; i < height; i++) {
             Arrays.fill(visited[i], (short) 0);
         }
-        this.willsonsCellGrid = new ArrayList<>();
+
         for (int i = 0; i < this.generatorHeight; i++) {
             List<Boolean> row = new ArrayList<>();
             for (int j = 0; j < this.generatorWidth; j++) {
@@ -80,8 +162,6 @@ public final class MazeGenerator {
             }
             this.willsonsCellGrid.add(row);
         }
-        this.visitedCells = new ArrayList<>();
-        this.unvisitedCells = new ArrayList<>();
     }
 
 

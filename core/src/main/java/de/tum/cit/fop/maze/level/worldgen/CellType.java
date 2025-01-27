@@ -12,7 +12,10 @@ public enum CellType {
     EXIT_DOOR(6),
     KEY_OBELISK(7),
     TREASURE_ROOM_ITEM(9),
-    SHOP_ITEM(10);
+    SHOP_ITEM(10),
+    PLAYER(11),
+    /// Enemy is reserved for .properties
+    ENEMY(12);
 
     public final int value;
 
@@ -46,7 +49,7 @@ public enum CellType {
      */
     public boolean isWalkable() {
         return this.isPath() || this == DOOR || this == EXIT_DOOR || this == KEY_OBELISK ||
-            this == TRAP || this == TREASURE_ROOM_ITEM || this == SHOP_ITEM;
+            this == TRAP || this == TREASURE_ROOM_ITEM || this == SHOP_ITEM || this == PLAYER || this == ENEMY;
     }
 
     /**
@@ -60,7 +63,8 @@ public enum CellType {
      * @return {@code true} if the cell type is a room
      */
     public boolean isRoom() {
-        return this == ROOM_PATH || this == ROOM_WALL || this == TREASURE_ROOM_ITEM || this == SHOP_ITEM;
+        return this == ROOM_PATH || this == ROOM_WALL || this == TREASURE_ROOM_ITEM || this == SHOP_ITEM ||
+            this == PLAYER;
     }
 
 }

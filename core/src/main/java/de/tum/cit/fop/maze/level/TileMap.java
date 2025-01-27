@@ -45,6 +45,7 @@ import static java.lang.Math.max;
 public class TileMap implements Disposable, GSONRestorable {
     private final TiledMap map = new TiledMap();
 
+
     public static class TiledMapAdapter extends TypeAdapter<TiledMap> {
         @Override
         public void write(JsonWriter jsonWriter, TiledMap tiledMap) throws IOException {
@@ -131,8 +132,10 @@ public class TileMap implements Disposable, GSONRestorable {
 
     public int width;
     public int height;
+
     private AbsolutePoint exitPosition;
     boolean[][] wallMap;
+    public AbsolutePoint playerPosition;
     public transient float heightMeters;
     public transient float widthMeters;
     public transient Random random;
@@ -157,20 +160,34 @@ public class TileMap implements Disposable, GSONRestorable {
         generateHitboxes();
     }
 
+
+    public TileMap(MazeGenerator generator) {
+        this(generator.height, generator.width, generator.getRandom(), generator);
+    }
+
+    public TileMap(int height, int width, Random random) {
+        this(height, width, random, null);
+    }
     /**
      * Create a new TileMap with a given height, width and seed
      * @param height the height of the map
      * @param width the width of the map
      * @param random the random instance to use
      */
-    public TileMap(int height, int width, Random random) {
-        this.generator = new MazeGenerator(height, width, random);
+    private TileMap(int height, int width, Random random, MazeGenerator generator) {
+        if (generator == null) {
+            this.generator = new MazeGenerator(height, width, random);
+            this.generator.generate();
+        } else {
+            this.generator = generator;
+        }
+
         ArrayList<AbsolutePoint> torches = new ArrayList<>();
         // Always get width and height from the generator, because it always makes the parameters odd
-        generator.generate();
-        this.random = generator.getRandom();
-        this.width = generator.width * 3;
-        this.height = generator.height * 3;
+
+        this.random = random;
+        this.width = this.generator.width * 3;
+        this.height = this.generator.height * 3;
         this.tileEntityManager = LevelScreen.getInstance().tileEntityManager;
         System.out.println(generator);
         widthMeters = this.width * CELL_SIZE_METERS;
@@ -194,9 +211,9 @@ public class TileMap implements Disposable, GSONRestorable {
         // Paddings to account for surrounding walls
         int startI = 2;
         int startJ = 1;
-        for (int i = generator.height - 1; i >= 0; --i) {
-            for (int j = generator.width - 1; j >= 0; --j) {
-                final GeneratorCell cell = generator.grid.get(i).get(j);
+        for (int i = this.generator.height - 1; i >= 0; --i) {
+            for (int j = this.generator.width - 1; j >= 0; --j) {
+                final GeneratorCell cell = this.generator.grid.get(i).get(j);
                 int x = startJ + j * 3;
                 int y = layer.getHeight() - (startI + i * 3);
                 AbsolutePoint currentCellCenter = getCellCenterMeters(x, y);
@@ -227,14 +244,23 @@ public class TileMap implements Disposable, GSONRestorable {
                         ///(i, j, cell, x, y, torches);
                     }
                 }
+                if (cell.getCellType() == CellType.ENEMY) {
+                    LevelScreen.getInstance().enemyManager.createEnemy(
+                        new Enemy(Arrays.stream(
+                            EnemyType.values()).skip(random.nextInt(EnemyType.values().length)
+                        ).findFirst().get()),
+                        currentCellCenter.x(),
+                        currentCellCenter.y()
+                    );
+                }
 
                 ///  Room walls
                 if (cell.getCellType() == CellType.WALL || cell.getCellType() == CellType.ROOM_WALL) {
                     setDefaultWallSquare(x, y);
-                    if (GenerationCases.verticalWallCase(i, j, generator)) {
+                    if (GenerationCases.verticalWallCase(i, j, this.generator)) {
                         setVerticalWallSquare(x, y);
                     }
-                    if (GenerationCases.topVerticalCase(i, j, generator)) {
+                    if (GenerationCases.topVerticalCase(i, j, this.generator)) {
                         setVerticalWallSquare(x, y);
                         setCell("wallVerticalLeftCorner", x - 1, y + 1);
                         setCell("wallVerticalMiddleCorner", x, y + 1);
@@ -273,12 +299,18 @@ public class TileMap implements Disposable, GSONRestorable {
                 }
 
                 /// Trap
-                if (cell.getCellType() == CellType.TRAP && !GenerationCases.isEdge(i, j, generator)) {
+                if (cell.getCellType() == CellType.TRAP && !GenerationCases.isEdge(i, j, this.generator)) {
                     boolean vertical =
                         this.generator.grid.get(i - 1).get(j).getCellType().isWall() &&
                             this.generator.grid.get(i + 1).get(j).getCellType().isWall();
                     spawnRandomTrap(x, y, vertical);
                 }
+
+                if (cell.getCellType() == CellType.PLAYER) {
+                    playerPosition = currentCellCenter;
+                }
+
+
 
             }
         }
@@ -387,7 +419,7 @@ public class TileMap implements Disposable, GSONRestorable {
             torchDirection
         ) {
             case UP -> torchPoint = current.addY(CELL_SIZE_METERS * 3);
-            case DOWN -> torchPoint = current.addY(-CELL_SIZE_METERS * 1.25f);
+            case DOWN -> torchPoint = current.addY(-CELL_SIZE_METERS);
             case LEFT -> torchPoint = current.addX(-CELL_SIZE_METERS);
             case RIGHT -> torchPoint = current.addX(CELL_SIZE_METERS);
             default -> throw new IllegalStateException("Unexpected value: " + torchDirection);

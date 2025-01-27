@@ -3,8 +3,8 @@ package de.tum.cit.fop.maze;
 import com.badlogic.gdx.graphics.Color;
 
 public final class Globals {
-    public static final boolean DEBUG = false;
-    public static final boolean FULLBRIGHT = false;
+    public static final boolean DEBUG = true;
+    public static final boolean FULLBRIGHT = true;
 
     /// Pixel per Meter
     public static final float PPM = 64f;

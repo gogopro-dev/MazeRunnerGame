@@ -16,8 +16,10 @@ import com.badlogic.gdx.utils.viewport.*;
 import de.tum.cit.fop.maze.entities.*;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.tile.*;
+import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Direction;
+import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
 
@@ -44,6 +46,7 @@ public class LevelScreen implements Screen {
     public transient final SpriteBatch batch;
     public transient HUD hud;
     public transient final RayHandler rayHandler;
+
 
     transient Random random = new Random(2);
     public transient final EntityPathfinder pathfinder = new EntityPathfinder();
@@ -236,6 +239,7 @@ public class LevelScreen implements Screen {
         player = new Player();
     }
 
+
     public LevelScreen(long seed) {
         this();
         this.needsRestoring = false;
@@ -245,8 +249,20 @@ public class LevelScreen implements Screen {
         init();
     }
 
+    public LevelScreen(MazeGenerator generator) {
+        this();
+        this.needsRestoring = false;
+        generate(generator);
+        spawnDebug();
+        init();
+    }
+
     private void generate() {
         map = new TileMap(15, 15, random);
+    }
+
+    private void generate(MazeGenerator generator) {
+        map = new TileMap(generator);
     }
 
 
@@ -257,14 +273,9 @@ public class LevelScreen implements Screen {
             this.enemyManager.restore();
             this.map.restore();
             player.restore();
-            player.spawn(
-                player.getSavedPosition().x(),
-                player.getSavedPosition().y()
-            );
-
         } else {
             player.spawn(
-                map.widthMeters / 2, map.heightMeters / 2
+                map.playerPosition.x(), map.playerPosition.y()
             );
         }
         hud = new HUD(player);
