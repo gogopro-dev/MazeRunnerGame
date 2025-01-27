@@ -234,6 +234,7 @@ public class PlayGameScreen implements Screen {
                         Gdx.files.local("saves/" + index + ".json").reader(), LevelScreen.class
                     );
                     levelScreen.init();
+                    levelScreen.setLevelIndex(index);
                     Menu.getInstance().toggleMenuState(MenuState.GAME_SCREEN);
                 }
             }

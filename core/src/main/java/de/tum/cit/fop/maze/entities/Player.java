@@ -352,11 +352,12 @@ public class Player extends Entity {
         }
 
         /// Move camera with the player
-        updateCameraPosition();
         float ratio = LevelScreen.getInstance().getRatio();
 
         float minZoom = Globals.DEFAULT_CAMERA_ZOOM * 0.5f * ratio;
         float maxZoom = Globals.DEFAULT_CAMERA_ZOOM * ratio;
+        System.out.println("minZoom: " + minZoom + " maxZoom: " + maxZoom);
+        System.out.println("camera.zoom: " + camera.zoom);
 
         /// Handle camera zoom
         if ((Gdx.input.isKeyPressed(Input.Keys.EQUALS) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_ADD))) {
@@ -365,6 +366,7 @@ public class Player extends Entity {
         if ((Gdx.input.isKeyPressed(Input.Keys.MINUS) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_SUBTRACT))) {
             camera.zoom = Math.min(camera.zoom + 0.0015f * ratio, maxZoom);
         }
+        updateCameraPosition();
     }
 
     /**
@@ -404,8 +406,13 @@ public class Player extends Entity {
     public void updateCameraPosition() {
         float cameraX = camera.position.x;
         float cameraY = camera.position.y;
-        float cameraWidth = DEFAULT_CAMERA_VIEWPORT_WIDTH_METERS;
-        float cameraHeight = DEFAULT_CAMERA_VIEWPORT_HEIGHT_METERS;
+        float cameraWidth = camera.viewportWidth;
+        float cameraHeight = camera.viewportHeight;
+
+        if (Gdx.graphics.isFullscreen()){
+            cameraWidth = DEFAULT_CAMERA_VIEWPORT_WIDTH_METERS;
+            cameraHeight = DEFAULT_CAMERA_VIEWPORT_HEIGHT_METERS;
+        }
 
         /// Calculate screen boundaries with consistent ratios
         /// The less the constant is, the earlier the camera will start moving

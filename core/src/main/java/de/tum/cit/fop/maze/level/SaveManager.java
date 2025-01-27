@@ -19,7 +19,7 @@ public class SaveManager {
             return;
         }
         PixmapIO.writePNG(Gdx.files.local(
-            "saves/" + LevelScreen.getInstance().getLevelIndex() + ".png"
+            "saves/" + index + ".png"
         ), PauseScreen.getInstance().getLastFrame().getTextureData().consumePixmap());
 
     }

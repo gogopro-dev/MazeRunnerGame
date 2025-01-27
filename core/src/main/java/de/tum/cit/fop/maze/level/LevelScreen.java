@@ -274,6 +274,10 @@ public class LevelScreen implements Screen {
             this.enemyManager.restore();
             this.map.restore();
             player.restore();
+            player.spawn(
+                player.getSavedPosition().x(),
+                player.getSavedPosition().y()
+            );
         } else {
             player.spawn(
                 map.playerPosition.x(), map.playerPosition.y()
@@ -281,11 +285,8 @@ public class LevelScreen implements Screen {
         }
         hud = new HUD(player);
         /// Set camera at the center of the players position in Box2D world
-        if (player.getPosition() != null) {
-            camera.position.set(player.getPosition().x(), player.getPosition().y(), 0);
-        } else {
-            camera.position.set(map.widthMeters / 2, map.heightMeters / 2, 0);
-        }
+
+        camera.position.set(player.getPosition().x(), player.getPosition().y(), 0);
         batch.setProjectionMatrix(camera.combined);
         camera.zoom = CURRENT_CAMERA_ZOOM;
         camera.update();
