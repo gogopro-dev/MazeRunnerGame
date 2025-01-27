@@ -27,7 +27,8 @@ public final class Globals {
     public static final int BOX2D_POSITION_ITERATIONS = 3;
     public static final int TRAP_DAMAGE = 10;
     public static final float IMMUNITY_FRAME_DURATION = 0.5f;
-    public static float DEFAULT_CAMERA_ZOOM = 1.25f;
+    public static final float DEFAULT_CAMERA_ZOOM = 1.25f;
+    public static float CURRENT_CAMERA_ZOOM = DEFAULT_CAMERA_ZOOM;
     ///  <p>What's the probability for enemy to pick a random cell to walk to each frame if it is not going anywhere
     ///  currently.</p>
     public static final float ENEMY_RANDOM_WALK_PROBABILITY = 0.03f;
@@ -60,4 +61,6 @@ public final class Globals {
     public static final int DEFAULT_SCREEN_HEIGHT_WINDOWED = 768;
     public static int CURRENT_SCREEN_WIDTH_WINDOWED = DEFAULT_SCREEN_WIDTH_WINDOWED;
     public static int CURRENT_SCREEN_HEIGHT_WINDOWED = DEFAULT_SCREEN_HEIGHT_WINDOWED;
+    public static float DEFAULT_CAMERA_VIEWPORT_WIDTH_METERS = 16.0f;
+    public static float DEFAULT_CAMERA_VIEWPORT_HEIGHT_METERS = 12.0f;
 }

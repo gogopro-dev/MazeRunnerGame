@@ -91,8 +91,6 @@ public class PlayGameScreen implements Screen {
         isNewGame = new boolean[3];
         gameTime = new String[]{"", "", ""};
         setupMenu();
-
-        generator.dispose();
     }
 
     /**
@@ -396,6 +394,7 @@ public class PlayGameScreen implements Screen {
         stage.dispose();
         font.dispose();
         createNewGameScreen.dispose();
+        generator.dispose();
     }
 
     /**
