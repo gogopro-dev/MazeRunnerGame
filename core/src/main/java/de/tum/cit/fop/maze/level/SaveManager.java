@@ -19,12 +19,27 @@ import java.io.IOException;
  * @see Gson
  */
 public class SaveManager {
+
+    /**
+     * Ensures that the {@code saves} directory exists in the local file system.
+     * If the directory does not exist, it creates it.
+     * This method is used to guarantee that the necessary folder structure
+     * is available for saving game data / configuration files.
+     */
+    private static void makeSavesDir() {
+        if (!Gdx.files.local("saves").exists()) {
+            Gdx.files.local("saves").mkdirs();
+        }
+    }
+
+
     /**
      * Save the current game state to a .json file and last frame to a .png file
      * @param index index of the save file
      * @throws IOException if the file cannot be written
      */
     public static void saveGame(int index) throws IOException {
+        makeSavesDir();
         LevelScreen level = LevelScreen.getInstance();
         Gson gson = Assets.getInstance().gson;
         FileWriter writer = new FileWriter("saves/" + index + ".json");
@@ -45,6 +60,7 @@ public class SaveManager {
      * @throws IOException if the file cannot be written
      */
     public static void saveConfigurations() throws IOException{
+        makeSavesDir();
         SettingsConfiguration settingsConfiguration = SettingsConfiguration.getInstance();
         Gson gson = Assets.getInstance().gson;
         FileWriter writer = new FileWriter("saves/settings.json");
