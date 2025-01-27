@@ -307,6 +307,7 @@ public class TileMap implements Disposable, GSONRestorable {
                 }
 
                 if (cell.getCellType() == CellType.PLAYER) {
+                    setSquare("floor_room", x, y);
                     playerPosition = currentCellCenter;
                 }
 

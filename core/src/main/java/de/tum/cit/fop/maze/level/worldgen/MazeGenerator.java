@@ -225,6 +225,7 @@ public final class MazeGenerator {
         }
         generateTraps();
         generateExit();
+        System.out.println(this);
     }
 
     private void generateTraps() {

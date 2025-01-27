@@ -18,7 +18,8 @@ public class Entrance extends Room {
         for (GeneratorCell cell : this.roomCells) {
             updateCellType(mazeCells, cell.getI(), cell.getJ(), CellType.ROOM_PATH);
         }
-        updateCellType(mazeCells, 3, 3, CellType.PLAYER);
+        /// Spawn player in the center of the start
+        updateCellType(mazeCells, i + 2, j + 2, CellType.PLAYER);
     }
 
 }
