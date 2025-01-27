@@ -27,8 +27,12 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import de.tum.cit.fop.maze.level.LevelScreen;
+import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -549,6 +553,19 @@ public class PlayGameScreen implements Screen {
             String[] fileNames = new String[propertiesFiles.length+1];
             fileNames[0] = "Select file";
 
+            /// Sort the properties files by level
+            Arrays.sort(propertiesFiles, (a, b) -> {
+                String numA = a.name().replaceAll("[^0-9]", "");
+                String numB = b.name().replaceAll("[^0-9]", "");
+                try {
+                    int levelA = Integer.parseInt(numA);
+                    int levelB = Integer.parseInt(numB);
+                    return Integer.compare(levelA, levelB);
+                } catch (NumberFormatException e) {
+                    return a.name().compareTo(b.name());
+                }
+            });
+
             for (int i = 1; i < propertiesFiles.length+1; i++) {
                 fileNames[i] = propertiesFiles[i-1].name().replace(".properties", "");
             }
@@ -587,6 +604,7 @@ public class PlayGameScreen implements Screen {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     if (selectBox.getSelected().equals("Select file")){
+                        /// Load maze from seed
                         if (!textField.getText().isEmpty()){
                             seed = textField.getText().hashCode();
                         }
@@ -596,9 +614,17 @@ public class PlayGameScreen implements Screen {
                         LevelScreen.getInstance().render(0);
                         LevelScreen.getInstance().saveGame();
                     } else {
-                        // TODO: Load maze properties from file
-                        FileHandle file = propertiesFiles[selectBox.getSelectedIndex()-1];
-                        System.out.println("File: " + file.name());
+                        /// Load maze from properties file
+                        FileHandle selectedFile = propertiesFiles[selectBox.getSelectedIndex()-1];
+                        try {
+                            new LevelScreen(new MazeGenerator(new FileReader(selectedFile.file())));
+                            LevelScreen.getInstance().setLevelIndex(gameIndex);
+                            Menu.getInstance().toggleMenuState(MenuState.GAME_SCREEN, true);
+                            LevelScreen.getInstance().render(0);
+                            LevelScreen.getInstance().saveGame();
+                        } catch (FileNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     PlayGameScreen.getInstance().isNewGame[gameIndex] = false;
                     PlayGameScreen.getInstance().isCreateNewGameDialogOpen = false;
