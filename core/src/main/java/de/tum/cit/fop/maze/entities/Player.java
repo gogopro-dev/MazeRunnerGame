@@ -319,14 +319,13 @@ public class Player extends Entity {
 
 
         if (!Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)){
-            if (staminaRecoveryElapsedTime == 0){
-                LevelScreen.getInstance().hud.stopStaminaDrain();
-            }
             if(staminaRecoveryElapsedTime > 2f){
                 int staminaRecoveryPerSec = 2;
                 restoreStamina(staminaRecoveryPerSec);
             }
-            staminaRecoveryElapsedTime += Gdx.graphics.getDeltaTime();
+            else {
+                staminaRecoveryElapsedTime += Gdx.graphics.getDeltaTime();
+            }
         }
 
         //TODO stamina regen (func in hud is ready)
@@ -526,8 +525,7 @@ public class Player extends Entity {
             return;
         }
         super.useStamina(amount*Gdx.graphics.getDeltaTime());
-        LevelScreen.getInstance().hud.beginStaminaDrain(amount);
-        //hud.useStamina(amount);
+        LevelScreen.getInstance().hud.useStamina(amount*Gdx.graphics.getDeltaTime());
     }
 
     @Override
@@ -537,7 +535,7 @@ public class Player extends Entity {
             return;
         }
         super.restoreStamina(amount*Gdx.graphics.getDeltaTime());
-        LevelScreen.getInstance().hud.beginStaminaRecovery(amount);
+        LevelScreen.getInstance().hud.restoreStamina(amount*Gdx.graphics.getDeltaTime());
         //hud.restoreStamina(amount);
     }
 
@@ -590,5 +588,9 @@ public class Player extends Entity {
 
     public void removeGold(int gold) {
         this.gold -= gold;
+    }
+
+    public float getMaxStamina() {
+        return maxStamina;
     }
 }
