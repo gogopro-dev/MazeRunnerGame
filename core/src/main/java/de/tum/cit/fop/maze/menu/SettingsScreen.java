@@ -18,11 +18,14 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 import de.tum.cit.fop.maze.level.GameOverScreen;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import de.tum.cit.fop.maze.level.PauseScreen;
+import de.tum.cit.fop.maze.level.SaveManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -50,8 +53,6 @@ public class SettingsScreen implements Screen {
     java.util.List<String> resolutionList = new ArrayList<>(Arrays.asList("640x480", "800x600", "1024x768", "1280x720", "1280x800", "1280x960", "1400x1050", "1600x1200", "1680x1050", "1920x1080", "1920x1200", "2048x1536", "2560x1440", "2560x1600", "3840x2160", "3840x2400", "7680x4320"));
     private final Stage stage;
     private final BitmapFont font;
-    private boolean isVsyncOn = true;
-    private boolean isFullScreen = false;
     private TextureRegion exitRegion;
     private TextureRegion vsyncOnRegion;
     private TextureRegion vsyncOffRegion;
@@ -153,6 +154,15 @@ public class SettingsScreen implements Screen {
         textButtonStyle.pressedOffsetY = -1;
 
         Slider sliderMusic = createSlider();
+        sliderMusic.setValue(SettingsConfiguration.getInstance().getMusicVolume());
+        sliderMusic.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                //TODO: Implement volume change
+                System.out.println("MUSIC value: " + sliderMusic.getValue());
+                SettingsConfiguration.getInstance().setMusicVolume(sliderMusic.getValue());
+            }
+        });
 
         /// Wrap the label and the table in a horizontal group
         /// to center them without changing the alignment of other children in the vertical group
@@ -177,6 +187,15 @@ public class SettingsScreen implements Screen {
         label.setAlignment(Align.center);
 
         Slider sliderSFX = createSlider();
+        sliderSFX.setValue(SettingsConfiguration.getInstance().getSfxVolume());
+        sliderSFX.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                //TODO: Implement volume change
+                System.out.println("SFX value: " + sliderSFX.getValue());
+                SettingsConfiguration.getInstance().setSfxVolume(sliderSFX.getValue());
+            }
+        });
 
         Table table = new Table();
         table.add(sliderSFX);
@@ -212,13 +231,22 @@ public class SettingsScreen implements Screen {
         Image toggleVsyncImage = new Image(vsyncOnRegion);
 
         AlignableImageTextButton toggleVSYNCButton = new AlignableImageTextButton("", textButtonStyle, toggleVsyncImage, 1.5f);
+        if (SettingsConfiguration.getInstance().isVsync()) {
+            toggleVSYNCButton.setImagePadding(10f);
+            toggleVSYNCButton.getImage().setDrawable(new TextureRegionDrawable(vsyncOnRegion));
+            Gdx.graphics.setVSync(true);
+        } else {
+            toggleVSYNCButton.setImagePadding(12f);
+            toggleVSYNCButton.getImage().setDrawable(new TextureRegionDrawable(vsyncOffRegion));
+            Gdx.graphics.setVSync(false);
+        }
         toggleVSYNCButton.setImagePadding(10f);
         toggleVSYNCButton.setImageTopPadding(2f);
         toggleVSYNCButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                isVsyncOn = !isVsyncOn;
-                if (isVsyncOn) {
+                SettingsConfiguration.getInstance().setVsync(!SettingsConfiguration.getInstance().isVsync());
+                if (SettingsConfiguration.getInstance().isVsync()) {
                     toggleVSYNCButton.setImagePadding(10f);
                     toggleVsyncImage.setDrawable(new TextureRegionDrawable(vsyncOnRegion));
                     Gdx.graphics.setVSync(true);
@@ -263,6 +291,14 @@ public class SettingsScreen implements Screen {
 
         /// Create the full screen button
         AlignableImageTextButton toggleFullButton = createFullscreenButton(textButtonStyle, toggleFullScreen, selectBox, resLabel);
+        if (SettingsConfiguration.getInstance().isFullScreen()){
+            toggleFullButton.setImagePadding(10f);
+            toggleFullButton.getImage().setDrawable(new TextureRegionDrawable(fullScreenOnRegion));
+        } else {
+            toggleFullButton.setImagePadding(12f);
+            toggleFullButton.getImage().setDrawable(new TextureRegionDrawable(fullScreenOffRegion));
+
+        }
 
         table = new Table();
         table.add(toggleFullButton).width(toggleFullButton.getPrefHeight());
@@ -286,10 +322,10 @@ public class SettingsScreen implements Screen {
         selectBox.getList().setAlignment(Align.left);
 
         selectBox.setItems(resolutionList.toArray(new String[0]));
-        selectBox.setSelected(CURRENT_SCREEN_WIDTH_WINDOWED + "x" + CURRENT_SCREEN_HEIGHT_WINDOWED);
+        selectBox.setSelected(SettingsConfiguration.getInstance().getResolution());
 
-        selectBox.setDisabled(isFullScreen);
-        if (isFullScreen) {
+        selectBox.setDisabled(SettingsConfiguration.getInstance().isFullScreen());
+        if (SettingsConfiguration.getInstance().isFullScreen()) {
             selectBox.getStyle().fontColor = new Color(0x404040FF);
         }
 
@@ -302,6 +338,7 @@ public class SettingsScreen implements Screen {
                 Menu.getInstance().SCREEN_WIDTH = Integer.parseInt(resolution[0]);
                 CURRENT_SCREEN_WIDTH_WINDOWED = Integer.parseInt(resolution[0]);
                 CURRENT_SCREEN_HEIGHT_WINDOWED = Integer.parseInt(resolution[1]);
+                SettingsConfiguration.getInstance().setResolution(CURRENT_SCREEN_WIDTH_WINDOWED + "x" + CURRENT_SCREEN_HEIGHT_WINDOWED);
                 Menu.getInstance().resize(Integer.parseInt(resolution[0]), Integer.parseInt(resolution[1]));
                 container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
                 Menu.getInstance().updateChildPositions();
@@ -338,15 +375,21 @@ public class SettingsScreen implements Screen {
         exitSettingsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (PauseScreen.getInstance() == null) {
-                    Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU);
-                    return;
-                }
+                /// If player exits the settings menu, save the configurations
+                try {
+                    SaveManager.saveConfigurations();
+                    if (PauseScreen.getInstance() == null) {
+                        Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU);
+                        return;
+                    }
 
-                if (PauseScreen.getInstance().isSettings()) {
-                    PauseScreen.getInstance().setSettings(false);
-                } else {
-                    Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU);
+                    if (PauseScreen.getInstance().isSettings()) {
+                        PauseScreen.getInstance().setSettings(false);
+                    } else {
+                        Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -385,9 +428,10 @@ public class SettingsScreen implements Screen {
         toggleFullButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                isFullScreen = !isFullScreen;
+                boolean isFullScreen = !SettingsConfiguration.getInstance().isFullScreen();
+                SettingsConfiguration.getInstance().setFullScreen(isFullScreen);
                 /// Disable the resolution select box if full screen is on
-                selectBox.setDisabled(isFullScreen);
+                selectBox.setDisabled(SettingsConfiguration.getInstance().isFullScreen());
                 selectBox.getStyle().fontColor = isFullScreen ? new Color(0x404040FF) : new Color(0xE0E0E0FF);
 
                 resLabel.getStyle().fontColor = isFullScreen ? new Color(0x404040FF) : new Color(0xE0E0E0FF);
@@ -421,14 +465,18 @@ public class SettingsScreen implements Screen {
                 }
                 GameOverScreen.getInstance().updateViewport();
 
-                container.setPosition(
-                    stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2,
-                    stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2
-                );
+                updateContainerPosition();
 
             }
         });
         return toggleFullButton;
+    }
+
+    public void updateContainerPosition(){
+        container.setPosition(
+            stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2,
+            stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2
+        );
     }
 
     /**
@@ -498,15 +546,7 @@ public class SettingsScreen implements Screen {
         knob_selected.setMinSize(knob_selected.getMinWidth()*2f, knob_selected.getMinHeight()*2f);
         sliderStyle.knobDown = knob_selected;
 
-        Slider slider = new Slider(0, 100, 1, false, sliderStyle);
-        slider.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                //TODO: Implement volume change
-                System.out.println("Slider value: " + slider.getValue());
-            }
-        });
-        return slider;
+        return new Slider(0f, 1f, 0.01f, false, sliderStyle);
     }
 
     /**

@@ -4,11 +4,26 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.PixmapIO;
 import com.google.gson.Gson;
 import de.tum.cit.fop.maze.Assets;
+import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * Singleton class for saving the game state and settings to a .json file
+ * using the Gson library
+ * @see LevelScreen
+ * @see PauseScreen
+ * @see SettingsConfiguration
+ * @see Assets
+ * @see Gson
+ */
 public class SaveManager {
+    /**
+     * Save the current game state to a .json file and last frame to a .png file
+     * @param index index of the save file
+     * @throws IOException if the file cannot be written
+     */
     public static void saveGame(int index) throws IOException {
         LevelScreen level = LevelScreen.getInstance();
         Gson gson = Assets.getInstance().gson;
@@ -18,9 +33,23 @@ public class SaveManager {
         if (PauseScreen.getInstance().getLastFrame() == null) {
             return;
         }
+
+        /// Save the last frame to a .png file
         PixmapIO.writePNG(Gdx.files.local(
             "saves/" + index + ".png"
         ), PauseScreen.getInstance().getLastFrame().getTextureData().consumePixmap());
-
     }
+
+    /**
+     * Save the current settings to a .json file
+     * @throws IOException if the file cannot be written
+     */
+    public static void saveConfigurations() throws IOException{
+        SettingsConfiguration settingsConfiguration = SettingsConfiguration.getInstance();
+        Gson gson = Assets.getInstance().gson;
+        FileWriter writer = new FileWriter("saves/settings.json");
+        gson.toJson(settingsConfiguration, writer);
+        writer.close();
+    }
+
 }

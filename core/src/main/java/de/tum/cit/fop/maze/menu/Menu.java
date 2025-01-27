@@ -206,6 +206,7 @@ public class Menu implements Screen {
         mainMenuScreen.updateContainerPosition();
         creditsScreen.updateContainerPosition();
         playGameScreen.updateContainerPosition();
+        settingsScreen.updateContainerPosition();
     }
 
     @Override

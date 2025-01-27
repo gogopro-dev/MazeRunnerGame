@@ -61,10 +61,6 @@ public final class Assets {
         gson = gsonBuilder.create();
     }
 
-    private void registerJsonAdapters() {
-
-    }
-
     private void queueLoading() {
         assetManager.load("assets/menu/menu.atlas", TextureAtlas.class);
         assetManager.load("assets/menu/menu_icons.atlas", TextureAtlas.class);

@@ -4,9 +4,6 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
 
-import static de.tum.cit.fop.maze.Globals.DEFAULT_SCREEN_HEIGHT_WINDOWED;
-import static de.tum.cit.fop.maze.Globals.DEFAULT_SCREEN_WIDTH_WINDOWED;
-
 /** Launches the desktop (LWJGL3) application. */
 public class DesktopLauncher {
     public static void main(String[] args) {
@@ -40,7 +37,6 @@ public class DesktopLauncher {
         //// If you remove the above line and set Vsync to false, you can get unlimited FPS, which can be
         //// useful for testing performance, but can also be very stressful to some hardware.
         //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
-        configuration.setWindowedMode(DEFAULT_SCREEN_WIDTH_WINDOWED, DEFAULT_SCREEN_HEIGHT_WINDOWED);
         configuration.setHdpiMode(HdpiMode.Logical);
         configuration.setResizable(false);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
