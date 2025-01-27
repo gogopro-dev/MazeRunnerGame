@@ -236,7 +236,8 @@ public class TileMap implements Disposable, GSONRestorable {
                     }
                     tryTorchSpawn(i, j, cell, x, y, torches);
                 }
-                if (cell.getCellType().isPath() && !cell.getCellType().isRoom()) {
+                if (cell.getCellType().isPath() && !cell.getCellType().isRoom() &&
+                    !this.generator.loadedFromProperties) {
                     if (random.nextFloat() <= ENEMY_SPAWN_CHANCE) {
                         spawnEnemies(x, y);
                     } else if (random.nextFloat() <= LOOTCONTAINER_SPAWN_CHANCE) {
@@ -282,8 +283,12 @@ public class TileMap implements Disposable, GSONRestorable {
                     );
                 }
                 if (cell.getCellType() == CellType.EXIT_DOOR) {
+                    GeneratorCell pathCell = GenerationCases.getFirstSurroundingPath(i, j, this.generator);
+                    if (pathCell == null) {
+                        throw new IllegalStateException("EXIT_DOOR is unreachable in this generation");
+                    }
                     tileEntityManager.createTileEntity(
-                        new ExitDoor(), currentCellCenter
+                        new ExitDoor(pathCell.getDirection(cell)), currentCellCenter
                     );
                     this.exitPosition = currentCellCenter;
                 }
@@ -301,8 +306,11 @@ public class TileMap implements Disposable, GSONRestorable {
                 /// Trap
                 if (cell.getCellType() == CellType.TRAP && !GenerationCases.isEdge(i, j, this.generator)) {
                     boolean vertical =
-                        this.generator.grid.get(i - 1).get(j).getCellType().isWall() &&
-                            this.generator.grid.get(i + 1).get(j).getCellType().isWall();
+                        (this.generator.grid.get(i - 1).get(j).getCellType().isWall() ||
+                            this.generator.grid.get(i - 1).get(j).getCellType().isDoor())
+                            &&
+                            (this.generator.grid.get(i + 1).get(j).getCellType().isWall() ||
+                                this.generator.grid.get(i + 1).get(j).getCellType().isDoor());
                     spawnRandomTrap(x, y, vertical);
                 }
 

@@ -41,7 +41,9 @@ public enum CellType {
      * @return {@code true} if the cell type is any path
      */
     public boolean isPath() {
-        return this == PATH || this == ROOM_PATH;
+        return this == PATH || this == ROOM_PATH
+            /// Traps are always spawned on paths
+            || this == TRAP;
     }
 
     /**
@@ -67,4 +69,7 @@ public enum CellType {
             this == PLAYER;
     }
 
+    public boolean isDoor() {
+        return this == DOOR || this == EXIT_DOOR;
+    }
 }

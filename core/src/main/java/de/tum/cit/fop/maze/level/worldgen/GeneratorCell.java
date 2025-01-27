@@ -101,5 +101,6 @@ public final class GeneratorCell {
                 return Direction.UP;
             }
         }
+
     }
 }

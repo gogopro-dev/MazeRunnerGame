@@ -122,21 +122,53 @@ public final class GenerationCases {
      *     <li>Right wall</li>
      *     <li>Bottom wall</li>
      * </ol>
+     * @param i the row index to begin the search
+     * @param j the column index to begin the search
+     * @param generator the maze generator used to define the structure of the maze
+     * @return the first wall {@link GeneratorCell} encountered or {@code null} if no wall cell is found
      */
     public static GeneratorCell getFirstSurroundingWall(int i, int j, MazeGenerator generator) {
-        if (isEdge(i, j, generator)) {
-            return null;
-        }
-        if (generator.grid.get(i - 1).get(j).getCellType().isWall()) {
+        if (i - 1 > 0 && generator.grid.get(i - 1).get(j).getCellType().isWall()) {
             return generator.grid.get(i - 1).get(j);
         }
-        if (generator.grid.get(i).get(j - 1).getCellType().isWall()) {
+        if (j - 1 > 0 && generator.grid.get(i).get(j - 1).getCellType().isWall()) {
             return generator.grid.get(i).get(j - 1);
         }
-        if (generator.grid.get(i).get(j + 1).getCellType().isWall()) {
+        if (j + 1 < generator.width && generator.grid.get(i).get(j + 1).getCellType().isWall()) {
             return generator.grid.get(i).get(j + 1);
         }
-        if (generator.grid.get(i + 1).get(j).getCellType().isWall()) {
+        if (i + 1 < generator.height && generator.grid.get(i + 1).get(j).getCellType().isWall()) {
+            return generator.grid.get(i + 1).get(j);
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves the first walkable cell within the maze from the specified starting
+     * position with the following priority:
+     * <ol>
+     *     <li>Top wall</li>
+     *     <li>Left wall</li>
+     *     <li>Right wall</li>
+     *     <li>Bottom wall</li>
+     * </ol>
+     *
+     * @param i         the row index to begin the search
+     * @param j         the column index to begin the search
+     * @param generator the maze generator used to define the structure of the maze
+     * @return the first walkable {@link GeneratorCell} encountered or {@code null} if no walkable cell is found
+     */
+    public static GeneratorCell getFirstSurroundingPath(int i, int j, MazeGenerator generator) {
+        if (i - 1 > 0 && generator.grid.get(i - 1).get(j).getCellType().isPath()) {
+            return generator.grid.get(i - 1).get(j);
+        }
+        if (j - 1 > 0 && generator.grid.get(i).get(j - 1).getCellType().isPath()) {
+            return generator.grid.get(i).get(j - 1);
+        }
+        if (j + 1 < generator.width && generator.grid.get(i).get(j + 1).getCellType().isPath()) {
+            return generator.grid.get(i).get(j + 1);
+        }
+        if (i + 1 < generator.height && generator.grid.get(i + 1).get(j).getCellType().isPath()) {
             return generator.grid.get(i + 1).get(j);
         }
         return null;

@@ -9,9 +9,8 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
+import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.level.LevelScreen;
-
-import java.util.List;
 
 import static de.tum.cit.fop.maze.Globals.*;
 
@@ -25,27 +24,29 @@ public class ExitDoor extends TileEntity {
     /**
      * Creates a new Exit door.
      */
-
+    private Direction direction;
     private transient Animation<TextureRegion> doorOpeningAnimation;
-    private transient float elapsedTime = 0;
+    private transient float openElapsedTime = 0;
     private transient TextureRegion texture;
-    private transient FixtureDef sensorFixtureDef;
+    private transient Body wallBody;
+    private transient Fixture promptFixture;
 
-    public ExitDoor() {
+
+    private ExitDoor() {
         super(3, 3, new BodyDef(), new FixtureDef());
-
-        /// Create the body definition and fixture definition for the door
         bodyDef.type = BodyDef.BodyType.StaticBody;
         bodyDef.fixedRotation = true;
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(
-            CELL_SIZE_METERS * 1.5f + HITBOX_SAFETY_GAP,
-            HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS - CELL_SIZE_METERS * 1.6f
-        );
+        shape.setAsBox(0, 0);
         fixtureDef.shape = shape;
-        fixtureDef.isSensor = false;
+        fixtureDef.isSensor = true;
         fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
+    }
+
+    public ExitDoor(Direction direction) {
+        this();
+        this.direction = direction;
         init();
     }
 
@@ -55,36 +56,38 @@ public class ExitDoor extends TileEntity {
         TextureAtlas atlas = Assets.getInstance().getAssetManager()
             .get("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class);
         Array<TextureAtlas.AtlasRegion> doorFrames =
-            atlas.findRegions("door_front");
+            switch (direction) {
+                case RIGHT, LEFT -> atlas.findRegions("door_side");
+                case UP -> atlas.findRegions("door_front");
+                case DOWN -> atlas.findRegions("door_back");
+            };
+
 
         doorOpeningAnimation = new Animation<>(0.175f, doorFrames);
         doorOpeningAnimation.setPlayMode(Animation.PlayMode.NORMAL);
-        texture = atlas.findRegion("door_front_locked");
+        texture = switch (direction) {
+            case LEFT, RIGHT -> atlas.findRegion("door_side_locked");
+            case UP -> atlas.findRegion("door_front_locked");
+            case DOWN -> atlas.findRegion("door_back_locked");
+        };
     }
 
     @Override
     public void render(float delta) {
+        if (isOpen) openElapsedTime += delta;
         /// if the door is not open, render closed door
-        if (!isOpen) {
-            batch.draw(
-                texture, getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
-                getSpriteDrawWidth(), getSpriteDrawHeight()
-            );
-            return;
-        }
-        /// if the door is open, render the open door
-        if (doorOpeningAnimation.isAnimationFinished(elapsedTime)) {
-            batch.draw(doorOpeningAnimation.getKeyFrame(2.8f),
-                getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
-                getSpriteDrawWidth(), getSpriteDrawHeight());
-            return;
+        float posX = getSpriteDrawPosition().x();
+        float posY = getSpriteDrawPosition().y();
+        float width = getSpriteDrawWidth();
+        float height = getSpriteDrawHeight();
+        if (direction == Direction.LEFT || direction == Direction.RIGHT) {
+            height *= 2f;
         }
 
-        elapsedTime += delta;
-        batch.draw(doorOpeningAnimation.getKeyFrame(elapsedTime),
-            getSpriteDrawPosition().x(), getSpriteDrawPosition().y(),
-            getSpriteDrawWidth(), getSpriteDrawHeight()
-        );
+        TextureRegion texture = !isOpen ? this.texture : doorOpeningAnimation.getKeyFrame(openElapsedTime);
+        if (this.direction == Direction.RIGHT) texture.flip(true, false);
+        batch.draw(texture, posX, posY, width, height);
+        if (this.direction == Direction.RIGHT) texture.flip(true, false);
     }
 
     @Override
@@ -94,32 +97,20 @@ public class ExitDoor extends TileEntity {
         if (!isOpen && LevelScreen.getInstance().player.hasKey()) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
                 LevelScreen.getInstance().hud.deleteDescription();
-                /// Delete the previous sensor fixture
-                Fixture sensorFixture = body.getFixtureList().get(1);
-                body.destroyFixture(sensorFixture);
-
-                /// Create a new sensor fixture with a smaller hitbox
-                PolygonShape shape = new PolygonShape();
-                shape.setAsBox(
-                    (CELL_SIZE_METERS * 1.5f + HITBOX_SAFETY_GAP) / 3f,
-                    (CELL_SIZE_METERS * 1.5f + HITBOX_SAFETY_GAP) / 1.5f
-                );
-                FixtureDef sensorFixtureDef = new FixtureDef();
-                sensorFixtureDef.shape = shape;
-                sensorFixtureDef.isSensor = true;
-                sensorFixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
-                sensorFixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
-                body.createFixture(sensorFixtureDef);
-
+                /// Delete the prompt fixture
+                body.destroyFixture(promptFixture);
+                body.getWorld().destroyBody(wallBody);
                 /// Open the door
                 isOpen = true;
+
+                spawnExitTrigger();
                 return;
             }
 
         }
 
-        /// End the game if the door opening animation is finished
-        if (doorOpeningAnimation.isAnimationFinished(elapsedTime)){
+        /// End the game if the door is open
+        if (isOpen) {
             LevelScreen.getInstance().endGame(true);
         }
     }
@@ -146,20 +137,100 @@ public class ExitDoor extends TileEntity {
         LevelScreen.getInstance().hud.deleteDescription();
     }
 
+    /**
+     * Spawns an exit trigger for the ExitDoor entity. This method is responsible
+     * for handling logic specific to setting up the exit trigger based on the
+     * direction of the door.
+     */
+    private void spawnExitTrigger() {
+        float x = getPosition().x();
+        float y = getPosition().y();
+        FixtureDef exitTriggerDef = new FixtureDef();
+        PolygonShape exitTriggerShape = new PolygonShape();
+        BodyDef exitTriggerBodyDef = new BodyDef();
+        exitTriggerBodyDef.type = BodyDef.BodyType.StaticBody;
+        exitTriggerDef.shape = exitTriggerShape;
+        exitTriggerDef.isSensor = true;
+        exitTriggerDef.filter.categoryBits = BodyBits.TILE_ENTITY;
+        exitTriggerDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
+        if (this.direction == Direction.UP) {
+            exitTriggerBodyDef.position.set(x, y + CELL_SIZE_METERS * 1.5f);
+            exitTriggerShape.setAsBox(CELL_SIZE_METERS * 3.3f, CELL_SIZE_METERS / 2f);
+        } else if (this.direction == Direction.LEFT || this.direction == Direction.RIGHT) {
+            exitTriggerBodyDef.position.set(
+                x + (direction == Direction.RIGHT ? CELL_SIZE_METERS : -CELL_SIZE_METERS),
+                y + CELL_SIZE_METERS * 1.5f);
+            exitTriggerShape.setAsBox(CELL_SIZE_METERS / 6f, CELL_SIZE_METERS * 2);
+        } else {
+            exitTriggerBodyDef.position.set(x, y - CELL_SIZE_METERS * 1.5f);
+            exitTriggerShape.setAsBox(CELL_SIZE_METERS * 3.3f, CELL_SIZE_METERS / 2f);
+        }
+        ///  No need to delete ever as the game ends after this has been triggered;
+        Body temp = body.getWorld().createBody(exitTriggerBodyDef);
+        temp.createFixture(exitTriggerDef);
+        temp.setUserData(this);
+        exitTriggerShape.dispose();
+    }
+
     @Override
     public void spawn(float x, float y) {
         super.spawn(x, y);
-        sensorFixtureDef = new FixtureDef();
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(
-            CELL_SIZE_METERS * 1.5f + HITBOX_SAFETY_GAP,
-            CELL_SIZE_METERS * 1.5f + HITBOX_SAFETY_GAP
-        );
-        sensorFixtureDef.shape = shape;
-        sensorFixtureDef.isSensor = true;
-        sensorFixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
-        sensorFixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
-        body.createFixture(sensorFixtureDef);
+        /// Not worth rewriting tile entity code, so this lil workaround is pretty much reasonable
+        body.destroyFixture(body.getFixtureList().first());
+
+
+        /// Spawn prompt sensor fixture
+        CircleShape promptShape = new CircleShape();
+        promptShape.setRadius(CELL_SIZE_METERS * 3f);
+        FixtureDef promptFixtureDef = new FixtureDef();
+        promptFixtureDef.shape = promptShape;
+        promptFixtureDef.isSensor = true;
+        promptFixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
+        promptFixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
+        promptFixture = body.createFixture(promptFixtureDef);
+        promptShape.dispose();
+
+        FixtureDef hitboxDef = new FixtureDef();
+        PolygonShape hitboxShape = new PolygonShape();
+        BodyDef hitboxBodyDef = new BodyDef();
+        hitboxDef.shape = hitboxShape;
+        hitboxDef.isSensor = false;
+        hitboxDef.filter.categoryBits = BodyBits.WALL;
+        hitboxDef.filter.maskBits = BodyBits.WALL_MASK;
+        /// Spawn hitbox body for the upward direction, it will be destroyed as soon as the door opens
+        if (direction == Direction.UP) {
+            hitboxBodyDef.position.set(x, y + CELL_SIZE_METERS + CELL_SIZE_METERS / 2f);
+            hitboxShape.setAsBox(CELL_SIZE_METERS * 3.3f, CELL_SIZE_METERS * 1.5f);
+        } else if (direction == Direction.RIGHT || direction == Direction.LEFT) {
+            hitboxBodyDef.position.set(
+                x + (direction == Direction.RIGHT ? CELL_SIZE_METERS / 2f : -CELL_SIZE_METERS / 2f),
+                y);
+            hitboxShape.setAsBox(CELL_SIZE_METERS / 2f, CELL_SIZE_METERS * 2);
+        } else {
+            hitboxBodyDef.position.set(x, y);
+            hitboxShape.setAsBox(CELL_SIZE_METERS * 3.3f, CELL_SIZE_METERS * 1.5f);
+
+            /// Spawn permanent this texture specific hitboxes
+            BodyDef textureHitboxBodyDef = new BodyDef();
+            textureHitboxBodyDef.type = BodyDef.BodyType.StaticBody;
+            textureHitboxBodyDef.fixedRotation = true;
+            PolygonShape textureHitboxShape = new PolygonShape();
+            FixtureDef textureHitboxDef = new FixtureDef();
+            textureHitboxShape.setAsBox(CELL_SIZE_METERS / 2.1f, CELL_SIZE_METERS * 1.5f);
+            textureHitboxDef.shape = textureHitboxShape;
+            textureHitboxDef.isSensor = false;
+            textureHitboxDef.filter.categoryBits = BodyBits.WALL;
+            textureHitboxDef.filter.maskBits = BodyBits.WALL_MASK;
+
+            textureHitboxBodyDef.position.set(x - CELL_SIZE_METERS * 1.5f, y);
+            LevelScreen.getInstance().world.createBody(textureHitboxBodyDef).createFixture(textureHitboxDef);
+            textureHitboxBodyDef.position.set(x + CELL_SIZE_METERS * 1.5f, y);
+            LevelScreen.getInstance().world.createBody(textureHitboxBodyDef).createFixture(textureHitboxDef);
+            textureHitboxShape.dispose();
+        }
+        wallBody = LevelScreen.getInstance().world.createBody(hitboxBodyDef);
+        wallBody.createFixture(hitboxDef);
+        hitboxShape.dispose();
     }
 
 }

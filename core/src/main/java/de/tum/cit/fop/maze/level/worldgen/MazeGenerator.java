@@ -463,12 +463,31 @@ public final class MazeGenerator {
      */
     public void generateExit() {
         ArrayList<GeneratorCell> eligibleCells = new ArrayList<>();
-        for (int j = 0; j < width; ++j) {
+        for (int j = 1; j < width; ++j) {
             boolean wallBelow = grid.get(1).get(j).getCellType().isWall();
             if (!wallBelow) {
                 eligibleCells.add(grid.get(0).get(j));
             }
         }
+        for (int j = 1; j < width; ++j) {
+            boolean wallAbove = grid.get(height - 2).get(j).getCellType().isWall();
+            if (!wallAbove) {
+                eligibleCells.add(grid.get(height - 1).get(j));
+            }
+        }
+        for (int i = 1; i < height - 1; ++i) {
+            boolean wallRight = grid.get(i).get(1).getCellType().isWall();
+            if (!wallRight) {
+                eligibleCells.add(grid.get(i).get(0));
+            }
+        }
+        for (int i = 1; i < height - 1; ++i) {
+            boolean wallLeft = grid.get(i).get(width - 2).getCellType().isWall();
+            if (!wallLeft) {
+                eligibleCells.add(grid.get(i).get(width - 1));
+            }
+        }
+
         if (eligibleCells.isEmpty()) {
             throw new IllegalArgumentException("No eligible cells for exit door");
         }
@@ -674,14 +693,19 @@ public final class MazeGenerator {
         for (List<GeneratorCell> generatorCells : grid) {
             for (GeneratorCell generatorCell : generatorCells) {
                 switch (generatorCell.getCellType()) {
-                    case WALL ->        sb.append("#");
-                    case PATH ->        sb.append(" ");
-                    case TRAP ->        sb.append("T");
-                    case ROOM_PATH ->   sb.append("!");
-                    case ROOM_WALL ->   sb.append("@");
-                    case DOOR ->        sb.append("D");
-                    case EXIT_DOOR ->   sb.append("E");
+                    case WALL -> sb.append("#");
+                    case PATH -> sb.append(" ");
+                    case TRAP -> sb.append("T");
+                    case ROOM_PATH -> sb.append("!");
+                    case ROOM_WALL -> sb.append("@");
+                    case DOOR -> sb.append("D");
+                    case EXIT_DOOR -> sb.append("E");
                     case KEY_OBELISK -> sb.append("K");
+                    case ENEMY -> sb.append("Z");
+                    case PLAYER -> sb.append("P");
+                    case SHOP_ITEM -> sb.append("S");
+                    case TREASURE_ROOM_ITEM -> sb.append("I");
+
 
                 }
                 sb.append(spacing);
