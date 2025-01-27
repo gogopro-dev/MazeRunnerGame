@@ -240,7 +240,6 @@ public class SettingsScreen implements Screen {
             toggleVSYNCButton.getImage().setDrawable(new TextureRegionDrawable(vsyncOffRegion));
             Gdx.graphics.setVSync(false);
         }
-        toggleVSYNCButton.setImagePadding(10f);
         toggleVSYNCButton.setImageTopPadding(2f);
         toggleVSYNCButton.addListener(new ClickListener(){
             @Override

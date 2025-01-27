@@ -21,6 +21,7 @@ import de.tum.cit.fop.maze.menu.MenuState;
 import de.tum.cit.fop.maze.menu.PlayGameScreen;
 import de.tum.cit.fop.maze.menu.SettingsScreen;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import static de.tum.cit.fop.maze.Globals.*;
@@ -245,6 +246,11 @@ public class PauseScreen {
             /// To place the pause menu on top of it
             takeScreenshot();
             return;
+        }
+        try {
+            SaveManager.saveConfigurations();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         isSettings = false;
     }
