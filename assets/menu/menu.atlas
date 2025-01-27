@@ -37,5 +37,5 @@ small_button_pressed
 bounds:1678,919,125,32
 small_button_released
 bounds:1090,693,125,32
-textfield
+textField
 bounds:128,83,125,32
