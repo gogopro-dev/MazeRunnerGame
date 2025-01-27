@@ -62,6 +62,7 @@ public class LevelScreen implements Screen {
     private transient boolean needsRestoring = false;
     private transient boolean endGame = false;
     private transient int levelIndex;
+    private transient float ratio;
 
     private void doPhysicsStep(float deltaTime) {
         // Fixed time step
@@ -286,7 +287,7 @@ public class LevelScreen implements Screen {
             camera.position.set(map.widthMeters / 2, map.heightMeters / 2, 0);
         }
         batch.setProjectionMatrix(camera.combined);
-        camera.zoom = Globals.DEFAULT_CAMERA_ZOOM;
+        camera.zoom = CURRENT_CAMERA_ZOOM;
         camera.update();
 
         updateViewport();
@@ -373,16 +374,18 @@ public class LevelScreen implements Screen {
     public void updateViewport() {
         float h = Gdx.graphics.getHeight() / PPM;
         float w = Gdx.graphics.getWidth() / PPM;
-        float ratio = viewport.getWorldWidth() / w;
-
+        ratio = DEFAULT_CAMERA_VIEWPORT_HEIGHT_METERS / h;
 
         float playerRelativeX = player.getPosition().x() - camera.position.x;
         float playerRelativeY = player.getPosition().y() - camera.position.y;
 
         camera.viewportWidth = w / 2;
         camera.viewportHeight = h / 2;
-        Globals.DEFAULT_CAMERA_ZOOM *= ratio;
-        camera.zoom = Globals.DEFAULT_CAMERA_ZOOM;
+
+
+        float minZoom = Globals.DEFAULT_CAMERA_ZOOM * 0.5f * ratio;
+        float maxZoom = Globals.DEFAULT_CAMERA_ZOOM * ratio;
+        camera.zoom = (minZoom + maxZoom)/2;
 
         /// Set camera at the position of the player it was before resizing
         camera.position.set(player.getPosition().x() - playerRelativeX, player.getPosition().y() - playerRelativeY, 0);
@@ -420,5 +423,9 @@ public class LevelScreen implements Screen {
 
     public int getLevelIndex() {
         return levelIndex;
+    }
+
+    public float getRatio() {
+        return ratio;
     }
 }

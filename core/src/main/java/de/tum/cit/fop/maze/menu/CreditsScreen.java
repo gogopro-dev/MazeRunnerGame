@@ -55,8 +55,6 @@ public class CreditsScreen implements Screen {
 
         loadTextures();
         setupMenu();
-
-        generator.dispose();
     }
 
     /**
@@ -205,6 +203,7 @@ public class CreditsScreen implements Screen {
     public void dispose() {
         stage.dispose();
         font.dispose();
+        generator.dispose();
     }
 
     @Override

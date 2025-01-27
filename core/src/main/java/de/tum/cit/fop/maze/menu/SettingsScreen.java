@@ -96,8 +96,6 @@ public class SettingsScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
 
         setupMenu();
-
-        generator.dispose();
     }
     /**
      * Creates all widgets and adds them to the stage
@@ -189,7 +187,7 @@ public class SettingsScreen implements Screen {
         actor.setWidth(100f);
         horizontalGroup.addActor(actor);
         horizontalGroup.addActor(table);
-        horizontalGroup.center();
+        horizontalGroup.right();
 
         padding = new Actor();
         padding.setHeight(8f);
@@ -558,6 +556,7 @@ public class SettingsScreen implements Screen {
     public void dispose() {
         stage.dispose();
         font.dispose();
+        generator.dispose();
     }
 
     @Override

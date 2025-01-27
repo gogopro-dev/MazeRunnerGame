@@ -91,9 +91,10 @@ public class Enemy extends Entity implements Attackable {
             /// Set red tint if damaged
             batch.setColor(new Color(1, 0, 0, 1));
         }
-        // todo only call once per isAttack
+
         if (isAttacking && attackAnimation.getAnimationDuration() / 2 < attackElapsedTime) {
             attackPlayer();
+            attackElapsedTime += attackAnimation.getAnimationDuration();
         }
 
         // Check if hit animation is finished
@@ -139,8 +140,7 @@ public class Enemy extends Entity implements Attackable {
             }
         }
 
-        if (
-            LevelScreen.getInstance().player.getPosition().distance(getPosition()) <= Globals.ENEMY_ATTACK_DISTANCE &&
+        if (LevelScreen.getInstance().player.getPosition().distance(getPosition()) <= Globals.ENEMY_ATTACK_DISTANCE &&
                 !isDead()) {
             attack();
         }
