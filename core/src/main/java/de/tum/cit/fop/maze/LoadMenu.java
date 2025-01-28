@@ -4,7 +4,12 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 import de.tum.cit.fop.maze.level.GameOverScreen;
+import de.tum.cit.fop.maze.level.SaveManager;
 import de.tum.cit.fop.maze.menu.Menu;
+
+import java.io.IOException;
+
+import static de.tum.cit.fop.maze.Globals.*;
 
 /**
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
@@ -49,24 +54,68 @@ public class LoadMenu extends Game {
      * @see SettingsConfiguration
      */
     private void initConfigurations(){
+        Menu.getInstance();
+        /// Sets the instance of the SettingsConfiguration singleton to the values in the settings.json file
         if (Gdx.files.local("saves/settings.json").exists()) {
             Assets.getInstance().gson.fromJson(
               Gdx.files.local("saves/settings.json").reader(), SettingsConfiguration.class
             );
         }
+
+        String[] resolution = SettingsConfiguration.getInstance().getResolution().split("x");
+        CURRENT_SCREEN_WIDTH_WINDOWED = Integer.parseInt(resolution[0]);
+        CURRENT_SCREEN_HEIGHT_WINDOWED = Integer.parseInt(resolution[1]);
+
+        calculateListOfResolutions();
+
         if (SettingsConfiguration.getInstance().isFullScreen()){
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
             Menu.getInstance().SCREEN_HEIGHT = Gdx.graphics.getHeight();
             Menu.getInstance().SCREEN_WIDTH = Gdx.graphics.getWidth();
         } else {
-            String[] resolution = SettingsConfiguration.getInstance().getResolution().split("x");
-            Gdx.graphics.setWindowedMode(Integer.parseInt(resolution[0]), Integer.parseInt(resolution[1]));
-            Menu.getInstance().SCREEN_HEIGHT = Integer.parseInt(resolution[1]);
-            Menu.getInstance().SCREEN_WIDTH = Integer.parseInt(resolution[0]);
+            Gdx.graphics.setWindowedMode(CURRENT_SCREEN_WIDTH_WINDOWED, CURRENT_SCREEN_HEIGHT_WINDOWED);
+            Menu.getInstance().SCREEN_HEIGHT = CURRENT_SCREEN_HEIGHT_WINDOWED;
+            Menu.getInstance().SCREEN_WIDTH = CURRENT_SCREEN_WIDTH_WINDOWED;
         }
+
         Menu.getInstance().resize(Menu.getInstance().SCREEN_WIDTH, Menu.getInstance().SCREEN_HEIGHT);
         Menu.getInstance().updateChildPositions();
         GameOverScreen.getInstance().updateViewport();
+
+        System.out.println(WINDOWED_RESOLUTIONS);
+    }
+
+    /**
+     * Removes resolutions that are higher than the current display resolution
+     */
+    private void calculateListOfResolutions() {
+        int displayWidth = Gdx.graphics.getDisplayMode().width;
+        int displayHeight = Gdx.graphics.getDisplayMode().height;
+        for (int i = WINDOWED_RESOLUTIONS.size()-1; i > 1; i--) {
+            int width = Integer.parseInt(WINDOWED_RESOLUTIONS.get(i).split("x")[0]);
+            int height = Integer.parseInt(WINDOWED_RESOLUTIONS.get(i).split("x")[1]);
+            if (width >= displayWidth || height >= displayHeight) {
+                WINDOWED_RESOLUTIONS.remove(i);
+            }
+        }
+        /// if the current resolution is bigger than the biggest resolution in the list,
+        /// change the resolution to the biggest one in the list
+        System.out.println("Current resolution: " + CURRENT_SCREEN_WIDTH_WINDOWED + "x" + CURRENT_SCREEN_HEIGHT_WINDOWED);
+        if (CURRENT_SCREEN_WIDTH_WINDOWED >= displayWidth || CURRENT_SCREEN_HEIGHT_WINDOWED >= displayHeight) {
+            CURRENT_SCREEN_WIDTH_WINDOWED = Integer.parseInt(WINDOWED_RESOLUTIONS.get(WINDOWED_RESOLUTIONS.size()-1).split("x")[0]);
+            CURRENT_SCREEN_HEIGHT_WINDOWED = Integer.parseInt(WINDOWED_RESOLUTIONS.get(WINDOWED_RESOLUTIONS.size()-1).split("x")[1]);
+
+            Menu.getInstance().SCREEN_HEIGHT = CURRENT_SCREEN_HEIGHT_WINDOWED;
+            Menu.getInstance().SCREEN_WIDTH = CURRENT_SCREEN_WIDTH_WINDOWED;
+
+            SettingsConfiguration.getInstance().setResolution(CURRENT_SCREEN_WIDTH_WINDOWED + "x" + CURRENT_SCREEN_HEIGHT_WINDOWED);
+            try {
+                SaveManager.saveConfigurations();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
     /**

@@ -1,8 +1,12 @@
 package de.tum.cit.fop.maze;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
+
+import javax.swing.*;
 
 /** Launches the desktop (LWJGL3) application. */
 public class DesktopLauncher {
@@ -40,7 +44,8 @@ public class DesktopLauncher {
         configuration.setHdpiMode(HdpiMode.Logical);
         configuration.setResizable(false);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
-        configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
+//        configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
         return configuration;
     }
+
 }

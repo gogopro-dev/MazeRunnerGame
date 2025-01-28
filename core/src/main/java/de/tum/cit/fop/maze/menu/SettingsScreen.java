@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.Assets;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 import de.tum.cit.fop.maze.level.GameOverScreen;
@@ -50,7 +51,6 @@ import static de.tum.cit.fop.maze.Globals.*;
  */
 public class SettingsScreen implements Screen {
     private static SettingsScreen instance;
-    java.util.List<String> resolutionList = new ArrayList<>(Arrays.asList("640x480", "800x600", "1024x768", "1280x720", "1280x800", "1280x960", "1400x1050", "1600x1200", "1680x1050", "1920x1080", "1920x1200", "2048x1536", "2560x1440", "2560x1600", "3840x2160", "3840x2400", "7680x4320"));
     private final Stage stage;
     private final BitmapFont font;
     private TextureRegion exitRegion;
@@ -103,8 +103,6 @@ public class SettingsScreen implements Screen {
      */
     private void setupMenu() {
         /// Creates the essentials for the settings menu
-        calculateListOfResolutions();
-
         VerticalGroup settingElementGroup = new VerticalGroup();
         settingElementGroup.setBounds(0, 0, 336, 456);
 
@@ -320,7 +318,7 @@ public class SettingsScreen implements Screen {
         selectBox.setAlignment(Align.center);
         selectBox.getList().setAlignment(Align.left);
 
-        selectBox.setItems(resolutionList.toArray(new String[0]));
+        selectBox.setItems(WINDOWED_RESOLUTIONS.toArray(new String[0]));
         selectBox.setSelected(SettingsConfiguration.getInstance().getResolution());
 
         selectBox.setDisabled(SettingsConfiguration.getInstance().isFullScreen());
@@ -546,21 +544,6 @@ public class SettingsScreen implements Screen {
         sliderStyle.knobDown = knob_selected;
 
         return new Slider(0f, 1f, 0.01f, false, sliderStyle);
-    }
-
-    /**
-     * Removes resolutions that are higher than the current display resolution
-     */
-    private void calculateListOfResolutions() {
-        int displayWidth = Gdx.graphics.getDisplayMode().width;
-        int displayHeight = Gdx.graphics.getDisplayMode().height;
-        for (int i = resolutionList.size()-1; i > 1; i--) {
-            int width = Integer.parseInt(resolutionList.get(i).split("x")[0]);
-            int height = Integer.parseInt(resolutionList.get(i).split("x")[1]);
-            if (width >= displayWidth || height >= displayHeight) {
-                resolutionList.remove(i);
-            }
-        }
     }
 
     /**

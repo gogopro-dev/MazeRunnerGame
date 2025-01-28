@@ -22,14 +22,14 @@ public class Attributes {
     "Сапоги скорохода": Увеличивает вашу скорость на 10%. Стоимость: 50 монет */
 
     public Attributes(int immediateHealing, int immediateCoins, float damageBoost, float resistanceBoost,
-                      float vampirism, int ressurections, float speedBoost, boolean isConsumable
+                      float vampirism, int resurrections, float speedBoost, boolean isConsumable
     ) {
         this.immediateHealing = immediateHealing;
         this.immediateCoins =  immediateCoins;
         this.damageBoost = damageBoost;
         this.resistanceBoost = resistanceBoost;
         this.vampirism = vampirism;
-        this.resurrections = ressurections;
+        this.resurrections = resurrections;
         this.speedBoost = speedBoost;
         this.isConsumable = isConsumable;
     }
@@ -56,7 +56,6 @@ public class Attributes {
             ", speedBoost=" + speedBoost +
             '}';
     }
-
 
     // Ingore immediately applied ones since
     public String toPrettyDescription() {

@@ -463,6 +463,7 @@ public class LevelScreen implements Screen {
     public void endGame(boolean hasWon) {
         this.endGame = true;
         GameOverScreen.getInstance().setHasWon(hasWon);
+        GameOverScreen.getInstance().deleteGame();
     }
 
     /**

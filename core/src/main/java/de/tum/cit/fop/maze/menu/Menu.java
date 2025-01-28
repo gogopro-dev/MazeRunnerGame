@@ -227,7 +227,6 @@ public class Menu implements Screen {
 
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
         MainMenuScreen.getInstance().updateContainerPosition();
-//        viewportManager.update(width, height);
         camera.update();
     }
 

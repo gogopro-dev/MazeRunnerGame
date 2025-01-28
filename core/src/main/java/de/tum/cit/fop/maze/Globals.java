@@ -2,6 +2,10 @@ package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.graphics.Color;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Class for storing
  * global variables and constants
@@ -67,4 +71,6 @@ public final class Globals {
     public static int CURRENT_SCREEN_HEIGHT_WINDOWED = DEFAULT_SCREEN_HEIGHT_WINDOWED;
     public static float DEFAULT_CAMERA_VIEWPORT_WIDTH_METERS = 16.0f;
     public static float DEFAULT_CAMERA_VIEWPORT_HEIGHT_METERS = 12.0f;
+    public static List<String> WINDOWED_RESOLUTIONS = new ArrayList<>(Arrays.asList("640x480", "800x600", "1024x768", "1280x720", "1280x800", "1280x960", "1400x1050", "1600x1200", "1680x1050", "1920x1080", "1920x1200", "2048x1536", "2560x1440", "2560x1600", "3840x2160", "3840x2400", "7680x4320"));
+
 }

@@ -66,7 +66,6 @@ public class GameOverScreen implements Screen {
         loadTextures();
 
         setupScreen();
-        deleteGame();
     }
 
     /**
@@ -190,8 +189,8 @@ public class GameOverScreen implements Screen {
     /**
      * Draws the inventory of the player
      * on the game over screen
-     * @param inventoryTable
-     * @param textInventoryTable
+     * @param inventoryTable Table that contains the inventory images
+     * @param textInventoryTable Table that contains the inventory text (how many items of each type)
      */
     public void drawInventory(Table inventoryTable, Table textInventoryTable) {
         this.inventoryTable = inventoryTable;
@@ -204,7 +203,7 @@ public class GameOverScreen implements Screen {
      * Deletes the game save file
      * after the game is over
      */
-    private void deleteGame(){
+    public void deleteGame(){
         int index = LevelScreen.getInstance().getLevelIndex();
         Gdx.files.local("saves/" + index + ".json").delete();
         Gdx.files.local("saves/" + index + ".png").delete();

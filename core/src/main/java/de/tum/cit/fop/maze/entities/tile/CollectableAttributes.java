@@ -41,6 +41,8 @@ public final class CollectableAttributes extends Attributes {
     public void sum(CollectableAttributes other) {
         super.sum(other);
     }
+
+    @Override
     public String toString() {
         return "CollectableAttributes{" +
             "type=" + type +
@@ -60,6 +62,7 @@ public final class CollectableAttributes extends Attributes {
             '}';
     }
 
+    @Override
     public String toPrettyDescription() {
         StringBuilder sb = new StringBuilder();
         if (name != null) {
