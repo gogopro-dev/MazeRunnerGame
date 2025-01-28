@@ -44,7 +44,7 @@ public class DesktopLauncher {
         configuration.setHdpiMode(HdpiMode.Logical);
         configuration.setResizable(false);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
-//        configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
+        configuration.setWindowIcon("logo128.png", "logo64.png", "logo32.png", "logo16.png");
         return configuration;
     }
 
