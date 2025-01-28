@@ -54,13 +54,14 @@ public class LoadMenu extends Game {
      * @see SettingsConfiguration
      */
     private void initConfigurations(){
-        Menu.getInstance();
         /// Sets the instance of the SettingsConfiguration singleton to the values in the settings.json file
         if (Gdx.files.local("saves/settings.json").exists()) {
             Assets.getInstance().gson.fromJson(
               Gdx.files.local("saves/settings.json").reader(), SettingsConfiguration.class
             );
         }
+
+        Menu.getInstance();
 
         String[] resolution = SettingsConfiguration.getInstance().getResolution().split("x");
         CURRENT_SCREEN_WIDTH_WINDOWED = Integer.parseInt(resolution[0]);
@@ -100,7 +101,6 @@ public class LoadMenu extends Game {
         }
         /// if the current resolution is bigger than the biggest resolution in the list,
         /// change the resolution to the biggest one in the list
-        System.out.println("Current resolution: " + CURRENT_SCREEN_WIDTH_WINDOWED + "x" + CURRENT_SCREEN_HEIGHT_WINDOWED);
         if (CURRENT_SCREEN_WIDTH_WINDOWED >= displayWidth || CURRENT_SCREEN_HEIGHT_WINDOWED >= displayHeight) {
             CURRENT_SCREEN_WIDTH_WINDOWED = Integer.parseInt(WINDOWED_RESOLUTIONS.get(WINDOWED_RESOLUTIONS.size()-1).split("x")[0]);
             CURRENT_SCREEN_HEIGHT_WINDOWED = Integer.parseInt(WINDOWED_RESOLUTIONS.get(WINDOWED_RESOLUTIONS.size()-1).split("x")[1]);

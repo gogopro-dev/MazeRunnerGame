@@ -170,7 +170,7 @@ public class SettingsScreen implements Screen {
         actor.setWidth(100f);
         horizontalGroup.addActor(actor);
         horizontalGroup.addActor(sliderMusic);
-        horizontalGroup.center();
+        horizontalGroup.right();
 
         padding = new Actor();
         padding.setHeight(15f);
@@ -294,7 +294,6 @@ public class SettingsScreen implements Screen {
         } else {
             toggleFullButton.setImagePadding(12f);
             toggleFullButton.getImage().setDrawable(new TextureRegionDrawable(fullScreenOffRegion));
-
         }
 
         table = new Table();

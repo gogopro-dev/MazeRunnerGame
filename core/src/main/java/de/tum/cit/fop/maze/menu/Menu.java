@@ -34,7 +34,7 @@ public class Menu implements Screen {
     private final SpriteBatch batch;
     private float stateTime = 0f;
     private int currentFrameIndex = 0;
-    private static final float FRAME_DURATION = 0.1f;
+    private static final float FRAME_DURATION = 1/10f;
     private final FadeOverlay fadeOverlay;
     /**
      * Returns the singleton instance of the menu.

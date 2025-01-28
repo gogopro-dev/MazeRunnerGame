@@ -318,10 +318,19 @@ public class PlayGameScreen implements Screen {
         verticalGroup.addActor(buttonTable);
 
         /// Create exit button
+        NinePatch releasedNinePatch = new NinePatch(
+            smallButtonReleasedRegion,
+            7, 7, 7, 7
+        );
+        NinePatch pressedNinePatch = new NinePatch(
+            smallButtonPressedRegion,
+            7, 7, 7, 7
+        );
+
         ImageTextButton.ImageTextButtonStyle textButtonStyle = new ImageTextButton.ImageTextButtonStyle();
         textButtonStyle.font = font;
-        textButtonStyle.up = new TextureRegionDrawable(smallButtonReleasedRegion);
-        textButtonStyle.down = new TextureRegionDrawable(smallButtonPressedRegion);
+        textButtonStyle.up = new NinePatchDrawable(releasedNinePatch);
+        textButtonStyle.down = new NinePatchDrawable(pressedNinePatch);
         textButtonStyle.pressedOffsetX = 1;
         textButtonStyle.pressedOffsetY = -1;
 
