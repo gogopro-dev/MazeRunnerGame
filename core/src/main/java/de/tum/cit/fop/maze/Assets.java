@@ -14,6 +14,9 @@ import de.tum.cit.fop.maze.level.TileMap;
 
 import java.util.ArrayList;
 
+/**
+ * Singleton class, responsible for loading all assets and initializing the game
+ */
 public final class Assets {
     private static Assets instance;
     private final AssetManager assetManager;
@@ -26,6 +29,9 @@ public final class Assets {
     public final TileTextureHelper tileTextureHelper;
     public final Gson gson;
 
+    /**
+     * @return the singleton instance of the {@link Assets} class
+     */
     public static Assets getInstance() {
         if (instance == null) {
             instance = new Assets();
@@ -33,6 +39,13 @@ public final class Assets {
         return instance;
     }
 
+    /**
+     * Private constructor to prevent instantiation from outside the class</br>
+     * This constructor initializes the {@link Gson} object and the {@link AssetManager} object.
+     * Registers the {@link TileEntity} subclasses with the {@link RuntimeTypeAdapterFactory}.
+     * Initializes the {@link TileTextureHelper} object.
+     * Initializes the {@link AssetManager} object.
+     */
     private Assets() {
 
         if (instance != null) {
@@ -61,6 +74,9 @@ public final class Assets {
         gson = gsonBuilder.create();
     }
 
+    /**
+     * Queues the loading of the assets
+     */
     private void queueLoading() {
         assetManager.load("assets/menu/menu.atlas", TextureAtlas.class);
         assetManager.load("assets/menu/menu_icons.atlas", TextureAtlas.class);
@@ -69,6 +85,10 @@ public final class Assets {
         assetManager.load("assets/temporary/collectables/collectables.atlas", TextureAtlas.class);
     }
 
+    /**
+     * Loads the collectables from the collectables.json file
+     * and adds them to the corresponding pools
+     */
     private void loadCollectables() {
         for (CollectableAttributes attribute : gson.fromJson(
             Gdx.files.local("assets/configs/collectables.json").readString(),
@@ -87,6 +107,10 @@ public final class Assets {
         }
     }
 
+    /**
+     * Loads all assets blocking
+     * and initializes the collectables
+     */
     public void loadAllBlocking() {
         tileTextureHelper.loadTextures();
         queueLoading();

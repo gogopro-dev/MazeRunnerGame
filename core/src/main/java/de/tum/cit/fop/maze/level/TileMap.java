@@ -44,95 +44,8 @@ import static java.lang.Math.max;
 
 public class TileMap implements Disposable, GSONRestorable {
     private final TiledMap map = new TiledMap();
-
-
-    public static class TiledMapAdapter extends TypeAdapter<TiledMap> {
-        @Override
-        public void write(JsonWriter jsonWriter, TiledMap tiledMap) throws IOException {
-            TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
-            TileTextureHelper.TextureWithIndex[][] textures =
-                new TileTextureHelper.TextureWithIndex[layer.getWidth()][layer.getHeight()];
-            for (int i = 0; i < layer.getWidth(); i++) {
-                for (int j = 0; j < layer.getHeight(); j++) {
-                    Cell cell = layer.getCell(i, j);
-                    if (cell == null) {
-                        continue;
-                    }
-                    String textureName = (String) cell.getTile().getProperties().get("textureName");
-                    int index = (int) cell.getTile().getProperties().get("index");
-                    textures[i][j] = new TileTextureHelper.TextureWithIndex(textureName, index);
-                }
-            }
-            jsonWriter.beginObject();
-            jsonWriter.name("width").value(layer.getWidth());
-            jsonWriter.name("height").value(layer.getHeight());
-            jsonWriter.name("tiles");
-            jsonWriter.jsonValue(
-                Assets.getInstance().gson.toJson(textures)
-            );
-            jsonWriter.endObject();
-        }
-
-        @Override
-        public TiledMap read(JsonReader jsonReader) throws IOException {
-            int width = 0, height = 0;
-            jsonReader.beginObject();
-            String fieldname = null;
-            TiledMap map = new TiledMap();
-            while (jsonReader.hasNext()) {
-                JsonToken token = jsonReader.peek();
-
-                if (token.equals(JsonToken.NAME)) {
-                    //get the current token
-                    fieldname = jsonReader.nextName();
-                }
-                switch (Objects.requireNonNull(fieldname)) {
-                    case "width" -> width = jsonReader.nextInt();
-                    case "height" -> height = jsonReader.nextInt();
-                    case "tiles" -> {
-                        if (width == 0 || height == 0) {
-                            throw new IOException("Width and height must be set before tiles");
-                        }
-                        TileTextureHelper.TextureWithIndex[][] textures =
-                            Assets.getInstance().gson.fromJson(jsonReader, TileTextureHelper.TextureWithIndex[][].class);
-
-                        TiledMapTileLayer layer =
-                            new TiledMapTileLayer(width, height,
-                                CELL_SIZE,
-                                CELL_SIZE
-                            );
-                        for (int i = 0; i < width; i++) {
-                            for (int j = 0; j < height; j++) {
-                                if (textures[i][j] == null) {
-                                    continue;
-                                }
-                                Cell mapCell = new Cell();
-                                TextureRegion result =
-                                    Assets.getInstance().tileTextureHelper.getTexture(
-                                        textures[i][j].texture(), textures[i][j].index()
-                                    );
-                                mapCell.setTile(
-                                    new StaticTiledMapTile(
-                                        result
-                                    )
-                                );
-                                mapCell.getTile().getProperties().put("textureName", textures[i][j].texture());
-                                mapCell.getTile().getProperties().put("index", textures[i][j].index());
-                                layer.setCell(i, j, mapCell);
-                            }
-                        }
-                        map.getLayers().add(layer);
-                    }
-                }
-            }
-            jsonReader.endObject();
-            return map;
-        }
-    }
-
     public int width;
     public int height;
-
     private AbsolutePoint exitPosition;
     boolean[][] wallMap;
     public AbsolutePoint playerPosition;
@@ -444,7 +357,7 @@ public class TileMap implements Disposable, GSONRestorable {
     }
 
     /**
-     * Spawn a random trap at x y position
+     * Spawns a random trap at x y position
      * @param x the x position <b>(must be 3x3 cell center)</b>
      * @param y the y position <b>(must be 3x3 cell center)</b>
      * @param vertical {@code true} if the passage is vertical
@@ -482,7 +395,7 @@ public class TileMap implements Disposable, GSONRestorable {
 
 
     /**
-     * Reverse the collision map rows
+     * Reverses the collision map rows
      *
      * @param collisionMap the collision map with the cells
      */
@@ -497,7 +410,7 @@ public class TileMap implements Disposable, GSONRestorable {
     }
 
     /**
-     * Set a wall square for the wallMap at x y position
+     * Sets a wall square for the wallMap at x y position
      *
      * @param x       the x position
      * @param y       the y position
@@ -550,7 +463,7 @@ public class TileMap implements Disposable, GSONRestorable {
     }
 
     /**
-     * Set a vertical wall at x y position
+     * Sets a vertical wall at x y position
      * @param x the x position
      * @param y the y position
      */
@@ -560,7 +473,7 @@ public class TileMap implements Disposable, GSONRestorable {
     }
 
     /**
-     * Set a default wall at x y position
+     * Sets a default wall at x y position
      * @param x the x position
      * @param y the y position
      */
@@ -571,7 +484,7 @@ public class TileMap implements Disposable, GSONRestorable {
     }
 
     /**
-     * Set square 3x3 at x y position to be {@code cell}
+     * Sets square 3x3 at x y position to be {@code cell}
      * @param textureName the texture to set
      * @param x the x position
      * @param y the y position
@@ -594,7 +507,7 @@ public class TileMap implements Disposable, GSONRestorable {
     }
 
     /**
-     * Set cell at x y position to be {@code texture}
+     * Sets cell at x y position to be {@code texture}
      * @param textureName the texture to set
      * @param x the x position
      * @param y the y position
@@ -619,10 +532,6 @@ public class TileMap implements Disposable, GSONRestorable {
         layer.setCell(x, y, mapCell);
     }
 
-
-    public TiledMap getMap() {
-        return map;
-    }
 
     /**
      * Adds a debug layer to the map, which fills the whole map with red
@@ -652,6 +561,13 @@ public class TileMap implements Disposable, GSONRestorable {
     public void dispose() {
         map.dispose();
 
+    }
+
+    /**
+     * Calls {@link #createRectangularHitbox(float, float, float, float, FixtureDef)} with {@code fixtureDef} set to null
+     */
+    private void createRectangularHitbox(float x, float y, float hx, float hy) {
+        createRectangularHitbox(x, y, hx, hy, null);
     }
 
     /**
@@ -689,18 +605,6 @@ public class TileMap implements Disposable, GSONRestorable {
     }
 
     /**
-     * Helper function to create a hitbox at x y position considering the cell size
-     * Create a hitbox at x y position with hx hy size
-     * @param x the x position
-     * @param y the y position
-     * @param hx the x size
-     * @param hy the y size
-     */
-    private void createRectangularHitbox(float x, float y, float hx, float hy) {
-        createRectangularHitbox(x, y, hx, hy, null);
-    }
-
-    /**
      * Check if the cell at i j position is isolated, requires special treatment, since we draw a decoration there
      *
      * @param x       the x position
@@ -712,6 +616,14 @@ public class TileMap implements Disposable, GSONRestorable {
             return false;
         }
         return !wallMap[y - 2][x] && !wallMap[y + 2][x] && !wallMap[y][x - 2] && !wallMap[y][x + 2];
+    }
+
+    /**
+     * Generate hitboxes for the map
+     */
+    private void generateHitboxes() {
+        generateVerticalHitboxes();
+        generateHorizontalHitboxes();
     }
 
     private void generateVerticalHitboxes() {
@@ -799,16 +711,95 @@ public class TileMap implements Disposable, GSONRestorable {
         }
     }
 
-    /**
-     * Generate hitboxes for the map
-     */
-    private void generateHitboxes() {
-        generateVerticalHitboxes();
-        generateHorizontalHitboxes();
-    }
-
     public AbsolutePoint getExitPosition() {
         return exitPosition;
     }
 
+    public TiledMap getMap() {
+        return map;
+    }
+
+    public static class TiledMapAdapter extends TypeAdapter<TiledMap> {
+        @Override
+        public void write(JsonWriter jsonWriter, TiledMap tiledMap) throws IOException {
+            TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+            TileTextureHelper.TextureWithIndex[][] textures =
+                new TileTextureHelper.TextureWithIndex[layer.getWidth()][layer.getHeight()];
+            for (int i = 0; i < layer.getWidth(); i++) {
+                for (int j = 0; j < layer.getHeight(); j++) {
+                    Cell cell = layer.getCell(i, j);
+                    if (cell == null) {
+                        continue;
+                    }
+                    String textureName = (String) cell.getTile().getProperties().get("textureName");
+                    int index = (int) cell.getTile().getProperties().get("index");
+                    textures[i][j] = new TileTextureHelper.TextureWithIndex(textureName, index);
+                }
+            }
+            jsonWriter.beginObject();
+            jsonWriter.name("width").value(layer.getWidth());
+            jsonWriter.name("height").value(layer.getHeight());
+            jsonWriter.name("tiles");
+            jsonWriter.jsonValue(
+                Assets.getInstance().gson.toJson(textures)
+            );
+            jsonWriter.endObject();
+        }
+
+        @Override
+        public TiledMap read(JsonReader jsonReader) throws IOException {
+            int width = 0, height = 0;
+            jsonReader.beginObject();
+            String fieldname = null;
+            TiledMap map = new TiledMap();
+            while (jsonReader.hasNext()) {
+                JsonToken token = jsonReader.peek();
+
+                if (token.equals(JsonToken.NAME)) {
+                    //get the current token
+                    fieldname = jsonReader.nextName();
+                }
+                switch (Objects.requireNonNull(fieldname)) {
+                    case "width" -> width = jsonReader.nextInt();
+                    case "height" -> height = jsonReader.nextInt();
+                    case "tiles" -> {
+                        if (width == 0 || height == 0) {
+                            throw new IOException("Width and height must be set before tiles");
+                        }
+                        TileTextureHelper.TextureWithIndex[][] textures =
+                            Assets.getInstance().gson.fromJson(jsonReader, TileTextureHelper.TextureWithIndex[][].class);
+
+                        TiledMapTileLayer layer =
+                            new TiledMapTileLayer(width, height,
+                                CELL_SIZE,
+                                CELL_SIZE
+                            );
+                        for (int i = 0; i < width; i++) {
+                            for (int j = 0; j < height; j++) {
+                                if (textures[i][j] == null) {
+                                    continue;
+                                }
+                                Cell mapCell = new Cell();
+                                TextureRegion result =
+                                    Assets.getInstance().tileTextureHelper.getTexture(
+                                        textures[i][j].texture(), textures[i][j].index()
+                                    );
+                                mapCell.setTile(
+                                    new StaticTiledMapTile(
+                                        result
+                                    )
+                                );
+                                mapCell.getTile().getProperties().put("textureName", textures[i][j].texture());
+                                mapCell.getTile().getProperties().put("index", textures[i][j].index());
+                                layer.setCell(i, j, mapCell);
+                            }
+                        }
+                        map.getLayers().add(layer);
+                    }
+                }
+            }
+            jsonReader.endObject();
+            return map;
+        }
+    }
 }

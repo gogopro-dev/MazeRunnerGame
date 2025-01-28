@@ -10,24 +10,17 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.LoadMenu;
-import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
 
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+/**
+ * Class for the UI of the game over screen.
+ */
 public class GameOverScreen implements Screen {
     private TextureRegion gameOverBackgroundRegion;
     private TextureRegion smallButtonPressedRegion;
@@ -44,6 +37,9 @@ public class GameOverScreen implements Screen {
     private final Table screenTable;
     private static GameOverScreen instance;
 
+    /**
+     * @return the singleton instance of the {@link GameOverScreen} class
+     */
     public static synchronized GameOverScreen getInstance() {
         if (instance == null) {
             System.out.println("Creating new GameOverScreen");
@@ -51,6 +47,13 @@ public class GameOverScreen implements Screen {
         }
         return instance;
     }
+
+    /**
+     * Private constructor to prevent instantiation from outside the class</br>
+     * This constructor initializes the {@link Stage} object and the {@link ShapeRenderer} object.
+     * @param inventoryTable Table
+     * @param textInventoryTable Table
+     */
     private GameOverScreen(Table inventoryTable, Table textInventoryTable) {
         instance = this;
         this.inventoryTable = inventoryTable;
@@ -66,6 +69,11 @@ public class GameOverScreen implements Screen {
         deleteGame();
     }
 
+    /**
+     * Sets up the game over screen
+     * Creates the labels and buttons for the screen
+     * and adds them to the stage
+     */
     private void setupScreen() {
         /// Load font for text
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
@@ -142,6 +150,13 @@ public class GameOverScreen implements Screen {
         stage.addActor(screenTable);
     }
 
+    /**
+     * Loads the textures for the game over screen
+     * from the asset manager
+     * and assigns them to the corresponding variables
+     *
+     * @see Assets
+     */
     private void loadTextures() {
         TextureAtlas menuAtlas = Assets.getInstance().getAssetManager().get("assets/menu/menu.atlas", TextureAtlas.class);
         TextureAtlas menuIconsAtlas = Assets.getInstance().getAssetManager().get("assets/menu/menu_icons.atlas", TextureAtlas.class);
@@ -154,6 +169,11 @@ public class GameOverScreen implements Screen {
         exitIconRegion = menuIconsAtlas.findRegion("exit");
     }
 
+    /**
+     * Updates the viewport of the stage
+     * and the position of the screen table
+     * to the center of the screen
+     */
     public void updateViewport() {
         int width = Gdx.graphics.getWidth();
         int height = Gdx.graphics.getHeight();
@@ -167,6 +187,12 @@ public class GameOverScreen implements Screen {
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
     }
 
+    /**
+     * Draws the inventory of the player
+     * on the game over screen
+     * @param inventoryTable
+     * @param textInventoryTable
+     */
     public void drawInventory(Table inventoryTable, Table textInventoryTable) {
         this.inventoryTable = inventoryTable;
         this.textInventoryTable = textInventoryTable;
@@ -174,8 +200,14 @@ public class GameOverScreen implements Screen {
         inventoryStack.add(this.textInventoryTable);
     }
 
+    /**
+     * Deletes the game save file
+     * after the game is over
+     */
     private void deleteGame(){
-        //TODO: Delete the game and the LevelScreen
+        int index = LevelScreen.getInstance().getLevelIndex();
+        Gdx.files.local("saves/" + index + ".json").delete();
+        Gdx.files.local("saves/" + index + ".png").delete();
     }
 
     @Override

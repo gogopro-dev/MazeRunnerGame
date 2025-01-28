@@ -69,6 +69,9 @@ public enum CellType {
             this == PLAYER;
     }
 
+    /**
+     * @return {@code true} if the cell type is a door
+     */
     public boolean isDoor() {
         return this == DOOR || this == EXIT_DOOR;
     }

@@ -16,6 +16,12 @@ public final class GeneratorCell {
     /// The room the cell is part of
     private @Null Room room = null;
 
+    /**
+     * Constructor for a MazeCell
+     * @param i - row index
+     * @param j - column index
+     * @param cellType - the type of the cell
+     */
     public GeneratorCell(int i, int j, CellType cellType) {
         this.i = i;
         this.j = j;

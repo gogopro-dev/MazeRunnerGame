@@ -17,6 +17,11 @@ import de.tum.cit.fop.maze.menu.Menu;
  */
 public class LoadMenu extends Game {
     private static LoadMenu instance;
+
+    /**
+     * Private constructor to prevent instantiation from outside the class
+     * @see LoadMenu#getInstance()
+     */
     private LoadMenu() {
         instance = this;
     }
@@ -64,15 +69,18 @@ public class LoadMenu extends Game {
         GameOverScreen.getInstance().updateViewport();
     }
 
-    @Override
-    public void dispose() {
-        super.dispose();
-    }
-
+    /**
+     * @return the instance of the LoadMenu singleton
+     */
     public static LoadMenu getInstance() {
         if (instance == null) {
             instance = new LoadMenu();
         }
         return instance;
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
     }
 }

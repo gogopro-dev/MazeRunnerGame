@@ -50,8 +50,7 @@ public class ExitDoor extends TileEntity {
         init();
     }
 
-        /// Load the door texture and the door opening animation
-
+    /// Loads the door texture and the door opening animation
     public void init() {
         TextureAtlas atlas = Assets.getInstance().getAssetManager()
             .get("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class);

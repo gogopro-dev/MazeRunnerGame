@@ -162,6 +162,12 @@ public class Player extends Entity {
 
     }
 
+    /**
+     * Loads the player character animations
+     * from the asset manager and
+     * assigns them to the corresponding fields.
+     * @see Assets
+     */
     private void loadAnimations() {
         TextureAtlas animAtlas = Assets.getInstance().getAssetManager().get("assets/anim/player/character.atlas", TextureAtlas.class);
         /// Load idle animation

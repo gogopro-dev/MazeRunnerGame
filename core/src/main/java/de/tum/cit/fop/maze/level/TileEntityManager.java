@@ -17,7 +17,6 @@ public class TileEntityManager implements Disposable {
     private transient boolean loaded = false;
     private ArrayList<TileEntity> tileEntities = new ArrayList<TileEntity>();
 
-
     public void createTileEntity(TileEntity tileEntity, AbsolutePoint position) {
         createTileEntity(tileEntity, position.x(), position.y());
     }
@@ -26,7 +25,6 @@ public class TileEntityManager implements Disposable {
         tileEntities.add(tileEntity);
         tileEntity.spawn(x, y);
     }
-
 
     private void destroyTileEntity(TileEntity tileEntity) {
         tileEntity.dispose();

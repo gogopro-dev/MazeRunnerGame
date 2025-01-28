@@ -16,8 +16,6 @@ import static de.tum.cit.fop.maze.Globals.PPM;
 /**
  * Represents an entity in the game world.
  */
-
-
 public abstract class Entity implements Attackable, GSONRestorable {
     protected int health;
     protected int maxHealth;

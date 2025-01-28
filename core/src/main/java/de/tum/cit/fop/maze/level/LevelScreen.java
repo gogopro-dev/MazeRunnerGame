@@ -29,6 +29,20 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static de.tum.cit.fop.maze.Globals.*;
 
+/**
+ * The main game screen
+ * <p>
+ *     <ul>
+ *         <li>Manages the game world</li>
+ *         <li>Manages the player</li>
+ *         <li>Manages the enemies</li>
+ *         <li>Manages the tile entities</li>
+ *         <li>Manages the HUD</li>
+ *         <li>Manages the Box2D world</li>
+ *         <li>Manages the rendering of the game world</li>
+ *     </ul>
+ * </p>
+ */
 public class LevelScreen implements Screen {
     private static LevelScreen instance = null;
 
@@ -37,8 +51,6 @@ public class LevelScreen implements Screen {
     public TileMap map;
     public EnemyManager enemyManager;
     public TileEntityManager tileEntityManager;
-    public final long seed = 2;
-
     public transient float w, h;
     public transient FillViewport viewport;
     public transient final OrthographicCamera camera;
@@ -118,6 +130,9 @@ public class LevelScreen implements Screen {
         }
     }
 
+    /**
+     * Saves the game state
+     */
     public void saveGame(){
         try {
             SaveManager.saveGame(levelIndex);
@@ -241,6 +256,10 @@ public class LevelScreen implements Screen {
     }
 
 
+    /**
+     * Create a new level screen with a given seed
+     * @param seed The seed to use for the random number generator
+     */
     public LevelScreen(long seed) {
         this();
         this.needsRestoring = false;
@@ -250,6 +269,10 @@ public class LevelScreen implements Screen {
         init();
     }
 
+    /**
+     * Create a new level screen with a given maze generator (from properties file)
+     * @param generator The maze generator to use
+     */
     public LevelScreen(MazeGenerator generator) {
         this();
         this.needsRestoring = false;
@@ -267,6 +290,18 @@ public class LevelScreen implements Screen {
     }
 
 
+    /**
+     * Initialize the level screen
+     * <p>
+     *     <ul>
+     *         <li>Restore the game state if needed</li>
+     *         <li>Initialize the tile map renderer</li>
+     *         <li>Initialize the player</li>
+     *         <li>Initialize the HUD</li>
+     *         <li>Set the camera at the center of the player's position in Box2D world</li>
+     *     </ul>
+     *  </p>
+     */
     public void init() {
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);
         if (needsRestoring) {
@@ -296,6 +331,19 @@ public class LevelScreen implements Screen {
         hud.resize();
     }
 
+    /**
+     * Spawns debug entities for testing purposes
+     * <p>
+     *
+     *     <ul>
+     *         <li>Collectables</li>
+     *         <li>Torches</li>
+     *         <li>Loot Containers</li>
+     *         <li>Enemies</li>
+     *         <li>...</li>
+     *     </ul>
+     * </p>
+     */
     public void spawnDebug() {
         Collectable collectable1 = new Collectable(Collectable.CollectableType.HEART);
         Collectable collectable2 = new Collectable(Collectable.CollectableType.GOLD_COIN);
@@ -370,11 +418,21 @@ public class LevelScreen implements Screen {
     }
 
     /**
-     * Update the viewport after resizing the window
+     * Update the viewport and the camera after resizing the window
      */
     public void updateViewport() {
         float h = Gdx.graphics.getHeight() / PPM;
         float w = Gdx.graphics.getWidth() / PPM;
+
+        /// Ratio is calculated based on height
+        /// so that after changing resolution to the one
+        /// with the different aspect ratio (e.g. 4:3 -> 16:9),
+        /// camera's zoom will be adjusted, so that the player
+        /// does not see more world vertically.
+        /// E.g.: 1920x1440 -> 1920x1080
+        /// Player will see the same amount of world vertically,
+        /// but the width will be cropped.
+        /// (Overall camera zoom will be increased accordingly)
         ratio = DEFAULT_CAMERA_VIEWPORT_HEIGHT_METERS / h;
 
         float playerRelativeX = player.getPosition().x() - camera.position.x;
@@ -397,6 +455,11 @@ public class LevelScreen implements Screen {
         hud.resize();
         viewport.apply();
     }
+
+    /**
+     * Sets the {@code endGame} flag to true and sets the {@code hasWon} flag in the GameOverScreen
+     * @param hasWon Whether the player has won the game or has died
+     */
     public void endGame(boolean hasWon) {
         this.endGame = true;
         GameOverScreen.getInstance().setHasWon(hasWon);

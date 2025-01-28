@@ -99,6 +99,10 @@ public class EnemyManager {
 
     }
 
+    /**
+     * Remove an enemy from the game
+     * @param enemy The enemy to remove
+     */
     private void removeEnemy(Enemy enemy) {
         enemy.dispose();
         enemies.remove(enemy);

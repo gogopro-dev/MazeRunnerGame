@@ -76,6 +76,11 @@ public class PauseScreen {
         setupPauseMenu();
     }
 
+    /**
+     * Loads the textures for the pause menu from the asset manager
+     * and assigns them to the corresponding variables
+     * @see Assets
+     */
     private void loadTextures(){
         TextureAtlas menuAtlas = Assets.getInstance().getAssetManager().get("assets/menu/menu.atlas", TextureAtlas.class);
         TextureAtlas menuIconsAtlas = Assets.getInstance().getAssetManager().get("assets/menu/menu_icons.atlas", TextureAtlas.class);
@@ -91,7 +96,7 @@ public class PauseScreen {
     }
 
     /**
-     * Sets up the pause menu
+     * Sets up the pause screen UI
      */
     public void setupPauseMenu(){
 
@@ -179,8 +184,8 @@ public class PauseScreen {
         screenTable.add(settingsButton).padTop(10f).padBottom(10f).width(224*1.2f).height(48f*1.2f).row();
         screenTable.add(exitButton).padTop(10f).padBottom(10f).width(224*1.2f).height(48f*1.2f).row();
 
+        /// Add everything to stage
         stage.addActor(screenTable);
-
     }
 
     /**
@@ -195,11 +200,13 @@ public class PauseScreen {
      * Takes a screenshot of the current frame </br>
      * Used to display the pause menu
      * @param save whether the screenshot should be saved or not
+     * @see Pixmap
+     * @see PixmapIO
      */
     public void takeScreenshot(boolean save) {
         pauseTexturePixmap = Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
         ByteBuffer pixels = pauseTexturePixmap.getPixels();
-        // This loop makes sure the whole screenshot is opaque and looks exactly like what the user is seeing
+        /// This loop makes sure the whole screenshot is opaque and looks exactly like what the user is seeing
         int size = Gdx.graphics.getBackBufferWidth() * Gdx.graphics.getBackBufferHeight() * 4;
         for (int i = 3; i < size; i += 4) {
             pixels.put(i, (byte) 255);
@@ -219,6 +226,7 @@ public class PauseScreen {
                 pauseTexturePixmap.drawPixel(x, pauseTexturePixmap.getHeight() - 1 - y, topPixel);
             }
         }
+
         if (save) {
             PixmapIO.writePNG(Gdx.files.local(
                 "saves/" + LevelScreen.getInstance().getLevelIndex() + ".png"

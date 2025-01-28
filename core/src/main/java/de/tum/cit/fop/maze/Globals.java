@@ -2,9 +2,13 @@ package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.graphics.Color;
 
+/**
+ * Class for storing
+ * global variables and constants
+ */
 public final class Globals {
-    public static final boolean DEBUG = true;
-    public static final boolean FULLBRIGHT = true;
+    public static final boolean DEBUG = false;
+    public static final boolean FULLBRIGHT = false;
 
     /// Pixel per Meter
     public static final float PPM = 64f;
