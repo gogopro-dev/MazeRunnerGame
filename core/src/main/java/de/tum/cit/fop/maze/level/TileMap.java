@@ -26,7 +26,7 @@ import de.tum.cit.fop.maze.entities.tile.*;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Direction;
-import de.tum.cit.fop.maze.essentials.GSONRestorable;
+import de.tum.cit.fop.maze.essentials.GSONPostRestorable;
 import de.tum.cit.fop.maze.level.worldgen.CellType;
 import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
@@ -42,7 +42,7 @@ import java.util.Random;
 import static de.tum.cit.fop.maze.Globals.*;
 import static java.lang.Math.max;
 
-public class TileMap implements Disposable, GSONRestorable {
+public class TileMap implements Disposable, GSONPostRestorable {
     private final TiledMap map = new TiledMap();
     public int width;
     public int height;
