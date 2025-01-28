@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze.entities;
+package de.tum.cit.fop.maze.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -7,13 +7,12 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import de.tum.cit.fop.maze.entities.CoinsAndKeys;
+import de.tum.cit.fop.maze.entities.Description;
+import de.tum.cit.fop.maze.entities.ExitArrow;
+import de.tum.cit.fop.maze.entities.Player;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
-import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.*;
@@ -31,7 +30,7 @@ public class HUD {
     public final Container<Table> descriptionContainer = new Container<>(descriptionTable);
     private int invFontSize = 17;
     private final TextureAtlas inventoryAtlas;
-    private ExitArrow exitArrow;
+    private final ExitArrow exitArrow;
     private Map<String, Animation<TextureRegion>> animations;
     float hitElapsedTime = 0;
     final float padding = 10f;

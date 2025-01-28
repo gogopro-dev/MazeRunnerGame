@@ -1,7 +1,5 @@
-package de.tum.cit.fop.maze.entities;
+package de.tum.cit.fop.maze.hud;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -13,7 +11,6 @@ import de.tum.cit.fop.maze.entities.tile.Collectable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class Inventory {
     private Label itemDescription;
