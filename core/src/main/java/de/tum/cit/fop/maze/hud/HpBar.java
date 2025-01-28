@@ -10,9 +10,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HpBar {
+
+    private List<Image> healthImages;
     private final float x;
     private final float y;
     private int health;
@@ -34,7 +37,7 @@ public class HpBar {
     private final Stage stage;
     private float scaling = 1.6f;
     private float staminaIconWidth = 35;
-    private float spacing = 4*scaling;
+    private float spacing = 4 * scaling;
 
 
     public HpBar(float x, float y, TextureAtlas textureAtlas, Stage stage) {
@@ -42,13 +45,14 @@ public class HpBar {
         this.x = x + staminaIconWidth;
         this.y = y;
         this.stage = stage;
+        healthImages = new ArrayList<>();
 
         healthLDMG = new Animation<>(animationDuration, textureAtlas.findRegions("HealthL_DMG"));
-        healthLDMG.setPlayMode(Animation.PlayMode.LOOP);
+        healthLDMG.setPlayMode(Animation.PlayMode.NORMAL);
         healthRDMG = new Animation<>(animationDuration, textureAtlas.findRegions("HealthR_DMG"));
-        healthRDMG.setPlayMode(Animation.PlayMode.LOOP);
+        healthRDMG.setPlayMode(Animation.PlayMode.NORMAL);
         healthLNoDMG = new Animation<>(animationDuration, textureAtlas.findRegions("HealthL_noDMG"));
-        healthLNoDMG.setPlayMode(Animation.PlayMode.LOOP);
+        healthLNoDMG.setPlayMode(Animation.PlayMode.NORMAL);
 
 
         staticHealthLEmpty = textureAtlas.findRegion("HealthL_DMG", 2);
@@ -59,7 +63,7 @@ public class HpBar {
         stage.addActor(healthBar);
     }
 
-    public void updateHpBar(int health, int maxHealth) {
+    public void createHpBar(int health, int maxHealth) {
         this.health = health;
         this.maxHealth = maxHealth;
 
@@ -77,6 +81,26 @@ public class HpBar {
         stage.addActor(healthBar);
     }
 
+    public void updateHpBar(int health, int maxHealth) {
+        this.health = health;
+        this.maxHealth = maxHealth;
+
+        for (int i = health; i < health+receivedDamage; i++ ){
+            if (i % 2 == 0) {
+                Drawable drawable = new TextureRegionDrawable(staticHealthLEmpty);
+                drawable.setMinWidth(healthImages.get(i).getWidth());
+                drawable.setMinHeight(healthImages.get(i).getHeight());
+                healthImages.get(i).setDrawable(drawable);
+            } else {
+                Drawable drawable = new TextureRegionDrawable(staticHealthREmpty);
+                drawable.setMinWidth(healthImages.get(i).getWidth());
+                drawable.setMinHeight(healthImages.get(i).getHeight());
+                healthImages.get(i).setDrawable(drawable);
+            }
+        }
+    }
+
+
     private void fillWithHearts(int start, int end, TextureRegion staticHealthLFull, TextureRegion staticHealthRFull,
                                 float scaling) {
         for (int i = start; i <= end; i++) {
@@ -84,12 +108,16 @@ public class HpBar {
                 Drawable heart = new TextureRegionDrawable(staticHealthLFull);
                 heart.setMinWidth(heart.getMinWidth() * scaling);
                 heart.setMinHeight(heart.getMinHeight() * scaling);
-                healthBar.add(new Image(heart));
+                Image img = new Image(heart);
+                healthBar.add(img);
+                healthImages.add(img);
             } else {
                 Drawable heart = new TextureRegionDrawable(staticHealthRFull);
                 heart.setMinWidth(heart.getMinWidth() * scaling);
                 heart.setMinHeight(heart.getMinHeight() * scaling);
-                healthBar.add(new Image(heart)).padRight(spacing);
+                Image img = new Image(heart);
+                healthBar.add(img).padRight(spacing);
+                healthImages.add(img);
             }
 
             if (i % heartsInRow == 0) {
@@ -107,7 +135,6 @@ public class HpBar {
     }
 
     public void takeDmg(int damage) {
-
         receivedDamage = damage;
         health = Math.max( health - receivedDamage, 0);
         updateHpBar(health, maxHealth);
@@ -181,12 +208,17 @@ public class HpBar {
     }
     public void setScaling(float scaling) {
         this.scaling = scaling;
-        spacing = 5*scaling;
+        spacing = 5 * scaling;
     }
     public float getWidth() {
         return healthBar.getPrefWidth();
     }
     public float getHeight() {
         return healthBar.getPrefHeight();
+    }
+
+    public void setMaxHealth(int i) {
+        maxHealth = i;
+        updateHpBar(health, maxHealth);
     }
 }

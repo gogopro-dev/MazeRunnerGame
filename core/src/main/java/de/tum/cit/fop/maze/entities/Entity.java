@@ -62,7 +62,7 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
      * @param damage The amount of damage to take.
      */
     public void takeDamage(int damage) {
-        health -= damage;
+        health = Math.max(0, health - damage);
     }
 
     /**

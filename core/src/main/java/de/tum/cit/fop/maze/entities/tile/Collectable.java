@@ -45,7 +45,6 @@ public class Collectable extends TileEntity {
 
     private CollectableAttributes collectableAttributes;
     private transient Animation<TextureRegion> idleAnimation;
-
     public transient boolean pickedUp = false;
     public transient float elapsedTime;
     public transient float pickupElapsedTime;

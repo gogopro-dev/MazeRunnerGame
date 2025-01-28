@@ -94,7 +94,8 @@ public class HUD {
 
 
         healthBar = new HpBar(padding, stage.getViewport().getWorldHeight() - padding, atlas, stage);
-        healthBar.updateHpBar(player.getHealth(), player.getMaxHealth());
+        float x = stage.getViewport().getWorldHeight() - padding;
+        healthBar.createHpBar(player.getHealth(), player.getMaxHealth());
 
 
         staminaBar = new StaminaBar(player.getMaxStamina(),
@@ -134,7 +135,7 @@ public class HUD {
         description.deleteDescription();
     }
 
-    private void heal(int value) {
+    public void heal(int value) {
         healthBar.heal(value);
     }
 
@@ -142,23 +143,32 @@ public class HUD {
         inventory.updateInventoryPosition();
     }
 
-    public void addItemToInventory(Collectable collectable) {
-        Collectable.CollectableType collectableType = collectable.getType();
-        switch (collectableType) {
-            case HEART:
-                heal(collectable.getCollectableAttributes().getImmediateHealing());
-                break;
-            case KEY:
-                coinsAndKeys.pickUpKey();
-                break;
-            case GOLD_COIN:
-                coinsAndKeys.pickUpCoin(collectable.getCollectableAttributes().getImmediateCoins());
-                break;
-            default:
-                inventory.addItemToInventory(collectable);
-                break;
+    public void addKey() {
+        coinsAndKeys.pickUpKey();
+    }
 
-        }
+    public void addCoin(int amount) {
+        coinsAndKeys.pickUpCoin(amount);
+    }
+
+
+    public void addItemToInventory(Collectable collectable) {
+//        Collectable.CollectableType collectableType = collectable.getType();
+//        switch (collectableType) {
+//            case HEART:
+//                heal(collectable.getCollectableAttributes().getImmediateHealing());
+//                break;
+//            case KEY:
+//                coinsAndKeys.pickUpKey();
+//                break;
+//            case GOLD_COIN:
+//                coinsAndKeys.pickUpCoin(collectable.getCollectableAttributes().getImmediateCoins());
+//                break;
+//            default:
+        inventory.addItemToInventory(collectable);
+//                break;
+
+//        }
 
 
     }
@@ -243,5 +253,12 @@ public class HUD {
         return timeAndScore.formatedTime(timeAndScore.getElapsedTime()).replace("Time: ", "");
     }
 
+    public void setMaxHealth(int i) {
+        healthBar.setMaxHealth(i);
+    }
+
+    public int getHealth() {
+        return healthBar.getHealth();
+    }
 }
 

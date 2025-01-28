@@ -13,6 +13,7 @@ public final class CollectableAttributes extends Attributes {
 
     public final String name;
     public final String description;
+    public final boolean isConsumable;
 
     public CollectableAttributes(
         Collectable.CollectableType type, String textureName, int immediateHealing, int immediateCoins,
@@ -22,7 +23,7 @@ public final class CollectableAttributes extends Attributes {
         boolean isConsumable
     ) {
         super(immediateHealing, immediateCoins, damageBoost, resistanceBoost,
-            vampirism, resurrections, speedBoost, isConsumable);
+            vampirism, resurrections, speedBoost);
         assert type != null;
         assert textureName != null;
 
@@ -36,6 +37,7 @@ public final class CollectableAttributes extends Attributes {
         this.shopPrice = shopPrice;
         this.name = name;
         this.description = description;
+        this.isConsumable = isConsumable;
     }
 
     public void sum(CollectableAttributes other) {
@@ -59,6 +61,7 @@ public final class CollectableAttributes extends Attributes {
             ", lootContainerPool=" + lootContainerPool +
             ", treasurePool=" + treasurePool +
             ", shopPool=" + shopPool +
+            ", isConsumable=" + isConsumable +
             '}';
     }
 

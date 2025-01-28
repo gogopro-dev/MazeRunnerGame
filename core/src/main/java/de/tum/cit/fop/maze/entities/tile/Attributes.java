@@ -10,7 +10,6 @@ public class Attributes {
     protected float vampirism;
     protected int resurrections;
     protected float speedBoost;
-    protected boolean isConsumable;
     /*Итак, мои предложения к коллектблам:
     Сердечки = выпадают с каким то шансом с убитых мобов. Восстанавливают 1(?) фулл сердце
     Монетки = выпадают с мобов в количестве от 1 до 4(рандом). За них можно купить бафы в магазе
@@ -22,7 +21,7 @@ public class Attributes {
     "Сапоги скорохода": Увеличивает вашу скорость на 10%. Стоимость: 50 монет */
 
     public Attributes(int immediateHealing, int immediateCoins, float damageBoost, float resistanceBoost,
-                      float vampirism, int resurrections, float speedBoost, boolean isConsumable
+                      float vampirism, int resurrections, float speedBoost
     ) {
         this.immediateHealing = immediateHealing;
         this.immediateCoins =  immediateCoins;
@@ -31,7 +30,6 @@ public class Attributes {
         this.vampirism = vampirism;
         this.resurrections = resurrections;
         this.speedBoost = speedBoost;
-        this.isConsumable = isConsumable;
     }
 
     public void sum(Attributes other) {
@@ -97,10 +95,6 @@ public class Attributes {
 
     public int getImmediateHealing() {
         return immediateHealing;
-    }
-
-    public boolean isConsumable() {
-        return isConsumable;
     }
 
     public int getImmediateCoins() {

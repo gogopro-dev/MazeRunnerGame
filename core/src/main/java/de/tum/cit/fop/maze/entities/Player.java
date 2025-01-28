@@ -29,6 +29,7 @@ import static de.tum.cit.fop.maze.Globals.*;
  */
 public class Player extends Entity {
 
+    private Attributes attributes;
     private final List<Collectable> inventory;
     private int gold = 0;
     private float staminaRecoveryElapsedTime = 0f;
@@ -41,8 +42,6 @@ public class Player extends Entity {
     private transient Animation<TextureRegion> attackAnimation;
     private transient Animation<TextureRegion> idleTorchAnimation;
     private transient Animation<TextureRegion> movementTorchAnimation;
-    private transient Attributes collectableBuffs;
-
     private transient Animation<TextureRegion> currentAnimation;
     private transient float elapsedTime = 0f;
     private transient float elapsedTorchTime = 0f;
@@ -68,10 +67,10 @@ public class Player extends Entity {
         super();
         this.mass = 5f;
         inventory = new ArrayList<>();
-        collectableBuffs = new Attributes(0, 0, 0,
-            0, 0, 0, 0, true);
         health = 40;
         maxHealth = 40;
+        attributes = new Attributes( 0, 0, 0,
+            0, 0, 0, 0);
         /// Player can hit if not holding torch
         canHit = !isHoldingTorch;
         init();
@@ -509,18 +508,33 @@ public class Player extends Entity {
 
     @Override
     public void takeDamage(int damage) {
+        damage += 2;
+        System.out.println(health + " " + LevelScreen.getInstance().hud.getHealth());
         if (isDamaged) return;
-        super.takeDamage(damage);
+        super.takeDamage(Math.max(1, damage));
         isDamaged = true;
         damageFlashTimer = 0f;
-        LevelScreen.getInstance().hud.takeDmg(damage);
+        LevelScreen.getInstance().hud.takeDmg(Math.max(1, damage));
+        if (isDead()){
+            for (Collectable collectable : inventory) {
+                if (collectable.getType() == Collectable.CollectableType.RESURRECTION_AMULET) {
+                    inventory.remove(collectable);
+                    maxHealth = 10;
+                    LevelScreen.getInstance().hud.setMaxHealth(10);
+                    heal(5);
+                    return;
+                }
+            }
+            LevelScreen.getInstance().endGame(false);
+
+        }
     }
 
     @Override
     public void heal(int amount) {
         super.heal(amount);
         //TODO: HUD heal
-        //hud.hea(amount);
+        LevelScreen.getInstance().hud.heal(amount);
     }
 
     @Override
@@ -550,12 +564,22 @@ public class Player extends Entity {
      * @param collectable The collectable item to collect
      */
     public void collect(Collectable collectable) {
-        if (collectable.getCollectableAttributes().type == Collectable.CollectableType.KEY) {
-            hasKey = true;
+        switch (collectable.getType()) {
+            case HEART:
+                heal(collectable.getCollectableAttributes().getImmediateHealing());
+                break;
+            case KEY:
+                hasKey = true;
+                addKey();
+                break;
+            case GOLD_COIN:
+                addGold(collectable.getCollectableAttributes().getImmediateCoins());
+                break;
+            default:
+                inventory.add(collectable);
+                attributes.sum(collectable.getCollectableAttributes());
+                LevelScreen.getInstance().hud.addItemToInventory(collectable);
         }
-        collectableBuffs.sum(collectable.getCollectableAttributes());
-        inventory.add(collectable);
-        LevelScreen.getInstance().hud.addItemToInventory(collectable);;
     }
 
     public boolean isBeingChased() {
@@ -577,6 +601,11 @@ public class Player extends Entity {
 
     public boolean isHoldingTorch() {
         return isHoldingTorch;
+    }
+
+
+    public void addKey() {
+        LevelScreen.getInstance().hud.addKey();
     }
 
     public boolean hasKey() {
