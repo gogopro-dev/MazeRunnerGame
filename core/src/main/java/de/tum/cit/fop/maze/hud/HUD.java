@@ -94,7 +94,7 @@ public class HUD {
 
 
         healthBar = new HpBar(padding, stage.getViewport().getWorldHeight() - padding, atlas, stage);
-        healthBar.updateHpBar(player.health, player.maxHealth);
+        healthBar.updateHpBar(player.getHealth(), player.getMaxHealth());
 
 
         staminaBar = new StaminaBar(player.getMaxStamina(),

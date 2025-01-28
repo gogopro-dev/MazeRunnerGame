@@ -7,7 +7,7 @@ import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.BoundingRectangle;
-import de.tum.cit.fop.maze.essentials.GSONRestorable;
+import de.tum.cit.fop.maze.essentials.GSONPostRestorable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import static de.tum.cit.fop.maze.Globals.CELL_SIZE_METERS;
@@ -16,7 +16,7 @@ import static de.tum.cit.fop.maze.Globals.PPM;
 /**
  * Represents an entity in the game world.
  */
-public abstract class Entity implements Attackable, GSONRestorable {
+public abstract class Entity implements Attackable, GSONPostRestorable {
     protected int health;
     protected int maxHealth;
     protected float stamina;
@@ -162,5 +162,13 @@ public abstract class Entity implements Attackable, GSONRestorable {
 
     public AbsolutePoint getSavedPosition() {
         return savedPosition;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public int getMaxHealth() {
+        return maxHealth;
     }
 }
