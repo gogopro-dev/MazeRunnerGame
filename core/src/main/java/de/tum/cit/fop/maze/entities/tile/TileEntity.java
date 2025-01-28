@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
-import de.tum.cit.fop.maze.essentials.GSONRestorable;
+import de.tum.cit.fop.maze.essentials.GSONPostRestorable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
@@ -16,7 +16,7 @@ import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
  * This class represents a tile entity in the game.
  * Tile entities are static objects in the game that can be interacted with by the player.
  */
-public abstract class TileEntity implements Disposable, GSONRestorable {
+public abstract class TileEntity implements Disposable, GSONPostRestorable {
 
     protected int width;
     protected int height;
