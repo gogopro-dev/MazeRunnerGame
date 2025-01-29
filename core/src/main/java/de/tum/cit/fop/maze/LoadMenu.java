@@ -87,7 +87,8 @@ public class LoadMenu extends Game {
         Menu.getInstance().updateChildPositions();
         GameOverScreen.getInstance().updateViewport();
 
-        System.out.println(WINDOWED_RESOLUTIONS);
+        Assets.getInstance().music.setVolume(SettingsConfiguration.getInstance().getMusicVolume());
+        Assets.getInstance().sfx.setVolume(SettingsConfiguration.getInstance().getSfxVolume());
     }
 
     /**

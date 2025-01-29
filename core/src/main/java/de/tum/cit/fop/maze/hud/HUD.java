@@ -279,5 +279,9 @@ public class HUD {
             addItemToInventory(collectable);
         }
     }
+
+    public Inventory getInventory() {
+        return inventory;
+    }
 }
 

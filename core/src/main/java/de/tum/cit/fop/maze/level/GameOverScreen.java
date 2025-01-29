@@ -137,14 +137,15 @@ public class GameOverScreen implements Screen {
         labelStyle.font = generator.generateFont(parameter);
         Label inventoryLabel = new Label("Your game ended\nwith these items:", labelStyle);
 
+        inventoryStack = new Stack();
+
         screenTable.add(gameOverLabel).padTop(10f).row();
         screenTable.add(timePlayedLabel).padTop(20f).row();
         screenTable.add(scoreLabel).padTop(20f).row();
-        screenTable.add(exitButton).padTop(20f).width(224f * 1.2f).height(48f * 1.2f).row();
-        screenTable.add(inventoryLabel).padTop(10f).row();
-
-        inventoryStack = new Stack();
+        screenTable.add(inventoryLabel).padTop(20f).row();
         screenTable.add(inventoryStack).padTop(10f).row();
+        screenTable.add(exitButton).padTop(20f).width(224f * 1.2f).height(48f * 1.2f).row();
+
 
         stage.addActor(screenTable);
     }
@@ -193,6 +194,8 @@ public class GameOverScreen implements Screen {
      * @param textInventoryTable Table that contains the inventory text (how many items of each type)
      */
     public void drawInventory(Table inventoryTable, Table textInventoryTable) {
+        inventoryTable.setVisible(true);
+        textInventoryTable.setVisible(true);
         this.inventoryTable = inventoryTable;
         this.textInventoryTable = textInventoryTable;
         inventoryStack.add(this.inventoryTable);
