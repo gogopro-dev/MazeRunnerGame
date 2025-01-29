@@ -115,9 +115,12 @@ public class TileMap implements Disposable, GSONPostRestorable {
                 CELL_SIZE
             );
         map.getLayers().add(layer);
-
-        List<CollectableAttributes> shopPool = Assets.getInstance().getShopPool();
-        List<CollectableAttributes> treasurePool = Assets.getInstance().getTreasurePool();
+        ///  It is fine to have an unchecked cast since the given array is always a list of CollectableAttributes.
+        ///  Shallow copy of arrays to spawn items.
+        @SuppressWarnings("unchecked") List<CollectableAttributes> shopPool =
+            (List<CollectableAttributes>) Assets.getInstance().getShopPool().clone();
+        @SuppressWarnings("unchecked") List<CollectableAttributes> treasurePool =
+            (List<CollectableAttributes>) Assets.getInstance().getTreasurePool().clone();
 
         // System.out.println(generator);
         // Paddings to account for surrounding walls

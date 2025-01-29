@@ -73,7 +73,7 @@ public class ShopItem extends TileEntity {
 
     @Override
     public void contactTick(float delta) {
-        if (Gdx.input.isKeyPressed(Input.Keys.ENTER) &&
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) &&
                 Objects.equals(LevelScreen.getInstance().hud.getItemDescription(),
                         description()) &&
                 LevelScreen.getInstance().player.getGold() >= this.item.getCollectableAttributes().shopPrice) {
