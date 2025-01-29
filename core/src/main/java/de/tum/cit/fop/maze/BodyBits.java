@@ -19,8 +19,8 @@ public final class BodyBits {
     public static final short WALL_MASK = ENTITY | TILE_ENTITY | LIGHT | PROJECTILE;
     public static final short WALL_TRANSPARENT_MASK = WALL_MASK & ~LIGHT | PROJECTILE;
     public static final short ENEMY_MASK = ENEMY | WALL | PROJECTILE;
-    public static final short BARRIER_NO_LIGHT_MASK = LIGHT;
-    public static final short PROJECTILE_MASK = WALL | WALL_TRANSPARENT | ENTITY | ENEMY;
+    public static final short BARRIER_NO_LIGHT_MASK = LIGHT | PROJECTILE;
+    public static final short PROJECTILE_MASK = WALL | WALL_TRANSPARENT | ENTITY | ENEMY | BARRIER_NO_LIGHT;
 
 
 }

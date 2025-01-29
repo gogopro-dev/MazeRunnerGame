@@ -44,7 +44,7 @@ public final class Globals {
     public static final float ENEMY_RANDOM_WALK_PROBABILITY = 0.03f;
     public static final float TORCH_ACTIVATION_RADIUS = 0.75f;
     public static final float TORCH_GAP = 4.3f * 1.25f;
-    public static final float TORCH_LIGHT_RADIUS = 12f;
+    public static final float TORCH_LIGHT_RADIUS = 14f;
     public static final float TRAP_LIGHT_RADIUS = 12f;
     public static final int RAY_AMOUNT = 100;
     public static final float HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS = 1.5f;

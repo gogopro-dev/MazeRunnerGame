@@ -25,7 +25,6 @@ public class ActiveItem implements GSONPostRestorable {
     private transient Animation<TextureRegion> projectileFlyingAnimation;
     private transient Animation<TextureRegion> projectileDestroyedAnimation;
     private transient Animation<TextureRegion> useAnimation;
-
     private static class UseRecord {
         public Projectile projectile;
         public boolean isLeft = false;

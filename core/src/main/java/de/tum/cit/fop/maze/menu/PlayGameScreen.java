@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
@@ -117,9 +118,15 @@ public class PlayGameScreen implements Screen {
             if (isNewGame[i]){
                 continue;
             }
-            levelData[i] = Assets.getInstance().gson.fromJson(
-                Gdx.files.local("saves/levelData_" + i + ".json").reader(), LevelData.class
+            var reader = Gdx.files.local("saves/levelData_" + i + ".json").reader();
+            levelData[i] = Assets.getInstance().gson.fromJson(reader,
+                LevelData.class
             );
+            try {
+                reader.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             if (levelData[i] == null){
                 continue;
             }

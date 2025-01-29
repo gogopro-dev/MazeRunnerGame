@@ -6,6 +6,7 @@ import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 import de.tum.cit.fop.maze.level.GameOverScreen;
 import de.tum.cit.fop.maze.level.SaveManager;
 import de.tum.cit.fop.maze.menu.Menu;
+import games.rednblack.miniaudio.MiniAudio;
 import de.tum.cit.fop.maze.menu.MenuState;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ import static de.tum.cit.fop.maze.Globals.*;
  */
 public class LoadMenu extends Game {
     private static LoadMenu instance;
+    private final MiniAudio miniAudio = new MiniAudio();
 
     /**
      * Private constructor to prevent instantiation from outside the class
@@ -35,11 +37,11 @@ public class LoadMenu extends Game {
 
     @Override
     public void create() {
-        /// Initialize the AssetManager singleton and load all assets
-        Assets.getInstance().loadAllBlocking();
         //Assets.getInstance().tileTextureHelper.getTexture()
         /// Initialize the Menu singleton and all its dependencies
-        initConfigurations();
+        /// Initialize the AssetManager singleton and load all assets
+        Assets.getInstance().loadAllBlocking();
+        LoadMenu.getInstance().initConfigurations();
         Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU, true);
         setScreen(Menu.getInstance());
     }
@@ -55,7 +57,7 @@ public class LoadMenu extends Game {
      * </ul>
      * @see SettingsConfiguration
      */
-    private void initConfigurations(){
+    public void initConfigurations() {
         /// Sets the instance of the SettingsConfiguration singleton to the values in the settings.json file
         if (Gdx.files.local("saves/settings.json").exists()) {
             Assets.getInstance().gson.fromJson(
@@ -133,5 +135,10 @@ public class LoadMenu extends Game {
     @Override
     public void dispose() {
         super.dispose();
+        this.miniAudio.dispose();
+    }
+
+    public MiniAudio getSoundEngine() {
+        return miniAudio;
     }
 }

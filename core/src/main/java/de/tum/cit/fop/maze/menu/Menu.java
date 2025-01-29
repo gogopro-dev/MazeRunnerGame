@@ -2,14 +2,20 @@ package de.tum.cit.fop.maze.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.*;
+import de.tum.cit.fop.maze.Assets;
+import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.FadeOverlay;
+import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 import de.tum.cit.fop.maze.level.LevelScreen;
+import games.rednblack.miniaudio.MASound;
+import games.rednblack.miniaudio.MiniAudio;
 
 /**
  * Class for the main menu.</br>
@@ -36,6 +42,10 @@ public class Menu implements Screen {
     private int currentFrameIndex = 0;
     private static final float FRAME_DURATION = 1/10f;
     private final FadeOverlay fadeOverlay;
+    private final MiniAudio miniAudio;
+    private final MASound mainMenuMusic;
+    private final MASound creditsMusic;
+
     /**
      * Returns the singleton instance of the menu.
      * @return The singleton instance of the menu.
@@ -54,11 +64,17 @@ public class Menu implements Screen {
      */
     private Menu() {
         instance = this;
+        this.miniAudio = LoadMenu.getInstance().getSoundEngine();
         /// Camera, Viewport nad SpriteBatch setup
         camera = new OrthographicCamera();
         viewport = new ExtendViewport(1024, 768, camera);
         batch = new SpriteBatch();
 
+
+        this.mainMenuMusic = Assets.getInstance().getSound("main_menu");
+        this.mainMenuMusic.setLooping(true);
+        this.creditsMusic = Assets.getInstance().getSound("credits");
+        this.creditsMusic.setLooping(false);
         fadeOverlay = new FadeOverlay();
 
         /// Initialize all menu screens
@@ -67,6 +83,7 @@ public class Menu implements Screen {
         creditsScreen = new CreditsScreen(viewport, batch);
         playGameScreen = new PlayGameScreen(viewport, batch);
         controlsScreen = new ControlsScreen(viewport, batch);
+
 
         /// Load background atlas and get all regions
         TextureAtlas backgroundAtlas = new TextureAtlas(Gdx.files.local("assets/background/background.atlas"));
@@ -101,10 +118,20 @@ public class Menu implements Screen {
 
         switch (menuState){
             case GAME_SCREEN:
+                if (creditsMusic.isPlaying()) {
+                    creditsMusic.stop();
+                }
+                if (mainMenuMusic.isPlaying()) {
+                    mainMenuMusic.fadeOut(2000);
+                }
                 fadeOverlay.startFadeIn();
                 break;
             case MAIN_MENU:
                 if (fadeIn) {
+                    if (!mainMenuMusic.isPlaying()) {
+                        mainMenuMusic.fadeIn(2000);
+                        mainMenuMusic.play();
+                    }
                     /// If the state changes from game screen to main menu,
                     /// save the game
                     if (LevelScreen.getInstance() != null) {
@@ -125,6 +152,14 @@ public class Menu implements Screen {
                 controlsScreen.show();
                 break;
             case CREDITS:
+                if (mainMenuMusic.isPlaying()) {
+                    mainMenuMusic.fadeOut(2000);
+                    mainMenuMusic.stop();
+                }
+                if (!creditsMusic.isPlaying()) {
+                    creditsMusic.fadeIn(2000);
+                    creditsMusic.play();
+                }
                 creditsScreen.show();
                 break;
             case SETTINGS:
@@ -203,6 +238,7 @@ public class Menu implements Screen {
                     }
                     break;
                 case CONTROLS:
+
                     controlsScreen.render(delta);
                     break;
                 case CREDITS:
@@ -250,16 +286,15 @@ public class Menu implements Screen {
         playGameScreen.dispose();
         fadeOverlay.dispose();
         batch.dispose();
+        miniAudio.dispose();
     }
 
     @Override
     public void pause() {
-
     }
 
     @Override
     public void resume() {
-
     }
 
     @Override
@@ -269,5 +304,9 @@ public class Menu implements Screen {
 
     @Override
     public void show() {
+    }
+
+    public MiniAudio getMiniAudio() {
+        return miniAudio;
     }
 }

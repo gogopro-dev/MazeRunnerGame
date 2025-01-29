@@ -28,7 +28,9 @@
     "associatedActiveItem": "FIREBALL",
     "treasurePool": true,
     "emitsLight": true,
-    "spawnPriority": true
+    "_comment": "Spawn priority assumes that the item will be spawned once.",
+    "spawnPriority": true,
+    "spawnOnce": true
   },
   {
     "type": "DEFENSE_COIN",

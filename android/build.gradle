@@ -32,7 +32,7 @@ android {
   }
   defaultConfig {
     applicationId 'de.tum.cit.fop.maze'
-    minSdkVersion 24
+    minSdkVersion 26
     //noinspection EditedTargetSdkVersion (Bug in Android Gradle Plugin)
     targetSdkVersion 35
     versionCode 1
@@ -79,6 +79,10 @@ dependencies {
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
+  natives "games.rednblack.miniaudio:miniaudio:$miniaudioVersion:natives-armeabi-v7a"
+  natives "games.rednblack.miniaudio:miniaudio:$miniaudioVersion:natives-arm64-v8a"
+  natives "games.rednblack.miniaudio:miniaudio:$miniaudioVersion:natives-x86"
+  natives "games.rednblack.miniaudio:miniaudio:$miniaudioVersion:natives-x86_64"
 
 }
 

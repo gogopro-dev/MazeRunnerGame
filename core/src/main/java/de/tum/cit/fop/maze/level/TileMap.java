@@ -34,10 +34,7 @@ import de.tum.cit.fop.maze.level.worldgen.rooms.Entrance;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 import static de.tum.cit.fop.maze.Globals.*;
 import static java.lang.Math.max;
@@ -54,6 +51,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
     public transient Random random;
     private transient MazeGenerator generator;
     private transient final TileEntityManager tileEntityManager;
+    private transient HashSet<Collectable> spawnedItems = new HashSet<>();
 
     /**
      * Create a new TileMap from Gson
@@ -118,7 +116,8 @@ public class TileMap implements Disposable, GSONPostRestorable {
             );
         map.getLayers().add(layer);
 
-
+        List<CollectableAttributes> shopPool = Assets.getInstance().getShopPool();
+        List<CollectableAttributes> treasurePool = Assets.getInstance().getTreasurePool();
 
         // System.out.println(generator);
         // Paddings to account for surrounding walls
@@ -188,19 +187,16 @@ public class TileMap implements Disposable, GSONPostRestorable {
                 }
                 if (cell.getCellType() == CellType.TREASURE_ROOM_ITEM) {
                     CollectableAttributes attribute = null;
-                    for (CollectableAttributes attr : Assets.getInstance().getTreasurePool()) {
+                    for (CollectableAttributes attr : treasurePool) {
                         if (attr.spawnPriority) {
                             attribute = attr;
                             break;
                         }
                     }
                     if (attribute == null) {
-                        attribute = Assets.getInstance().getTreasurePool().get(
-                            random.nextInt(Assets.getInstance().getTreasurePool().size())
-                        );
-                    } else {
-                        Assets.getInstance().getTreasurePool().remove(attribute);
+                        attribute = treasurePool.get(random.nextInt(treasurePool.size()));
                     }
+                    treasurePool.remove(attribute);
                     tileEntityManager.createTileEntity(new Collectable(attribute), currentCellCenter);
                 }
                 if (cell.getCellType() == CellType.EXIT_DOOR) {
@@ -214,13 +210,10 @@ public class TileMap implements Disposable, GSONPostRestorable {
                     this.exitPosition = currentCellCenter;
                 }
                 if (cell.getCellType() == CellType.SHOP_ITEM) {
+                    CollectableAttributes item = shopPool.get(random.nextInt(shopPool.size()));
+                    shopPool.remove(item);
                     tileEntityManager.createTileEntity(
-                        new ShopItem(
-                            new Collectable(Assets.getInstance().getShopPool().get(
-                                random.nextInt(Assets.getInstance().getShopPool().size())
-                            )
-                            )
-                        ), currentCellCenter
+                        new ShopItem(new Collectable(item)), currentCellCenter
                     );
                 }
 

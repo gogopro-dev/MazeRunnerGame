@@ -23,6 +23,8 @@ import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
 import de.tum.cit.fop.maze.menu.PlayGameScreen;
+import games.rednblack.miniaudio.MASound;
+import games.rednblack.miniaudio.MiniAudio;
 
 import java.io.IOException;
 import java.util.Random;
@@ -46,7 +48,6 @@ import static de.tum.cit.fop.maze.Globals.*;
  */
 public class LevelScreen implements Screen {
     private static LevelScreen instance = null;
-
 
     public Player player;
     public TileMap map;
@@ -78,6 +79,7 @@ public class LevelScreen implements Screen {
     private transient boolean endGame = false;
     private transient int levelIndex;
     private transient float ratio;
+    public transient final MiniAudio sound;
 
     private void doPhysicsStep(float deltaTime) {
         // Fixed time step
@@ -228,6 +230,7 @@ public class LevelScreen implements Screen {
     private LevelScreen() {
         this.pauseScreen = new PauseScreen();
         this.batch = new SpriteBatch();
+        this.sound = Menu.getInstance().getMiniAudio();
         if (instance != null) {
             throw new IllegalStateException("LevelScreen already exists");
         }

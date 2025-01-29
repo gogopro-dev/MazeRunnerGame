@@ -37,6 +37,7 @@ public class Player extends Entity {
     private final float maxStamina = 100;
     private boolean hasKey = false;
     private ActiveItem activeItem;
+    private transient boolean isMoving = false;
     private transient Animation<TextureRegion> idleAnimation;
     private transient Animation<TextureRegion> movementAnimation;
     private transient Animation<TextureRegion> attackAnimation;
@@ -47,8 +48,7 @@ public class Player extends Entity {
     private transient float elapsedTorchTime = 0f;
     private transient float attackElapsedTime = 0f;    // Tracks time for hit animation
     private transient boolean isAttacking = false;    // Track if the hit animation is active
-    private transient boolean isMoving = false;     // Flag to track movement state
-    private transient boolean facingRight = true;
+    private boolean facingRight = true;
     private transient boolean canHit;
     private transient boolean hasHit;
     private transient boolean isHoldingTorch = false;

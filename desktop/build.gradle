@@ -34,6 +34,7 @@ dependencies {
   implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   implementation 'com.google.code.gson:gson:2.11.0'
+  implementation "games.rednblack.miniaudio:miniaudio:$miniaudioVersion:natives-desktop"
   implementation project(':core')
 
   if(enableGraalNative == 'true') {
