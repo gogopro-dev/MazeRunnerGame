@@ -26,6 +26,9 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
+import de.tum.cit.fop.maze.hud.HUD;
+import de.tum.cit.fop.maze.level.LevelData;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -93,8 +97,34 @@ public class PlayGameScreen implements Screen {
         loadTextures();
 
         isNewGame = new boolean[3];
-        gameTime = new String[]{"", "", ""};
+        gameTime = new String[3];
         setupMenu();
+    }
+
+    private void loadLevelData(){
+        for (int i = 0; i < 3; i++){
+            isNewGame[i] =
+                !Gdx.files.local("saves/" + i + ".png").exists() &&
+                    !Gdx.files.local("saves/" + i + ".json").exists();
+        }
+        LevelData[] levelData = new LevelData[3];
+        for (int i = 0; i < 3; i++){
+            if (!Gdx.files.local("saves/levelData_" + i + ".json").exists()){
+                continue;
+            }
+            levelData[i] = Assets.getInstance().gson.fromJson(
+                Gdx.files.local("saves/levelData_" + i + ".json").reader(), LevelData.class
+            );
+            if (levelData[i] == null){
+                continue;
+            }
+            long seconds = (long) levelData[i].getPlaytime();
+            long minutes = seconds / 60;
+            long hours = minutes / 60;
+            gameTime[i] = String.format(
+                Locale.getDefault(), "%02d:%02d:%02d", hours, minutes % 60, seconds % 60
+            );
+        }
     }
 
     /**
@@ -121,14 +151,7 @@ public class PlayGameScreen implements Screen {
      * Creates all the UI elements for the play game screen
      */
     private void setupMenu() {
-        for (int i = 0; i < 3; i++){
-            isNewGame[i] =
-                !Gdx.files.local("saves/" + i + ".png").exists() &&
-                    !Gdx.files.local("saves/" + i + ".json").exists();
-            if (!isNewGame[i]){
-                gameTime[i] = "00:00:00";
-            }
-        }
+        loadLevelData();
         fontParameter.size = 30;
         fontParameter.color = new Color(0xE0E0E0FF);
         font = generator.generateFont(fontParameter);
@@ -200,6 +223,8 @@ public class PlayGameScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.files.local("saves/" + index + ".png").delete();
                 Gdx.files.local("saves/" + index + ".json").delete();
+                Gdx.files.local("saves/levelData_" + index + ".json").delete();
+
                 isNewGame[index] = true;
                 gameTime[index] = "";
 

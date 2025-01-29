@@ -207,6 +207,7 @@ public class GameOverScreen implements Screen {
         int index = LevelScreen.getInstance().getLevelIndex();
         Gdx.files.local("saves/" + index + ".json").delete();
         Gdx.files.local("saves/" + index + ".png").delete();
+        Gdx.files.local("saves/levelData_" + index + ".json").delete();
     }
 
     @Override

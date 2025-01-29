@@ -8,6 +8,7 @@ import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Watchable;
 
 /**
  * Singleton class for saving the game state and settings to a .json file
@@ -53,6 +54,11 @@ public class SaveManager {
         PixmapIO.writePNG(Gdx.files.local(
             "saves/" + index + ".png"
         ), PauseScreen.getInstance().getLastFrame().getTextureData().consumePixmap());
+
+        /// Save the level data to a .json file
+        writer = new FileWriter("saves/levelData_" + index + ".json");
+        gson.toJson(level.getLevelData(), writer);
+        writer.close();
     }
 
     /**
