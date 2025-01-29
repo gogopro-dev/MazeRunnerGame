@@ -159,7 +159,6 @@ public class Player extends Entity {
         checkPlayerInShadow(shadowWaitElapsedTime);
         if (this.activeItem != null) {
             this.activeItem.tick(deltaTime);
-
         }
 
     }

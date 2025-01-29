@@ -2,16 +2,21 @@ package de.tum.cit.fop.maze;
 
 import box2dLight.Light;
 import box2dLight.PointLight;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.ContactFilter;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
+import de.tum.cit.fop.maze.entities.Attackable;
 import de.tum.cit.fop.maze.entities.Player;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.entities.tile.Projectile;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
+import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.GSONPostRestorable;
 import de.tum.cit.fop.maze.essentials.Utils;
+import de.tum.cit.fop.maze.level.LevelData;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
@@ -30,6 +35,7 @@ public class ActiveItem implements GSONPostRestorable {
         public float lightTime = 0;
         public float lightDecay = 0;
         public boolean lightAttachedToBody = false;
+        public boolean hasDamaged = false;
         public transient Light light;
     }
 
@@ -50,7 +56,8 @@ public class ActiveItem implements GSONPostRestorable {
             String texture,
             float projectileFlyingAnimationDuration,
             float projectileDestroyedAnimationDuration,
-            float projectileSpeed, int projectileDamage, float projectileWidthCells, float projectileHeightCells) {
+            float projectileSpeed, int projectileDamage, float projectileWidthCells, float projectileHeightCells,
+            float projectileBlastRadiusCells) {
 
     }
 
@@ -77,6 +84,12 @@ public class ActiveItem implements GSONPostRestorable {
     @Override
     public void restore() {
         collectable.restore();
+        for (UseRecord record : uses) {
+            record.projectile.restore();
+            LevelScreen.getInstance().tileEntityManager.createTileEntity(
+                    record.projectile, record.projectile != null ? record.projectile.getSavedPosition() :
+                            LevelScreen.getInstance().player.getPosition());
+        }
         loadAnimations();
     }
 
@@ -171,6 +184,31 @@ public class ActiveItem implements GSONPostRestorable {
                 if (record.projectile != null && record.projectile.isFoundHit()) {
                     record.lightDecay += delta;
                     record.light.setDistance(15 - 15 * Utils.easeOutCirc(record.lightDecay / 2));
+                    if (!record.hasDamaged) {
+                        record.hasDamaged = true;
+                        AbsolutePoint position = record.projectile.getPosition();
+                        float posX1 = position.x() - this.properties.projectileBlastRadiusCells;
+                        float posY1 = position.y() - this.properties.projectileBlastRadiusCells;
+                        float posX2 = position.x() + this.properties.projectileBlastRadiusCells;
+                        float posY2 = position.y() + this.properties.projectileBlastRadiusCells;
+                        LevelScreen.getInstance().world.QueryAABB(
+                                (fixture) -> {
+                                    Body body = fixture.getBody();
+                                    if (body != null && body.getUserData() instanceof Attackable attackable) {
+                                        if (body.getUserData() instanceof Player) return true;
+                                        attackable.takeDamage(this.properties.projectileDamage);
+                                    }
+                                    return true;
+                                },
+                                posX1, posY1, posX2, posY2
+
+                        );
+                        DebugRenderer.getInstance().spawnRectangle(
+                                new AbsolutePoint(posX1, posY1),
+                                new AbsolutePoint(posX2, posY2),
+                                Color.ORANGE
+                        );
+                    }
                 } else {
                     record.lightTime += delta;
                     record.light.setDistance(Utils.easeOutCirc(record.lightTime) * 15);

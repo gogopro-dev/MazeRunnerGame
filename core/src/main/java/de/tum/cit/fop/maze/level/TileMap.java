@@ -189,7 +189,10 @@ public class TileMap implements Disposable, GSONPostRestorable {
                 if (cell.getCellType() == CellType.TREASURE_ROOM_ITEM) {
                     CollectableAttributes attribute = null;
                     for (CollectableAttributes attr : Assets.getInstance().getTreasurePool()) {
-                        if (attr.spawnPriority) attribute = attr;
+                        if (attr.spawnPriority) {
+                            attribute = attr;
+                            break;
+                        }
                     }
                     if (attribute == null) {
                         attribute = Assets.getInstance().getTreasurePool().get(

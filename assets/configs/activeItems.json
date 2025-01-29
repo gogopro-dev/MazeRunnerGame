@@ -9,6 +9,6 @@
     "projectileHeightCells": 3,
     "projectileSpeed": 13,
     "projectileDamage": 1,
-    "projectileBlastRadius": 1.2
+    "projectileBlastRadiusCells": 1.5
   }
 ]

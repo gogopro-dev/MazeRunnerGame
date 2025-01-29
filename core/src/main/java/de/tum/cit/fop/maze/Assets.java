@@ -62,7 +62,8 @@ public final class Assets {
                 .registerSubtype(Torch.class, "Torch")
                 .registerSubtype(LootContainer.class, "LootContainer")
                 .registerSubtype(ExitDoor.class, "ExitDoor")
-                .registerSubtype(ShopItem.class, "ShopItem");
+                .registerSubtype(ShopItem.class, "ShopItem")
+                .registerSubtype(Projectile.class, "Projectile");
         gsonBuilder.enableComplexMapKeySerialization();
         gsonBuilder.registerTypeAdapterFactory(tileEntities);
         gsonBuilder.registerTypeAdapter(

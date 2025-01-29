@@ -47,6 +47,8 @@ public abstract class TileEntity implements Disposable, GSONPostRestorable {
     }
 
     private void createBody() {
+        this.bodyDef = new BodyDef();
+        this.fixtureDef = new FixtureDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.fixedRotation = true;
         PolygonShape shape = new PolygonShape();
@@ -165,5 +167,9 @@ public abstract class TileEntity implements Disposable, GSONPostRestorable {
 
     public Body getBody() {
         return body;
+    }
+
+    public boolean isSpawned() {
+        return body != null;
     }
 }

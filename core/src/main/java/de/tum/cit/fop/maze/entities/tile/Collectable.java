@@ -1,5 +1,7 @@
 package de.tum.cit.fop.maze.entities.tile;
 
+import box2dLight.Light;
+import box2dLight.PointLight;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Bezier;
@@ -55,6 +57,8 @@ public class Collectable extends TileEntity {
     private transient boolean descriptionIsShown = false;
     private transient CircleShape circleShape;
     private transient FixtureDef circleFixtureDef = new FixtureDef();
+    private transient Light light;
+    private transient float lightAnimationElapsedTime = 10f;
 
     private boolean hasBeenDropped = true;
 
@@ -132,7 +136,19 @@ public class Collectable extends TileEntity {
             hasBeenDropped = true;
             updateDropPositions();
         }
-
+        if (this.collectableAttributes.emitsLight && this.isSpawned()) {
+            lightAnimationElapsedTime += delta;
+            if (this.isOnPlayer) {
+                this.light.setDistance(
+                    Utils.easeOutCirc(lightAnimationElapsedTime) * Globals.TORCH_LIGHT_RADIUS
+                );
+            } else {
+                this.light.setDistance(
+                    Globals.TORCH_LIGHT_RADIUS -
+                        Utils.easeOutCirc(lightAnimationElapsedTime) * Globals.TORCH_LIGHT_RADIUS
+                );
+            }
+        }
         animateDrop(delta);
         ///  If at any point the pickup animation would be introduced, move the toDestroy assignment
     }
@@ -175,8 +191,14 @@ public class Collectable extends TileEntity {
         if (!this.collectableAttributes.isConsumable &&
             Objects.equals(LevelScreen.getInstance().hud.getItemDescription(),
                 this.collectableAttributes.toPrettyDescription())) {
+            lightAnimationElapsedTime = 0f;
             LevelScreen.getInstance().hud.deleteDescription();
         }
+    }
+
+    @Override
+    public void onPlayerStartContact(Contact c) {
+        lightAnimationElapsedTime = 0f;
     }
 
 
@@ -225,6 +247,24 @@ public class Collectable extends TileEntity {
             body.createFixture(circleFixtureDef);
             circleShape.dispose();
         }
+        if (this.collectableAttributes.emitsLight) {
+            this.light = new PointLight(
+                LevelScreen.getInstance().rayHandler,
+                Globals.RAY_AMOUNT
+            );
+            this.light.attachToBody(body);
+            this.light.setSoft(true);
+            this.light.setStaticLight(false);
+            Filter lightFilter = new Filter();
+            lightFilter.categoryBits = BodyBits.LIGHT;
+            lightFilter.maskBits = BodyBits.LIGHT_MASK;
+            this.light.setContactFilter(lightFilter);
+            this.light.setColor(Globals.TORCH_LIGHT_COLOR);
+            // Active does require extra ops, but it makes the code way easier
+            this.light.setActive(true);
+            this.light.setDistance(0f);
+        }
+        /// Must be last
         if (hasBeenDropped) {
             return;
         }
@@ -295,6 +335,13 @@ public class Collectable extends TileEntity {
 
     public Animation<TextureRegion> getIdleAnimation() {
         return idleAnimation;
+    }
+
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        if (this.light != null) this.light.remove();
     }
 
     public CollectableAttributes getCollectableAttributes() {

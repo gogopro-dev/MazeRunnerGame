@@ -26,6 +26,8 @@ public class Projectile extends TileEntity {
     }
 
     private void createBody() {
+        this.bodyDef = new BodyDef();
+        this.fixtureDef = new FixtureDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.fixedRotation = true;
         bodyDef.bullet = true;
