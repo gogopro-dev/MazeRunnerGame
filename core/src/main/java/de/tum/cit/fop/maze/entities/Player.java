@@ -30,11 +30,11 @@ import static de.tum.cit.fop.maze.Globals.*;
  */
 public class Player extends Entity {
 
-    private Attributes attributes;
+    private final Attributes attributes;
     private final List<Collectable> inventory;
     private int gold = 0;
     private float staminaRecoveryElapsedTime = 0f;
-    private float maxStamina = 100;
+    private final float maxStamina = 100;
     private boolean hasKey = false;
     private ActiveItem activeItem;
     private transient Animation<TextureRegion> idleAnimation;
@@ -368,15 +368,13 @@ public class Player extends Entity {
 
         float minZoom = Globals.DEFAULT_CAMERA_ZOOM * 0.5f * ratio;
         float maxZoom = Globals.DEFAULT_CAMERA_ZOOM * ratio;
-        System.out.println("minZoom: " + minZoom + " maxZoom: " + maxZoom);
-        System.out.println("camera.zoom: " + camera.zoom);
 
         /// Handle camera zoom
         if ((Gdx.input.isKeyPressed(Input.Keys.EQUALS) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_ADD))) {
-            camera.zoom = Math.max(camera.zoom - 0.0015f * ratio, minZoom);
+            camera.zoom = Math.max(camera.zoom - 0.003f * ratio, minZoom);
         }
         if ((Gdx.input.isKeyPressed(Input.Keys.MINUS) || Gdx.input.isKeyPressed(Input.Keys.NUMPAD_SUBTRACT))) {
-            camera.zoom = Math.min(camera.zoom + 0.0015f * ratio, maxZoom);
+            camera.zoom = Math.min(camera.zoom + 0.003f * ratio, maxZoom);
         }
         updateCameraPosition();
     }
@@ -397,7 +395,7 @@ public class Player extends Entity {
             this.shadowWaitElapsedTime = 0;
             return;
         }
-        /// Deprioritize fear of the dark lable
+        /// Deprioritize fear of the dark label
         if (!hud.isDescriptionSet()) {
             hud.setItemDescription(PLAYER_SCARED_TEXT);
         }

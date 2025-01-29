@@ -43,7 +43,7 @@ public class LootContainer extends TileEntity implements Attackable {
     private transient Animation<TextureRegion> idleAnimation;
     private transient Animation<TextureRegion> destroyedAnimation;
 
-    private class LootContainerAttributes {
+    public static class LootContainerAttributes {
         public int health;
         public final int maxLootAmount;
         public final float frameDuration;
@@ -81,13 +81,8 @@ public class LootContainer extends TileEntity implements Attackable {
 
     public LootContainer(LootContainerType type) {
         this();
-        Gson gson = Assets.getInstance().gson;
-        this.attributes = Arrays.stream(
-                gson.fromJson(
-                        Gdx.files.internal("configs/lootContainers.json").reader(),
-                        LootContainerAttributes[].class
-                )
-        ).filter(attribute -> attribute.type.equals(type)).findFirst().get();
+        this.attributes = Assets.getInstance().getLootContainerConfig().stream()
+            .filter(attribute -> attribute.type.equals(type)).findFirst().get();
         init();
         int passes = 0;
         Random random = LevelScreen.getInstance().getRandom();

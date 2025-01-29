@@ -11,12 +11,8 @@ import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Random;
 
 import static de.tum.cit.fop.maze.Globals.*;
-
 
 public class Torch extends TileEntity {
 

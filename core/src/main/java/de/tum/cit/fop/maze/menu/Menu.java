@@ -107,8 +107,13 @@ public class Menu implements Screen {
                 if (fadeIn) {
                     /// If the state changes from game screen to main menu,
                     /// save the game
-                    LevelScreen.getInstance().saveGame();
-                    fadeOverlay.startFadeIn();
+                    if (LevelScreen.getInstance() != null) {
+                        LevelScreen.getInstance().saveGame();
+                        fadeOverlay.startFadeIn();
+                    } else {
+                        /// Fade out on startup
+                        fadeOverlay.startFadeOut();
+                    }
                 }
                 mainMenuScreen.show();
                 break;
@@ -178,11 +183,17 @@ public class Menu implements Screen {
                         if (menuState != MenuState.GAME_SCREEN && LevelScreen.getInstance() != null) {
                             LevelScreen.getInstance().dispose();
                         }
+
                         /// Switch to rendering menu screen
                         mainMenuScreen.render(delta);
+                        if (!fadeOverlay.isFinishedOut()){
+                            Gdx.input.setInputProcessor(null);
+                        }
                     } else {
                         /// Continue rendering level screen fading
-                        LevelScreen.getInstance().render(delta);
+                        if (LevelScreen.getInstance() != null){
+                            LevelScreen.getInstance().render(delta);
+                        }
                         Gdx.input.setInputProcessor(null);
                     }
 

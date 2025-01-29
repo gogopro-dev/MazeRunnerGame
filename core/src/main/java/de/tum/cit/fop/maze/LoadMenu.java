@@ -6,6 +6,7 @@ import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 import de.tum.cit.fop.maze.level.GameOverScreen;
 import de.tum.cit.fop.maze.level.SaveManager;
 import de.tum.cit.fop.maze.menu.Menu;
+import de.tum.cit.fop.maze.menu.MenuState;
 
 import java.io.IOException;
 
@@ -39,6 +40,7 @@ public class LoadMenu extends Game {
         //Assets.getInstance().tileTextureHelper.getTexture()
         /// Initialize the Menu singleton and all its dependencies
         initConfigurations();
+        Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU, true);
         setScreen(Menu.getInstance());
     }
 

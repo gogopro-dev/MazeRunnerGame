@@ -1,13 +1,12 @@
 package de.tum.cit.fop.maze.entities;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
-import com.google.gson.Gson;
+import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
@@ -223,10 +222,8 @@ public class Enemy extends Entity implements Attackable {
      * Load animations from the enemyConfig.json file
      */
     public void loadAnimations() {
-        Gson gson = new Gson();
-        FileHandle file = Gdx.files.internal("anim/enemies/enemyConfig.json");
         if (this.config == null) {
-            Enemy.EnemyConfig[] enemyConfigs = gson.fromJson(file.readString(), EnemyConfig[].class);
+            Enemy.EnemyConfig[] enemyConfigs = Assets.getInstance().getEnemies().toArray(new EnemyConfig[0]);
             for (Enemy.EnemyConfig enemyConfig : enemyConfigs) {
                 if (enemyConfig.enemyType == enemyType) {
                     config = enemyConfig;

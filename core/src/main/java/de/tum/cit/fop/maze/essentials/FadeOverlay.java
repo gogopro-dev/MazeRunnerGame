@@ -14,6 +14,7 @@ public class FadeOverlay implements Disposable {
     private final float fadeSpeed = 0.5f; // Adjust this to control fade speed
     private float alpha = 0;
     private State state = State.NONE;
+    private float fadeOutSpeed;
 
     /**
      * Enum for the state of the fade overlay
@@ -38,6 +39,18 @@ public class FadeOverlay implements Disposable {
     public void startFadeIn() {
         state = State.FADING_IN;
         alpha = 0;
+        fadeOutSpeed = 1.5f;
+    }
+
+    /**
+     * Starts the fade out.
+     * The fade out speed is set to 0.5f.</br>
+     * This is used only on startup
+     */
+    public void startFadeOut() {
+        state = State.FADING_OUT;
+        alpha = 1;
+        fadeOutSpeed = 1f;
     }
 
     /**
@@ -69,8 +82,9 @@ public class FadeOverlay implements Disposable {
                 state = State.FADING_OUT;
             }
         } else if (state == State.FADING_OUT) {
-            /// Fade out faster. Can be controlled by changing the multiplier
-            alpha -= delta * fadeSpeed * 1.5f;
+            /// Fade out based on the fadeOutSpeed attribute
+            /// Default value is 1.5f, but it is adjusted in the main menu
+            alpha -= delta * fadeSpeed * fadeOutSpeed;
             if (alpha <= 0) {
                 alpha = 0;
                 state = State.NONE;

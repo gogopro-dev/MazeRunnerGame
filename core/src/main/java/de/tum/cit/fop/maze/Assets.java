@@ -24,6 +24,7 @@ public final class Assets {
     private final ArrayList<CollectableAttributes> treasurePool = new ArrayList<>();
     private final ArrayList<CollectableAttributes> shopPool = new ArrayList<>();
     private final ArrayList<CollectableAttributes> lootContainerPool = new ArrayList<>();
+    private final ArrayList<LootContainer.LootContainerAttributes> lootContainerConfig = new ArrayList<>();
     private final ArrayList<CollectableAttributes> collectables = new ArrayList<>();
     private final ArrayList<Trap.TrapAttributes> traps = new ArrayList<>();
     private final ArrayList<Enemy.EnemyConfig> enemies = new ArrayList<>();
@@ -124,6 +125,12 @@ public final class Assets {
                 Trap.TrapAttributes[].class)
         ));
 
+        lootContainerConfig.addAll(
+            List.of(gson.fromJson(Gdx.files.local("assets/configs/lootContainers.json").readString(),
+                LootContainer.LootContainerAttributes[].class)
+            )
+        );
+
     }
 
     /**
@@ -152,6 +159,10 @@ public final class Assets {
 
     public ArrayList<CollectableAttributes> getLootContainerPool() {
         return lootContainerPool;
+    }
+
+    public ArrayList<LootContainer.LootContainerAttributes> getLootContainerConfig() {
+        return lootContainerConfig;
     }
 
     public ArrayList<CollectableAttributes> getCollectables() {

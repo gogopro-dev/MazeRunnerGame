@@ -53,7 +53,7 @@ import java.util.Random;
  */
 public class PlayGameScreen implements Screen {
     private final boolean[] isNewGame;
-    private final String[] gameTime;
+    private String[] gameTime;
     private boolean isCreateNewGameDialogOpen = false;
     private CreateNewGameScreen createNewGameScreen;
     private final Stage stage;
@@ -97,19 +97,24 @@ public class PlayGameScreen implements Screen {
         loadTextures();
 
         isNewGame = new boolean[3];
-        gameTime = new String[3];
         setupMenu();
     }
 
+    /**
+     * Resets gameTime to either
+     * null or the one from the file if it exists
+     */
     private void loadLevelData(){
+        gameTime = new String[3];
         for (int i = 0; i < 3; i++){
             isNewGame[i] =
                 !Gdx.files.local("saves/" + i + ".png").exists() &&
-                    !Gdx.files.local("saves/" + i + ".json").exists();
+                    !Gdx.files.local("saves/" + i + ".json").exists() &&
+                        !Gdx.files.local("saves/levelData_" + i + ".json").exists();
         }
         LevelData[] levelData = new LevelData[3];
         for (int i = 0; i < 3; i++){
-            if (!Gdx.files.local("saves/levelData_" + i + ".json").exists()){
+            if (isNewGame[i]){
                 continue;
             }
             levelData[i] = Assets.getInstance().gson.fromJson(
@@ -151,7 +156,9 @@ public class PlayGameScreen implements Screen {
      * Creates all the UI elements for the play game screen
      */
     private void setupMenu() {
+
         loadLevelData();
+
         fontParameter.size = 30;
         fontParameter.color = new Color(0xE0E0E0FF);
         font = generator.generateFont(fontParameter);
