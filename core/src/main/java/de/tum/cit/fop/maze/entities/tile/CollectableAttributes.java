@@ -1,5 +1,7 @@
 package de.tum.cit.fop.maze.entities.tile;
 
+import de.tum.cit.fop.maze.ActiveItem;
+
 public final class CollectableAttributes extends Attributes {
 
     public final Collectable.CollectableType type;
@@ -10,17 +12,19 @@ public final class CollectableAttributes extends Attributes {
     public final boolean treasurePool;
     public final boolean shopPool;
     public final int shopPrice;
-
     public final String name;
     public final String description;
     public final boolean isConsumable;
+    private final ActiveItem.ActiveItemType associatedActiveItem;
+    /// Guarantees that if there is space - the item will be spawned
+    public final boolean spawnPriority;
 
     public CollectableAttributes(
         Collectable.CollectableType type, String textureName, int immediateHealing, int immediateCoins,
         float dropChance, float damageBoost, float resistanceBoost, float vampirism, float speedBoost,
         int resurrections, float frameDuration, int shopPrice, String name, String description,
         boolean lootContainerPool, boolean treasurePool, boolean shopPool,
-        boolean isConsumable
+        boolean isConsumable, boolean spawnPriority, ActiveItem.ActiveItemType associatedActiveItem
     ) {
         super(immediateHealing, immediateCoins, damageBoost, resistanceBoost,
             vampirism, resurrections, speedBoost);
@@ -38,6 +42,8 @@ public final class CollectableAttributes extends Attributes {
         this.name = name;
         this.description = description;
         this.isConsumable = isConsumable;
+        this.spawnPriority = spawnPriority;
+        this.associatedActiveItem = associatedActiveItem;
     }
 
     public void sum(CollectableAttributes other) {

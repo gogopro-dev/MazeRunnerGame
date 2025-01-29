@@ -1,0 +1,14 @@
+[
+  {
+    "type": "FIREBALL",
+    "associatedCollectable": "FIREBALL",
+    "texture": "fireball",
+    "projectileFlyingAnimationDuration": 0.075,
+    "projectileDestroyedAnimationDuration": 0.125,
+    "projectileWidthCells": 3,
+    "projectileHeightCells": 3,
+    "projectileSpeed": 13,
+    "projectileDamage": 1,
+    "projectileBlastRadius": 1.2
+  }
+]

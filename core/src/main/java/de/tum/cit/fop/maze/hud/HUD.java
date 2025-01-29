@@ -81,7 +81,7 @@ public class HUD {
 
 
         generator.dispose();
-        timeAndScore = new TimeAndScore(1001, timeAndScoreStyle, stage);
+        timeAndScore = new TimeAndScore(LevelScreen.getInstance().getLevelData(), timeAndScoreStyle, stage);
 
 
         inventoryStyle = new Label.LabelStyle();
@@ -194,8 +194,8 @@ public class HUD {
         return description.isDescriptionSet();
     }
 
-    private void updateLabels(float deltaTime) {
-        timeAndScore.updateLabels(deltaTime);
+    private void updateLabels() {
+        timeAndScore.updateLabels();
     }
 //        time.setText(getLabelTime(elapsedTime));
 //        scoreLabel.setText(getLabelScore(currentScore - (int) elapsedTime));
@@ -219,7 +219,7 @@ public class HUD {
 
 
     public void render(float deltaTime) {
-        updateLabels(deltaTime);
+        updateLabels();
         stage.act();
         stage.draw();
         inventory.render(deltaTime);
@@ -245,12 +245,8 @@ public class HUD {
         exitArrow.updateArrowPosition(stage);
     }
 
-    public int getScore() {
-        return timeAndScore.getCurrentScore();
-    }
-
-    public String getTime() {
-        return timeAndScore.formatedTime(timeAndScore.getElapsedTime()).replace("Time: ", "");
+    public String getFormattedTime() {
+        return timeAndScore.formatedTime().replace("Time: ", "");
     }
 
     public void setMaxHealth(int i) {

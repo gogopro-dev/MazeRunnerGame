@@ -162,4 +162,8 @@ public abstract class TileEntity implements Disposable, GSONPostRestorable {
         this.savedPosition = getPosition();
         render(delta);
     }
+
+    public Body getBody() {
+        return body;
+    }
 }

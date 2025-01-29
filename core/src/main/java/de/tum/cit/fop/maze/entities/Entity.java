@@ -92,12 +92,21 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
         stamina += amount;
     }
 
-    protected float getSpriteX() {
+    public float getSpriteX() {
         return body.getPosition().x - CELL_SIZE_METERS * 1.15f;
     }
 
-    protected float getSpriteY() {
+    public float getSpriteY() {
         return body.getPosition().y - CELL_SIZE_METERS * 0.95f;
+    }
+
+
+    public float getSpriteWidth() {
+        return boundingRectangle.width();
+    }
+
+    public float getSpriteHeight() {
+        return boundingRectangle.height();
     }
 
     public Body getBody() {
@@ -170,5 +179,9 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
 
     public int getMaxHealth() {
         return maxHealth;
+    }
+
+    public float getScale() {
+        return scale;
     }
 }

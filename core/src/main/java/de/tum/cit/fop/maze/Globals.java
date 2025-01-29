@@ -20,6 +20,8 @@ public final class Globals {
     public static final float MPP = 1 / PPM;
     public static final int CELL_SIZE = 16;
 
+    public static final float useActiveFrameDuration = 0.1f;
+    public static final float useActiveAnimationDuration = 1f;
 
     public static final float ENTITY_PATHFINDING_RANGE = 6 * 3;
     public static final float ENEMY_PATHFINDING_INTERVAL = 0.1f;

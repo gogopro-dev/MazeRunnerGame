@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import de.tum.cit.fop.maze.ActiveItem;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.entities.tile.Attributes;
@@ -35,8 +36,7 @@ public class Player extends Entity {
     private float staminaRecoveryElapsedTime = 0f;
     private float maxStamina = 100;
     private boolean hasKey = false;
-
-
+    private ActiveItem activeItem = new ActiveItem(ActiveItem.ActiveItemType.FIREBALL);
     private transient Animation<TextureRegion> idleAnimation;
     private transient Animation<TextureRegion> movementAnimation;
     private transient Animation<TextureRegion> attackAnimation;
@@ -157,6 +157,10 @@ public class Player extends Entity {
         shadowWaitElapsedTime += deltaTime;
 
         checkPlayerInShadow(shadowWaitElapsedTime);
+        if (this.activeItem != null) {
+            this.activeItem.tick(deltaTime);
+
+        }
 
     }
 
@@ -194,6 +198,9 @@ public class Player extends Entity {
         loadAnimations();
         for (Collectable collectable : inventory) {
             collectable.init();
+        }
+        if (this.activeItem != null) {
+            this.activeItem.restore();
         }
     }
 
@@ -275,6 +282,9 @@ public class Player extends Entity {
             elapsedTorchTime = 0f;
             torchLight.setDistance(0);
             torchLight.setActive(isHoldingTorch);
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+            this.activeItem.use();
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
             LevelScreen.getInstance().tileEntityManager.createTileEntity(
@@ -559,9 +569,9 @@ public class Player extends Entity {
     }
 
     /**
-     * Collects a collectable item.
+     * Collects a collectable activeItem.
      *
-     * @param collectable The collectable item to collect
+     * @param collectable The collectable activeItem to collect
      */
     public void collect(Collectable collectable) {
         switch (collectable.getType()) {
@@ -626,5 +636,9 @@ public class Player extends Entity {
 
     public float getMaxStamina() {
         return maxStamina;
+    }
+
+    public ActiveItem getActiveItem() {
+        return activeItem;
     }
 }

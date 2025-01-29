@@ -13,6 +13,7 @@ import de.tum.cit.fop.maze.gson.RuntimeTypeAdapterFactory;
 import de.tum.cit.fop.maze.level.TileMap;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Singleton class, responsible for loading all assets and initializing the game
@@ -26,6 +27,7 @@ public final class Assets {
     private final ArrayList<CollectableAttributes> collectables = new ArrayList<>();
     private final ArrayList<Trap.TrapAttributes> traps = new ArrayList<>();
     private final ArrayList<Enemy.EnemyConfig> enemies = new ArrayList<>();
+    private final ArrayList<ActiveItem.ActiveItemProperties> activeItems = new ArrayList<>();
     public final TileTextureHelper tileTextureHelper;
     public final Gson gson;
 
@@ -60,8 +62,7 @@ public final class Assets {
                 .registerSubtype(Torch.class, "Torch")
                 .registerSubtype(LootContainer.class, "LootContainer")
                 .registerSubtype(ExitDoor.class, "ExitDoor")
-                .registerSubtype(ShopItem.class, "ShopItem")
-                .registerSubtype(ThrowableCollectable.class, "throwableCollectable");
+                .registerSubtype(ShopItem.class, "ShopItem");
         gsonBuilder.enableComplexMapKeySerialization();
         gsonBuilder.registerTypeAdapterFactory(tileEntities);
         gsonBuilder.registerTypeAdapter(
@@ -83,13 +84,14 @@ public final class Assets {
         assetManager.load("assets/anim/player/character.atlas", TextureAtlas.class);
         assetManager.load("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class);
         assetManager.load("assets/temporary/collectables/collectables.atlas", TextureAtlas.class);
+        assetManager.load("assets/anim/activeItems/activeItems.atlas", TextureAtlas.class);
     }
 
     /**
      * Loads the collectables from the collectables.json file
      * and adds them to the corresponding pools
      */
-    private void loadCollectables() {
+    private void loadJson() {
         for (CollectableAttributes attribute : gson.fromJson(
             Gdx.files.local("assets/configs/collectables.json").readString(),
             CollectableAttributes[].class
@@ -105,6 +107,17 @@ public final class Assets {
                 lootContainerPool.add(attribute);
             }
         }
+        enemies.addAll(
+            List.of(gson.fromJson(Gdx.files.internal("anim/enemies/enemyConfig.json").readString(),
+                Enemy.EnemyConfig[].class
+            ))
+        );
+        activeItems.addAll(
+            List.of(gson.fromJson(Gdx.files.internal("assets/configs/activeItems.json").readString(),
+                ActiveItem.ActiveItemProperties[].class)
+            )
+        );
+
     }
 
     /**
@@ -115,7 +128,7 @@ public final class Assets {
         tileTextureHelper.loadTextures();
         queueLoading();
         assetManager.finishLoading();
-        loadCollectables();
+        loadJson();
 
     }
 
@@ -146,4 +159,9 @@ public final class Assets {
     public ArrayList<Enemy.EnemyConfig> getEnemies() {
         return enemies;
     }
+
+    public ArrayList<ActiveItem.ActiveItemProperties> getActiveItems() {
+        return activeItems;
+    }
+
 }

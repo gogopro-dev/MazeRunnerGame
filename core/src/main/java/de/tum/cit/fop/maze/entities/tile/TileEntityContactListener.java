@@ -8,8 +8,11 @@ public class TileEntityContactListener implements ContactListener {
     public void beginContact(Contact contact) {
         Body a = contact.getFixtureA().getBody();
         Body b = contact.getFixtureB().getBody();
-        if (a.getUserData() == null || b.getUserData() == null) {
-            return;
+        if (a.getUserData() instanceof Projectile projectile && !(b.getUserData() instanceof Player)) {
+            projectile.onContact();
+        }
+        if (b.getUserData() instanceof Projectile projectile && !(a.getUserData() instanceof Player)) {
+            projectile.onContact();
         }
         if (a.getUserData() instanceof TileEntity && b.getUserData() instanceof Player) {
             ((TileEntity) a.getUserData()).startContact(contact);
@@ -22,12 +25,6 @@ public class TileEntityContactListener implements ContactListener {
     public void endContact(Contact contact) {
         Body a = contact.getFixtureA().getBody();
         Body b = contact.getFixtureB().getBody();
-        if (a.getUserData() == null || b.getUserData() == null) {
-            return;
-        }
-        if (a.getUserData() instanceof TileEntity && b.getUserData() instanceof TileEntity) {
-            return;
-        }
         if (a.getUserData() instanceof TileEntity && b.getUserData() instanceof Player) {
             ((TileEntity) a.getUserData()).endContact(contact);
         } else if (a.getUserData() instanceof Player && b.getUserData() instanceof TileEntity) {

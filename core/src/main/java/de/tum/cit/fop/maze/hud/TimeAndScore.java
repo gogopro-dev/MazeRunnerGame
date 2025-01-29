@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import de.tum.cit.fop.maze.level.LevelData;
 
 import java.util.Locale;
 
@@ -14,13 +15,13 @@ public class TimeAndScore {
     private float currentScore;
     private float elapsedTime = 0;
     private Stage stage;
+    private LevelData data;
 
-    public TimeAndScore( int currentScore,  Label.LabelStyle labelStyle, Stage stage) {
-
-        this.currentScore = currentScore;
+    public TimeAndScore(LevelData data, Label.LabelStyle labelStyle, Stage stage) {
+        this.data = data;
         this.stage = stage;
-        time = new Label(formatedTime(elapsedTime), labelStyle);
-        scoreLabel = new Label(formatedScore(currentScore), labelStyle);
+        time = new Label(formatedTime(), labelStyle);
+        scoreLabel = new Label(formatedScore(), labelStyle);
 
         timeAndScoreTable.add(time);
         timeAndScoreTable.row();
@@ -38,8 +39,8 @@ public class TimeAndScore {
         timeAndScoreTable.align(Align.center);
     }
 
-    public String formatedTime(float elapsedTime) {
-        long seconds = (long) elapsedTime;
+    public String formatedTime() {
+        long seconds = (long) data.getPlaytime();
         long minutes = seconds / 60;
         long hours = minutes / 60;
         return String.format(
@@ -47,28 +48,16 @@ public class TimeAndScore {
         );
     }
 
-    public String formatedScore(int score) {
+    public String formatedScore() {
         return String.format(
-                Locale.getDefault(), "Score: %06d", score
+            Locale.getDefault(), "Score: %06d", data.getScore()
         );
     }
 
-    private void addScore(int val) {
-        currentScore += val;
-    }
-
-    public void updateLabels(float deltaTime) {
-        elapsedTime += deltaTime;
-        time.setText(formatedTime(elapsedTime));
-        currentScore = currentScore - deltaTime;
-        scoreLabel.setText(formatedScore((int) currentScore));
+    public void updateLabels() {
+        time.setText(formatedTime());
+        scoreLabel.setText(formatedScore());
         System.out.println(currentScore + " " + elapsedTime);
     }
 
-    public int getElapsedTime() {
-        return (int) elapsedTime;
-    }
-    public int getCurrentScore() {
-        return (int) currentScore;
-    }
 }

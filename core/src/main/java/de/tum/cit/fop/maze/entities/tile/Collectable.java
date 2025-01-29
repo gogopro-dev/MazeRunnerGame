@@ -293,6 +293,10 @@ public class Collectable extends TileEntity {
         }
     }
 
+    public Animation<TextureRegion> getIdleAnimation() {
+        return idleAnimation;
+    }
+
     public CollectableAttributes getCollectableAttributes() {
         return collectableAttributes;
     }

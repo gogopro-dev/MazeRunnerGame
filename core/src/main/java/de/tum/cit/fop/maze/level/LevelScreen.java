@@ -22,6 +22,7 @@ import de.tum.cit.fop.maze.hud.HUD;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
+import de.tum.cit.fop.maze.menu.PlayGameScreen;
 
 import java.io.IOException;
 import java.util.Random;
@@ -58,6 +59,8 @@ public class LevelScreen implements Screen {
     public transient final SpriteBatch batch;
     public transient HUD hud;
     public transient final RayHandler rayHandler;
+    private final LevelData levelData = new LevelData();
+
 
 
     transient Random random = new Random(2);
@@ -124,8 +127,8 @@ public class LevelScreen implements Screen {
         if (endGame){
             pauseScreen.takeScreenshot();
             GameOverScreen.getInstance().drawInventory(hud.spriteInventory, hud.textInventory);
-            GameOverScreen.getInstance().setTimePlayed(hud.getTime());
-            GameOverScreen.getInstance().setScore(hud.getScore());
+            GameOverScreen.getInstance().setTimePlayed(hud.getFormattedTime());
+            GameOverScreen.getInstance().setScore(levelData.getScore());
             gameOver = true;
         }
     }
@@ -134,6 +137,7 @@ public class LevelScreen implements Screen {
      * Saves the game state
      */
     public void saveGame(){
+        if (endGame) return;
         try {
             SaveManager.saveGame(levelIndex);
         } catch (IOException e) {
@@ -147,6 +151,7 @@ public class LevelScreen implements Screen {
      */
     public void renderWorld(float delta){
         /// Render the game if not paused
+        levelData.addPlaytime(delta);
         worldLock.lock();
         doPhysicsStep(delta);
         worldLock.unlock();
@@ -179,6 +184,10 @@ public class LevelScreen implements Screen {
 
         viewport.update(width, height);
         viewport.setScreenSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    }
+
+    public LevelData getLevelData() {
+        return levelData;
     }
 
     @Override
@@ -464,6 +473,7 @@ public class LevelScreen implements Screen {
         this.endGame = true;
         GameOverScreen.getInstance().setHasWon(hasWon);
         GameOverScreen.getInstance().deleteGame();
+        PlayGameScreen.getInstance().updateScreen();
     }
 
     /**

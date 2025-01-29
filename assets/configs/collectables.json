@@ -25,6 +25,7 @@
     "name": "Fireball",
     "description": "A ball of fire that magically doesn't seem to want to kill you, and instead wants to become friends.\n You can throw it if you want ",
     "dropChance": 0.25,
+    "associatedActiveItem": "FIREBALL",
     "treasurePool": true
   },
   {
@@ -39,10 +40,10 @@
     "description": "A wise old man once said:\n \"Yo, you better kow how to defend yo' ass.\" "
   },
   {
-  "type": "DAMAGE_COIN",
+    "type": "DAMAGE_COIN",
     "textureName": "damage_orb",
-  "damageBoost": 0.15,
-  "frameDuration": 0.1,
+    "damageBoost": 0.15,
+    "frameDuration": 0.1,
     "dropChance": 0.02,
     "lootContainerPool": true,
     "treasurePool": true

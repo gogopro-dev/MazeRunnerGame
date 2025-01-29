@@ -187,13 +187,18 @@ public class TileMap implements Disposable, GSONPostRestorable {
                     );
                 }
                 if (cell.getCellType() == CellType.TREASURE_ROOM_ITEM) {
-                    tileEntityManager.createTileEntity(
-                        new Collectable(
-                            Assets.getInstance().getTreasurePool().get(
-                                random.nextInt(Assets.getInstance().getTreasurePool().size())
-                            )
-                        ), currentCellCenter
-                    );
+                    CollectableAttributes attribute = null;
+                    for (CollectableAttributes attr : Assets.getInstance().getTreasurePool()) {
+                        if (attr.spawnPriority) attribute = attr;
+                    }
+                    if (attribute == null) {
+                        attribute = Assets.getInstance().getTreasurePool().get(
+                            random.nextInt(Assets.getInstance().getTreasurePool().size())
+                        );
+                    } else {
+                        Assets.getInstance().getTreasurePool().remove(attribute);
+                    }
+                    tileEntityManager.createTileEntity(new Collectable(attribute), currentCellCenter);
                 }
                 if (cell.getCellType() == CellType.EXIT_DOOR) {
                     GeneratorCell pathCell = GenerationCases.getFirstSurroundingPath(i, j, this.generator);
