@@ -267,6 +267,9 @@ public class PauseScreen {
      * Update the pause menu state and input processor
      */
     public void update() {
+        if (Menu.getInstance().getMenuState() != MenuState.GAME_SCREEN) {
+            return;
+        }
         /// Handle escape key press
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) && !wasEscapePressed) {
             togglePause();
