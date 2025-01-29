@@ -286,8 +286,10 @@ public class Player extends Entity {
             torchLight.setDistance(0);
             torchLight.setActive(isHoldingTorch);
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Q) && this.activeItem != null) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Q) && this.activeItem != null && stamina > maxStamina/3) {
             this.activeItem.use();
+            useStamina(maxStamina/3);
+
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
             LevelScreen.getInstance().tileEntityManager.createTileEntity(
@@ -330,7 +332,7 @@ public class Player extends Entity {
         if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) && stamina > 0) {
             velocityX *= 1.3f + attributes.getSpeedBoost();
             velocityY *= 1.3f + attributes.getSpeedBoost();
-            useStamina(2); // amount of stamina drained per second of running
+            useStamina(2 * Gdx.graphics.getDeltaTime()); // amount of stamina drained per second of running
             staminaRecoveryElapsedTime = 0;
         }
 
@@ -563,8 +565,8 @@ public class Player extends Entity {
             stamina = 0;
             return;
         }
-        super.useStamina(amount*Gdx.graphics.getDeltaTime());
-        LevelScreen.getInstance().hud.useStamina(amount*Gdx.graphics.getDeltaTime());
+        super.useStamina(amount);
+        LevelScreen.getInstance().hud.useStamina(amount);
     }
 
     @Override
