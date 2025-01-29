@@ -1,12 +1,10 @@
 package de.tum.cit.fop.maze.entities.tile;
 
 import box2dLight.PointLight;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.google.gson.Gson;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
@@ -14,15 +12,12 @@ import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-
 import static de.tum.cit.fop.maze.Globals.*;
 
 /**
  * Represents a trap in the game
  */
 public class Trap extends TileEntity {
-    private static final String TRAP_ANIMATION_PATH = "anim/tileEntities/tile_entities.atlas";
     private transient Animation<TextureRegion> trapAnimation;
     private transient float elapsedTime = 0f;
     private transient float lastActivationTime = 0f;
@@ -35,7 +30,7 @@ public class Trap extends TileEntity {
      *
      * @param type          the type of the trap
      * @param frameDuration duration of each frame in seconds
-     * @param damage        the damage of the trap
+     * @param damage        trap's damage
      * @param cooldown      cooldown of the trap in seconds
      * @param height        height of the trap in cells
      * @param width         width of the trap in cells
@@ -63,9 +58,7 @@ public class Trap extends TileEntity {
      */
     public Trap(TrapType type) {
         this();
-        Gson gson = new Gson();
-        this.attributes = Arrays.stream(
-            gson.fromJson(Gdx.files.internal("anim/tileEntities/trapConfig.json").reader(), TrapAttributes[].class)
+        this.attributes = Assets.getInstance().getTraps().stream(
         ).filter(attribute -> attribute.type.equals(type)).findFirst().get();
         init();
     }

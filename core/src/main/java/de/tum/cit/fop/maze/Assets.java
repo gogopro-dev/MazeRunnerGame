@@ -109,15 +109,20 @@ public final class Assets {
             }
         }
         enemies.addAll(
-            List.of(gson.fromJson(Gdx.files.internal("anim/enemies/enemyConfig.json").readString(),
+            List.of(gson.fromJson(Gdx.files.local("assets/anim/enemies/enemyConfig.json").readString(),
                 Enemy.EnemyConfig[].class
             ))
         );
         activeItems.addAll(
-            List.of(gson.fromJson(Gdx.files.internal("assets/configs/activeItems.json").readString(),
+            List.of(gson.fromJson(Gdx.files.local("assets/configs/activeItems.json").readString(),
                 ActiveItem.ActiveItemProperties[].class)
             )
         );
+
+        traps.addAll(
+            List.of(gson.fromJson(Gdx.files.local("assets/configs/trapConfig.json").readString(),
+                Trap.TrapAttributes[].class)
+        ));
 
     }
 
