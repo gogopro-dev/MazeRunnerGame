@@ -44,7 +44,6 @@ public class CoinsAndKeys {
     }
     public void pickUpCoin(int value){
 
-        LevelScreen.getInstance().player.addGold(value);
         coins.setText(": " + LevelScreen.getInstance().player.getGold());
         coinsAndKeysTable.setPosition(x + coinsAndKeysTable.getPrefWidth() / 2,
             y - coinsAndKeysTable.getPrefHeight() / 2);

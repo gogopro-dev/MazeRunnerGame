@@ -8,10 +8,12 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import de.tum.cit.fop.maze.ActiveItem;
 import de.tum.cit.fop.maze.entities.CoinsAndKeys;
 import de.tum.cit.fop.maze.entities.Description;
 import de.tum.cit.fop.maze.entities.ExitArrow;
 import de.tum.cit.fop.maze.entities.Player;
+import de.tum.cit.fop.maze.entities.tile.AbilityBorder;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
@@ -41,6 +43,7 @@ public class HUD {
     private final Inventory inventory;
     private final Label.LabelStyle inventoryStyle;
     private final Description description;
+    private final AbilityBorder abilityBorder;
 
 
     public HUD(Player player) {
@@ -107,6 +110,8 @@ public class HUD {
 
 
         exitArrow = new ExitArrow(atlas, stage);
+
+        abilityBorder = new AbilityBorder(stage.getViewport().getWorldWidth()/2, padding, atlas);
     }
 
     public void hideInventory() {
@@ -151,6 +156,10 @@ public class HUD {
         coinsAndKeys.pickUpCoin(amount);
     }
 
+    public void addActiveItem() {
+        abilityBorder.addActiveItem();
+    }
+
 
     public void addItemToInventory(Collectable collectable) {
 //        Collectable.CollectableType collectableType = collectable.getType();
@@ -181,7 +190,7 @@ public class HUD {
             return;
         }
         hitElapsedTime = 0f;
-        healthBar.takeDmg(receivedDmg+2);
+        healthBar.takeDmg(receivedDmg);
     }
 
     public void useStamina(float amount) {
@@ -229,6 +238,7 @@ public class HUD {
         exitArrow.drawExitArrow(spriteBatch, LevelScreen.getInstance().player.getPosition().angle(
             LevelScreen.getInstance().map.getExitPosition()
         ));
+        abilityBorder.render(spriteBatch, deltaTime);
         stage.getBatch().end();
     }
 
@@ -249,8 +259,8 @@ public class HUD {
         return timeAndScore.formatedTime().replace("Time: ", "");
     }
 
-    public void setMaxHealth(int i) {
-        healthBar.setMaxHealth(i);
+    public void setHealthBar(int health, int maxHealth) {
+        healthBar.setHealthBar(health, maxHealth);
     }
 
     public int getHealth() {

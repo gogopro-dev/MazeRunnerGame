@@ -22,7 +22,7 @@ public final class CollectableAttributes extends Attributes {
 
     public CollectableAttributes(
         Collectable.CollectableType type, String textureName, int immediateHealing, int immediateCoins,
-        float dropChance, float damageBoost, float resistanceBoost, float vampirism, float speedBoost,
+        float dropChance, int damageBoost, int resistanceBoost, float vampirism, float speedBoost,
         int resurrections, float frameDuration, int shopPrice, String name, String description,
         boolean lootContainerPool, boolean treasurePool, boolean shopPool, boolean emitsLight,
         boolean isConsumable, boolean spawnPriority, ActiveItem.ActiveItemType associatedActiveItem

@@ -33,7 +33,7 @@
   {
     "type": "DEFENSE_COIN",
     "textureName": "shield_orb",
-    "resistanceBoost": 0.15,
+    "resistanceBoost": 2,
     "frameDuration": 0.1,
     "dropChance": 0.02,
     "lootContainerPool": true,
@@ -44,7 +44,7 @@
   {
     "type": "DAMAGE_COIN",
     "textureName": "damage_orb",
-    "damageBoost": 0.15,
+    "damageBoost": 2,
     "frameDuration": 0.1,
     "dropChance": 0.02,
     "lootContainerPool": true,

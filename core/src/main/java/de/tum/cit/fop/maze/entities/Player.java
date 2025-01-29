@@ -36,7 +36,7 @@ public class Player extends Entity {
     private float staminaRecoveryElapsedTime = 0f;
     private float maxStamina = 100;
     private boolean hasKey = false;
-    private ActiveItem activeItem = new ActiveItem(ActiveItem.ActiveItemType.FIREBALL);
+    private ActiveItem activeItem;
     private transient Animation<TextureRegion> idleAnimation;
     private transient Animation<TextureRegion> movementAnimation;
     private transient Animation<TextureRegion> attackAnimation;
@@ -282,7 +282,7 @@ public class Player extends Entity {
             torchLight.setDistance(0);
             torchLight.setActive(isHoldingTorch);
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Q) && this.activeItem != null) {
             this.activeItem.use();
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
@@ -517,26 +517,30 @@ public class Player extends Entity {
 
     @Override
     public void takeDamage(int damage) {
-        damage += 2;
-        System.out.println(health + " " + LevelScreen.getInstance().hud.getHealth());
         if (isDamaged) return;
         super.takeDamage(Math.max(1, damage));
         isDamaged = true;
         damageFlashTimer = 0f;
         LevelScreen.getInstance().hud.takeDmg(Math.max(1, damage));
-        if (isDead()){
-            for (Collectable collectable : inventory) {
-                if (collectable.getType() == Collectable.CollectableType.RESURRECTION_AMULET) {
-                    inventory.remove(collectable);
-                    maxHealth = 10;
-                    LevelScreen.getInstance().hud.setMaxHealth(10);
-                    heal(5);
-                    return;
-                }
+        if (isDead()) {
+            if (removeItem(Collectable.CollectableType.RESURRECTION_AMULET)) {
+                health = maxHealth;
+                LevelScreen.getInstance().hud.setHealthBar(health, maxHealth);
+                return;
             }
             LevelScreen.getInstance().endGame(false);
-
         }
+    }
+
+    public boolean removeItem(Collectable.CollectableType type) {
+        for (Collectable c : inventory) {
+            if (c.getType() == type) {
+                inventory.remove(c);
+                heal(5);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -585,6 +589,12 @@ public class Player extends Entity {
                 addGold(collectable.getCollectableAttributes().getImmediateCoins());
                 break;
             default:
+                if (collectable.getCollectableAttributes().associatedActiveItem != null) {
+                    activeItem = new ActiveItem(collectable.getCollectableAttributes().associatedActiveItem);
+                    LevelScreen.getInstance().hud.addActiveItem();
+                    return;
+
+                }
                 inventory.add(collectable);
                 attributes.sum(collectable.getCollectableAttributes());
                 LevelScreen.getInstance().hud.addItemToInventory(collectable);
@@ -627,6 +637,7 @@ public class Player extends Entity {
 
     public void addGold(int gold) {
         this.gold += gold;
+        LevelScreen.getInstance().hud.addCoin(gold);
     }
 
     public void removeGold(int gold) {

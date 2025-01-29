@@ -5,8 +5,8 @@ public class Attributes {
 
     protected int immediateHealing;
     protected int immediateCoins;
-    protected float damageBoost;
-    protected float resistanceBoost;
+    protected int damageBoost;
+    protected int resistanceBoost;
     protected float vampirism;
     protected int resurrections;
     protected float speedBoost;
@@ -20,7 +20,7 @@ public class Attributes {
     "Амулет вампира": после каждого убитого врага есть шанс 10% восстановить себе здоровье (рандом от 1 сердца до 3, включая половинчатые значения). Стоимость 100 монет
     "Сапоги скорохода": Увеличивает вашу скорость на 10%. Стоимость: 50 монет */
 
-    public Attributes(int immediateHealing, int immediateCoins, float damageBoost, float resistanceBoost,
+    public Attributes(int immediateHealing, int immediateCoins, int damageBoost, int resistanceBoost,
                       float vampirism, int resurrections, float speedBoost
     ) {
         this.immediateHealing = immediateHealing;
@@ -113,11 +113,11 @@ public class Attributes {
         return vampirism;
     }
 
-    public float getResistanceBoost() {
+    public int getResistanceBoost() {
         return resistanceBoost;
     }
 
-    public float getDamageBoost() {
+    public int getDamageBoost() {
         return damageBoost;
     }
 }

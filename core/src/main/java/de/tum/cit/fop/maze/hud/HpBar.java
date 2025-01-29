@@ -81,23 +81,66 @@ public class HpBar {
         stage.addActor(healthBar);
     }
 
-    public void updateHpBar(int health, int maxHealth) {
-        this.health = health;
-        this.maxHealth = maxHealth;
+//    public void updateHpBar(int health, int maxHealth, boolean isDamaged) {
+//        this.health = health;
+//        this.maxHealth = maxHealth;
+//
+//        if (isDamaged) {
+//            for (int i = health; i < health + receivedDamage; i++) {
+//                if (i % 2 == 0) {
+//                    Drawable drawable = new TextureRegionDrawable(staticHealthLEmpty);
+//                    drawable.setMinWidth(healthImages.get(i).getWidth());
+//                    drawable.setMinHeight(healthImages.get(i).getHeight());
+//                    healthImages.get(i).setDrawable(drawable);
+//                } else {
+//                    Drawable drawable = new TextureRegionDrawable(staticHealthREmpty);
+//                    drawable.setMinWidth(healthImages.get(i).getWidth());
+//                    drawable.setMinHeight(healthImages.get(i).getHeight());
+//                    healthImages.get(i).setDrawable(drawable);
+//                }
+//            }
+//        }
+//
+//        else{
+//            for (int i = health - receivedDamage; i < health; i++) {
+//                if (i % 2 == 0) {
+//                    Drawable drawable = new TextureRegionDrawable(staticHealthLFull);
+//                    drawable.setMinWidth(healthImages.get(i).getWidth());
+//                    drawable.setMinHeight(healthImages.get(i).getHeight());
+//                    healthImages.get(i).setDrawable(drawable);
+//                } else {
+//                    Drawable drawable = new TextureRegionDrawable(staticHealthRFull);
+//                    drawable.setMinWidth(healthImages.get(i).getWidth());
+//                    drawable.setMinHeight(healthImages.get(i).getHeight());
+//                    healthImages.get(i).setDrawable(drawable);
+//                }
+//            }
+//        }
+//    }
 
-        for (int i = health; i < health+receivedDamage; i++ ){
+    public void updateHpBar(int health, int maxHealth, Boolean isDamage, int value){
+
+        if (isDamage == null){
+            createHpBar(health, maxHealth);
+            return;
+        }
+
+        TextureRegionDrawable left = new TextureRegionDrawable(isDamage ? staticHealthLEmpty : staticHealthLFull);
+        TextureRegionDrawable right = new TextureRegionDrawable(isDamage ? staticHealthREmpty : staticHealthRFull);
+        left.setMinWidth(left.getMinWidth() * scaling);
+        left.setMinHeight(left.getMinHeight() * scaling);
+        right.setMinWidth(right.getMinWidth() * scaling);
+        right.setMinHeight(right.getMinHeight() * scaling);
+
+        for (int i = health; i < health + value; i++) {
             if (i % 2 == 0) {
-                Drawable drawable = new TextureRegionDrawable(staticHealthLEmpty);
-                drawable.setMinWidth(healthImages.get(i).getWidth());
-                drawable.setMinHeight(healthImages.get(i).getHeight());
-                healthImages.get(i).setDrawable(drawable);
+                healthImages.get(i).setDrawable(left);
             } else {
-                Drawable drawable = new TextureRegionDrawable(staticHealthREmpty);
-                drawable.setMinWidth(healthImages.get(i).getWidth());
-                drawable.setMinHeight(healthImages.get(i).getHeight());
-                healthImages.get(i).setDrawable(drawable);
+                healthImages.get(i).setDrawable(right);
             }
         }
+
+
     }
 
 
@@ -127,18 +170,23 @@ public class HpBar {
     }
 
     public void heal(int value){
-        health += value;
-        if (health > maxHealth) {
-            health = maxHealth;
+        if (health + value > maxHealth){
+            value = maxHealth - health;
         }
-        updateHpBar(health, maxHealth);
+        updateHpBar(health, maxHealth, false, value);
+        health += value;
     }
 
     public void takeDmg(int damage) {
-        receivedDamage = damage;
-        health = Math.max( health - receivedDamage, 0);
-        updateHpBar(health, maxHealth);
-        hitElapsedTime = 0f;
+        if (health - damage < 0) {
+            receivedDamage = health;
+        }
+        else {
+            receivedDamage = damage;
+        }
+        health -= receivedDamage;
+        hitElapsedTime = 0;
+        updateHpBar(health, maxHealth, true, receivedDamage);
         gotHit = true;
     }
 
@@ -180,6 +228,7 @@ public class HpBar {
             damageAnimation(deltaTime, batch);
             if (getAllAnimationsFinished()) {
                 gotHit = false;
+                hitElapsedTime = 0;
             }
         }
     }
@@ -217,8 +266,10 @@ public class HpBar {
         return healthBar.getPrefHeight();
     }
 
-    public void setMaxHealth(int i) {
-        maxHealth = i;
-        updateHpBar(health, maxHealth);
+    public void setHealthBar(int maxHealth, int health) {
+
+        this.maxHealth = maxHealth;
+        this.health = health;
+        updateHpBar(health, maxHealth, null, 0);
     }
 }
