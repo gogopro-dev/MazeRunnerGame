@@ -82,11 +82,11 @@ public class Attributes {
         }
         if (this.damageBoost > 0) {
             sb.append("Increases damage by ")
-                .append(Math.round(this.damageBoost * 100)).append("%\n");
+                .append(this.damageBoost).append("\n");
         }
         if (this.resistanceBoost > 0) {
             sb.append("Increases resistance by ")
-                .append(Math.round(this.resistanceBoost * 100)).append("%\n");
+                .append(this.resistanceBoost).append("\n");
         }
         if (this.vampirism > 0) {
             sb.append("Increases vampirism by ")

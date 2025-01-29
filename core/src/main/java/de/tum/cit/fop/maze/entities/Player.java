@@ -292,10 +292,15 @@ public class Player extends Entity {
 
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
-            LevelScreen.getInstance().tileEntityManager.createTileEntity(
-                new Collectable(Collectable.CollectableType.GOLD_COIN, true),
-                getPosition().x(), getPosition().y()
-            );
+            /// Only if the player has more than 1 gold coin
+            if (gold > 0) {
+                LevelScreen.getInstance().tileEntityManager.createTileEntity(
+                    new Collectable(Collectable.CollectableType.GOLD_COIN, true),
+                    getPosition().x(), getPosition().y()
+                );
+                /// Remove gold from
+                removeGold(1);
+            }
         }
 
 
@@ -651,6 +656,7 @@ public class Player extends Entity {
 
     public void removeGold(int gold) {
         this.gold -= gold;
+        LevelScreen.getInstance().hud.addCoin(-gold);
     }
 
     public float getMaxStamina() {
