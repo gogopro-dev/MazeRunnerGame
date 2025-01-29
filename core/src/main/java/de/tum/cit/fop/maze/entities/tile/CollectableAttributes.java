@@ -15,15 +15,16 @@ public final class CollectableAttributes extends Attributes {
     public final String name;
     public final String description;
     public final boolean isConsumable;
-    private final ActiveItem.ActiveItemType associatedActiveItem;
+    public final ActiveItem.ActiveItemType associatedActiveItem;
     /// Guarantees that if there is space - the item will be spawned
     public final boolean spawnPriority;
+    public final boolean emitsLight;
 
     public CollectableAttributes(
         Collectable.CollectableType type, String textureName, int immediateHealing, int immediateCoins,
         float dropChance, float damageBoost, float resistanceBoost, float vampirism, float speedBoost,
         int resurrections, float frameDuration, int shopPrice, String name, String description,
-        boolean lootContainerPool, boolean treasurePool, boolean shopPool,
+        boolean lootContainerPool, boolean treasurePool, boolean shopPool, boolean emitsLight,
         boolean isConsumable, boolean spawnPriority, ActiveItem.ActiveItemType associatedActiveItem
     ) {
         super(immediateHealing, immediateCoins, damageBoost, resistanceBoost,
@@ -44,6 +45,7 @@ public final class CollectableAttributes extends Attributes {
         this.isConsumable = isConsumable;
         this.spawnPriority = spawnPriority;
         this.associatedActiveItem = associatedActiveItem;
+        this.emitsLight = emitsLight;
     }
 
     public void sum(CollectableAttributes other) {

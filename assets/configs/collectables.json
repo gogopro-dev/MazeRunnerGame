@@ -26,7 +26,9 @@
     "description": "A ball of fire that magically doesn't seem to want to kill you, and instead wants to become friends.\n You can throw it if you want ",
     "dropChance": 0.25,
     "associatedActiveItem": "FIREBALL",
-    "treasurePool": true
+    "treasurePool": true,
+    "emitsLight": true,
+    "spawnPriority": true
   },
   {
     "type": "DEFENSE_COIN",
