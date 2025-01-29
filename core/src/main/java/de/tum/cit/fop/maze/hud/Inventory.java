@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Inventory {
@@ -30,7 +31,8 @@ public class Inventory {
     public final Table textInventory = new Table();
     public final Label.LabelStyle labelStyle;
     public final Stage stage;
-    private Map<String, Label> invInfo = new HashMap<>();
+    private Map<String, Label> labelInfo = new HashMap<>();
+    private Map<String, Image> imageInfo = new HashMap<>();
     private float padding = 10;
 
     public Inventory(TextureAtlas inventoryAtlas, Label.LabelStyle labelStyle, Stage stage) {
@@ -47,25 +49,30 @@ public class Inventory {
     public void addItemToInventory(Collectable collectable) {
         Collectable.CollectableType collectableType = collectable.getType();
         String textureName = collectable.getCollectableAttributes().textureName;
-        if (invInfo.get(collectableType.name()) == null) {
+        if (labelInfo.get(collectableType.name()) == null) {
             Drawable drawable = new TextureRegionDrawable(inventoryAtlas.findRegion(textureName));
             drawable.setMinWidth(sizeOfInvIcon);
             drawable.setMinHeight(sizeOfInvIcon);
-            spriteInventory.add(new Image(drawable)).width(sizeOfInvIcon).height(sizeOfInvIcon).center()
+            Image image = new Image(drawable);
+
+            spriteInventory.add(image).width(sizeOfInvIcon).height(sizeOfInvIcon).center()
                     .padRight(spacingBetweenIcons);
 
             Label label = new Label("x1", labelStyle);
             textInventory.add(label).width(sizeOfInvIcon).height(sizeOfInvIcon).center()
                     .padRight(spacingBetweenIcons);
 
-            invInfo.put(collectableType.name(), label);
+
+            labelInfo.put(collectableType.name(), label);
+            imageInfo.put(collectableType.name(), image);
+
             if (spriteInventory.getChildren().size % inventoryCols == 0) {
                 spriteInventory.row().padTop(spacingBetweenIcons);
                 textInventory.row().padTop(spacingBetweenIcons);
             };
             return;
         }
-        Label label = invInfo.get(collectableType.name());
+        Label label = labelInfo.get(collectableType.name());
         String[] text = label.getText().toString().split("x");
         int amount = Integer.parseInt(text[1]);
         amount++;
@@ -96,5 +103,36 @@ public class Inventory {
     public void showInventory() {
         spriteInventory.setVisible(true);
         textInventory.setVisible(true);
+    }
+
+    public boolean removeItemFromInventory(Collectable collectable) {
+        Collectable.CollectableType collectableType = collectable.getType();
+        if (labelInfo.get(collectableType.name()) == null) {
+            return false;
+        }
+        Label label = labelInfo.get(collectableType.name());
+        String[] text = label.getText().toString().split("x");
+        int amount = Integer.parseInt(text[1]);
+        amount--;
+
+        Image image = imageInfo.get(collectableType.name());
+
+        if (amount == 0) {
+            return false;
+        }
+        label.setText("x" + amount);
+        return true;
+    }
+
+    private void updateTablesSize() {
+        spriteInventory.setSize(spriteInventory.getPrefWidth(), spriteInventory.getPrefHeight());
+        textInventory.setSize(textInventory.getPrefWidth(), textInventory.getPrefHeight());
+    }
+
+    public void clearInventory() {
+        spriteInventory.clear();
+        textInventory.clear();
+        labelInfo.clear();
+        imageInfo.clear();
     }
 }

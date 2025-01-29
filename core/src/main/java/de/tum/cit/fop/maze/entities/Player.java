@@ -22,6 +22,7 @@ import de.tum.cit.fop.maze.level.LevelScreen;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 import static de.tum.cit.fop.maze.Globals.*;
 
@@ -244,7 +245,10 @@ public class Player extends Entity {
 
                 if (fixture.getBody().getUserData() instanceof Attackable attackable) {
                     System.out.println("Hit " + attackable);
-                    attackable.takeDamage(Globals.PLAYER_DAMAGE);
+                    attackable.takeDamage(Globals.PLAYER_DAMAGE + attributes.getDamageBoost());
+                    if (attributes.getVampirism() > 0 && attackable instanceof Enemy) {
+                        heal(LevelScreen.getInstance().getRandom().nextFloat() <= attributes.getVampirism() ? 1 : 0);
+                    }
                 }
                 if (fixture.getBody().getUserData() instanceof Enemy enemy) {
                     enemy.setKnockbackVector(
@@ -324,8 +328,8 @@ public class Player extends Entity {
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) && stamina > 0) {
-            velocityX *= 1.3f;
-            velocityY *= 1.3f;
+            velocityX *= 1.3f + attributes.getSpeedBoost();
+            velocityY *= 1.3f + attributes.getSpeedBoost();
             useStamina(2); // amount of stamina drained per second of running
             staminaRecoveryElapsedTime = 0;
         }
@@ -515,26 +519,32 @@ public class Player extends Entity {
 
     @Override
     public void takeDamage(int damage) {
+        damage = Math.max(1, damage - attributes.getResistanceBoost()); /// Damage taken by player is at least 1
         if (isDamaged) return;
-        super.takeDamage(Math.max(1, damage));
+        super.takeDamage(damage);
         isDamaged = true;
         damageFlashTimer = 0f;
-        LevelScreen.getInstance().hud.takeDmg(Math.max(1, damage));
         if (isDead()) {
-            if (removeItem(Collectable.CollectableType.RESURRECTION_AMULET)) {
-                health = maxHealth;
-                LevelScreen.getInstance().hud.setHealthBar(health, maxHealth);
+            if (removeItem(Collectable.CollectableType.RESURRECTION_AMULET)) { /// if player has resurrection amulet
+                health = maxHealth; /// restore health
+                LevelScreen.getInstance().hud.setHealthBar(health, maxHealth); /// update health bar
                 return;
             }
+            LevelScreen.getInstance().hud.setHealthBar(0, maxHealth);
             LevelScreen.getInstance().endGame(false);
+            return;
         }
+        LevelScreen.getInstance().hud.takeDmg(damage);
     }
 
     public boolean removeItem(Collectable.CollectableType type) {
         for (Collectable c : inventory) {
             if (c.getType() == type) {
                 inventory.remove(c);
-                heal(5);
+                if (!LevelScreen.getInstance().hud.removeItemFromInventory(c)){ /// if item is not in inventory or is in single instance
+                    LevelScreen.getInstance().hud.updateInventory(inventory); /// update inventory, else amount will be updated in removeItemFromInventory
+                };
+                attributes.sub(c.getCollectableAttributes()); /// remove attributes
                 return true;
             }
         }
@@ -544,8 +554,7 @@ public class Player extends Entity {
     @Override
     public void heal(int amount) {
         super.heal(amount);
-        //TODO: HUD heal
-        LevelScreen.getInstance().hud.heal(amount);
+        LevelScreen.getInstance().hud.setHealthBar(health, maxHealth);
     }
 
     @Override

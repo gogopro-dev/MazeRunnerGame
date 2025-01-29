@@ -42,6 +42,16 @@ public class Attributes {
         this.speedBoost += other.speedBoost;
     }
 
+    public void sub(Attributes other) {
+        this.immediateHealing -= other.immediateHealing;
+        this.damageBoost -= other.damageBoost;
+        this.immediateCoins -= other.immediateCoins;
+        this.resistanceBoost -= other.resistanceBoost;
+        this.vampirism -= other.vampirism;
+        this.resurrections -= other.resurrections;
+        this.speedBoost -= other.speedBoost;
+    }
+
     @Override
     public String toString() {
         return "Attributes{" +

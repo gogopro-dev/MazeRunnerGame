@@ -69,6 +69,7 @@ public class HpBar {
 
         if (healthBar.getChildren().size > 0) {
             healthBar.clear();
+            healthImages.clear();
         }
 
         fillWithHearts(1, health, staticHealthLFull, staticHealthRFull, scaling);
@@ -122,6 +123,10 @@ public class HpBar {
 
         if (isDamage == null){
             createHpBar(health, maxHealth);
+            return;
+        }
+
+        if (value == 0){
             return;
         }
 
@@ -266,10 +271,12 @@ public class HpBar {
         return healthBar.getPrefHeight();
     }
 
-    public void setHealthBar(int maxHealth, int health) {
+    public void setHealthBar(int health, int maxHealth) {
 
         this.maxHealth = maxHealth;
         this.health = health;
-        updateHpBar(health, maxHealth, null, 0);
+        this.gotHit = false;
+        this.elapsedTime = 0;
+        createHpBar(health, maxHealth);
     }
 }

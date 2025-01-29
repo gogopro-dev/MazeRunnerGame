@@ -15,9 +15,11 @@ import de.tum.cit.fop.maze.entities.ExitArrow;
 import de.tum.cit.fop.maze.entities.Player;
 import de.tum.cit.fop.maze.entities.tile.AbilityBorder;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
+import de.tum.cit.fop.maze.entities.tile.CollectableAttributes;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.*;
+import java.util.List;
 
 import static de.tum.cit.fop.maze.Globals.*;
 
@@ -265,6 +267,17 @@ public class HUD {
 
     public int getHealth() {
         return healthBar.getHealth();
+    }
+
+    public boolean removeItemFromInventory(Collectable collectable) {
+        return inventory.removeItemFromInventory(collectable);
+    }
+
+    public void updateInventory(List<Collectable> inventory) {
+        this.inventory.clearInventory();
+        for (Collectable collectable : inventory) {
+            addItemToInventory(collectable);
+        }
     }
 }
 
