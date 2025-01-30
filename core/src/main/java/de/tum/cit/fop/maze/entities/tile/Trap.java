@@ -25,6 +25,9 @@ public class Trap extends TileEntity {
     private boolean isActivated = false;
     private transient @Nullable PointLight light;
 
+    /**
+     * Constructs a new trap
+     */
     private Trap() {
         super(0, 0);
     }
@@ -41,6 +44,9 @@ public class Trap extends TileEntity {
         init();
     }
 
+    /**
+     * Initializes the trap
+     */
     protected void init() {
         this.width = attributes.width;
         this.height = attributes.height;
@@ -56,6 +62,10 @@ public class Trap extends TileEntity {
         );
     }
 
+    /**
+     * Renders the trap
+     * @param deltaTime time passed since the last frame
+     */
     public void render(float deltaTime) {
         elapsedTime += deltaTime;
         if (isActivated) {

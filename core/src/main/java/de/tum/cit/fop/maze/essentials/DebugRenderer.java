@@ -19,6 +19,9 @@ public class DebugRenderer {
     private final List<Function<Void, Void>> spawnedShapes = new ArrayList<>();
     private final boolean drawDebug = Globals.DEBUG;
 
+    /**
+     * Instantiates a new Debug renderer.
+     */
     public DebugRenderer() {
         if (instance != null) {
             throw new IllegalStateException("DebugRenderer already created");

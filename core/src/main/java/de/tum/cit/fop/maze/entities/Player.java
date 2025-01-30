@@ -274,6 +274,11 @@ public class Player extends Entity {
         }
     }
 
+    /**
+     * Attacks all enemies in range of the player.
+     * The attack range is determined by the player's facing direction.
+     * The player can attack all enemies in a rectangle in front of them.
+     */
     private void attackAllEnemiesInRange() {
         AbsolutePoint playerPos = getPosition();
         AbsolutePoint rectangleStart, rectangleEnd;
@@ -623,6 +628,11 @@ public class Player extends Entity {
         LevelScreen.getInstance().hud.takeDmg(damage);
     }
 
+    /**
+     * Removes an item from the player's inventory.
+     * @param type The type of the item to remove
+     * @return true if the item was removed, false otherwise
+     */
     public boolean removeItem(Collectable.CollectableType type) {
         for (Collectable c : inventory) {
             if (c.getType() == type) {

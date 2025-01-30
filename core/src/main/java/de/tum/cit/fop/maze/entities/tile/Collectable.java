@@ -61,6 +61,10 @@ public class Collectable extends TileEntity {
         circleFixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
     }
 
+    /**
+     * Constructor for Collectable
+     * @param type CollectableType
+     */
     public Collectable(CollectableType type) {
         this();
         collectableAttributes = Assets.getInstance().getCollectables().stream().filter(
@@ -72,22 +76,40 @@ public class Collectable extends TileEntity {
         init();
     }
 
+    /**
+     * Constructor for Collectable
+     * @param attributes CollectableAttributes
+     */
     public Collectable(CollectableAttributes attributes) {
         this();
         collectableAttributes = attributes;
         init();
     }
 
+    /**
+     * Constructor for Collectable
+     * @param attributes CollectableAttributes
+     * @param drop boolean
+     */
     public Collectable(CollectableAttributes attributes, boolean drop) {
         this(attributes);
         this.hasBeenDropped = !drop;
     }
-
+    /**
+     * Constructor for Collectable
+     * @param type CollectableType
+     * @param drop boolean
+     */
     public Collectable(CollectableType type, boolean drop) {
         this(type);
         this.hasBeenDropped = !drop;
     }
 
+    /**
+     * Initialize the collectable
+     * Load the texture atlas and set the animation
+     * Load the pickup sound
+     */
     public void init() {
         TextureAtlas atlas = Assets.getInstance().getAssetManager().get(
             "assets/collectables/collectables.atlas", TextureAtlas.class
@@ -109,6 +131,12 @@ public class Collectable extends TileEntity {
         ///  If at any point the pickup animation would be introduced, move the toDestroy assignment
     }
 
+    /**
+     * Render the collectable
+     * @param delta float
+     * @param x float
+     * @param y float
+     */
     public void render(float delta, float x, float y) {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -121,7 +149,7 @@ public class Collectable extends TileEntity {
         }
         if (this.dropPositions.isEmpty() && !hasBeenDropped) {
             hasBeenDropped = true;
-            updateDropPositions();
+            generateCollectableDropPath();
         }
         if (this.collectableAttributes.emitsLight && this.isSpawned()) {
             lightAnimationElapsedTime += delta;
@@ -205,7 +233,12 @@ public class Collectable extends TileEntity {
         return collectableAttributes.type;
     }
 
-    private void updateDropPositions() {
+    /**
+     * Generate the collectable drop path using Bézier curves
+     * Randomly generate the drop positions
+     * and curve which the collectable will follow
+     */
+    private void generateCollectableDropPath() {
         Random random = LevelScreen.getInstance().map.random;
         float x = body.getPosition().x;
         float y = body.getPosition().y;
@@ -270,6 +303,12 @@ public class Collectable extends TileEntity {
         this.hasBeenDropped = hasBeenDropped;
     }
 
+    /**
+     * Create a temporary body for the collectable
+     * @param x float
+     * @param y float
+     * @return Body
+     */
     private Body createTempBody(float x, float y) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(x, y);
@@ -277,6 +316,10 @@ public class Collectable extends TileEntity {
 
     }
 
+    /**
+     * Animate the collectable drop
+     * @param delta float
+     */
     public void animateDrop(float delta) {
         if (dropPositions.isEmpty()) {
             return;

@@ -8,6 +8,12 @@ import de.tum.cit.fop.maze.level.LevelData;
 
 import java.util.Locale;
 
+/**
+ * The TimeAndScore class represents a visual component that displays the player's
+ * current playtime and score in the user interface. This component is constructed using
+ * a table and is added to a stage for rendering.
+ * The time and score are updated based on the player's progress in the maze.
+ */
 public class TimeAndScore {
     private final Table timeAndScoreTable = new Table();
     private final Label time;
@@ -15,6 +21,12 @@ public class TimeAndScore {
     private final Stage stage;
     private final LevelData data;
 
+    /**
+     * Instantiates a new Time and score.
+     * @param data the level data
+     * @param labelStyle the label style
+     * @param stage the stage
+     */
     public TimeAndScore(LevelData data, Label.LabelStyle labelStyle, Stage stage) {
         this.data = data;
         this.stage = stage;
@@ -28,6 +40,9 @@ public class TimeAndScore {
         stage.addActor(timeAndScoreTable);
     }
 
+    /**
+     * Update label table position.
+     */
     public void updateLabelTablePosition() {
         timeAndScoreTable.setSize(time.getWidth(),
             time.getHeight() + scoreLabel.getHeight());
@@ -37,6 +52,10 @@ public class TimeAndScore {
         timeAndScoreTable.align(Align.center);
     }
 
+    /**
+     * Formated time string.
+     * @return the string
+     */
     public String formatedTime() {
         long seconds = (long) data.getPlaytime();
         long minutes = seconds / 60;
@@ -46,12 +65,18 @@ public class TimeAndScore {
         );
     }
 
+    /**
+     * @return formatted score string
+     */
     public String formatedScore() {
         return String.format(
             Locale.getDefault(), "Score: %06d", data.getScore()
         );
     }
 
+    /**
+     * Update labels.
+     */
     public void updateLabels() {
         time.setText(formatedTime());
         scoreLabel.setText(formatedScore());

@@ -22,10 +22,6 @@ import static de.tum.cit.fop.maze.essentials.Globals.CELL_SIZE_METERS;
  */
 public class ExitDoor extends TileEntity {
     private boolean isOpen = false;
-    /**
-     * Creates a new Exit door.
-     */
-
     private Direction direction;
     private transient Animation<TextureRegion> doorOpeningAnimation;
     private transient float openElapsedTime = 0;
@@ -34,7 +30,9 @@ public class ExitDoor extends TileEntity {
     private transient Fixture promptFixture;
     private transient MASound openingSound;
 
-
+    /**
+     * Creates a new Exit door.
+     */
     private ExitDoor() {
         super(3, 3, new BodyDef(), new FixtureDef());
         bodyDef.type = BodyDef.BodyType.StaticBody;
@@ -47,6 +45,11 @@ public class ExitDoor extends TileEntity {
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
     }
 
+    /**
+     * Creates a new Exit door with the specified direction.
+     *
+     * @param direction The direction of the door
+     */
     public ExitDoor(Direction direction) {
         this();
         this.direction = direction;

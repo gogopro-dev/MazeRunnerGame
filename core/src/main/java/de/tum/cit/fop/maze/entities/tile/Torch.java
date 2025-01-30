@@ -13,6 +13,14 @@ import games.rednblack.miniaudio.MASound;
 
 import static de.tum.cit.fop.maze.essentials.Globals.*;
 
+/**
+ * Torch tile entity.
+ * <p>
+ *     A torch is a tile entity that can be lit by the player.
+ *     The torch emits light when it is lit.
+ *     The torch can be lit by the player if the player is holding a torch and is near the torch.
+ * </p>
+ */
 public class Torch extends TileEntity {
 
     private boolean lit = false;
@@ -24,6 +32,9 @@ public class Torch extends TileEntity {
     private transient TextureRegion standTexture;
     private transient MASound litSound;
 
+    /**
+     * Instantiates a new Torch.
+     */
     public Torch() {
         super(1, 1, new BodyDef(), new FixtureDef());
         bodyDef.type = BodyDef.BodyType.StaticBody;
@@ -38,12 +49,19 @@ public class Torch extends TileEntity {
         litSound.setLooping(true);
     }
 
+    /**
+     * Instantiates a new Torch with a given direction.
+     * @param direction the direction
+     */
     public Torch(Direction direction) {
         this();
         this.direction = direction;
         init();
     }
 
+    /**
+     * Initializes the torch.
+     */
     protected void init() {
         TextureAtlas textureAtlas = Assets.getInstance().getAssetManager()
             .get("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class);

@@ -2,6 +2,9 @@ package de.tum.cit.fop.maze.entities.tile;
 
 import de.tum.cit.fop.maze.ActiveItem;
 
+/**
+ * Represents a set of attributes used to define various properties for collectables,
+ */
 public final class CollectableAttributes extends Attributes {
 
     public final Collectable.CollectableType type;
@@ -22,6 +25,9 @@ public final class CollectableAttributes extends Attributes {
     public final boolean spawnOnce;
     public final String pickupSound;
 
+    /**
+     * Trivial Constructor for CollectableAttributes
+     */
     public CollectableAttributes(
         Collectable.CollectableType type, String textureName, int immediateHealing, int immediateCoins,
         float dropChance, int damageBoost, int resistanceBoost, float vampirism, float speedBoost,

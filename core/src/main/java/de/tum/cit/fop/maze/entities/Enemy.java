@@ -17,6 +17,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+/**
+ * The type Enemy.
+ * <p>
+ *     An enemy is an entity that can move and attack the player.
+ *     The enemy can move to the player's position and attack the player.
+ *     The enemy can be damaged by the player.
+ *     The enemy can die.
+ * </p>
+ */
 public class Enemy extends Entity implements Attackable {
     private transient final List<AbsolutePoint> path;
     private transient Animation<TextureRegion> idleAnimation;
@@ -41,6 +50,10 @@ public class Enemy extends Entity implements Attackable {
     private boolean deadAnimationReset = false;
     private float damageFlashTimer = 0f;
 
+    /**
+     * Instantiates a new Enemy.
+     * @param enemyType the enemy type
+     */
     public Enemy(EnemyType enemyType) {
         this();
         this.enemyType = enemyType;
@@ -163,6 +176,19 @@ public class Enemy extends Entity implements Attackable {
         loadAnimations();
     }
 
+    /**
+     * Attack player.
+     * <p>
+     *     The enemy attacks the player if the player is within the enemy's attack range.
+     *     The enemy deals damage to the player.
+     *     The enemy stops moving when attacking the player.
+     *     The enemy faces the player when attacking.
+     *     The enemy can only attack the player if the player is within the enemy's attack range.
+     *     The enemy can only attack the player if the enemy is not dead.
+     *     The enemy can only attack the player if the enemy is not already attacking.
+     *     The enemy can only attack the player if the enemy is not already damaged.
+     * </p>
+     */
     private void attackPlayer() {
         AbsolutePoint enemyPosition = getPosition();
         AbsolutePoint rectangleStart, rectangleEnd;
@@ -218,8 +244,10 @@ public class Enemy extends Entity implements Attackable {
         elapsedTime = 0;
     }
 
+    /**
+     * Is dead boolean.
+     */
     public void attack() {
-
         if (canHit) {
             this.body.setLinearVelocity(Vector2.Zero);
             isAttacking = true;
