@@ -77,9 +77,15 @@ All the properties of collectables, enemies, traps, active items, and loot conta
 - collected keys and coins `Inventory`
 - direction arrow that points to the exit from the labyrinth `ExitArrow` 
 - inventory of the player `Inventory`
-- descriptions of items on floor near player `Description`
 - slots for active items `AbilityBorder`
 - methods that update the HUD widgets positions and draw them on the screen in `HUD`
+- way of telling player any useful information `Description`
+
+### Description
+it shows information about:
+- the item in near vicinity of the player
+- the description of items in shop
+- messages to the player about the game state
 
 ## TileEntity
 
