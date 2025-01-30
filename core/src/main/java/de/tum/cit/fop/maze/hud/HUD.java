@@ -3,29 +3,31 @@ package de.tum.cit.fop.maze.hud;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.entities.Player;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
+import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.List;
 
-import static de.tum.cit.fop.maze.essentials.Globals.*;
+import static de.tum.cit.fop.maze.essentials.Globals.DEFAULT_SCREEN_HEIGHT_WINDOWED;
+import static de.tum.cit.fop.maze.essentials.Globals.DEFAULT_SCREEN_WIDTH_WINDOWED;
 
 /**
  * The UI manager for the game.
  */
 public class HUD {
+    final float padding = 10f;
     private final Stage stage;
     private final SpriteBatch spriteBatch;
     private final TextureAtlas atlas;
-    private int invFontSize = 17;
-    final float padding = 10f;
     private final TextureAtlas inventoryAtlas;
     private final ExitArrow exitArrow;
     /**
@@ -38,6 +40,7 @@ public class HUD {
     private final Inventory inventory;
     private final Description description;
     private final AbilityBorder abilityBorder;
+    private int invFontSize = 17;
 
 
     /**
@@ -108,10 +111,9 @@ public class HUD {
             padding, staminaBar.getY() - 5, player.getGold(), player.hasKey());
 
 
-
         exitArrow = new ExitArrow(atlas, stage);
 
-        abilityBorder = new AbilityBorder(stage.getViewport().getWorldWidth()/2, padding, atlas);
+        abilityBorder = new AbilityBorder(stage.getViewport().getWorldWidth() / 2, padding, atlas);
         if (player.getActiveItem() != null) {
             abilityBorder.setActiveItem();
         }
@@ -131,6 +133,14 @@ public class HUD {
         inventory.showInventory();
     }
 
+    /**
+     * Gets item description.
+     *
+     * @return the item description
+     */
+    public String getItemDescription() {
+        return description.getItemDescription();
+    }
 
     /**
      * Sets item description.
@@ -139,15 +149,6 @@ public class HUD {
      */
     public void setItemDescription(String description) {
         this.description.setItemDescription(description, stage);
-    }
-
-    /**
-     * Gets item description.
-     *
-     * @return the item description
-     */
-    public String getItemDescription() {
-        return description.getItemDescription();
     }
 
     private void updateDescriptionPosition() {
@@ -207,6 +208,7 @@ public class HUD {
     public void addItemToInventory(Collectable collectable) {
         inventory.addItemToInventory(collectable);
     }
+
     private void updateTimeAndScorePosition() {
         timeAndScore.updateLabelTablePosition();
     }

@@ -3,20 +3,18 @@ package de.tum.cit.fop.maze.entities.tile;
 import box2dLight.Light;
 import box2dLight.PointLight;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Bezier;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.utils.Array;
-import com.google.gson.*;
-import de.tum.cit.fop.maze.essentials.Assets;
-import de.tum.cit.fop.maze.essentials.BodyBits;
-import de.tum.cit.fop.maze.essentials.Globals;
-import de.tum.cit.fop.maze.essentials.AbsolutePoint;
-import de.tum.cit.fop.maze.essentials.DebugRenderer;
-import de.tum.cit.fop.maze.essentials.Utils;
+import com.google.gson.JsonSyntaxException;
+import de.tum.cit.fop.maze.essentials.*;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import games.rednblack.miniaudio.MASound;
 
@@ -25,8 +23,6 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Random;
 
-import static com.badlogic.gdx.math.MathUtils.random;
-
 /**
  * Represents a collectable item in the game that can be picked up by the player. I
  * The item can have various types and attributes defining its behavior, visual
@@ -34,19 +30,12 @@ import static com.badlogic.gdx.math.MathUtils.random;
  */
 public class Collectable extends TileEntity {
 
-    /// Enum for Collectable types
-    public enum CollectableType {
-        EMPTY, HEART, GOLD_COIN, DAMAGE_COIN, DEFENSE_COIN, RESURRECTION_AMULET, VAMPIRE_AMULET, SPEED_BOOTS,
-        KEY, FIREBALL
-    }
-
-
-    private CollectableAttributes collectableAttributes;
-    private transient Animation<TextureRegion> idleAnimation;
+    private transient final ArrayList<AbsolutePoint> dropPositions = new ArrayList<>();
     public transient boolean pickedUp = false;
     public transient float elapsedTime;
     public transient float pickupElapsedTime;
-    private transient final ArrayList<AbsolutePoint> dropPositions = new ArrayList<>();
+    private CollectableAttributes collectableAttributes;
+    private transient Animation<TextureRegion> idleAnimation;
     private transient float dropPathLength = 0f;
     private transient float dropElapsedTime = 0f;
     private transient PrismaticJoint joint;
@@ -56,7 +45,6 @@ public class Collectable extends TileEntity {
     private transient Light light;
     private transient float lightAnimationElapsedTime = 10f;
     private transient MASound pickupSound;
-
     private boolean hasBeenDropped = true;
 
     /**
@@ -84,6 +72,22 @@ public class Collectable extends TileEntity {
         init();
     }
 
+    public Collectable(CollectableAttributes attributes) {
+        this();
+        collectableAttributes = attributes;
+        init();
+    }
+
+    public Collectable(CollectableAttributes attributes, boolean drop) {
+        this(attributes);
+        this.hasBeenDropped = !drop;
+    }
+
+    public Collectable(CollectableType type, boolean drop) {
+        this(type);
+        this.hasBeenDropped = !drop;
+    }
+
     public void init() {
         TextureAtlas atlas = Assets.getInstance().getAssetManager().get(
             "assets/collectables/collectables.atlas", TextureAtlas.class
@@ -96,23 +100,6 @@ public class Collectable extends TileEntity {
             pickupSound = Assets.getInstance().getSound(this.collectableAttributes.pickupSound);
             pickupSound.setSpatialization(false);
         }
-    }
-
-    public Collectable(CollectableAttributes attributes) {
-        this();
-        collectableAttributes = attributes;
-        init();
-    }
-
-    public Collectable(CollectableAttributes attributes, boolean drop) {
-        this(attributes);
-        this.hasBeenDropped = !drop;
-    }
-
-
-    public Collectable(CollectableType type, boolean drop) {
-        this(type);
-        this.hasBeenDropped = !drop;
     }
 
     @Override
@@ -206,14 +193,12 @@ public class Collectable extends TileEntity {
         lightAnimationElapsedTime = 0f;
     }
 
+    public SpriteBatch getBatch() {
+        return batch;
+    }
 
     public void setBatch(SpriteBatch batch) {
         this.batch = batch;
-    }
-
-
-    public SpriteBatch getBatch() {
-        return batch;
     }
 
     public CollectableType getType() {
@@ -342,7 +327,6 @@ public class Collectable extends TileEntity {
         return idleAnimation;
     }
 
-
     @Override
     public void dispose() {
         super.dispose();
@@ -351,6 +335,12 @@ public class Collectable extends TileEntity {
 
     public CollectableAttributes getCollectableAttributes() {
         return collectableAttributes;
+    }
+
+    /// Enum for Collectable types
+    public enum CollectableType {
+        EMPTY, HEART, GOLD_COIN, DAMAGE_COIN, DEFENSE_COIN, RESURRECTION_AMULET, VAMPIRE_AMULET, SPEED_BOOTS,
+        KEY, FIREBALL
     }
 
 

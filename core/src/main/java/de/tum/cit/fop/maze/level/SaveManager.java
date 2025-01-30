@@ -12,6 +12,7 @@ import java.io.IOException;
 /**
  * Singleton class for saving the game state and settings to a .json file
  * using the Gson library
+ *
  * @see LevelScreen
  * @see PauseScreen
  * @see SettingsConfiguration
@@ -35,6 +36,7 @@ public class SaveManager {
 
     /**
      * Save the current game state to a .json file and last frame to a .png file
+     *
      * @param index index of the save file
      * @throws IOException if the file cannot be written
      */
@@ -62,9 +64,10 @@ public class SaveManager {
 
     /**
      * Save the current settings to a .json file
+     *
      * @throws IOException if the file cannot be written
      */
-    public static void saveConfigurations() throws IOException{
+    public static void saveConfigurations() throws IOException {
         makeSavesDir();
         SettingsConfiguration settingsConfiguration = SettingsConfiguration.getInstance();
         Gson gson = Assets.getInstance().gson;

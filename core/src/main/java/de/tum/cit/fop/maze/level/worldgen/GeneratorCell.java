@@ -1,4 +1,5 @@
 package de.tum.cit.fop.maze.level.worldgen;
+
 import com.badlogic.gdx.utils.Null;
 import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.level.worldgen.rooms.Room;
@@ -18,8 +19,9 @@ public final class GeneratorCell {
 
     /**
      * Constructor for a MazeCell
-     * @param i - row index
-     * @param j - column index
+     *
+     * @param i        - row index
+     * @param j        - column index
      * @param cellType - the type of the cell
      */
     public GeneratorCell(int i, int j, CellType cellType) {
@@ -30,6 +32,7 @@ public final class GeneratorCell {
 
     /**
      * Constructor for a MazeCell with default cell type NONE
+     *
      * @param i - row index
      * @param j - column index
      */
@@ -47,17 +50,17 @@ public final class GeneratorCell {
         this.room = room;
     }
 
-    public void setCellType(CellType cellType) {
-        this.cellType = cellType;
-    }
-
     public CellType getCellType() {
         return cellType;
     }
 
+    public void setCellType(CellType cellType) {
+        this.cellType = cellType;
+    }
 
     /**
      * Cantor pairing function
+     *
      * @param a {@link Integer} a
      * @param b {@link Integer} b
      * @return the cantor pairing of a and b (hash)
@@ -81,12 +84,12 @@ public final class GeneratorCell {
         return i;
     }
 
-    public int getJ() {
-        return j;
-    }
-
     public void setI(int i) {
         this.i = i;
+    }
+
+    public int getJ() {
+        return j;
     }
 
     public void setJ(int j) {

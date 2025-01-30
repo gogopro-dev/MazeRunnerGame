@@ -1,20 +1,24 @@
 package de.tum.cit.fop.maze.entities;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.utils.Array;
-import de.tum.cit.fop.maze.essentials.Assets;
-import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
+import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
+import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class Enemy extends Entity implements Attackable {
+    private transient final List<AbsolutePoint> path;
     private transient Animation<TextureRegion> idleAnimation;
     private transient Animation<TextureRegion> movementAnimation;
     private transient Animation<TextureRegion> movementTPAnimation;
@@ -32,7 +36,6 @@ public class Enemy extends Entity implements Attackable {
     private boolean facingRight = true;
     private boolean addedScore = false;
     private transient boolean canHit = true;
-    private transient final List<AbsolutePoint> path;
     private transient AbsolutePoint currentPathPoint;
     private transient boolean isDamaged = false;
     private boolean deadAnimationReset = false;
@@ -147,7 +150,7 @@ public class Enemy extends Entity implements Attackable {
         }
 
         if (LevelScreen.getInstance().player.getPosition().distance(getPosition()) <= Globals.ENEMY_ATTACK_DISTANCE &&
-                !isDead()) {
+            !isDead()) {
             attack();
         }
 
@@ -283,23 +286,17 @@ public class Enemy extends Entity implements Attackable {
         return facingRight;
     }
 
-    public synchronized void setMovingToPlayer(boolean b) {
-        this.body.setLinearVelocity(0, 0);
-        isMovingToPlayer = b;
-    }
-
-
-    public record EnemyConfig(String animationCategory, EnemyType enemyType, Attributes attributes) {
-        public record Attributes(float speed, float heal, float maxHealth, int damage, float visionRange) {
-        }
-    }
-
     public boolean isMoving() {
         return !this.body.getLinearVelocity().isZero();
     }
 
     public boolean isMovingToPlayer() {
         return isMovingToPlayer;
+    }
+
+    public synchronized void setMovingToPlayer(boolean b) {
+        this.body.setLinearVelocity(0, 0);
+        isMovingToPlayer = b;
     }
 
     public void updatePath(List<AbsolutePoint> path) {
@@ -374,6 +371,11 @@ public class Enemy extends Entity implements Attackable {
 
     public EnemyConfig getConfig() {
         return config;
+    }
+
+    public record EnemyConfig(String animationCategory, EnemyType enemyType, Attributes attributes) {
+        public record Attributes(float speed, float heal, float maxHealth, int damage, float visionRange) {
+        }
     }
 
 }

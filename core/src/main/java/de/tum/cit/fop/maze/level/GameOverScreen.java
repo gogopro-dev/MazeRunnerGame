@@ -2,8 +2,11 @@ package de.tum.cit.fop.maze.level;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -13,8 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
 import games.rednblack.miniaudio.MASound;
@@ -23,6 +26,11 @@ import games.rednblack.miniaudio.MASound;
  * Class for the UI of the game over screen.
  */
 public class GameOverScreen implements Screen {
+    private static GameOverScreen instance;
+    private final Stage stage;
+    private final ShapeRenderer shapeRenderer;
+    private final Table screenTable;
+    private final MASound clickSound;
     private TextureRegion gameOverBackgroundRegion;
     private TextureRegion smallButtonPressedRegion;
     private TextureRegion smallButtonReleasedRegion;
@@ -33,26 +41,12 @@ public class GameOverScreen implements Screen {
     private Table inventoryTable;
     private Table textInventoryTable;
     private Stack inventoryStack;
-    private final Stage stage;
-    private final ShapeRenderer shapeRenderer;
-    private final Table screenTable;
-    private static GameOverScreen instance;
-    private final MASound clickSound;
-
-    /**
-     * @return the singleton instance of the {@link GameOverScreen} class
-     */
-    public static synchronized GameOverScreen getInstance() {
-        if (instance == null) {
-            return new GameOverScreen(new Table(), new Table());
-        }
-        return instance;
-    }
 
     /**
      * Private constructor to prevent instantiation from outside the class</br>
      * This constructor initializes the {@link Stage} object and the {@link ShapeRenderer} object.
-     * @param inventoryTable Table
+     *
+     * @param inventoryTable     Table
      * @param textInventoryTable Table
      */
     private GameOverScreen(Table inventoryTable, Table textInventoryTable) {
@@ -70,6 +64,16 @@ public class GameOverScreen implements Screen {
         loadTextures();
 
         setupScreen();
+    }
+
+    /**
+     * @return the singleton instance of the {@link GameOverScreen} class
+     */
+    public static synchronized GameOverScreen getInstance() {
+        if (instance == null) {
+            return new GameOverScreen(new Table(), new Table());
+        }
+        return instance;
     }
 
     /**
@@ -98,7 +102,7 @@ public class GameOverScreen implements Screen {
 
         /// Create table for pause menu
         screenTable.setBackground(new NinePatchDrawable(ninePatch));
-        screenTable.setSize(304*1.6f, 224*1.6f + 80); // Adjust size as needed
+        screenTable.setSize(304 * 1.6f, 224 * 1.6f + 80); // Adjust size as needed
         screenTable.setPosition(
             Gdx.graphics.getWidth() / 2f - screenTable.getWidth() / 2f,
             Gdx.graphics.getHeight() / 2f - screenTable.getHeight() / 2f - 40
@@ -127,7 +131,7 @@ public class GameOverScreen implements Screen {
         exitButton.setLabelTopPadding(4f);
         exitButton.setImagePadding(10f);
         exitButton.setImageTopPadding(4f);
-        exitButton.addListener(new ClickListener(){
+        exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 clickSound.stop();
@@ -187,8 +191,8 @@ public class GameOverScreen implements Screen {
         stage.getViewport().update(width, height, true);
         stage.getViewport().apply();
         screenTable.setPosition(
-            stage.getViewport().getWorldWidth()/2f - screenTable.getWidth()/2,
-            stage.getViewport().getWorldHeight()/2f - screenTable.getHeight()/2
+            stage.getViewport().getWorldWidth() / 2f - screenTable.getWidth() / 2,
+            stage.getViewport().getWorldHeight() / 2f - screenTable.getHeight() / 2
         );
         // Update shapeRenderer projection matrix
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
@@ -197,7 +201,8 @@ public class GameOverScreen implements Screen {
     /**
      * Draws the inventory of the player
      * on the game over screen
-     * @param inventoryTable Table that contains the inventory images
+     *
+     * @param inventoryTable     Table that contains the inventory images
      * @param textInventoryTable Table that contains the inventory text (how many items of each type)
      */
     public void drawInventory(Table inventoryTable, Table textInventoryTable) {
@@ -213,7 +218,7 @@ public class GameOverScreen implements Screen {
      * Deletes the game save file
      * after the game is over
      */
-    public void deleteGame(){
+    public void deleteGame() {
         int index = LevelScreen.getInstance().getLevelIndex();
         Gdx.files.local("saves/" + index + ".json").delete();
         Gdx.files.local("saves/" + index + ".png").delete();

@@ -1,10 +1,8 @@
 package de.tum.cit.fop.maze.entities.tile;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public enum TrapType {

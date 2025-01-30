@@ -10,12 +10,15 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.*;
-import de.tum.cit.fop.maze.essentials.Assets;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
 import de.tum.cit.fop.maze.menu.PlayGameScreen;
@@ -25,13 +28,21 @@ import games.rednblack.miniaudio.MASound;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static de.tum.cit.fop.maze.essentials.Globals.*;
+import static de.tum.cit.fop.maze.essentials.Globals.DEFAULT_SCREEN_HEIGHT_WINDOWED;
+import static de.tum.cit.fop.maze.essentials.Globals.DEFAULT_SCREEN_WIDTH_WINDOWED;
 
 /**
  * Class for the pause screen.</br>
  * Used to pause the game and show the pause menu.
  */
 public class PauseScreen {
+    private static PauseScreen instance = null;
+    private static Pixmap pauseTexturePixmap;
+    private final Stage stage;
+    private final ShapeRenderer shapeRenderer;
+    private final Table screenTable;
+    private final SettingsScreen settingsScreen;
+    private final MASound clickSound;
     private Texture lastFrame;
     private TextureRegion pauseBackgroundRegion;
     private TextureRegion smallButtonPressedRegion;
@@ -39,23 +50,9 @@ public class PauseScreen {
     private TextureRegion playIconRegion;
     private TextureRegion settingsIconRegion;
     private TextureRegion exitIconRegion;
-    private final Stage stage;
-    private final ShapeRenderer shapeRenderer;
     private boolean isPaused;
     private boolean wasEscapePressed; // To handle key press state
-    private final Table screenTable;
-    private final SettingsScreen settingsScreen;
     private boolean isSettings = false;
-    private static PauseScreen instance = null;
-    private static Pixmap pauseTexturePixmap;
-    private final MASound clickSound;
-
-    /**
-     * @return The singleton instance of the pause screen
-     */
-    public static PauseScreen getInstance() {
-        return instance;
-    }
 
     /**
      * Constructor for the pause screen.</br>
@@ -82,11 +79,19 @@ public class PauseScreen {
     }
 
     /**
+     * @return The singleton instance of the pause screen
+     */
+    public static PauseScreen getInstance() {
+        return instance;
+    }
+
+    /**
      * Loads the textures for the pause menu from the asset manager
      * and assigns them to the corresponding variables
+     *
      * @see Assets
      */
-    private void loadTextures(){
+    private void loadTextures() {
         TextureAtlas menuAtlas = Assets.getInstance().getAssetManager().get("assets/menu/menu.atlas", TextureAtlas.class);
         TextureAtlas menuIconsAtlas = Assets.getInstance().getAssetManager().get("assets/menu/menu_icons.atlas", TextureAtlas.class);
 
@@ -103,7 +108,7 @@ public class PauseScreen {
     /**
      * Sets up the pause screen UI
      */
-    public void setupPauseMenu(){
+    public void setupPauseMenu() {
 
         /// Load font for text
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/YosterIslandRegular-VqMe.ttf"));
@@ -121,7 +126,7 @@ public class PauseScreen {
 
         /// Create table for pause menu
         screenTable.setBackground(new TextureRegionDrawable(pauseBackgroundRegion));
-        screenTable.setSize(304*1.6f, 224*1.6f); // Adjust size as needed
+        screenTable.setSize(304 * 1.6f, 224 * 1.6f); // Adjust size as needed
         screenTable.setPosition(
             Gdx.graphics.getWidth() / 2f - screenTable.getWidth() / 2f,
             Gdx.graphics.getHeight() / 2f - screenTable.getHeight() / 2f
@@ -161,7 +166,7 @@ public class PauseScreen {
         settingsButton.setLabelTopPadding(4f);
         settingsButton.setImagePadding(10f);
         settingsButton.setImageTopPadding(4f);
-        settingsButton.addListener(new ClickListener(){
+        settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 clickSound.stop();
@@ -180,7 +185,7 @@ public class PauseScreen {
         exitButton.setLabelTopPadding(4f);
         exitButton.setImagePadding(10f);
         exitButton.setImageTopPadding(4f);
-        exitButton.addListener(new ClickListener(){
+        exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 clickSound.stop();
@@ -194,25 +199,18 @@ public class PauseScreen {
 
         /// Add buttons to table
         screenTable.add(pauseLabel).padTop(6f).padBottom(20f).row();
-        screenTable.add(resumeButton).padTop(20f).padBottom(10f).width(224*1.2f).height(48f*1.2f).row();
-        screenTable.add(settingsButton).padTop(10f).padBottom(10f).width(224*1.2f).height(48f*1.2f).row();
-        screenTable.add(exitButton).padTop(10f).padBottom(10f).width(224*1.2f).height(48f*1.2f).row();
+        screenTable.add(resumeButton).padTop(20f).padBottom(10f).width(224 * 1.2f).height(48f * 1.2f).row();
+        screenTable.add(settingsButton).padTop(10f).padBottom(10f).width(224 * 1.2f).height(48f * 1.2f).row();
+        screenTable.add(exitButton).padTop(10f).padBottom(10f).width(224 * 1.2f).height(48f * 1.2f).row();
 
         /// Add everything to stage
         stage.addActor(screenTable);
     }
 
     /**
-     * Sets the pause state
-     * @param settings The new pause state
-     */
-    public void setSettings(boolean settings) {
-        isSettings = settings;
-    }
-
-    /**
      * Takes a screenshot of the current frame </br>
      * Used to display the pause menu
+     *
      * @param save whether the screenshot should be saved or not
      * @see Pixmap
      * @see PixmapIO
@@ -226,7 +224,7 @@ public class PauseScreen {
             pixels.put(i, (byte) 255);
         }
 
-        if(lastFrame != null) {
+        if (lastFrame != null) {
             lastFrame.dispose();
         }
 
@@ -253,10 +251,9 @@ public class PauseScreen {
     /**
      * Calls {@link #takeScreenshot(boolean)} with {@code save} set to false
      */
-    public void takeScreenshot(){
+    public void takeScreenshot() {
         takeScreenshot(false);
     }
-
 
     /**
      * Toggles the pause state
@@ -295,7 +292,7 @@ public class PauseScreen {
             wasEscapePressed = false;
         }
 
-        if(isPaused){
+        if (isPaused) {
             /// Set input processor to pause menu
             Gdx.input.setInputProcessor(stage);
         } else {
@@ -336,7 +333,8 @@ public class PauseScreen {
 
     /**
      * Resizes the pause menu
-     * @param width The new width
+     *
+     * @param width  The new width
      * @param height The new height
      */
     public void resize(int width, int height) {
@@ -355,6 +353,7 @@ public class PauseScreen {
 
     /**
      * Draws the last frame before pausing
+     *
      * @param batch The sprite batch to draw with
      */
     public void drawLastFrame(SpriteBatch batch) {
@@ -380,6 +379,15 @@ public class PauseScreen {
     }
 
     /**
+     * Sets the pause state
+     *
+     * @param settings The new pause state
+     */
+    public void setSettings(boolean settings) {
+        isSettings = settings;
+    }
+
+    /**
      * Updates the viewport
      */
     public void updateViewport() {
@@ -391,8 +399,8 @@ public class PauseScreen {
         stage.getViewport().update(width, height, true);
         stage.getViewport().apply();
         screenTable.setPosition(
-            stage.getViewport().getWorldWidth()/2f - screenTable.getWidth()/2,
-            stage.getViewport().getWorldHeight()/2f - screenTable.getHeight()/2
+            stage.getViewport().getWorldWidth() / 2f - screenTable.getWidth() / 2,
+            stage.getViewport().getWorldHeight() / 2f - screenTable.getHeight() / 2
         );
         // Update shapeRenderer projection matrix
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);

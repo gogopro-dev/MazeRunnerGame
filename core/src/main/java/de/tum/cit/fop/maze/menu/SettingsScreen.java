@@ -16,8 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 import de.tum.cit.fop.maze.level.GameOverScreen;
 import de.tum.cit.fop.maze.level.LevelScreen;
@@ -27,6 +27,7 @@ import games.rednblack.miniaudio.MASound;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+
 import static de.tum.cit.fop.maze.essentials.Globals.*;
 
 /**
@@ -50,6 +51,9 @@ public class SettingsScreen implements Screen {
     private static SettingsScreen instance;
     private final Stage stage;
     private final BitmapFont font;
+    private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
+    private final FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+    private final MASound clickSound;
     private TextureRegion exitRegion;
     private TextureRegion vsyncOnRegion;
     private TextureRegion vsyncOffRegion;
@@ -62,24 +66,12 @@ public class SettingsScreen implements Screen {
     private TextureRegion smallButtonPressedRegion;
     private TextureRegion smallButtonReleasedRegion;
     private Container<VerticalGroup> container;
-    private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
-    private final FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-    private final MASound clickSound;
-
-    /**
-     * @return The singleton instance of the settings menu
-     */
-    public static synchronized SettingsScreen getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("SettingsScreen has not been initialized yet");
-        }
-        return instance;
-    }
 
     /**
      * Loads textures and sets up the menu
+     *
      * @param viewport Viewport
-     * @param batch SpriteBatch
+     * @param batch    SpriteBatch
      */
     public SettingsScreen(Viewport viewport, SpriteBatch batch) {
         instance = this;
@@ -98,6 +90,17 @@ public class SettingsScreen implements Screen {
 
         setupMenu();
     }
+
+    /**
+     * @return The singleton instance of the settings menu
+     */
+    public static synchronized SettingsScreen getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("SettingsScreen has not been initialized yet");
+        }
+        return instance;
+    }
+
     /**
      * Creates all widgets and adds them to the stage
      */
@@ -237,7 +240,7 @@ public class SettingsScreen implements Screen {
             Gdx.graphics.setVSync(false);
         }
         toggleVSYNCButton.setImageTopPadding(2f);
-        toggleVSYNCButton.addListener(new ClickListener(){
+        toggleVSYNCButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 clickSound.stop();
@@ -289,7 +292,7 @@ public class SettingsScreen implements Screen {
 
         /// Create the full screen button
         AlignableImageTextButton toggleFullButton = createFullscreenButton(textButtonStyle, toggleFullScreen, selectBox, resLabel);
-        if (SettingsConfiguration.getInstance().isFullScreen()){
+        if (SettingsConfiguration.getInstance().isFullScreen()) {
             toggleFullButton.setImagePadding(10f);
             toggleFullButton.getImage().setDrawable(new TextureRegionDrawable(fullScreenOnRegion));
         } else {
@@ -340,7 +343,7 @@ public class SettingsScreen implements Screen {
                 CURRENT_SCREEN_HEIGHT_WINDOWED = Integer.parseInt(resolution[1]);
                 SettingsConfiguration.getInstance().setResolution(CURRENT_SCREEN_WIDTH_WINDOWED + "x" + CURRENT_SCREEN_HEIGHT_WINDOWED);
                 Menu.getInstance().resize(Integer.parseInt(resolution[0]), Integer.parseInt(resolution[1]));
-                container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
+                container.setPosition(stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2, stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2);
                 Menu.getInstance().updateChildPositions();
                 if (LevelScreen.getInstance() != null) {
                     LevelScreen.getInstance().updateViewport();
@@ -372,7 +375,7 @@ public class SettingsScreen implements Screen {
         AlignableImageTextButton exitSettingsButton = new AlignableImageTextButton("", textButtonStyle, exitSettingsImage, 1.5f);
         exitSettingsButton.setImagePadding(5f);
         exitSettingsButton.setImageTopPadding(2f);
-        exitSettingsButton.addListener(new ClickListener(){
+        exitSettingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 clickSound.stop();
@@ -418,17 +421,18 @@ public class SettingsScreen implements Screen {
 
     /**
      * Creates a button to toggle full screen
-     * @param textButtonStyle Style for the button
+     *
+     * @param textButtonStyle       Style for the button
      * @param toggleFullScreenImage Image for the button
-     * @param selectBox SelectBox for resolution
-     * @param resLabel Label for the resolution select box
+     * @param selectBox             SelectBox for resolution
+     * @param resLabel              Label for the resolution select box
      * @return AlignableImageTextButton
      */
     private @NotNull AlignableImageTextButton createFullscreenButton(ImageTextButton.ImageTextButtonStyle textButtonStyle, Image toggleFullScreenImage, SelectBox<String> selectBox, Label resLabel) {
         AlignableImageTextButton toggleFullButton = new AlignableImageTextButton("", textButtonStyle, toggleFullScreenImage, 1.5f);
         toggleFullButton.setImagePadding(12f);
         toggleFullButton.setImageTopPadding(2f);
-        toggleFullButton.addListener(new ClickListener(){
+        toggleFullButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 clickSound.stop();
@@ -462,7 +466,7 @@ public class SettingsScreen implements Screen {
                     Menu.getInstance().SCREEN_WIDTH = CURRENT_SCREEN_WIDTH_WINDOWED;
 
                     Gdx.graphics.setWindowedMode(Menu.getInstance().SCREEN_WIDTH, Menu.getInstance().SCREEN_HEIGHT);
-                    Menu.getInstance().resize( CURRENT_SCREEN_WIDTH_WINDOWED, CURRENT_SCREEN_HEIGHT_WINDOWED);
+                    Menu.getInstance().resize(CURRENT_SCREEN_WIDTH_WINDOWED, CURRENT_SCREEN_HEIGHT_WINDOWED);
                     Menu.getInstance().updateChildPositions();
                 }
                 if (LevelScreen.getInstance() != null) {
@@ -478,7 +482,7 @@ public class SettingsScreen implements Screen {
         return toggleFullButton;
     }
 
-    public void updateContainerPosition(){
+    public void updateContainerPosition() {
         container.setPosition(
             stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2,
             stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2
@@ -487,9 +491,10 @@ public class SettingsScreen implements Screen {
 
     /**
      * Creates a select box with a custom style
+     *
      * @return SelectBox<String>
      */
-    private @NotNull SelectBox<String> createSelectBox(){
+    private @NotNull SelectBox<String> createSelectBox() {
         NinePatch selectBoxNinePatch = new NinePatch(
             dropDownMenuRegion,
             7, 15, 2, 2
@@ -513,6 +518,7 @@ public class SettingsScreen implements Screen {
 
     /**
      * Creates a container for the settings menu
+     *
      * @param settingElementGroup VerticalGroup containing all widgets
      * @return Container<VerticalGroup>
      */
@@ -522,16 +528,17 @@ public class SettingsScreen implements Screen {
         /// Set the size of the container to the size of the texture
         container.setSize(493f, 600);
         /// Set container position to center of the screen
-        container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
+        container.setPosition(stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2, stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2);
         container.align(Align.top);
         return container;
     }
 
     /**
      * Creates a basic slider with a custom style
+     *
      * @return Slider
      */
-    private @NotNull Slider createSlider(){
+    private @NotNull Slider createSlider() {
         NinePatch sliderNinePatch = new NinePatch(
             sliderRegion,
             7, 7, 2, 2
@@ -547,9 +554,9 @@ public class SettingsScreen implements Screen {
         sliderStyle.background = background;
         TextureRegionDrawable knob_default = new TextureRegionDrawable(knobRegion);
         TextureRegionDrawable knob_selected = new TextureRegionDrawable(knobRegion);
-        knob_default.setMinSize(knob_default.getMinWidth()*1.7f, knob_default.getMinHeight()*1.7f);
+        knob_default.setMinSize(knob_default.getMinWidth() * 1.7f, knob_default.getMinHeight() * 1.7f);
         sliderStyle.knob = knob_default;
-        knob_selected.setMinSize(knob_selected.getMinWidth()*2f, knob_selected.getMinHeight()*2f);
+        knob_selected.setMinSize(knob_selected.getMinWidth() * 2f, knob_selected.getMinHeight() * 2f);
         sliderStyle.knobDown = knob_selected;
 
         return new Slider(0f, 0.5f, 0.005f, false, sliderStyle);

@@ -16,22 +16,12 @@ import static de.tum.cit.fop.maze.essentials.Globals.CURRENT_SCREEN_WIDTH_WINDOW
  * The settings configuration can be accessed from any class in the game.
  */
 public class SettingsConfiguration {
+    private static SettingsConfiguration instance;
     private float musicVolume = 0.1f;
     private float sfxVolume = 0.1f;
     private String resolution = CURRENT_SCREEN_WIDTH_WINDOWED + "x" + CURRENT_SCREEN_HEIGHT_WINDOWED;
     private boolean fullScreen = true;
     private boolean vsync = true;
-    private static SettingsConfiguration instance;
-
-    /**
-     * @return The singleton instance of the settings configuration.
-     */
-    public static SettingsConfiguration getInstance(){
-        if (instance == null) {
-            return new SettingsConfiguration();
-        }
-        return instance;
-    }
 
     /**
      * Constructor for the settings configuration.
@@ -39,6 +29,16 @@ public class SettingsConfiguration {
      */
     private SettingsConfiguration() {
         instance = this;
+    }
+
+    /**
+     * @return The singleton instance of the settings configuration.
+     */
+    public static SettingsConfiguration getInstance() {
+        if (instance == null) {
+            return new SettingsConfiguration();
+        }
+        return instance;
     }
 
     public float getMusicVolume() {

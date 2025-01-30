@@ -19,13 +19,6 @@ public class DebugRenderer {
     private final List<Function<Void, Void>> spawnedShapes = new ArrayList<>();
     private final boolean drawDebug = Globals.DEBUG;
 
-    public static DebugRenderer getInstance() {
-        if (instance == null) {
-            instance = new DebugRenderer();
-        }
-        return instance;
-    }
-
     public DebugRenderer() {
         if (instance != null) {
             throw new IllegalStateException("DebugRenderer already created");
@@ -34,6 +27,13 @@ public class DebugRenderer {
         this.shapeRenderer = new ShapeRenderer();
         shapeRenderer.setAutoShapeType(true);
         shapeRenderer.setProjectionMatrix(LevelScreen.getInstance().camera.combined);
+    }
+
+    public static DebugRenderer getInstance() {
+        if (instance == null) {
+            instance = new DebugRenderer();
+        }
+        return instance;
     }
 
     public void setProjectionMatrix(Matrix4 projectionMatrix) {
@@ -61,7 +61,7 @@ public class DebugRenderer {
      * The rectangle is only rendered if debugging mode is enabled.
      *
      * @param start The starting point (bottom-left corner) of the rectangle in absolute coordinates.
-     * @param end The ending point (top-right corner) of the rectangle in absolute coordinates.
+     * @param end   The ending point (top-right corner) of the rectangle in absolute coordinates.
      * @param color The color to fill the rectangle.
      */
     public void drawRectangle(AbsolutePoint start, AbsolutePoint end, Color color) {

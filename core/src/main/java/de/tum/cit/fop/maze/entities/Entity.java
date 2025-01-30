@@ -2,11 +2,14 @@ package de.tum.cit.fop.maze.entities;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.physics.box2d.*;
-import de.tum.cit.fop.maze.essentials.BodyBits;
-import de.tum.cit.fop.maze.essentials.Globals;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
+import de.tum.cit.fop.maze.essentials.BodyBits;
 import de.tum.cit.fop.maze.essentials.BoundingRectangle;
+import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.gson.GSONPostRestorable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
@@ -17,26 +20,21 @@ import static de.tum.cit.fop.maze.essentials.Globals.PPM;
  * Represents an entity in the game world.
  */
 public abstract class Entity implements Attackable, GSONPostRestorable {
+    protected transient final float scale = 4 * Globals.MPP;
+    public final transient BoundingRectangle boundingRectangle =
+        new BoundingRectangle(0.4f * PPM * scale, 0.26f * scale * PPM);
+    protected transient final SpriteBatch batch;
+    protected transient final OrthographicCamera camera;
     protected int health;
     protected int maxHealth;
     protected float stamina;
-
     protected AbsolutePoint savedPosition;
-    protected transient final float scale = 4 * Globals.MPP;
     /// Entity movement speed
     protected transient float entitySpeed = 7f;
     protected transient Body body;
     protected transient BodyDef.BodyType bodyType = BodyDef.BodyType.DynamicBody;
-    protected transient final SpriteBatch batch;
-    protected transient final OrthographicCamera camera;
     protected transient float mass = 0f;
-    public final transient BoundingRectangle boundingRectangle =
-        new BoundingRectangle(0.4f * PPM * scale, 0.26f * scale * PPM);
 
-
-    protected abstract void render(float delta);
-
-    abstract void init();
 
     /**
      * Creates a new entity with default values.
@@ -50,6 +48,9 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
         this.stamina = 100;
     }
 
+    protected abstract void render(float delta);
+
+    abstract void init();
 
     public float getStamina() {
         return stamina;
@@ -64,6 +65,7 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
 
     /**
      * Takes damage from the entity.
+     *
      * @param damage The amount of damage to take.
      */
     public void takeDamage(int damage) {
@@ -72,6 +74,7 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
 
     /**
      * Heals the entity.
+     *
      * @param amount The amount to heal.
      */
     public void heal(int amount) {
@@ -83,6 +86,7 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
 
     /**
      * Uses stamina from the entity.
+     *
      * @param amount The amount of stamina to use.
      */
     public void useStamina(float amount) {
@@ -91,6 +95,7 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
 
     /**
      * Restores stamina to the entity.
+     *
      * @param amount The amount of stamina to restore.
      */
     public void restoreStamina(float amount) {
@@ -157,6 +162,7 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
         this.body.createFixture(fixtureDef);
         shape.dispose();
     }
+
     public void dispose() {
         body.getWorld().destroyBody(body);
     }

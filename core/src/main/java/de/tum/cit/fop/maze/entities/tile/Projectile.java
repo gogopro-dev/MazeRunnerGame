@@ -21,7 +21,7 @@ public class Projectile extends TileEntity {
     private boolean foundHit = false;
 
     public Projectile(
-            int width, int height, float speed, boolean isFacingRight
+        int width, int height, float speed, boolean isFacingRight
     ) {
         super(width, height, new BodyDef(), new FixtureDef());
         this.speed = speed;
@@ -38,8 +38,8 @@ public class Projectile extends TileEntity {
         bodyDef.bullet = true;
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(
-                width * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING,
-                height * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING
+            width * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING,
+            height * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING
         );
         fixtureDef.shape = shape;
         fixtureDef.isSensor = true;

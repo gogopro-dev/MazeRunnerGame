@@ -1,11 +1,11 @@
 package de.tum.cit.fop.maze.hud;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import de.tum.cit.fop.maze.essentials.Utils;
-import com.badlogic.gdx.graphics.Color;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 public class StaminaBar {
@@ -20,8 +20,8 @@ public class StaminaBar {
 
     public StaminaBar(float maxStamina, float x, float y,
                       TextureAtlas atlas, float width, float height) {
-        scalingX = width/129;
-        scalingY = height/8;
+        scalingX = width / 129;
+        scalingY = height / 8;
         this.maxStamina = maxStamina;
         /// alignment of the bar with respect to the border
         int staminaBarAlignmentY = (int) (4 * scalingY);
@@ -47,7 +47,7 @@ public class StaminaBar {
 
         /// +1 due to problems with converting float to int in Utils.getColoredDrawable. The +1 is a workaround
         /// to prevent the bar from being cut off on the left side. Magic numbers)
-        staminaBar.setBounds(this.x + staminaBarAlignmentX + 1 , this.y + staminaBarAlignmentY, width, height);
+        staminaBar.setBounds(this.x + staminaBarAlignmentX + 1, this.y + staminaBarAlignmentY, width, height);
 
     }
 
@@ -55,22 +55,23 @@ public class StaminaBar {
         staminaBar.act(deltaTime);
         staminaBar.draw(batch, 1);
         batch.draw(staminaBarBorder, x, y,
-                staminaBarBorder.getRegionWidth() * scalingX,
-                staminaBarBorder.getRegionHeight() * scalingY);
+            staminaBarBorder.getRegionWidth() * scalingX,
+            staminaBarBorder.getRegionHeight() * scalingY);
 
-    }
-
-    public void setStamina(float stamina) {
-        staminaBar.setValue(Math.max(Math.min(stamina, maxStamina), 0));
     }
 
     public float getStamina() {
         return staminaBar.getValue();
     }
 
+    public void setStamina(float stamina) {
+        staminaBar.setValue(Math.max(Math.min(stamina, maxStamina), 0));
+    }
+
     public float getX() {
         return x;
     }
+
     public float getY() {
         return y;
     }

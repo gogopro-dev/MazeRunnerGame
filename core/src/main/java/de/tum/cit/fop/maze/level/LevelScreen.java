@@ -9,24 +9,26 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.*;
-import de.tum.cit.fop.maze.essentials.Assets;
-import de.tum.cit.fop.maze.entities.*;
-import de.tum.cit.fop.maze.essentials.Globals;
-import de.tum.cit.fop.maze.entities.tile.*;
-import de.tum.cit.fop.maze.essentials.DebugRenderer;
-import de.tum.cit.fop.maze.essentials.Direction;
-import de.tum.cit.fop.maze.essentials.Utils;
+import com.badlogic.gdx.utils.viewport.FillViewport;
+import de.tum.cit.fop.maze.entities.Enemy;
+import de.tum.cit.fop.maze.entities.EnemyType;
+import de.tum.cit.fop.maze.entities.EntityPathfinder;
+import de.tum.cit.fop.maze.entities.Player;
+import de.tum.cit.fop.maze.entities.tile.Collectable;
+import de.tum.cit.fop.maze.entities.tile.LootContainer;
+import de.tum.cit.fop.maze.entities.tile.TileEntityContactListener;
+import de.tum.cit.fop.maze.entities.tile.Torch;
+import de.tum.cit.fop.maze.essentials.*;
 import de.tum.cit.fop.maze.hud.HUD;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
 import de.tum.cit.fop.maze.menu.PlayGameScreen;
 import games.rednblack.miniaudio.MASound;
-import games.rednblack.miniaudio.MiniAudio;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,36 +54,34 @@ import static de.tum.cit.fop.maze.essentials.Globals.*;
  */
 public class LevelScreen implements Screen {
     private static LevelScreen instance = null;
-
+    public transient final OrthographicCamera camera;
+    public transient final SpriteBatch batch;
+    public transient final RayHandler rayHandler;
+    public transient final EntityPathfinder pathfinder = new EntityPathfinder();
+    /// Box2D world
+    public transient final World world;
+    private final LevelData levelData = new LevelData();
+    private transient final Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
+    private transient final PauseScreen pauseScreen;
+    private transient final Stage stage;
     public Player player;
     public TileMap map;
     public EnemyManager enemyManager;
     public TileEntityManager tileEntityManager;
     public transient float w, h;
     public transient FillViewport viewport;
-    public transient final OrthographicCamera camera;
-    private transient TiledMapRenderer tiledMapRenderer;
-    public transient final SpriteBatch batch;
     public transient HUD hud;
-    public transient final RayHandler rayHandler;
-    private final LevelData levelData = new LevelData();
-    transient Random random = new Random();
-    public transient final EntityPathfinder pathfinder = new EntityPathfinder();
-    private transient boolean gameOver;
-
-    /// Box2D world
-    public transient final World world;
     public transient ReentrantLock worldLock = new ReentrantLock();
-    private transient final Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
+    transient Random random = new Random();
+    private transient TiledMapRenderer tiledMapRenderer;
+    private transient boolean gameOver;
     private transient float accumulator = 0;
-    private transient final PauseScreen pauseScreen;
-    private transient final Stage stage;
     private transient boolean needsRestoring;
     private transient boolean endGame = false;
     private transient int levelIndex;
     private transient float ratio;
     private transient MASound lossSound;
-    public transient final MiniAudio sound;
+
     private transient ArrayList<MASound> gameplayMusic;
     private transient int currentMusicIndex = 0;
     private transient float musicDelayActive = 0;
@@ -89,6 +89,83 @@ public class LevelScreen implements Screen {
     private transient boolean isMusicPaused = false;
     private transient boolean allMusicStopped = false;
 
+
+    private LevelScreen() {
+        this.pauseScreen = new PauseScreen();
+        this.batch = new SpriteBatch();
+
+        if (instance != null) {
+            throw new IllegalStateException("LevelScreen already exists");
+        }
+        needsRestoring = true;
+        instance = this;
+        /// Init GameOverScreen
+        GameOverScreen.getInstance();
+        /// Init world
+        RayHandler.useDiffuseLight(false);
+        world = new World(new Vector2(0, 0), true);
+        world.setContactListener(new TileEntityContactListener());
+        RayHandler.useDiffuseLight(true);
+        rayHandler = new RayHandler(world);
+        rayHandler.setShadows(true);
+
+        Color lightColor = new Color(0.082f, 0.067f, 0.122f, 0.5f);
+        if (Globals.FULLBRIGHT) lightColor = Color.WHITE;
+        rayHandler.setAmbientLight(lightColor);
+        rayHandler.setBlurNum(33);
+
+        w = DEFAULT_SCREEN_WIDTH_WINDOWED / PPM;
+        h = DEFAULT_SCREEN_HEIGHT_WINDOWED / PPM;
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, w / 2, h / 2);
+
+        viewport = new FillViewport(w, h, camera);
+        viewport.apply();
+
+        batch.setProjectionMatrix(camera.combined);
+        stage = new Stage(viewport, batch);
+        tileEntityManager = new TileEntityManager();
+        enemyManager = new EnemyManager();
+        player = new Player();
+    }
+
+
+    /**
+     * Create a new level screen with a given seed
+     *
+     * @param seed The seed to use for the random number generator
+     */
+    public LevelScreen(long seed) {
+        this();
+        this.needsRestoring = false;
+        this.random = new Random(seed);
+        generate();
+        spawnDebug();
+        init();
+    }
+
+    /**
+     * Create a new level screen with a given maze generator (from properties file)
+     *
+     * @param generator The maze generator to use
+     */
+    public LevelScreen(MazeGenerator generator) {
+        this();
+        this.needsRestoring = false;
+        generate(generator);
+        spawnDebug();
+        init();
+    }
+
+    /**
+     * Get the instance of the LevelScreen
+     *
+     * @return The instance of the LevelScreen
+     */
+    public static LevelScreen getInstance() {
+        return instance;
+    }
 
     private void doPhysicsStep(float deltaTime) {
         /// Fixed time step
@@ -101,7 +178,6 @@ public class LevelScreen implements Screen {
         }
 
     }
-
 
     public void tickAudioEngine(float deltaTime) {
         boolean isAnythingPlaying = false;
@@ -199,7 +275,7 @@ public class LevelScreen implements Screen {
     /**
      * Saves the game state
      */
-    public void saveGame(){
+    public void saveGame() {
         if (endGame) return;
         try {
             SaveManager.saveGame(levelIndex);
@@ -210,9 +286,10 @@ public class LevelScreen implements Screen {
 
     /**
      * Render the game world
+     *
      * @param delta The time since the last render in seconds
      */
-    public void renderWorld(float delta){
+    public void renderWorld(float delta) {
         /// Render the game if not paused
         levelData.addPlaytime(delta);
         worldLock.lock();
@@ -281,72 +358,6 @@ public class LevelScreen implements Screen {
         instance = null;
     }
 
-    private LevelScreen() {
-        this.pauseScreen = new PauseScreen();
-        this.batch = new SpriteBatch();
-        this.sound = Menu.getInstance().getMiniAudio();
-        if (instance != null) {
-            throw new IllegalStateException("LevelScreen already exists");
-        }
-        needsRestoring = true;
-        instance = this;
-        /// Init GameOverScreen
-        GameOverScreen.getInstance();
-        /// Init world
-        RayHandler.useDiffuseLight(false);
-        world = new World(new Vector2(0, 0), true);
-        world.setContactListener(new TileEntityContactListener());
-        RayHandler.useDiffuseLight(true);
-        rayHandler = new RayHandler(world);
-        rayHandler.setShadows(true);
-
-        Color lightColor = new Color(0.082f, 0.067f, 0.122f, 0.5f);
-        if (Globals.FULLBRIGHT) lightColor = Color.WHITE;
-        rayHandler.setAmbientLight(lightColor);
-        rayHandler.setBlurNum(33);
-
-        w = DEFAULT_SCREEN_WIDTH_WINDOWED / PPM;
-        h = DEFAULT_SCREEN_HEIGHT_WINDOWED / PPM;
-
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, w / 2, h / 2);
-
-        viewport = new FillViewport(w,h, camera);
-        viewport.apply();
-
-        batch.setProjectionMatrix(camera.combined);
-        stage = new Stage(viewport, batch);
-        tileEntityManager = new TileEntityManager();
-        enemyManager = new EnemyManager();
-        player = new Player();
-    }
-
-
-    /**
-     * Create a new level screen with a given seed
-     * @param seed The seed to use for the random number generator
-     */
-    public LevelScreen(long seed) {
-        this();
-        this.needsRestoring = false;
-        this.random = new Random(seed);
-        generate();
-        spawnDebug();
-        init();
-    }
-
-    /**
-     * Create a new level screen with a given maze generator (from properties file)
-     * @param generator The maze generator to use
-     */
-    public LevelScreen(MazeGenerator generator) {
-        this();
-        this.needsRestoring = false;
-        generate(generator);
-        spawnDebug();
-        init();
-    }
-
     private void generate() {
         map = new TileMap(35, 35, random);
     }
@@ -355,18 +366,17 @@ public class LevelScreen implements Screen {
         map = new TileMap(generator);
     }
 
-
     /**
      * Initialize the level screen
      * <p>
-     *     <ul>
-     *         <li>Restore the game state if needed</li>
-     *         <li>Initialize the tile map renderer</li>
-     *         <li>Initialize the player</li>
-     *         <li>Initialize the HUD</li>
-     *         <li>Set the camera at the center of the player's position in Box2D world</li>
-     *     </ul>
-     *  </p>
+     *    <ul>
+     *        <li>Restore the game state if needed</li>
+     *        <li>Initialize the tile map renderer</li>
+     *        <li>Initialize the player</li>
+     *        <li>Initialize the HUD</li>
+     *        <li>Set the camera at the center of the player's position in Box2D world</li>
+     *    </ul>
+     * </p>
      */
     public void init() {
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map.getMap(), MPP * Globals.TILEMAP_SCALE);
@@ -522,7 +532,7 @@ public class LevelScreen implements Screen {
 
         float minZoom = Globals.DEFAULT_CAMERA_ZOOM * 0.5f * ratio;
         float maxZoom = Globals.DEFAULT_CAMERA_ZOOM * ratio;
-        camera.zoom = (minZoom + maxZoom)/2;
+        camera.zoom = (minZoom + maxZoom) / 2;
 
         /// Set camera at the position of the player it was before resizing
         camera.position.set(player.getPosition().x() - playerRelativeX, player.getPosition().y() - playerRelativeY, 0);
@@ -536,6 +546,7 @@ public class LevelScreen implements Screen {
 
     /**
      * Sets the {@code endGame} flag to true and sets the {@code hasWon} flag in the GameOverScreen
+     *
      * @param hasWon Whether the player has won the game or has died
      */
     public void endGame(boolean hasWon) {
@@ -551,14 +562,6 @@ public class LevelScreen implements Screen {
         PlayGameScreen.getInstance().updateScreen();
     }
 
-    /**
-     * Get the instance of the LevelScreen
-     * @return The instance of the LevelScreen
-     */
-    public static LevelScreen getInstance() {
-        return instance;
-    }
-
     public Random getRandom() {
         return random;
     }
@@ -567,12 +570,12 @@ public class LevelScreen implements Screen {
         return stage;
     }
 
-    public void setLevelIndex(int levelIndex) {
-        this.levelIndex = levelIndex;
-    }
-
     public int getLevelIndex() {
         return levelIndex;
+    }
+
+    public void setLevelIndex(int levelIndex) {
+        this.levelIndex = levelIndex;
     }
 
     public float getRatio() {

@@ -18,34 +18,12 @@ import static de.tum.cit.fop.maze.essentials.Globals.*;
  * Represents a trap in the game
  */
 public class Trap extends TileEntity {
+    public TrapAttributes attributes;
     private transient Animation<TextureRegion> trapAnimation;
     private transient float elapsedTime = 0f;
     private transient float lastActivationTime = 0f;
     private boolean isActivated = false;
-    public TrapAttributes attributes;
     private transient @Nullable PointLight light;
-
-    /**
-     * The attributes of a trap
-     *
-     * @param type          the type of the trap
-     * @param frameDuration duration of each frame in seconds
-     * @param damage        trap's damage
-     * @param cooldown      cooldown of the trap in seconds
-     * @param height        height of the trap in cells
-     * @param width         width of the trap in cells
-     * @param emitsLight    whether the trap emits light
-     */
-    public record TrapAttributes(
-        TrapType type,
-        float frameDuration,
-        float damage,
-        float cooldown,
-        int height,
-        int width,
-        boolean emitsLight
-    ) {
-    }
 
     private Trap() {
         super(0, 0);
@@ -80,7 +58,7 @@ public class Trap extends TileEntity {
 
     public void render(float deltaTime) {
         elapsedTime += deltaTime;
-        if (isActivated){
+        if (isActivated) {
             if (trapAnimation.isAnimationFinished(elapsedTime)) {
                 isActivated = false;
                 lastActivationTime = elapsedTime;
@@ -143,6 +121,27 @@ public class Trap extends TileEntity {
         return isActivated && elapsedTime > 0.15f;
     }
 
+    /**
+     * The attributes of a trap
+     *
+     * @param type          the type of the trap
+     * @param frameDuration duration of each frame in seconds
+     * @param damage        trap's damage
+     * @param cooldown      cooldown of the trap in seconds
+     * @param height        height of the trap in cells
+     * @param width         width of the trap in cells
+     * @param emitsLight    whether the trap emits light
+     */
+    public record TrapAttributes(
+        TrapType type,
+        float frameDuration,
+        float damage,
+        float cooldown,
+        int height,
+        int width,
+        boolean emitsLight
+    ) {
+    }
 
 
 }

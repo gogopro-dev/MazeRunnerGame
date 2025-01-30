@@ -3,7 +3,10 @@ package de.tum.cit.fop.maze;
 import box2dLight.Light;
 import box2dLight.PointLight;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
 import de.tum.cit.fop.maze.entities.Attackable;
@@ -18,54 +21,33 @@ import games.rednblack.miniaudio.MASound;
 import java.util.ArrayList;
 
 public class ActiveItem implements GSONPostRestorable {
-    private transient Animation<TextureRegion> projectileFlyingAnimation;
-    private transient Animation<TextureRegion> projectileDestroyedAnimation;
-    private static class UseRecord {
-        public Projectile projectile;
-        public boolean isLeft = false;
-        public float useTime = 0;
-        public float flightTime = 0;
-        public float destroyTime = 0;
-        public float lightTime = 0;
-        public float lightDecay = 0;
-        public boolean lightAttachedToBody = false;
-        public boolean hasDamaged = false;
-        public transient Light light;
-    }
-
-
     private final Collectable collectable;
     private final ActiveItemProperties properties;
+    private final ArrayList<UseRecord> uses = new ArrayList<>();
+    private transient Animation<TextureRegion> projectileFlyingAnimation;
+    private transient Animation<TextureRegion> projectileDestroyedAnimation;
     private transient MASound soundUse;
     private transient MASound soundDestroy;
-    private final ArrayList<UseRecord> uses = new ArrayList<>();
-
-    public enum ActiveItemType {
-        FIREBALL
-    }
-
-    public record ActiveItemProperties(
-            ActiveItemType type,
-            Collectable.CollectableType associatedCollectable,
-            String texture, String soundUse, String soundDestroy,
-            float projectileFlyingAnimationDuration,
-            float projectileDestroyedAnimationDuration,
-            float projectileSpeed, int projectileDamage, float projectileWidthCells, float projectileHeightCells,
-            float projectileBlastRadiusCells) {
+    public ActiveItem(ActiveItemType itemType) {
+        this.properties = Assets.getInstance().getActiveItems().stream().filter(
+            it -> it.type == itemType
+        ).findFirst().orElseThrow();
+        this.collectable = new Collectable(properties.associatedCollectable);
+        loadAnimations();
     }
 
     private void loadAnimations() {
         TextureAtlas textureAtlas = Assets.getInstance().getAssetManager()
-                .get("assets/anim/activeItems/activeItems.atlas", TextureAtlas.class);
+            .get("assets/anim/activeItems/activeItems.atlas", TextureAtlas.class);
         projectileFlyingAnimation = new Animation<>(
-                properties.projectileFlyingAnimationDuration,
-                textureAtlas.findRegions(properties.texture + "_flying"),
-                Animation.PlayMode.LOOP
+            properties.projectileFlyingAnimationDuration,
+            textureAtlas.findRegions(properties.texture + "_flying"),
+            Animation.PlayMode.LOOP
         );
         projectileDestroyedAnimation = new Animation<>(
-                properties.projectileDestroyedAnimationDuration,
-                textureAtlas.findRegions(properties.texture + "_destroyed"),
-                Animation.PlayMode.NORMAL
+            properties.projectileDestroyedAnimationDuration,
+            textureAtlas.findRegions(properties.texture + "_destroyed"),
+            Animation.PlayMode.NORMAL
         );
         if (properties.soundUse != null) {
             soundUse = Assets.getInstance().getSound(properties.soundUse);
@@ -82,17 +64,9 @@ public class ActiveItem implements GSONPostRestorable {
         for (UseRecord record : uses) {
             record.projectile.restore();
             LevelScreen.getInstance().tileEntityManager.createTileEntity(
-                    record.projectile, record.projectile != null ? record.projectile.getSavedPosition() :
-                            LevelScreen.getInstance().player.getPosition());
+                record.projectile, record.projectile != null ? record.projectile.getSavedPosition() :
+                    LevelScreen.getInstance().player.getPosition());
         }
-        loadAnimations();
-    }
-
-    public ActiveItem(ActiveItemType itemType) {
-        this.properties = Assets.getInstance().getActiveItems().stream().filter(
-                it -> it.type == itemType
-        ).findFirst().orElseThrow();
-        this.collectable = new Collectable(properties.associatedCollectable);
         loadAnimations();
     }
 
@@ -115,7 +89,7 @@ public class ActiveItem implements GSONPostRestorable {
             record.useTime += delta;
             if (record.projectile == null) {
                 record.projectile = new Projectile(
-                        1, 1, this.properties.projectileSpeed, !record.isLeft
+                    1, 1, this.properties.projectileSpeed, !record.isLeft
                 );
                 LevelScreen.getInstance().tileEntityManager.createTileEntity(record.projectile, player.getPosition());
             } else if (!record.projectile.isFoundHit()) {
@@ -124,11 +98,11 @@ public class ActiveItem implements GSONPostRestorable {
                 TextureRegion region = projectileFlyingAnimation.getKeyFrame(record.flightTime);
                 if (record.isLeft) region.flip(true, false);
                 batch.draw(
-                        region,
-                        position.x() - this.properties.projectileWidthCells * Globals.CELL_SIZE_METERS / 2f,
-                        position.y() - this.properties.projectileHeightCells * Globals.CELL_SIZE_METERS / 2f,
-                        this.properties.projectileWidthCells * Globals.CELL_SIZE_METERS,
-                        this.properties.projectileHeightCells * Globals.CELL_SIZE_METERS
+                    region,
+                    position.x() - this.properties.projectileWidthCells * Globals.CELL_SIZE_METERS / 2f,
+                    position.y() - this.properties.projectileHeightCells * Globals.CELL_SIZE_METERS / 2f,
+                    this.properties.projectileWidthCells * Globals.CELL_SIZE_METERS,
+                    this.properties.projectileHeightCells * Globals.CELL_SIZE_METERS
                 );
                 if (record.isLeft) region.flip(true, false);
             } else {
@@ -137,11 +111,11 @@ public class ActiveItem implements GSONPostRestorable {
                 TextureRegion region = projectileDestroyedAnimation.getKeyFrame(record.destroyTime);
                 if (record.isLeft) region.flip(true, false);
                 batch.draw(
-                        region,
-                        position.x() - this.properties.projectileWidthCells * Globals.CELL_SIZE_METERS / 2f,
-                        position.y() - this.properties.projectileHeightCells * Globals.CELL_SIZE_METERS / 2f,
-                        this.properties.projectileWidthCells * Globals.CELL_SIZE_METERS,
-                        this.properties.projectileHeightCells * Globals.CELL_SIZE_METERS
+                    region,
+                    position.x() - this.properties.projectileWidthCells * Globals.CELL_SIZE_METERS / 2f,
+                    position.y() - this.properties.projectileHeightCells * Globals.CELL_SIZE_METERS / 2f,
+                    this.properties.projectileWidthCells * Globals.CELL_SIZE_METERS,
+                    this.properties.projectileHeightCells * Globals.CELL_SIZE_METERS
                 );
                 if (record.isLeft) region.flip(true, false);
                 if (projectileDestroyedAnimation.isAnimationFinished(record.destroyTime)) {
@@ -154,16 +128,16 @@ public class ActiveItem implements GSONPostRestorable {
 
             if (record.light == null) {
                 AbsolutePoint position = record.projectile != null ? record.projectile.getPosition() :
-                        player.getPosition();
+                    player.getPosition();
                 record.light = new PointLight(
-                        LevelScreen.getInstance().rayHandler, Globals.RAY_AMOUNT, Globals.TORCH_LIGHT_COLOR, 0,
-                        position.x(), position.y()
+                    LevelScreen.getInstance().rayHandler, Globals.RAY_AMOUNT, Globals.TORCH_LIGHT_COLOR, 0,
+                    position.x(), position.y()
                 );
                 Filter filter = new Filter();
                 filter.categoryBits = BodyBits.LIGHT;
                 filter.maskBits = BodyBits.LIGHT_MASK;
                 record.light.setContactFilter(
-                        filter
+                    filter
                 );
                 record.light.setSoft(true);
                 record.light.setActive(true);
@@ -185,20 +159,20 @@ public class ActiveItem implements GSONPostRestorable {
                         float posX2 = position.x() + this.properties.projectileBlastRadiusCells;
                         float posY2 = position.y() + this.properties.projectileBlastRadiusCells;
                         LevelScreen.getInstance().world.QueryAABB(
-                                (fixture) -> {
-                                    Body body = fixture.getBody();
-                                    if (body != null && body.getUserData() instanceof Attackable attackable) {
-                                        if (body.getUserData() instanceof Player) return true;
-                                        attackable.takeDamage(this.properties.projectileDamage);
-                                    }
-                                    return true;
-                                },
-                                posX1, posY1, posX2, posY2
+                            (fixture) -> {
+                                Body body = fixture.getBody();
+                                if (body != null && body.getUserData() instanceof Attackable attackable) {
+                                    if (body.getUserData() instanceof Player) return true;
+                                    attackable.takeDamage(this.properties.projectileDamage);
+                                }
+                                return true;
+                            },
+                            posX1, posY1, posX2, posY2
                         );
                         DebugRenderer.getInstance().spawnRectangle(
-                                new AbsolutePoint(posX1, posY1),
-                                new AbsolutePoint(posX2, posY2),
-                                Color.ORANGE
+                            new AbsolutePoint(posX1, posY1),
+                            new AbsolutePoint(posX2, posY2),
+                            Color.ORANGE
                         );
                         if (soundDestroy != null) {
                             soundDestroy.stop();
@@ -220,5 +194,32 @@ public class ActiveItem implements GSONPostRestorable {
 
     public Collectable getCollectable() {
         return this.collectable;
+    }
+
+    public enum ActiveItemType {
+        FIREBALL
+    }
+
+    private static class UseRecord {
+        public Projectile projectile;
+        public boolean isLeft = false;
+        public float useTime = 0;
+        public float flightTime = 0;
+        public float destroyTime = 0;
+        public float lightTime = 0;
+        public float lightDecay = 0;
+        public boolean lightAttachedToBody = false;
+        public boolean hasDamaged = false;
+        public transient Light light;
+    }
+
+    public record ActiveItemProperties(
+        ActiveItemType type,
+        Collectable.CollectableType associatedCollectable,
+        String texture, String soundUse, String soundDestroy,
+        float projectileFlyingAnimationDuration,
+        float projectileDestroyedAnimationDuration,
+        float projectileSpeed, int projectileDamage, float projectileWidthCells, float projectileHeightCells,
+        float projectileBlastRadiusCells) {
     }
 }

@@ -57,7 +57,7 @@ public class CoinsAndKeys {
         coinsAndKeysTable.setPosition(x + coinsAndKeysTable.getPrefWidth() / 2,
             y - coinsAndKeysTable.getPrefHeight() / 2);
         stage.addActor(coinsAndKeysTable);
-        if (hasKey){
+        if (hasKey) {
             pickUpKey();
         }
     }
@@ -67,7 +67,7 @@ public class CoinsAndKeys {
      *
      * @param value the value
      */
-    public void pickUpCoin(int value){
+    public void pickUpCoin(int value) {
 
         coins.setText(": " + LevelScreen.getInstance().player.getGold());
         coinsAndKeysTable.setPosition(x + coinsAndKeysTable.getPrefWidth() / 2,
@@ -88,7 +88,7 @@ public class CoinsAndKeys {
     /**
      * Dispose.
      */
-    public void dispose(){
+    public void dispose() {
         coinsAndKeysTable.clear();
         coinsAndKeysTable.remove();
     }

@@ -2,8 +2,8 @@ package de.tum.cit.fop.maze.level.worldgen.rooms;
 
 
 import de.tum.cit.fop.maze.level.worldgen.CellType;
-import de.tum.cit.fop.maze.level.worldgen.GeneratorStrategy;
 import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
+import de.tum.cit.fop.maze.level.worldgen.GeneratorStrategy;
 
 import java.util.ArrayList;
 import java.util.Random;

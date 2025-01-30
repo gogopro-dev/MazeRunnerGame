@@ -2,9 +2,10 @@ package de.tum.cit.fop.maze.level.worldgen;
 
 /**
  * <p>Represents a possible passage between two disjoint components in the maze.</p>
- * @param a first cell
+ *
+ * @param a    first cell
  * @param wall wall we can break to get to the other cell
- * @param b second cell
+ * @param b    second cell
  */
 public record PassagePossibility(GeneratorCell a, GeneratorCell wall, GeneratorCell b) {
     public PassagePossibility {

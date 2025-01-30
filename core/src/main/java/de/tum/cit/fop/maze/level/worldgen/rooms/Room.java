@@ -1,8 +1,8 @@
 package de.tum.cit.fop.maze.level.worldgen.rooms;
 
 import de.tum.cit.fop.maze.level.worldgen.CellType;
-import de.tum.cit.fop.maze.level.worldgen.GeneratorStrategy;
 import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
+import de.tum.cit.fop.maze.level.worldgen.GeneratorStrategy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,15 +19,12 @@ public abstract class Room {
     public final int height;
     ///  The width of the room
     public final int width;
-
+    /// The {@link GeneratorStrategy} to generate the room
+    public final GeneratorStrategy generatorStrategy;
     /// The row index of the room
     protected int i = -1;
     /// The column index of the room
     protected int j = -1;
-
-    /// The {@link GeneratorStrategy} to generate the room
-    public final GeneratorStrategy generatorStrategy;
-
     /// The list of cells that are part of the room
     protected List<GeneratorCell> roomCells = null;
 
@@ -42,7 +39,17 @@ public abstract class Room {
     }
 
     /**
+     * Sets the list of cells that are part of the room
+     *
+     * @param roomCells the list of cells that are part of the room
+     */
+    public void setRoomCells(List<GeneratorCell> roomCells) {
+        this.roomCells = roomCells;
+    }
+
+    /**
      * Sets the location of the room
+     *
      * @param i row index
      * @param j column index
      */
@@ -51,22 +58,14 @@ public abstract class Room {
         this.j = j;
     }
 
-
-    /**
-     * Sets the list of cells that are part of the room
-     * @param roomCells the list of cells that are part of the room
-     */
-    public void setRoomCells(List<GeneratorCell> roomCells) {
-        this.roomCells = roomCells;
-    }
-
     public void generateInsides() {
 
     }
 
     /**
      * Generates a door for the room
-     * @param maze the maze
+     *
+     * @param maze   the maze
      * @param random the random instance to use
      */
     public void generateDoor(ArrayList<ArrayList<GeneratorCell>> maze, Random random) {
@@ -135,8 +134,9 @@ public abstract class Room {
 
     /**
      * Fills the room space with walls and room path, then generates a door and insides
+     *
      * @param mazeCells - matrix of maze
-     * @param random - random instance
+     * @param random    - random instance
      */
     public void generate(ArrayList<ArrayList<GeneratorCell>> mazeCells, Random random) {
         for (int i = 0; i < height; i++) {
@@ -155,9 +155,10 @@ public abstract class Room {
 
     /**
      * Updates the cell type of the room cell and the corresponding cell in the maze
-     * @param maze the maze
-     * @param i the row of the cell
-     * @param j the column of the cell
+     *
+     * @param maze     the maze
+     * @param i        the row of the cell
+     * @param j        the column of the cell
      * @param cellType the new cell type
      */
     public void updateCellType(ArrayList<ArrayList<GeneratorCell>> maze, int i, int j, CellType cellType) {

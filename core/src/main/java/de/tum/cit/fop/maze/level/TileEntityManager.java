@@ -75,8 +75,8 @@ public class TileEntityManager implements Disposable {
         for (TileEntity tileEntity : tileEntities) {
             tileEntity.initialize();
             tileEntity.spawn(
-                    tileEntity.getSavedPosition().x(),
-                    tileEntity.getSavedPosition().y()
+                tileEntity.getSavedPosition().x(),
+                tileEntity.getSavedPosition().y()
             );
         }
     }

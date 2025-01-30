@@ -7,8 +7,8 @@ import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 import de.tum.cit.fop.maze.level.GameOverScreen;
 import de.tum.cit.fop.maze.level.SaveManager;
 import de.tum.cit.fop.maze.menu.Menu;
-import games.rednblack.miniaudio.MiniAudio;
 import de.tum.cit.fop.maze.menu.MenuState;
+import games.rednblack.miniaudio.MiniAudio;
 
 import java.io.IOException;
 
@@ -17,6 +17,7 @@ import static de.tum.cit.fop.maze.essentials.Globals.*;
 /**
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
  * This class is the entry point of the game and is responsible for loading all assets and initializing the menu.
+ *
  * @see Game
  * @see Assets
  * @see Menu
@@ -29,12 +30,22 @@ public class LoadMenu extends Game {
 
     /**
      * Private constructor to prevent instantiation from outside the class
+     *
      * @see LoadMenu#getInstance()
      */
     private LoadMenu() {
         instance = this;
     }
 
+    /**
+     * @return the instance of the LoadMenu singleton
+     */
+    public static LoadMenu getInstance() {
+        if (instance == null) {
+            instance = new LoadMenu();
+        }
+        return instance;
+    }
 
     @Override
     public void create() {
@@ -56,13 +67,14 @@ public class LoadMenu extends Game {
      *  <li>The menu and game over screen will be resized and updated.</li>
      *  <li>If the settings file does not exist, the default settings will be used.</li>
      * </ul>
+     *
      * @see SettingsConfiguration
      */
     public void initConfigurations() {
         /// Sets the instance of the SettingsConfiguration singleton to the values in the settings.json file
         if (Gdx.files.local("saves/settings.json").exists()) {
             Assets.getInstance().gson.fromJson(
-              Gdx.files.local("saves/settings.json").reader(), SettingsConfiguration.class
+                Gdx.files.local("saves/settings.json").reader(), SettingsConfiguration.class
             );
         }
 
@@ -74,7 +86,7 @@ public class LoadMenu extends Game {
 
         calculateListOfResolutions();
 
-        if (SettingsConfiguration.getInstance().isFullScreen()){
+        if (SettingsConfiguration.getInstance().isFullScreen()) {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
             Menu.getInstance().SCREEN_HEIGHT = Gdx.graphics.getHeight();
             Menu.getInstance().SCREEN_WIDTH = Gdx.graphics.getWidth();
@@ -98,7 +110,7 @@ public class LoadMenu extends Game {
     private void calculateListOfResolutions() {
         int displayWidth = Gdx.graphics.getDisplayMode().width;
         int displayHeight = Gdx.graphics.getDisplayMode().height;
-        for (int i = WINDOWED_RESOLUTIONS.size()-1; i > 1; i--) {
+        for (int i = WINDOWED_RESOLUTIONS.size() - 1; i > 1; i--) {
             int width = Integer.parseInt(WINDOWED_RESOLUTIONS.get(i).split("x")[0]);
             int height = Integer.parseInt(WINDOWED_RESOLUTIONS.get(i).split("x")[1]);
             if (width >= displayWidth || height >= displayHeight) {
@@ -108,8 +120,8 @@ public class LoadMenu extends Game {
         /// if the current resolution is bigger than the biggest resolution in the list,
         /// change the resolution to the biggest one in the list
         if (CURRENT_SCREEN_WIDTH_WINDOWED >= displayWidth || CURRENT_SCREEN_HEIGHT_WINDOWED >= displayHeight) {
-            CURRENT_SCREEN_WIDTH_WINDOWED = Integer.parseInt(WINDOWED_RESOLUTIONS.get(WINDOWED_RESOLUTIONS.size()-1).split("x")[0]);
-            CURRENT_SCREEN_HEIGHT_WINDOWED = Integer.parseInt(WINDOWED_RESOLUTIONS.get(WINDOWED_RESOLUTIONS.size()-1).split("x")[1]);
+            CURRENT_SCREEN_WIDTH_WINDOWED = Integer.parseInt(WINDOWED_RESOLUTIONS.get(WINDOWED_RESOLUTIONS.size() - 1).split("x")[0]);
+            CURRENT_SCREEN_HEIGHT_WINDOWED = Integer.parseInt(WINDOWED_RESOLUTIONS.get(WINDOWED_RESOLUTIONS.size() - 1).split("x")[1]);
 
             Menu.getInstance().SCREEN_HEIGHT = CURRENT_SCREEN_HEIGHT_WINDOWED;
             Menu.getInstance().SCREEN_WIDTH = CURRENT_SCREEN_WIDTH_WINDOWED;
@@ -122,16 +134,6 @@ public class LoadMenu extends Game {
             }
         }
 
-    }
-
-    /**
-     * @return the instance of the LoadMenu singleton
-     */
-    public static LoadMenu getInstance() {
-        if (instance == null) {
-            instance = new LoadMenu();
-        }
-        return instance;
     }
 
     @Override
