@@ -554,7 +554,7 @@ public class SettingsScreen implements Screen {
         knob_selected.setMinSize(knob_selected.getMinWidth()*2f, knob_selected.getMinHeight()*2f);
         sliderStyle.knobDown = knob_selected;
 
-        return new Slider(0f, 1f, 0.01f, false, sliderStyle);
+        return new Slider(0f, 0.5f, 0.005f, false, sliderStyle);
     }
 
     /**

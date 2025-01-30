@@ -16,8 +16,8 @@ import static de.tum.cit.fop.maze.essentials.Globals.CURRENT_SCREEN_WIDTH_WINDOW
  * The settings configuration can be accessed from any class in the game.
  */
 public class SettingsConfiguration {
-    private float musicVolume = 0.5f;
-    private float sfxVolume = 0.5f;
+    private float musicVolume = 0.1f;
+    private float sfxVolume = 0.1f;
     private String resolution = CURRENT_SCREEN_WIDTH_WINDOWED + "x" + CURRENT_SCREEN_HEIGHT_WINDOWED;
     private boolean fullScreen = true;
     private boolean vsync = true;
