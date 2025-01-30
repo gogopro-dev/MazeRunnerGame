@@ -44,7 +44,8 @@ For example, `core:clean` removes `build` folder only from the `core` project.
 ## Game mechanics
 
 - The player has to find the key and bring it to the exit of the labyrinth, on his way he fights with monsters and collects items to power up.
-- `Darkness Mechanic`: The player has to stay in the light, otherwise he will take damage.
+- `Darkness Mechanic`: The player has to stay in the light, otherwise he will take damage. **That is the third "
+  ingenious" required obstacle**
 - `Active items`: In the current state game has one active item: Fireball. It can be picked up like a collectable item, and used by pressing `Q`. It deals damage to the enemies and consumes stamina.
 - `Shop`: The player can buy items from the shop by pressing `SPACE`. The shop is located closer the center of the
   labyrinth. Our game has basic currency (coins) that drops from destroyed loot containers.
