@@ -20,6 +20,7 @@ public final class CollectableAttributes extends Attributes {
     public final boolean spawnPriority;
     public final boolean emitsLight;
     public final boolean spawnOnce;
+    //private final String pickupSound;
 
     public CollectableAttributes(
         Collectable.CollectableType type, String textureName, int immediateHealing, int immediateCoins,

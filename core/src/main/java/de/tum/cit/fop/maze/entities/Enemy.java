@@ -63,7 +63,8 @@ public class Enemy extends Entity implements Attackable {
             this.getBody().setLinearVelocity(Vector2.Zero);
         }
         isAttacking &= !isDead();
-        if (isDead() && body.getFixtureList().size > 0) {
+        if (isDead() && dieAnimation.isAnimationFinished(elapsedTime * 3) &&
+            body.getFixtureList().size > 0) {
             Iterator<Fixture> fixtureIterator = new Array.ArrayIterator<>(body.getFixtureList());
             List<Fixture> toDestroy = new ArrayList<>();
             while (fixtureIterator.hasNext()) {

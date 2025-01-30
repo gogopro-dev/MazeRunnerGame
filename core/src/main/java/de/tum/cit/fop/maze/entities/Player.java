@@ -19,6 +19,8 @@ import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.hud.HUD;
 import de.tum.cit.fop.maze.level.LevelScreen;
+import games.rednblack.miniaudio.MASound;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
