@@ -127,10 +127,6 @@ public class Trap extends TileEntity {
         return isActivated;
     }
 
-    public boolean isDamaging() {
-        return isActivated && elapsedTime > 0.15f;
-    }
-
     /**
      * The attributes of a trap
      *

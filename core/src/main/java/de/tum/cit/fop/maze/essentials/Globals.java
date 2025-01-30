@@ -62,13 +62,13 @@ public final class Globals {
     public static final String PLAYER_SCARED_TEXT = "I am scared of the dark...\nI need to get out of the shadow!";
     public static final int DEFAULT_SCREEN_WIDTH_WINDOWED = 1024;
     public static final int DEFAULT_SCREEN_HEIGHT_WINDOWED = 768;
-    public static float CURRENT_CAMERA_ZOOM = DEFAULT_CAMERA_ZOOM;
-    public static float ENEMY_SPAWN_DENSITY = 0.05f;
-    public static float LOOTCONTAINER_SPAWN_DENSITY = 0.30f;
+    public static final float CURRENT_CAMERA_ZOOM = DEFAULT_CAMERA_ZOOM;
+    public static final float ENEMY_SPAWN_DENSITY = 0.05f;
+    public static final float LOOTCONTAINER_SPAWN_DENSITY = 0.30f;
     public static int CURRENT_SCREEN_WIDTH_WINDOWED = DEFAULT_SCREEN_WIDTH_WINDOWED;
     public static int CURRENT_SCREEN_HEIGHT_WINDOWED = DEFAULT_SCREEN_HEIGHT_WINDOWED;
-    public static float DEFAULT_CAMERA_VIEWPORT_WIDTH_METERS = 16.0f;
-    public static float DEFAULT_CAMERA_VIEWPORT_HEIGHT_METERS = 12.0f;
-    public static List<String> WINDOWED_RESOLUTIONS = new ArrayList<>(Arrays.asList("640x480", "800x600", "1024x768", "1280x720", "1280x800", "1280x960", "1400x1050", "1600x1200", "1680x1050", "1920x1080", "1920x1200", "2048x1536", "2560x1440", "2560x1600", "3840x2160", "3840x2400", "7680x4320"));
+    public static final float DEFAULT_CAMERA_VIEWPORT_WIDTH_METERS = 16.0f;
+    public static final float DEFAULT_CAMERA_VIEWPORT_HEIGHT_METERS = 12.0f;
+    public static final List<String> WINDOWED_RESOLUTIONS = new ArrayList<>(Arrays.asList("640x480", "800x600", "1024x768", "1280x720", "1280x800", "1280x960", "1400x1050", "1600x1200", "1680x1050", "1920x1080", "1920x1200", "2048x1536", "2560x1440", "2560x1600", "3840x2160", "3840x2400", "7680x4320"));
 
 }

@@ -68,7 +68,7 @@ public class Attributes {
             ", immediateCoins=" + immediateCoins +
             ", damageBoost=" + damageBoost +
             ", resistanceBoost=" + resistanceBoost +
-            ", vampiricHealing=" + vampirism +
+            ", vampirism=" + vampirism +
             ", amountOfResurrections=" + resurrections +
             ", speedBoost=" + speedBoost +
             '}';

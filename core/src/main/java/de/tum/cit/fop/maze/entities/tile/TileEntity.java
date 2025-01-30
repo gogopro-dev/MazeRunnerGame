@@ -26,7 +26,7 @@ public abstract class TileEntity implements Disposable, GSONPostRestorable {
 
     protected transient Body body;
     protected transient SpriteBatch batch;
-    protected transient OrthographicCamera camera;
+    protected final transient OrthographicCamera camera;
     protected transient BodyDef bodyDef;
     protected transient FixtureDef fixtureDef;
     private transient boolean initialized = false;

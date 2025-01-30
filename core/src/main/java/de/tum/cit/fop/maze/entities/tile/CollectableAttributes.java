@@ -75,7 +75,7 @@ public final class CollectableAttributes extends Attributes {
             ", immediateCoins=" + immediateCoins +
             ", damageBoost=" + damageBoost +
             ", resistanceBoost=" + resistanceBoost +
-            ", vampiricHealingPercent=" + vampirism +
+            ", vampirism=" + vampirism +
             ", resurrections=" + resurrections +
             ", speedBoost=" + speedBoost +
             ", lootContainerPool=" + lootContainerPool +

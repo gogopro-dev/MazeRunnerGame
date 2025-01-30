@@ -28,11 +28,9 @@ import java.util.stream.Collectors;
  */
 public final class MazeGenerator {
     public final int width;
-    ;
     public final int height;
     /// Final grid
     public final ArrayList<ArrayList<GeneratorCell>> grid = new ArrayList<>();
-    ;
     public final boolean loadedFromProperties;
     /// Auxiliary arrays
     /// The path from the current cell to the next cell
@@ -54,7 +52,7 @@ public final class MazeGenerator {
     private int generatorWidth;
     /// The height value to use for generation
     private int generatorHeight;
-    private Random random;
+    private final Random random;
 
     /**
      * Initializes MazeGenerator from pre-generated .properties file

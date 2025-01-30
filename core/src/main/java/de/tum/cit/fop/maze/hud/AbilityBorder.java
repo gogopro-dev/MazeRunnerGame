@@ -12,12 +12,10 @@ import de.tum.cit.fop.maze.level.LevelScreen;
  * on a given position within a game.
  */
 public class AbilityBorder {
-    private final float height = 60;
     private final float width = 60;
     private final float x;
     private final float y;
     private final TextureRegion border;
-    private final float borderPadding = 4;
     private Animation<TextureRegion> abilityAnimation;
     private float elapsedTime = 0;
     private boolean withAbility = false;
@@ -53,8 +51,10 @@ public class AbilityBorder {
     public void render(SpriteBatch batch, float deltaTime) {
 
         elapsedTime += deltaTime;
+        float height = 60;
         batch.draw(border, x, y, width, height);
         if (withAbility) {
+            float borderPadding = 4;
             batch.draw(abilityAnimation.getKeyFrame(elapsedTime), x + borderPadding, y + borderPadding,
                 width - borderPadding * 2, height - borderPadding * 2);
         }

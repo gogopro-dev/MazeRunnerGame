@@ -90,28 +90,6 @@ public class TileTextureHelper {
         return getTextureWithVariationChance(name, 0.7, random);
     }
 
-    /**
-     * Get a texture by name
-     *
-     * @param name the name of the texture (e.g. "floor", "wall", etc.)
-     * @return {@link TextureRegion} the texture
-     */
-    public TextureRegion getTexture(String name) {
-        try {
-            return textures.get(name).get(0);
-        } catch (IndexOutOfBoundsException e) {
-            return null;
-        }
-    }
-
-    public boolean isTexturesLoaded() {
-        return texturesLoaded;
-    }
-
-    public List<TextureRegion> getTextures(String name) {
-        return textures.get(name);
-    }
-
     public record TextureResult(TextureRegion textureRegion, int index) {
     }
 

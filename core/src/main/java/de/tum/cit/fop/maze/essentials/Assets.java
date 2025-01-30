@@ -48,7 +48,7 @@ public final class Assets implements Disposable {
     private final ArrayList<Trap.TrapAttributes> traps = new ArrayList<>();
     private final ArrayList<Enemy.EnemyConfig> enemies = new ArrayList<>();
     private final ArrayList<ActiveItem.ActiveItemProperties> activeItems = new ArrayList<>();
-    private HashMap<String, String> soundMap;
+    private final HashMap<String, String> soundMap;
 
     /**
      * Private constructor to prevent instantiation from outside the class</br>

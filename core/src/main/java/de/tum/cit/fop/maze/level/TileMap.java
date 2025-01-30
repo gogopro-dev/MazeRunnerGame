@@ -42,15 +42,16 @@ public class TileMap implements Disposable, GSONPostRestorable {
     public AbsolutePoint playerPosition;
     public transient float heightMeters;
     public transient float widthMeters;
-    public transient Random random;
+    public final transient Random random;
     boolean[][] wallMap;
     private AbsolutePoint exitPosition;
     private transient MazeGenerator generator;
-    private transient HashSet<Collectable> spawnedItems = new HashSet<>();
 
     /**
-     * Create a new TileMap from Gson
+     * Create a new TileMap from Gson,
+     * suppresed unused warning because used in Gson
      */
+    @SuppressWarnings("unused")
     private TileMap() {
         this.tileEntityManager = LevelScreen.getInstance().tileEntityManager;
         this.random = LevelScreen.getInstance().random;
@@ -149,7 +150,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
                     LevelScreen.getInstance().enemyManager.createEnemy(
                         new Enemy(Arrays.stream(
                             EnemyType.values()).skip(random.nextInt(EnemyType.values().length)
-                        ).findFirst().get()),
+                        ).findFirst().orElseThrow()),
                         currentCellCenter.x(),
                         currentCellCenter.y()
                     );
@@ -271,7 +272,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
                     new Enemy(
                         Arrays.stream(
                             EnemyType.values()).skip(random.nextInt(EnemyType.values().length)
-                        ).findFirst().get()
+                        ).findFirst().orElseThrow()
                     ),
                     current.x() + i * CELL_SIZE_METERS,
                     current.y() + j * CELL_SIZE_METERS
@@ -305,7 +306,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
                             LootContainer.LootContainerType.values()).skip(
                             random.nextInt(LootContainer.LootContainerType.values().length
                             )
-                        ).findFirst().get()
+                        ).findFirst().orElseThrow()
                     ),
                     current.x() + j * CELL_SIZE_METERS,
                     current.y() + i * CELL_SIZE_METERS + CELL_SIZE_METERS / 1.5f
