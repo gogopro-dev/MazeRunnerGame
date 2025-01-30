@@ -141,7 +141,6 @@ public class LevelScreen implements Screen {
         this.needsRestoring = false;
         this.random = new Random(seed);
         generate();
-        spawnDebug();
         init();
     }
 
@@ -154,7 +153,6 @@ public class LevelScreen implements Screen {
         this();
         this.needsRestoring = false;
         generate(generator);
-        spawnDebug();
         init();
     }
 

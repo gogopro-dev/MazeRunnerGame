@@ -14,10 +14,23 @@ import games.rednblack.miniaudio.MASound;
 
 import java.util.Objects;
 
+/**
+ * The type Shop item.
+ * <p>
+ *     A shop item is a collectable that can be bought by the player.
+ *     The player can buy the item by pressing the space key.
+ *     The player can only buy the item if he has enough gold.
+ *     The shop item is destroyed after the player buys it.
+ *     The shop item has a description that is displayed when the player is near it.
+ * </p>
+ */
 public class ShopItem extends TileEntity {
     private Collectable item;
     private transient MASound purchaseSound;
 
+    /**
+     * Instantiates a new Shop item.
+     */
     public ShopItem() {
         super(1, 1, new BodyDef(), new FixtureDef());
         bodyDef.type = BodyDef.BodyType.StaticBody;
@@ -30,6 +43,10 @@ public class ShopItem extends TileEntity {
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
     }
 
+    /**
+     * Instantiates a new Shop item.
+     * @param item the item
+     */
     public ShopItem(Collectable item) {
         this();
         this.item = item;
@@ -55,6 +72,10 @@ public class ShopItem extends TileEntity {
         item.dispose();
     }
 
+    /**
+     * Description string.
+     * @return description
+     */
     private String description() {
         return item.getCollectableAttributes().toItemDescription() +
             "\n Price " + item.getCollectableAttributes().shopPrice + " coins";

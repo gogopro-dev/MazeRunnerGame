@@ -8,6 +8,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
+/**
+ * The StaminaBar class represents a visual component that displays the player's
+ * stamina in the user interface. This component is constructed using a progress bar
+ * and is rendered using a sprite batch.
+ */
 public class StaminaBar {
     private final float scalingX;
     private final float scalingY;
@@ -17,7 +22,16 @@ public class StaminaBar {
     private float x;
     private float y;
 
-
+    /**
+     * Instantiates a new Stamina bar.
+     *
+     * @param maxStamina the max stamina
+     * @param x          the x
+     * @param y          the y
+     * @param atlas      the HUD atlas instance
+     * @param width      the width
+     * @param height     the height
+     */
     public StaminaBar(float maxStamina, float x, float y,
                       TextureAtlas atlas, float width, float height) {
         scalingX = width / 129;
@@ -51,6 +65,11 @@ public class StaminaBar {
 
     }
 
+    /**
+     * Draw.
+     * @param batch Spritebatch
+     * @param deltaTime Time since the last frame
+     */
     public void draw(SpriteBatch batch, float deltaTime) {
         staminaBar.act(deltaTime);
         staminaBar.draw(batch, 1);

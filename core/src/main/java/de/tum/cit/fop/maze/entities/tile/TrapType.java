@@ -5,13 +5,28 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+/**
+ * Represents the type of trap that can be placed on a tile
+ * <p>
+ *     The trap types are:
+ *     <ul>
+ *         <li>Spikes</li>
+ *         <li>Flamethrower Horizontal</li>
+ *         <li>Flamethrower Vertical</li>
+ *     </ul>
+ * </p>
+ */
 public enum TrapType {
     SPIKES,
     FLAMETHROWER_H,
     FLAMETHROWER_V;
 
-
-    public static TrapType pickRandomVerticalTrap(Random random) {
+    /**
+     * Picks a random horizontal trap
+     * @param random the random number generator
+     * @return a random horizontal trap
+     */
+    public static TrapType pickRandomHorizontalTrap(Random random) {
         List<TrapType> candidtaes = Arrays.stream(TrapType.values()).filter(
             (trap) -> !trap.name().contains("_V")
         ).collect(Collectors.toUnmodifiableList());
@@ -19,7 +34,12 @@ public enum TrapType {
         return candidtaes.get(random.nextInt(candidtaes.size()));
     }
 
-    public static TrapType pickRandomHorizontalTrap(Random random) {
+    /**
+     * Picks a random vertical trap
+     * @param random the random number generator
+     * @return a random vertical trap
+     */
+    public static TrapType pickRandomVerticalTrap(Random random) {
         List<TrapType> candidtaes = Arrays.stream(TrapType.values()).filter(
             (trap) -> !trap.name().contains("_H")
         ).collect(Collectors.toUnmodifiableList());

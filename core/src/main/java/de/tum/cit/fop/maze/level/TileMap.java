@@ -368,8 +368,8 @@ public class TileMap implements Disposable, GSONPostRestorable {
         float yActual = center.y();
         if (!vertical) --yActual;
         TrapType trapType = vertical ?
-            TrapType.pickRandomHorizontalTrap(generator.getRandom()) :
-            TrapType.pickRandomVerticalTrap(generator.getRandom());
+            TrapType.pickRandomVerticalTrap(generator.getRandom()) :
+            TrapType.pickRandomHorizontalTrap(generator.getRandom());
 
         Trap trap = new Trap(trapType);
         boolean singleCellTrap = trap.attributes.width() == 1 && trap.attributes.height() == 1;

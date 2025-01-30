@@ -60,6 +60,11 @@ public class Utils {
         return finalResult;
     }
 
+    /**
+     * Get the tracking points for an entity
+     * @param entity The entity to track
+     * @return The tracking points
+     */
     private static @NotNull ArrayList<AbsolutePoint> getTrackingPoits(Entity entity) {
         AbsolutePoint position = entity.getPosition();
         BoundingRectangle entityRectangle = entity.boundingRectangle;
@@ -76,6 +81,11 @@ public class Utils {
         return trackingPoints;
     }
 
+    /**
+     * Check if the entity is in shadow
+     * @param entity The entity to check
+     * @return {@code true} if the entity is in shadow, {@code false} otherwise
+     */
     public static boolean isEntityInShadow(Entity entity) {
         ArrayList<AbsolutePoint> trackingPoints = getTrackingPoits(entity);
         boolean inShadow = true;
@@ -88,10 +98,21 @@ public class Utils {
         return inShadow;
     }
 
+    /**
+     * Check if the entity is in light
+     * @param entity The entity to check
+     * @return {@code true} if the entity is in light, {@code false} otherwise
+     */
     public static boolean isEntityInLight(Entity entity) {
         return !isEntityInShadow(entity);
     }
 
+    /**
+     * Check if the player is reachable (not blocked by any obstacles and within the vision range) using Box2D raycast
+     * @param sourcePoint The point to check from
+     * @param rayLength The length of the ray
+     * @return {@code true} if the player is reachable {@code false} otherwise
+     */
     public static boolean isPlayerExposed(AbsolutePoint sourcePoint, float rayLength) {
         LevelScreen levelScreen = LevelScreen.getInstance();
         AbsolutePoint playerPosition = levelScreen.player.getPosition();
@@ -144,6 +165,12 @@ public class Utils {
 
     }
 
+    /**
+     * Interpolates between two colors based on the progress
+     * @param tint The color to interpolate to
+     * @param progress The progress of the interpolation
+     * @return The interpolated color
+     */
     public static Color tintInterpolation(Color tint, float progress) {
         float differenceR = 1 - tint.r;
         float differenceG = 1 - tint.g;
@@ -156,6 +183,11 @@ public class Utils {
         );
     }
 
+    /**
+     * Schedule a function to run after a delay
+     * @param function The function to run
+     * @param delay The delay in seconds
+     */
     public static void scheduleFunction(Runnable function, float delay) {
         new Thread(() -> {
             try {

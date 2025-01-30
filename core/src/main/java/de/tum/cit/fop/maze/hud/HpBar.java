@@ -188,7 +188,7 @@ public class HpBar {
     }
 
     /**
-     * Take dmg.
+     * Take damage.
      *
      * @param damage the damage
      */
@@ -204,6 +204,11 @@ public class HpBar {
         gotHit = true;
     }
 
+    /**
+     * Draw damage animation.
+     * @param deltaTime Time since the last frame
+     * @param batch SpriteBatch
+     */
     private void damageAnimation(float deltaTime, SpriteBatch batch) {
 
         hitElapsedTime += deltaTime;
@@ -231,6 +236,10 @@ public class HpBar {
         }
     }
 
+    /**
+     * Check if all animations are finished.
+     * @return boolean
+     */
     private boolean getAllAnimationsFinished() {
         return healthLDMG.isAnimationFinished(hitElapsedTime) && healthRDMG.isAnimationFinished(hitElapsedTime)
             && healthLNoDMG.isAnimationFinished(hitElapsedTime);
