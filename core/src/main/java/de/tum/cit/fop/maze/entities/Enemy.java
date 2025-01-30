@@ -188,7 +188,7 @@ public class Enemy extends Entity implements Attackable {
         LevelScreen.getInstance().world.QueryAABB(
             fixture -> {
                 if (fixture.getBody().getUserData() instanceof Player player) {
-                    player.takeDamage(1);
+                    player.takeDamage(this.config.attributes.damage);
                     return false;
                 }
                 return true;
@@ -271,7 +271,7 @@ public class Enemy extends Entity implements Attackable {
 
 
     public record EnemyConfig (String pathToAnim, EnemyType enemyType, Attributes attributes) {
-        public record Attributes(float speed, float heal, float maxHealth, float damage, float visionRange) {
+        public record Attributes(float speed, float heal, float maxHealth, int damage, float visionRange) {
         }
     }
 

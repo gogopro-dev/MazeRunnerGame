@@ -43,7 +43,7 @@
     "lootContainerPool": true,
     "treasurePool": true,
     "name": "Defense buff",
-    "description": "A wise old man once said:\n \"Yo, you better kow how to defend yo' ass.\" "
+    "description": "A shiny shield that boosts your resistance and feels like a loyal companion."
   },
   {
     "type": "DAMAGE_COIN",
@@ -52,13 +52,15 @@
     "frameDuration": 0.1,
     "dropChance": 0.02,
     "lootContainerPool": true,
-    "treasurePool": true
+    "treasurePool": true,
+    "description": "A sharp sword that boosts your damage, eager to help you strike with more power."
   },
   {
     "type": "RESURRECTION_AMULET",
     "textureName": "health_amulet",
     "resurrections": 1,
     "frameDuration": 0.1,
+    "description": "A magical amulet that can bring you back from the dead.\n It's a one-time use item, so use it wisely.",
     "shopPool": true
   },
   {
@@ -66,6 +68,7 @@
     "textureName": "vampire_amulet",
     "vampirism": 0.15,
     "frameDuration": 0.1,
+    "description": "A mysterious amulet that gives you the chance to heal yourself by dealing damage to your enemies.",
     "shopPool": true
   },
   {
@@ -73,6 +76,7 @@
     "textureName": "boots",
     "speedBoost": 0.15,
     "frameDuration": 0.1,
+    "description": "A pair of boots that make you feel like you're walking on air, giving you a speed boost.",
     "shopPool": true
   },
   {
