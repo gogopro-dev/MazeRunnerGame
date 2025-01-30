@@ -13,13 +13,10 @@ import de.tum.cit.fop.maze.entities.tile.*;
 import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 import de.tum.cit.fop.maze.gson.RuntimeTypeAdapterFactory;
 import de.tum.cit.fop.maze.level.TileMap;
-import de.tum.cit.fop.maze.menu.Menu;
 import games.rednblack.miniaudio.MAGroup;
 import games.rednblack.miniaudio.MASound;
 import games.rednblack.miniaudio.MiniAudio;
 import games.rednblack.miniaudio.loader.MASoundLoader;
-import games.rednblack.miniaudio.mix.MAChannelCombiner;
-import games.rednblack.miniaudio.mix.MASplitter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -100,14 +97,11 @@ public final class Assets implements Disposable {
         soundMap = new HashMap<>();
         instance = this;
         tileTextureHelper = new TileTextureHelper("assets/tiles/tiles.atlas");
-        //MASplitter splitter = new MASplitter(soundEngine);
         music = soundEngine.createGroup();
         music.setSpatialization(false);
         sfx = soundEngine.createGroup();
         music.setVolume(SettingsConfiguration.getInstance().getMusicVolume());
         sfx.setVolume(SettingsConfiguration.getInstance().getSfxVolume());
-        /*music.attachToThisNode(splitter, 0);
-        sfx.attachToThisNode(splitter, 1);*/
 
         gson = gsonBuilder.create();
     }
@@ -161,7 +155,7 @@ public final class Assets implements Disposable {
             }
         }
         enemies.addAll(
-            List.of(gson.fromJson(Gdx.files.local("assets/anim/enemies/enemyConfig.json").readString(),
+            List.of(gson.fromJson(Gdx.files.local("assets/configs/enemyConfig.json").readString(),
                 Enemy.EnemyConfig[].class
             ))
         );
