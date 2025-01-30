@@ -78,13 +78,13 @@ public class LoadMenu extends Game {
             );
         }
 
-        Menu.getInstance();
-
         String[] resolution = SettingsConfiguration.getInstance().getResolution().split("x");
         CURRENT_SCREEN_WIDTH_WINDOWED = Integer.parseInt(resolution[0]);
         CURRENT_SCREEN_HEIGHT_WINDOWED = Integer.parseInt(resolution[1]);
 
         calculateListOfResolutions();
+
+        Menu.getInstance();
 
         if (SettingsConfiguration.getInstance().isFullScreen()) {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
