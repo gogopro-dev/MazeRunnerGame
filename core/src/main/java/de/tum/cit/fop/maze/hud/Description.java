@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze.entities;
+package de.tum.cit.fop.maze.hud;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Stage;
