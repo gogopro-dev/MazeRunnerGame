@@ -4,6 +4,18 @@ A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://git
 
 This project was generated with a template including simple application launchers and a main class extending `Game` that sets the first screen.
 
+# How to run
+
+## Windows
+
+(Intellij)
+Just run DesktopLauncher in the desktop project, no additional configuration is needed
+
+## MacOS
+
+(Intellij)
+Just run DesktopLauncher with -XstartOnFirstThread jvm arguments
+
 ## Platforms
 
 - `core`: Main module with the application logic shared by all platforms.
@@ -51,7 +63,6 @@ For example, `core:clean` removes `build` folder only from the `core` project.
 
 
 # LORE
-
 Being a hatchet man for Italian mafia isn't the most pleasant job, nevertheless, it pays your bills (and not just them) and you earn extra for staying loyal. However, even the hardest workers can fall from grace. Don Blues V Acello, his most frequent employer, was quite surprised at the productivity of his freelance worker. However, attempts to lure our hero into the mafia were unsuccessful: too much responsibility and not everyone would like to get a tight collar around his neck. Soon our hero gained fame, he assassinated many people under the leadership of Mr. Acello; and with every body his skills evolved. With each completed order, and latter refusal to join Don's mafia, the boss developed a previously unknown feeling - anxiety. What would happen, if his competitors would have found out that his most successful assassin was off-leash. It was decided: during a mission to kill Don's long-time partner (Robin Banks that is), it was our merc's death. A well-hidden trapdoor by the mansion's entrance, right at stone floor determined our killer's fate. There was a desolate, abandoned dungeon underneath, and many men have gone missing there. There is a belief that there are mysterious forces sealed down there and no one dares no more to go down there.
 
 # PROJECT HIERARCHY
@@ -62,7 +73,11 @@ Our project is structured that way, so that in different packages there are clas
 
 `Menu` is the class that handles the state of the game. It manages all the menu's possible screens (e.g. `MainMenuScreen`, `SettingsScreen`, etc.) as well as the actual screen of the level (`LevelScreen`). Every time the screen is changed, the `Menu` class toggles the `MenuState` which allows to properly render the screen that should be rendered according to `MenuState`. 
 ## Save Management
-In our project we fully implemented saving/loading mechanic. This is related to the saves of the level, and the configurations of the settings. All saves Are stored in '.json' files (and also .png file for the minimap of the level, which can be seen in the `PlayGameScreen` when loading a level). The saves are stored in the 'saves' folder, and if the folder does not exist, it will automatically generate itself.
+
+In our project we fully implemented saving/loading mechanic. This is related to the saves of the level, and the
+configurations of the settings. All saves Are stored in '.json' files (and also .png file for the minimap of the level,
+which can be seen in the `PlayGameScreen` when loading a level). The saves are stored in the `saves` folder, and if the
+folder does not exist, it will automatically generate itself.
 
 ## Configs
 All the properties of collectables, enemies, traps, active items, and loot containers are stored in the `configs` folder. The properties are stored in '.json' files, which allow to easily change the properties.
@@ -88,16 +103,41 @@ it shows information about:
 - the description of items in shop
 - messages to the player about the game state
 
-## TileEntity
+## Entities and TileEntities concept
+
+There are two general types of dynamic objects `Entity` and `TileEntity` (somewhat like in minecraft)
+The first one generally is a character, right now just `Enemy` and `Player`, that can move on its own (controlled / AI)
+The way we store various Entities and TileEntities is in .json files in `assets/configs`.
+They are related to the corresponding dataclass, which is normally an inner class of those, unless it was too chunky
+to include in the same file. They also normally have an Enum that lists all the types of the given class, so that you
+can dynamically update the generator methods / literally anything generalized.
+
+## MazeGenerator
+
+The `MazeGenerator` class is responsible for generating the maze (labyrinth) structure for the game. It creates the
+layout of the dungeon, including walls, paths, rooms, and special points of interest such as the entrance, exit, and
+collectible item placements. This class ensures the maze is procedurally generated to offer a unique experience for each
+game session.
+
+### Responsibilities:
+
+- Implementing a procedural generation algorithm to create a maze.
+- Defining boundaries, walls, open spaces (paths), and rooms in the maze.
+- Placing key points such as:
+    - The starting point (entrance).
+    - The exit.
+    - Player spawn location.
+    - Locations for enemies and `Collectable` objects.
+- Ensuring that the maze is solvable (using flood fill with DSU):
+    - The path from the entrance to the exit should always exist.
+    - Dead ends are optional but should not trap critical game items.
 
 ## Collectable
 
-`Collectable` is the class that handles the items that can be picked up by Player. It enherits from `TileEntity`.
-it has following subclasses:
+`Collectable` is the class that handles the items that can be picked up by Player. It inherits from `TileEntity`.
+it has the following subclasses:
 - `CollectableAttributes` - enum that stores the attributes of the collectable items
-- `Collectable` - constructor that sets the position of the item and the type of the item
-- `fixtureDef` - fixture definition of the item
-- `TileEntity` - 
-- `MASOUND` - sound that is played when the item is picked up
-- `Light` - light that is attached to the item
-- `PrismaticJoint` - for drop path of the item
+
+## Configs
+
+In `assets/configs` you can change some attributes (Enemy health, enemy damage) and so on, if ever desired.
