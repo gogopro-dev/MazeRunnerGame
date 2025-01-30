@@ -118,6 +118,9 @@ public class HUD {
         exitArrow = new ExitArrow(atlas, stage);
 
         abilityBorder = new AbilityBorder(stage.getViewport().getWorldWidth()/2, padding, atlas);
+        if (player.getActiveItem() != null) {
+            abilityBorder.addActiveItem();
+        }
     }
 
     /**
