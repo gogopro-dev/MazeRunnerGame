@@ -101,7 +101,6 @@ public class Collectable extends TileEntity {
             pickupSound = Assets.getInstance().getSound(this.collectableAttributes.pickupSound);
             pickupSound.setSpatialization(false);
         }
-
     }
 
     public Collectable(CollectableAttributes attributes) {

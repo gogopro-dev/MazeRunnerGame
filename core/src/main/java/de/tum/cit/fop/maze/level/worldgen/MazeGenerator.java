@@ -202,6 +202,7 @@ public final class MazeGenerator {
             new Entrance(),
             new Shop(),
             new ItemsRoom(),
+            new ItemsRoom(),
             new KeyObelisk()
         ));
 

@@ -13,11 +13,13 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.*;
+import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.entities.*;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.tile.*;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Direction;
+import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.hud.HUD;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
 import de.tum.cit.fop.maze.menu.Menu;
@@ -27,6 +29,8 @@ import games.rednblack.miniaudio.MASound;
 import games.rednblack.miniaudio.MiniAudio;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -61,10 +65,7 @@ public class LevelScreen implements Screen {
     public transient HUD hud;
     public transient final RayHandler rayHandler;
     private final LevelData levelData = new LevelData();
-
-
-
-    transient Random random = new Random(2);
+    transient Random random = new Random();
     public transient final EntityPathfinder pathfinder = new EntityPathfinder();
     private transient boolean gameOver;
 
@@ -75,23 +76,79 @@ public class LevelScreen implements Screen {
     private transient float accumulator = 0;
     private transient final PauseScreen pauseScreen;
     private transient final Stage stage;
-    private transient boolean needsRestoring = false;
+    private transient boolean needsRestoring;
     private transient boolean endGame = false;
     private transient int levelIndex;
     private transient float ratio;
+    private transient MASound lossSound;
     public transient final MiniAudio sound;
+    private transient ArrayList<MASound> gameplayMusic;
+    private transient int currentMusicIndex = 0;
+    private transient float musicDelayActive = 30;
+    private transient MASound currentMusic = null;
+    private transient boolean isMusicPaused = false;
+    private transient boolean allMusicStopped = false;
+
 
     private void doPhysicsStep(float deltaTime) {
-        // Fixed time step
-        // Limit frame time to avoid spiral of death (i.e. endless loop of physics updates) on slow devices
+        /// Fixed time step
+        /// Limit frame time to avoid spiral of death (i.e. endless loop of physics updates) on slow devices
         float frameTime = Math.min(deltaTime, 0.25f);
         accumulator += frameTime;
         while (accumulator >= Globals.BOX2D_TIME_STEP) {
             world.step(Globals.BOX2D_TIME_STEP, Globals.BOX2D_VELOCITY_ITERATIONS, Globals.BOX2D_POSITION_ITERATIONS);
             accumulator -= Globals.BOX2D_TIME_STEP;
         }
+
     }
 
+
+    public void tickAudioEngine(float deltaTime) {
+        boolean isAnythingPlaying = false;
+        for (MASound sound : gameplayMusic) {
+            isAnythingPlaying |= sound.isPlaying();
+        }
+        if (!isAnythingPlaying) {
+            musicDelayActive -= deltaTime;
+        }
+        if (musicDelayActive <= 0 && !isAnythingPlaying && player.isBeingChased()) {
+            musicDelayActive = random.nextFloat() * 20 + 20;
+            if (currentMusicIndex >= gameplayMusic.size()) {
+                currentMusicIndex = 0;
+            }
+            currentMusic = gameplayMusic.get(currentMusicIndex);
+            currentMusic.setLooping(false);
+            currentMusic.setSpatialization(false);
+            currentMusic.play();
+            currentMusic.fadeIn(0.8f);
+            currentMusicIndex++;
+        }
+    }
+
+    public void fadeOutMusic() {
+        if (allMusicStopped) return;
+        allMusicStopped = true;
+        for (MASound sound : gameplayMusic) {
+            if (sound.isPlaying()) {
+                sound.fadeOut(0.2f);
+                Utils.scheduleFunction(sound::stop, 0.2f);
+            }
+        }
+    }
+
+    public void pauseMusic() {
+        if (currentMusic != null && currentMusic.isPlaying()) {
+            currentMusic.pause();
+            isMusicPaused = true;
+        }
+    }
+
+    public void resumeMusic() {
+        if (currentMusic != null && isMusicPaused) {
+            currentMusic.play();
+        }
+        isMusicPaused = false;
+    }
 
     @Override
     public void render(float delta) {
@@ -104,6 +161,7 @@ public class LevelScreen implements Screen {
         /// while fading to the main Menu
         if (pauseScreen.isPaused() || Menu.getInstance().getMenuState() != MenuState.GAME_SCREEN) {
             /// Render the last frame before pausing
+
             pauseScreen.drawLastFrame(batch);
 
             /// Update and render pause screen
@@ -112,13 +170,14 @@ public class LevelScreen implements Screen {
             return;
         }
 
-        if (gameOver){
+        if (gameOver) {
             pauseScreen.drawLastFrame(batch);
             GameOverScreen.getInstance().render(delta);
             return;
         }
 
         /// Render the game if not paused
+        tickAudioEngine(delta);
         renderWorld(delta);
 
         /// Update and render pause screen
@@ -126,9 +185,11 @@ public class LevelScreen implements Screen {
         pauseScreen.render(delta);
 
         /// Check if the game should end
-        if (endGame){
+        if (endGame) {
             pauseScreen.takeScreenshot();
-            GameOverScreen.getInstance().drawInventory(hud.getInventory().spriteInventory, hud.getInventory().textInventory);
+            GameOverScreen.getInstance().drawInventory(
+                hud.getInventory().spriteInventory, hud.getInventory().textInventory
+            );
             GameOverScreen.getInstance().setTimePlayed(hud.getFormattedTime());
             GameOverScreen.getInstance().setScore(levelData.getScore());
             gameOver = true;
@@ -188,10 +249,6 @@ public class LevelScreen implements Screen {
         viewport.setScreenSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
-    public LevelData getLevelData() {
-        return levelData;
-    }
-
     @Override
     public void show() {
         hud.show();
@@ -200,17 +257,14 @@ public class LevelScreen implements Screen {
 
     @Override
     public void pause() {
-
     }
 
     @Override
     public void resume() {
-
     }
 
     @Override
     public void hide() {
-
     }
 
     @Override
@@ -330,6 +384,18 @@ public class LevelScreen implements Screen {
                 map.playerPosition.x(), map.playerPosition.y()
             );
         }
+        this.lossSound = Assets.getInstance().getSound("loss");
+        this.lossSound.setSpatialization(false);
+        this.lossSound.setVolume(0.7f);
+
+        this.gameplayMusic = new ArrayList<>();
+        this.gameplayMusic.addAll(
+            List.of(
+                Assets.getInstance().getSound("fight0"),
+                Assets.getInstance().getSound("fight1")
+            )
+        );
+
         hud = new HUD(player);
         /// Set camera at the center of the players position in Box2D world
 
@@ -474,6 +540,12 @@ public class LevelScreen implements Screen {
      */
     public void endGame(boolean hasWon) {
         this.endGame = true;
+        if (!hasWon) {
+            fadeOutMusic();
+            this.lossSound.stop();
+            this.lossSound.setLooping(false);
+            this.lossSound.play();
+        }
         GameOverScreen.getInstance().setHasWon(hasWon);
         GameOverScreen.getInstance().deleteGame();
         PlayGameScreen.getInstance().updateScreen();
@@ -505,5 +577,9 @@ public class LevelScreen implements Screen {
 
     public float getRatio() {
         return ratio;
+    }
+
+    public LevelData getLevelData() {
+        return levelData;
     }
 }

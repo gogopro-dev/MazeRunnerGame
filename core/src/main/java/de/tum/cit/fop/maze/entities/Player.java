@@ -24,7 +24,7 @@ import games.rednblack.miniaudio.MASound;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static de.tum.cit.fop.maze.Globals.*;
 
@@ -66,6 +66,11 @@ public class Player extends Entity {
     private transient float deadElapsedTime = 0f;
     private transient float resurrectElapsedTime = 0f;
     private transient boolean hasResurrected = false;
+    private transient int attackNumber = 0;
+    private transient MASound punch1;
+    private transient MASound punch2;
+    private transient MASound swing;
+    private transient MASound gotHit;
 
 
     /**
@@ -91,6 +96,7 @@ public class Player extends Entity {
      */
     @Override
     protected void render(float deltaTime) {
+        System.out.println(this.isBeingChased());
         /// TODO Stamina regeneration?
         elapsedTime += deltaTime;
         Assets.getInstance().soundEngine.setListenerPosition(getPosition().x(), getPosition().y(), 0);
@@ -178,8 +184,8 @@ public class Player extends Entity {
         batch.draw(currentFrame, getSpriteX(), getSpriteY(), frameWidth, frameHeight);
         batch.setColor(Color.WHITE);
         if (isAttacking && !hasHit && attackElapsedTime > attackAnimation.getAnimationDuration() / 2) {
-            System.out.println("Attack");
             hasHit = true;
+
             this.attackAllEnemiesInRange();
         }
 
@@ -207,7 +213,7 @@ public class Player extends Entity {
      *
      * @see Assets
      */
-    private void loadAnimations() {
+    private void loadAssets() {
         TextureAtlas animAtlas = Assets.getInstance().getAssetManager().get("assets/anim/player/character.atlas", TextureAtlas.class);
         /// Load idle animation
         idleAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle"));
@@ -222,21 +228,47 @@ public class Player extends Entity {
         attackAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         /// Load die animation
-        dieAnimation = new Animation<>(1f / 10f, animAtlas.findRegions("character_die"));
+        dieAnimation = new Animation<>(
+            1f / 10f, animAtlas.findRegions("character_die")
+        );
         dieAnimation.setPlayMode(Animation.PlayMode.NORMAL);
 
         /// Load idle torch animation
-        idleTorchAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle_torch"));
+        idleTorchAnimation = new Animation<>(
+            1f / 8f, animAtlas.findRegions("Character_idle_torch")
+        );
         idleTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         /// Load movement torch animation
-        movementTorchAnimation = new Animation<>(1f / 40f * 3f, animAtlas.findRegions("Character_move_torch"));
+        movementTorchAnimation = new Animation<>(
+            1f / 40f * 3f, animAtlas.findRegions("Character_move_torch")
+        );
         movementTorchAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        this.punch1 = Assets.getInstance().getSound("punch_1");
+        this.punch1.setLooping(false);
+        this.punch1.setSpatialization(false);
+        this.punch1.setVolume(0.45f);
+
+        this.punch2 = Assets.getInstance().getSound("punch_2");
+        this.punch2.setLooping(false);
+        this.punch2.setSpatialization(false);
+        this.punch2.setVolume(0.45f);
+
+        this.swing = Assets.getInstance().getSound("swing");
+        this.swing.setLooping(false);
+        this.swing.setSpatialization(false);
+        this.swing.setVolume(0.65f);
+
+        this.gotHit = Assets.getInstance().getSound("damage_player");
+        this.gotHit.setLooping(false);
+        this.gotHit.setSpatialization(false);
+        this.gotHit.setVolume(0.65f);
     }
 
     @Override
     void init() {
-        loadAnimations();
+        loadAssets();
         for (Collectable collectable : inventory) {
             collectable.init();
         }
@@ -276,6 +308,7 @@ public class Player extends Entity {
             rectangleEnd,
             Color.CYAN
         );
+        AtomicBoolean anyAttacked = new AtomicBoolean(false);
         LevelScreen.getInstance().world.QueryAABB(
             fixture -> {
                 System.out.println("Fixture detected: " + fixture);
@@ -285,7 +318,7 @@ public class Player extends Entity {
                 }
 
                 if (fixture.getBody().getUserData() instanceof Attackable attackable) {
-                    System.out.println("Hit " + attackable);
+                    anyAttacked.set(true);
                     attackable.takeDamage(Globals.PLAYER_DAMAGE + attributes.getDamageBoost());
                     if (attributes.getVampirism() > 0 && attackable instanceof Enemy) {
                         heal(LevelScreen.getInstance().getRandom().nextFloat() <= attributes.getVampirism() ? 1 : 0);
@@ -304,6 +337,23 @@ public class Player extends Entity {
             },
             rectangleStart.x(), rectangleStart.y(), rectangleEnd.x(), rectangleEnd.y()
         );
+
+        if (anyAttacked.get()) {
+            if (this.attackNumber % 4 == 3) {
+                this.punch2.stop();
+                this.punch2.setLooping(false);
+                this.punch2.play();
+            } else {
+                this.punch1.stop();
+                this.punch1.setLooping(false);
+                this.punch1.play();
+            }
+            attackNumber++;
+        } else {
+            this.swing.stop();
+            this.swing.setLooping(false);
+            this.swing.play();
+        }
     }
 
     /**
@@ -449,6 +499,7 @@ public class Player extends Entity {
         takeDamage(1);
     }
 
+
     public List<Collectable> getInventory() {
         return inventory;
     }
@@ -569,6 +620,10 @@ public class Player extends Entity {
         super.takeDamage(damage);
         isDamaged = true;
         damageFlashTimer = 0f;
+
+        this.gotHit.stop();
+        this.gotHit.setLooping(false);
+        this.gotHit.play();
 
         LevelScreen.getInstance().hud.takeDmg(damage);
     }
