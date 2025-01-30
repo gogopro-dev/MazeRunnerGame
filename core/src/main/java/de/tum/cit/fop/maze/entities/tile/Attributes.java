@@ -78,7 +78,7 @@ public class Attributes {
         }
         if (this.speedBoost > 0) {
             sb.append("Increases speed by ")
-                .append(Math.round(this.speedBoost * 100)).append("%\n");
+                .append(Math.round(this.speedBoost * 100)).append("% while running\n");
         }
         if (this.damageBoost > 0) {
             sb.append("Increases damage by ")

@@ -64,6 +64,8 @@ public class Player extends Entity {
     private transient float shadowWaitElapsedTime;
     //private transient MASound attack
     private transient float deadElapsedTime = 0f;
+    private transient float resurrectElapsedTime = 0f;
+    private transient boolean hasResurrected = false;
 
 
     /**
@@ -134,20 +136,40 @@ public class Player extends Entity {
             .getKeyFrame(isAttacking ? attackElapsedTime : elapsedTime, true);
 
         /// If the player is dead, play the die animation and hold for 2 seconds
+        /// If the player has resurrection amulet, resurrect the player after being dead,
+        /// by playing the die animation backwards
         if (isDead()){
             deadElapsedTime += deltaTime;
-            if (deadElapsedTime > dieAnimation.getAnimationDuration() + 2f){
-                LevelScreen.getInstance().hud.setHealthBar(0, maxHealth);
-                LevelScreen.getInstance().endGame(false);
-            }
             currentFrame = dieAnimation.getKeyFrame(deadElapsedTime, false);
+            body.setLinearVelocity(Vector2.Zero);
+            if (deadElapsedTime > dieAnimation.getAnimationDuration() + 2f){
+                if (removeItem(Collectable.CollectableType.RESURRECTION_AMULET) || hasResurrected) {
+                    hasResurrected = true;
+                } else {
+                    LevelScreen.getInstance().endGame(false);
+                }
+            }
+            if (hasResurrected){
+                resurrectElapsedTime += deltaTime;
+                currentFrame = dieAnimation.getKeyFrame(dieAnimation.getAnimationDuration() - resurrectElapsedTime, false);
+            }
+            if (resurrectElapsedTime >= dieAnimation.getAnimationDuration()){
+                hasResurrected = false;
+                deadElapsedTime = 0f;
+                resurrectElapsedTime = 0f;
+                health = maxHealth;
+                LevelScreen.getInstance().hud.setHealthBar(health, maxHealth);
+            }
         }
 
-        /// Flip the frame if needed
-        if (facingRight && currentFrame.isFlipX()) {
-            currentFrame.flip(true, false); // Flip horizontally if facing right
-        } else if (!facingRight && !currentFrame.isFlipX()) {
-            currentFrame.flip(true, false); // Flip horizontally if facing left
+        /// If the player is not dead, allow to flip the frame if needed
+        if (!isDead()) {
+            /// Flip the frame if needed
+            if (facingRight && currentFrame.isFlipX()) {
+                currentFrame.flip(true, false); // Flip horizontally if facing right
+            } else if (!facingRight && !currentFrame.isFlipX()) {
+                currentFrame.flip(true, false); // Flip horizontally if facing left
+            }
         }
 
         /// Draw the current frame
@@ -537,20 +559,17 @@ public class Player extends Entity {
 
     @Override
     public void takeDamage(int damage) {
+        if (isDead()) {
+            LevelScreen.getInstance().hud.setHealthBar(0, maxHealth);
+            return;
+        }
         /// Damage taken by player is at least 1 after applying all resits
         damage = Math.max(1, damage - attributes.getResistanceBoost());
         if (isDamaged) return;
         super.takeDamage(damage);
         isDamaged = true;
         damageFlashTimer = 0f;
-        if (isDead()) {
-            /// If there was a resurrection amulet in the inventory
-            if (removeItem(Collectable.CollectableType.RESURRECTION_AMULET)) {
-                health = maxHealth;
-                LevelScreen.getInstance().hud.setHealthBar(health, maxHealth);
-                return;
-            }
-        }
+
         LevelScreen.getInstance().hud.takeDmg(damage);
     }
 
