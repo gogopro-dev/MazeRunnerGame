@@ -7,7 +7,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 /**
- * The type Ability border.
+ * The AbilityBorder class represents a visual container that displays an ability icon
+ * along with a border. It supports rendering of the border and ability animation
+ * on a given position within a game.
  */
 public class AbilityBorder {
     private final float height = 60;
@@ -23,9 +25,9 @@ public class AbilityBorder {
     /**
      * Instantiates a new Ability border.
      *
-     * @param x     the x
-     * @param y     the y
-     * @param atlas the atlas
+     * @param x     the x coordinate
+     * @param y     the y coordinate
+     * @param atlas the HUD atlas instance
      */
     public AbilityBorder(float x, float y, TextureAtlas atlas) {
         this.x = x - width / 2;
@@ -36,8 +38,7 @@ public class AbilityBorder {
     /**
      * Add active item.
      */
-    public void addActiveItem(){
-
+    public void setActiveItem() {
         this.withAbility = true;
         this.abilityAnimation = LevelScreen.getInstance().player.getActiveItem().getCollectable().getIdleAnimation();
         this.abilityAnimation.setPlayMode(Animation.PlayMode.LOOP);
@@ -45,8 +46,7 @@ public class AbilityBorder {
 
     /**
      * Render active item animation.
-     *
-     * @param batch     the batch
+     * @param batch     the batch used for rendering
      * @param deltaTime the delta time
      */
     public void render(SpriteBatch batch, float deltaTime) {
