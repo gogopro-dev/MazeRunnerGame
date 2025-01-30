@@ -136,3 +136,7 @@ game session.
 `Collectable` is the class that handles the items that can be picked up by Player. It inherits from `TileEntity`.
 it has the following subclasses:
 - `CollectableAttributes` - enum that stores the attributes of the collectable items
+
+## Configs
+
+In `assets/configs` you can change some attributes (Enemy health, enemy damage) and so on, if ever desired.
