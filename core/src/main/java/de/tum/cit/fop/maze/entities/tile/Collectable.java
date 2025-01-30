@@ -177,11 +177,13 @@ public class Collectable extends TileEntity {
     public void contactTick(float delta) {
         if (!pickedUp && this.getPosition().distance(LevelScreen.getInstance().player.getPosition()) <
             Globals.COLLECTABLE_PICKUP_RADIUS && this.dropPositions.isEmpty()) {
+            if (pickupSound != null) {
+                this.pickupSound.stop();
+                this.pickupSound.setLooping(false);
+                this.pickupSound.play();
+            }
             toDestroy = true;
             pickedUp = true;
-            this.pickupSound.stop();
-            this.pickupSound.setLooping(false);
-            this.pickupSound.play();
             pickupElapsedTime = 0f;
             ///  Collectable pickup logic is hasBeenDropped in Player class
             LevelScreen.getInstance().player.collect(this);
