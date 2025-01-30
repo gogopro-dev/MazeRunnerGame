@@ -13,9 +13,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
+/**
+ * Utility class providing various helper methods for graphic manipulations,
+ * raycast operations, gameplay mechanics, easing functions, and scheduling tasks.
+ */
 public class Utils {
     public static Drawable getColoredDrawable(int width, int height, Color color) {
-        // create simple font for Stamina Bar
+        /// create simple font for Stamina Bar
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         pixmap.setColor(color);
         pixmap.fill();

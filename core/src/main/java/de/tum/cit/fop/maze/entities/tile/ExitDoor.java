@@ -25,6 +25,7 @@ public class ExitDoor extends TileEntity {
     /**
      * Creates a new Exit door.
      */
+
     private Direction direction;
     private transient Animation<TextureRegion> doorOpeningAnimation;
     private transient float openElapsedTime = 0;

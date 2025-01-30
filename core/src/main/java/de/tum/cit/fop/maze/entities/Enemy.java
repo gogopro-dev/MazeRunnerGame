@@ -1,6 +1,5 @@
 package de.tum.cit.fop.maze.entities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
@@ -243,27 +242,40 @@ public class Enemy extends Entity implements Attackable {
         }
 
 
-        // Load idle animation
-        TextureAtlas animationAtlas = new TextureAtlas(Gdx.files.internal(config.pathToAnim));
-        idleAnimation = new Animation<>(1f / 6.25f, animationAtlas.findRegions("idle"));
+        /// Load idle animation
+        TextureAtlas animationAtlas = Assets.getInstance().getAssetManager().get(
+            "assets/anim/enemies/enemies.atlas",
+            TextureAtlas.class
+        );
+        idleAnimation = new Animation<>(1f / 6.25f,
+            animationAtlas.findRegions(config.animationCategory + "_idle")
+        );
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        // Load movement animation
-        movementAnimation = new Animation<>(1f / 10f, animationAtlas.findRegions("walk"));
+        /// Load movement animation
+        movementAnimation = new Animation<>(
+            1f / 10f, animationAtlas.findRegions(config.animationCategory + "_walk")
+        );
         movementAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        // Load movement to player animation
-        movementTPAnimation = new Animation<>(1f / 10f, animationAtlas.findRegions("walkTP"));
+        /// Load movement to player animation
+        movementTPAnimation = new Animation<>(1f / 10f,
+            animationAtlas.findRegions(config.animationCategory + "_walkTP")
+        );
         movementTPAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        // Load hitting animation
-        attackAnimation = new Animation<>(1f / 8f, animationAtlas.findRegions("attack"));
+        /// Load hitting animation
+        attackAnimation = new Animation<>(1f / 8f,
+            animationAtlas.findRegions(config.animationCategory + "_attack")
+        );
         attackAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        // Load die animation
-        dieAnimation = new Animation<>(1f / 7f, animationAtlas.findRegions("die"));
-        dieAnimation.setPlayMode(Animation.PlayMode.NORMAL);
+        /// Load die animation
+        dieAnimation = new Animation<>(1f / 7f,
+            animationAtlas.findRegions(config.animationCategory + "_die")
+        );
 
+        dieAnimation.setPlayMode(Animation.PlayMode.NORMAL);
         currentAnimation = idleAnimation;
     }
 
@@ -277,7 +289,7 @@ public class Enemy extends Entity implements Attackable {
     }
 
 
-    public record EnemyConfig (String pathToAnim, EnemyType enemyType, Attributes attributes) {
+    public record EnemyConfig(String animationCategory, EnemyType enemyType, Attributes attributes) {
         public record Attributes(float speed, float heal, float maxHealth, int damage, float visionRange) {
         }
     }

@@ -56,7 +56,7 @@ public class ShopItem extends TileEntity {
     }
 
     private String description() {
-        return item.getCollectableAttributes().toPrettyDescription() +
+        return item.getCollectableAttributes().toItemDescription() +
                 "\n Price " + item.getCollectableAttributes().shopPrice + " coins";
     }
 

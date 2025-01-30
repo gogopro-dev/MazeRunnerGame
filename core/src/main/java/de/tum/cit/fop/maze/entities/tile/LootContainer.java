@@ -22,10 +22,17 @@ import java.util.Random;
 
 import static de.tum.cit.fop.maze.essentials.Globals.*;
 
+/**
+ * Represents a loot container entity within the game, which can be attacked, destroyed,
+ * and drops collectible loot upon destruction.
+ * A loot container can be of a specific type (e.g., barrel, crate, vase) and has attributes
+ * such as health, animations, and sounds associated with it.
+ * Implements the {@link Attackable} interface.
+ */
 public class LootContainer extends TileEntity implements Attackable {
     private LootContainerAttributes attributes;
     private boolean destroyed = false;
-    private transient boolean collisionDisabled = false;
+
     private final ArrayList<Collectable> loot = new ArrayList<>();
     private float destroyedTime = 0;
     private float idleTime = 0;
@@ -34,16 +41,34 @@ public class LootContainer extends TileEntity implements Attackable {
     private transient Body lightBlockingBody;
     private transient MASound hitSound;
     private transient MASound destroySound;
+    private transient boolean collisionDisabled = false;
+    private transient Animation<TextureRegion> idleAnimation;
+    private transient Animation<TextureRegion> destroyedAnimation;
 
-
+    /**
+     * Existing types of LootContainer
+     */
     public enum LootContainerType {
         BARREL,
         CRATE, VASE,
     }
 
-    private transient Animation<TextureRegion> idleAnimation;
-    private transient Animation<TextureRegion> destroyedAnimation;
-
+    /**
+     * <p>Represents the attributes of a loot container {@link LootContainer} within the game.
+     * These attributes determine the behavior, appearance, and sounds associated
+     * with a loot container. </p>
+     * <p>
+     * The class includes data such as:
+     * <ul>
+     *     <li>The maximum loot amount the container can hold.</li>
+     *     <li>The duration of each animation frame for displaying the loot container.</li>
+     *     <li>The container's texture, sounds, and type.</li>
+     *     <li>Additional attributes related to interaction like health.</li>
+     * </ul>
+     *
+     * <p>Instances of this class are typically used for initialization and
+     * functional configuration of {@link LootContainer} objects.</p>
+     */
     public static class LootContainerAttributes {
         public int health;
         public final int maxLootAmount;
@@ -68,7 +93,7 @@ public class LootContainer extends TileEntity implements Attackable {
 
 
     /**
-     * This constructor will be used by gson
+     * This constructor will ONLY be used by GSON
      */
     private LootContainer() {
         super(1, 2, new BodyDef(), new FixtureDef());
@@ -85,6 +110,14 @@ public class LootContainer extends TileEntity implements Attackable {
         fixtureDef.filter.maskBits = BodyBits.WALL_MASK;
     }
 
+    /**
+     * Constructs a new LootContainer with the specified type. Initializes the container by
+     * determining its attributes, setting up its loot pool, and randomly populating it with
+     * items based on drop chances and maximum loot constraints defined in its attributes.
+     *
+     * @param type The type of the LootContainer (e.g., BARREL, CRATE, VASE) which determines its
+     *             attributes and behavior.
+     */
     public LootContainer(LootContainerType type) {
         this();
         this.attributes = Assets.getInstance().getLootContainerConfig().stream()
@@ -106,6 +139,9 @@ public class LootContainer extends TileEntity implements Attackable {
 
     }
 
+    /**
+     * Initializes the LootContainer by setting up animations, sounds, and loot items.
+     */
     protected void init() {
         TextureAtlas atlas =
             new TextureAtlas(Gdx.files.internal("anim/tileEntities/tile_entities.atlas"));

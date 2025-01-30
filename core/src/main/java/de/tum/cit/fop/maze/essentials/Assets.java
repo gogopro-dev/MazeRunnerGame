@@ -118,6 +118,7 @@ public final class Assets implements Disposable {
         assetManager.load("assets/collectables/collectables.atlas", TextureAtlas.class);
         assetManager.load("assets/anim/activeItems/activeItems.atlas", TextureAtlas.class);
         assetManager.load("assets/hud/hud.atlas", TextureAtlas.class);
+        assetManager.load("assets/anim/enemies/enemies.atlas", TextureAtlas.class);
 
 
         // Walk assets sounds recursively
@@ -158,7 +159,7 @@ public final class Assets implements Disposable {
             }
         }
         enemies.addAll(
-            List.of(gson.fromJson(Gdx.files.local("assets/configs/enemyConfig.json").readString(),
+            List.of(gson.fromJson(Gdx.files.local("assets/configs/enemies.json").readString(),
                 Enemy.EnemyConfig[].class
             ))
         );
