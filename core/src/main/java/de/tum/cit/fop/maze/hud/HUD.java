@@ -113,7 +113,7 @@ public class HUD {
 
         abilityBorder = new AbilityBorder(stage.getViewport().getWorldWidth()/2, padding, atlas);
         if (player.getActiveItem() != null) {
-            abilityBorder.addActiveItem();
+            abilityBorder.setActiveItem();
         }
     }
 
@@ -195,7 +195,7 @@ public class HUD {
      * Add active item.
      */
     public void addActiveItem() {
-        abilityBorder.addActiveItem();
+        abilityBorder.setActiveItem();
     }
 
 
