@@ -41,7 +41,7 @@ For example, `core:clean` removes `build` folder only from the `core` project.
 # CLASS HIERARCHY
 
 ## HUD
-`HUD` is the main class that handles the HUD of the game. It manages all thw widget subclasses each dispaying a certain part of HUD. It also interacts with outer classes such as Player and Collectable in order to update the HUD widgets.
+`HUD` is the main class that handles the HUD of the game. It manages all thw widget subclasses each dispaying a certain part of HUD. It also interacts with classes such as Player and Collectable in order to update the HUD widgets: `HpBar`, `StaminaBar`, `TimeAndScore`, `Inventory`, `ExitArrow`, `Description`, `AbilityBorder`.
 - health `HpBar`
 - stamina `StaminaBar`
 - time spent in a run and score `TimeAndScore`
