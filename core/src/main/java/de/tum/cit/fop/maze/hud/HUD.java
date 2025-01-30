@@ -83,7 +83,6 @@ public class HUD {
         description = new Description(descriptionStyle, stage);
 
 
-        generator.dispose();
         timeAndScore = new TimeAndScore(LevelScreen.getInstance().getLevelData(), timeAndScoreStyle, stage);
 
 
