@@ -114,8 +114,10 @@ public final class Assets implements Disposable {
         assetManager.load("assets/menu/menu_icons.atlas", TextureAtlas.class);
         assetManager.load("assets/anim/player/character.atlas", TextureAtlas.class);
         assetManager.load("assets/anim/tileEntities/tile_entities.atlas", TextureAtlas.class);
-        assetManager.load("assets/temporary/collectables/collectables.atlas", TextureAtlas.class);
+        assetManager.load("assets/collectables/collectables.atlas", TextureAtlas.class);
         assetManager.load("assets/anim/activeItems/activeItems.atlas", TextureAtlas.class);
+        assetManager.load("assets/hud/hud.atlas", TextureAtlas.class);
+
 
         // Walk assets sounds recursively
         try (Stream<Path> stream = Files.walk(Paths.get(Gdx.files.local("assets/sounds").path()))) {

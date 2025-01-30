@@ -1,6 +1,7 @@
 package de.tum.cit.fop.maze.hud;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -8,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.entities.CoinsAndKeys;
 import de.tum.cit.fop.maze.entities.Description;
 import de.tum.cit.fop.maze.entities.ExitArrow;
@@ -93,12 +95,13 @@ public class HUD {
 
         Label.LabelStyle inventoryStyle = new Label.LabelStyle();
         inventoryStyle.font = createFont(invFontSize);
-        inventoryAtlas = new TextureAtlas(Gdx.files.local("assets/temporary/collectables/collectables.atlas"));
+        inventoryAtlas = Assets.getInstance().getAssetManager()
+            .get("assets/collectables/collectables.atlas", TextureAtlas.class);
         inventory = new Inventory(inventoryAtlas, inventoryStyle, stage);
         setInventory(player.getInventory());
 
 
-        atlas = new TextureAtlas(Gdx.files.local("assets/temporary/HUDv2/HUDv2.atlas"));
+        atlas = Assets.getInstance().getAssetManager().get("assets/hud/hud.atlas", TextureAtlas.class);
 
 
         healthBar = new HpBar(padding, stage.getViewport().getWorldHeight() - padding, atlas, stage);

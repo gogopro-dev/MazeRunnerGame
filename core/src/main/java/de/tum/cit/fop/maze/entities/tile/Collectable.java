@@ -91,7 +91,7 @@ public class Collectable extends TileEntity {
 
     public void init() {
         TextureAtlas atlas = Assets.getInstance().getAssetManager().get(
-            "assets/temporary/collectables/collectables.atlas", TextureAtlas.class
+            "assets/collectables/collectables.atlas", TextureAtlas.class
         );
         idleAnimation = new Animation<>(
             collectableAttributes.frameDuration, atlas.findRegions(collectableAttributes.textureName)
