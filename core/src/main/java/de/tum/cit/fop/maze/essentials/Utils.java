@@ -13,6 +13,7 @@ import de.tum.cit.fop.maze.level.LevelScreen;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.function.Function;
 
 import static de.tum.cit.fop.maze.Globals.IMMUNITY_FRAME_DURATION;
 
@@ -154,4 +155,16 @@ public class Utils {
             1
         );
     }
+
+    public static void scheduleFunction(Runnable function, float delay) {
+        new Thread(() -> {
+            try {
+                Thread.sleep((long) (delay * 1000));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            function.run();
+        }).start();
+    }
+
 }

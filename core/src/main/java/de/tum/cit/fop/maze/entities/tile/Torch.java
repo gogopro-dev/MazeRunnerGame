@@ -11,6 +11,7 @@ import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
+import games.rednblack.miniaudio.MASound;
 
 import static de.tum.cit.fop.maze.Globals.*;
 
@@ -23,6 +24,7 @@ public class Torch extends TileEntity {
     private transient float elapsedLitTime = 0f;
     private transient Animation<TextureAtlas.AtlasRegion> torchAnimation;
     private transient TextureRegion standTexture;
+    private transient MASound litSound;
 
     public Torch() {
         super(1, 1, new BodyDef(), new FixtureDef());
@@ -34,6 +36,8 @@ public class Torch extends TileEntity {
         fixtureDef.isSensor = true;
         fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
+        litSound = Assets.getInstance().getSound("torch_lit");
+        litSound.setLooping(true);
     }
 
     public Torch(Direction direction) {
@@ -118,8 +122,16 @@ public class Torch extends TileEntity {
                 this.getPosition().addY(-1 / 4f * Globals.CELL_SIZE_METERS), TORCH_ACTIVATION_RADIUS * 2
             )
         ) {
-            lit = true;
-            light.setActive(true);
+            if (!lit) {
+                lit = true;
+                light.setActive(true);
+                float x = getPosition().x();
+                float y = getPosition().y();
+                litSound.stop();
+                litSound.setPosition(x, y, 0);
+                litSound.setLooping(false);
+                litSound.play();
+            }
         }
     }
 

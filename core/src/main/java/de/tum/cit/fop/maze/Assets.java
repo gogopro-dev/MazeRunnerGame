@@ -50,7 +50,7 @@ public final class Assets implements Disposable {
     private HashMap<String, String> soundMap;
     public final MAGroup music;
     public final MAGroup sfx;
-    private final MiniAudio soundEngine;
+    public final MiniAudio soundEngine;
     /**
      * @return the singleton instance of the {@link Assets} class
      */
@@ -240,6 +240,7 @@ public final class Assets implements Disposable {
                 sound.setSpatialization(false);
                 music.attachToThisNode(sound, 0);
             } else {
+                sound.setLooping(false);
                 sfx.attachToThisNode(sound, 0);
             }
             return sound;

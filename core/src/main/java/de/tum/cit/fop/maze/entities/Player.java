@@ -86,6 +86,7 @@ public class Player extends Entity {
     protected void render(float deltaTime) {
         /// TODO Stamina regeneration?
         elapsedTime += deltaTime;
+        Assets.getInstance().soundEngine.setListenerPosition(getPosition().x(), getPosition().y(), 0);
         if (isHoldingTorch) {
             elapsedTorchTime += deltaTime;
             if (this.torchLight.getDistance() < Globals.TORCH_LIGHT_RADIUS) {
@@ -133,8 +134,6 @@ public class Player extends Entity {
         } else if (!facingRight && !currentFrame.isFlipX()) {
             currentFrame.flip(true, false); // Flip horizontally if facing left
         }
-
-
 
         /// Draw the current frame
         float frameWidth = currentFrame.getRegionWidth() * scale;

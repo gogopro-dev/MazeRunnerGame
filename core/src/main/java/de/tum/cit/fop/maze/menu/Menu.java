@@ -13,6 +13,7 @@ import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.essentials.FadeOverlay;
 import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
+import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import games.rednblack.miniaudio.MASound;
 import games.rednblack.miniaudio.MiniAudio;
@@ -123,15 +124,22 @@ public class Menu implements Screen {
                 }
                 if (mainMenuMusic.isPlaying()) {
                     mainMenuMusic.fadeOut(2000);
+                    Utils.scheduleFunction(creditsMusic::stop, 2f);
                 }
                 fadeOverlay.startFadeIn();
                 break;
             case MAIN_MENU:
-                if (fadeIn) {
-                    if (!mainMenuMusic.isPlaying()) {
-                        mainMenuMusic.fadeIn(2000);
+                if (creditsMusic.isPlaying()) {
+                    creditsMusic.fadeOut(200);
+                    Utils.scheduleFunction(creditsMusic::stop, 0.2f);
+                }
+                if (!mainMenuMusic.isPlaying()) {
+                    Utils.scheduleFunction(() -> {
+                        mainMenuMusic.fadeIn(200);
                         mainMenuMusic.play();
-                    }
+                    }, 0.2f);
+                }
+                if (fadeIn) {
                     /// If the state changes from game screen to main menu,
                     /// save the game
                     if (LevelScreen.getInstance() != null) {
@@ -153,11 +161,11 @@ public class Menu implements Screen {
                 break;
             case CREDITS:
                 if (mainMenuMusic.isPlaying()) {
-                    mainMenuMusic.fadeOut(2000);
-                    mainMenuMusic.stop();
+                    mainMenuMusic.fadeOut(200);
+                    Utils.scheduleFunction(mainMenuMusic::stop, 0.2f);
                 }
                 if (!creditsMusic.isPlaying()) {
-                    creditsMusic.fadeIn(2000);
+                    creditsMusic.fadeIn(200);
                     creditsMusic.play();
                 }
                 creditsScreen.show();
