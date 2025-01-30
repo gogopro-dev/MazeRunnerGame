@@ -85,7 +85,7 @@ public class EnemyManager {
      * @param delta The time since the last frame
      */
     public void render(float delta) {
-        // Parallel sort enemies by y coordinate
+        /// Parallel sort enemies by y coordinate
         Enemy[] enemiesPrimitive = this.enemies.toArray(new Enemy[0]);
         Arrays.parallelSort(enemiesPrimitive, (enemy1, enemy2) ->
             Float.compare(enemy2.getPosition().y(), enemy1.getPosition().y())
@@ -164,7 +164,7 @@ public class EnemyManager {
             recalculatePaths();
         }
         for (Enemy enemy : enemies) {
-            playerChased |= enemy.isMovingToPlayer();
+            playerChased |= enemy.isMovingToPlayer() && !enemy.isDead() && enemy.getPathSize() > 0;
             tickEnemy(enemy);
         }
         levelScreen.player.setBeingChased(playerChased);

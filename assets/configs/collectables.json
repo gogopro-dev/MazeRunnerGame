@@ -39,7 +39,7 @@
     "textureName": "shield_orb",
     "resistanceBoost": 2,
     "frameDuration": 0.1,
-    "dropChance": 0.02,
+    "dropChance": 0.002,
     "lootContainerPool": true,
     "treasurePool": true,
     "name": "Defense buff",
@@ -50,7 +50,7 @@
     "textureName": "damage_orb",
     "damageBoost": 2,
     "frameDuration": 0.1,
-    "dropChance": 0.02,
+    "dropChance": 0.002,
     "lootContainerPool": true,
     "treasurePool": true,
     "description": "A sharp sword that boosts your damage, eager to help you strike with more power."
@@ -83,6 +83,7 @@
     "type": "KEY",
     "textureName": "key",
     "frameDuration": 0.2,
-    "isConsumable": true
+    "isConsumable": true,
+    "pickupSound": "key_pickup"
   }
 ]

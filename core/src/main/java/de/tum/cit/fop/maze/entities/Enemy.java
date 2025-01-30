@@ -31,6 +31,7 @@ public class Enemy extends Entity implements Attackable {
     private transient float attackElapsedTime = 0f;    // Tracks time for attack animation
     private boolean isMovingToPlayer = false;
     private boolean facingRight = true;
+    private boolean addedScore = false;
     private transient boolean canHit = true;
     private transient final List<AbsolutePoint> path;
     private transient AbsolutePoint currentPathPoint;
@@ -62,6 +63,10 @@ public class Enemy extends Entity implements Attackable {
         if (isDead()) {
             this.getBody().setLinearVelocity(Vector2.Zero);
         }
+        if (isDead() && !addedScore) {
+            addedScore = true;
+            LevelScreen.getInstance().getLevelData().addScore(200);
+        }
         isAttacking &= !isDead();
         if (isDead() && dieAnimation.isAnimationFinished(elapsedTime * 3) &&
             body.getFixtureList().size > 0) {
@@ -73,6 +78,8 @@ public class Enemy extends Entity implements Attackable {
             for (Fixture fixture : toDestroy) {
                 body.destroyFixture(fixture);
             }
+            this.clearPath();
+            this.setMovingToPlayer(false);
         }
         if (isAttacking) {
             this.body.setLinearVelocity(Vector2.Zero);

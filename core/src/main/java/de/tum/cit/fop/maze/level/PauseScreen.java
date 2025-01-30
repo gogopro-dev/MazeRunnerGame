@@ -266,8 +266,11 @@ public class PauseScreen {
         if (isPaused) {
             /// Take a screenshot of the current frame
             /// To place the pause menu on top of it
+            LevelScreen.getInstance().pauseMusic();
             takeScreenshot();
             return;
+        } else {
+            LevelScreen.getInstance().resumeMusic();
         }
         try {
             SaveManager.saveConfigurations();

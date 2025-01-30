@@ -95,13 +95,11 @@ public class LootContainer extends TileEntity implements Attackable {
         int passes = 0;
         Random random = LevelScreen.getInstance().getRandom();
         while (passes < this.attributes.maxLootAmount && loot.size() < this.attributes.maxLootAmount) {
-            for (CollectableAttributes collectableAttributes : Assets.getInstance().getCollectables()) {
-                if (collectableAttributes.lootContainerPool) {
-                    if (random.nextFloat() <= collectableAttributes.dropChance) {
-                        loot.add(new Collectable(collectableAttributes, true));
-                        ++passes;
-                        break;
-                    }
+            for (CollectableAttributes collectableAttributes : Assets.getInstance().getLootContainerPool()) {
+                if (random.nextFloat() <= collectableAttributes.dropChance) {
+                    loot.add(new Collectable(collectableAttributes, true));
+                    ++passes;
+                    break;
                 }
 
             }
@@ -204,7 +202,6 @@ public class LootContainer extends TileEntity implements Attackable {
         }
         if (destroyed) {
             if (!collisionDisabled && destroyedAnimation.isAnimationFinished(destroyedTime * 2f)) {
-
                 Iterator<Fixture> fixtureIterator = new Array.ArrayIterator<>(body.getFixtureList());
                 while (fixtureIterator.hasNext()) {
                     body.destroyFixture(fixtureIterator.next());
@@ -225,6 +222,7 @@ public class LootContainer extends TileEntity implements Attackable {
                     this.destroySound.stop();
                     this.destroySound.setPosition(this.getPosition().x(), this.getPosition().y(), 0);
                     this.destroySound.play();
+                    LevelScreen.getInstance().getLevelData().addScore(50);
                 }
             }
             destroyedTime += delta;
