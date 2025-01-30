@@ -1,7 +1,6 @@
 package de.tum.cit.fop.maze.hud;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -14,7 +13,6 @@ import de.tum.cit.fop.maze.entities.CoinsAndKeys;
 import de.tum.cit.fop.maze.entities.Description;
 import de.tum.cit.fop.maze.entities.ExitArrow;
 import de.tum.cit.fop.maze.entities.Player;
-import de.tum.cit.fop.maze.entities.tile.AbilityBorder;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
@@ -85,7 +83,6 @@ public class HUD {
         parameter.color = new Color(1, 1, 1, 0.7f);
         parameter.gamma = 4f;
         descriptionStyle.font = labelFontGenerator.generateFont(parameter);
-        //TODO change background to png
         description = new Description(descriptionStyle, stage);
 
 
