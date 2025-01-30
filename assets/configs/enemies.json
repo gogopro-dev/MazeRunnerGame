@@ -4,8 +4,8 @@
     "animationCategory": "zombie",
     "attributes": {
       "speed": 7.1,
-      "maxHealth": 1,
-      "attackDMG": 2,
+      "maxHealth": 6,
+      "attackDMG": 4,
       "heal": 1,
       "visionRange": 2
     }
@@ -15,8 +15,8 @@
     "animationCategory": "skeleton",
     "attributes": {
       "speed": 7.1,
-      "maxHealth": 1,
-      "attackDMG": 2,
+      "maxHealth": 6,
+      "attackDMG": 4,
       "heal": 1,
       "visionRange": 2
     }
