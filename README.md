@@ -150,3 +150,13 @@ In `assets/configs` you can change some attributes (Enemy health, enemy damage) 
 
 It doesn't start RIGHT away when you start playing the came and won't be always playing. It only does so when you
 face a danger (enemy) and with some cooldown after the first music track has been played.
+
+## Libraries used
+
+1. Box2D For all hitboxes & physics simulation
+2. gdx-miniaudio that is the wrapper around MiniAudio C native library for the efficient and robust (unlike LibGDX)
+   sound management
+3. Box2D lights for the fancy visuals
+4. GSON to efficiently parse POJOs and classes, for the saves, and to reduce the spam of classes containing the same
+   logic
+5. GDX freetype platform for parsing .ttf and .otf fonts
