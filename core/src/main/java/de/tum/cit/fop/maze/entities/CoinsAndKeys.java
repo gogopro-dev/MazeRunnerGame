@@ -57,4 +57,9 @@ public class CoinsAndKeys {
             y - coinsAndKeysTable.getPrefHeight() / 2);
     }
 
+    public void dispose(){
+        coinsAndKeysTable.clear();
+        coinsAndKeysTable.remove();
+    }
+
 }
