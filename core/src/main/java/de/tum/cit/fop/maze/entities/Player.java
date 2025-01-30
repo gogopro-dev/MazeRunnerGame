@@ -157,6 +157,7 @@ public class Player extends Entity {
             }
             if (resurrectElapsedTime >= dieAnimation.getAnimationDuration()) {
                 hasResurrected = false;
+                canHit = true;
                 deadElapsedTime = 0f;
                 resurrectElapsedTime = 0f;
                 health = maxHealth;
