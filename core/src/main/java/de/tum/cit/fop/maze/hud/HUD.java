@@ -18,8 +18,8 @@ import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.List;
 
-import static de.tum.cit.fop.maze.essentials.Globals.DEFAULT_SCREEN_HEIGHT_WINDOWED;
-import static de.tum.cit.fop.maze.essentials.Globals.DEFAULT_SCREEN_WIDTH_WINDOWED;
+import static de.tum.cit.fop.maze.Globals.DEFAULT_SCREEN_HEIGHT_WINDOWED;
+import static de.tum.cit.fop.maze.Globals.DEFAULT_SCREEN_WIDTH_WINDOWED;
 
 /**
  * The UI manager for the game.
@@ -37,7 +37,7 @@ public class HUD {
     private final TimeAndScore timeAndScore;
     private final Inventory inventory;
     private final Description description;
-    private final AbilityBorder abilityBorder;
+    private final ItemFrame itemFrame;
 
 
     /**
@@ -111,9 +111,9 @@ public class HUD {
 
         exitArrow = new ExitArrow(atlas, stage);
 
-        abilityBorder = new AbilityBorder(stage.getViewport().getWorldWidth() / 2, padding, atlas);
+        itemFrame = new ItemFrame(stage.getViewport().getWorldWidth() / 2, padding, atlas);
         if (player.getActiveItem() != null) {
-            abilityBorder.setActiveItem();
+            itemFrame.setActiveItem();
         }
     }
 
@@ -181,20 +181,12 @@ public class HUD {
         coinsAndKeys.pickUpKey();
     }
 
-    /**
-     * Add coin.
-     *
-     * @param amount the amount
-     */
-    public void addCoin(int amount) {
-        coinsAndKeys.pickUpCoin(amount);
-    }
 
     /**
      * Add active item.
      */
     public void addActiveItem() {
-        abilityBorder.setActiveItem();
+        itemFrame.setActiveItem();
     }
 
 
@@ -272,7 +264,7 @@ public class HUD {
             throw new IllegalStateException("There is no exit on the map");
         }
         exitArrow.drawExitArrow(spriteBatch, playerPos.angle(closest));
-        abilityBorder.render(spriteBatch, deltaTime);
+        itemFrame.render(spriteBatch, deltaTime);
         stage.getBatch().end();
     }
 

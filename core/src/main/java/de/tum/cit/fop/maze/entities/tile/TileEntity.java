@@ -6,11 +6,11 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.BodyBits;
-import de.tum.cit.fop.maze.essentials.Globals;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.gson.GSONPostRestorable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
-import static de.tum.cit.fop.maze.essentials.Globals.TRAP_SAFETY_PADDING;
+import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
 
 /**
  * This class represents a tile entity in the game.
@@ -56,6 +56,18 @@ public abstract class TileEntity implements Disposable, GSONPostRestorable {
         this.fixtureDef = fixtureDef;
     }
 
+    /**
+     * <p>Creates and initializes the physical components of the tile entity used in a physics simulation.</p>
+     *
+     * <p>This method sets up the body definition, fixture definition, and shape for the entity.
+     * The body is defined as a dynamic body with fixed rotation to restrict its movement. The shape
+     * of the entity is defined as a polygonal box with dimensions calculated based on the tile's width
+     * and height, adjusted by @{code TRAP_SAFETY_PADDING}.</p>
+     *
+     * <p>The fixture is specified as a sensor, preventing physical collisions while still detecting
+     * overlaps. Additionally, the method configures the collision categories and masks to enable
+     * specific collision interactions for the tile entity.</p>
+     */
     private void createBody() {
         this.bodyDef = new BodyDef();
         this.fixtureDef = new FixtureDef();
@@ -72,6 +84,13 @@ public abstract class TileEntity implements Disposable, GSONPostRestorable {
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
     }
 
+    /**
+     * Calculates the position where the sprite for this tile entity should be drawn.
+     * The position is adjusted based on the size of the tile entity and the global cell size in meters.
+     * If the tile entity does not have a physical body, a default position of (0, 0) is returned.
+     *
+     * @return An {@link AbsolutePoint} representing the coordinates where the sprite should be drawn in meters.
+     */
     AbsolutePoint getSpriteDrawPosition() {
         if (body == null) {
             return new AbsolutePoint(0, 0);
@@ -90,7 +109,14 @@ public abstract class TileEntity implements Disposable, GSONPostRestorable {
         return width * Globals.CELL_SIZE_METERS;
     }
 
-
+    /**
+     * Spawns the tile entity at the specified coordinates in the world.
+     * This method initializes the physical body of the entity in the physics simulation.
+     *
+     * @param x The x-coordinate where the tile entity is to be spawned.
+     * @param y The y-coordinate where the tile entity is to be spawned.
+     * @throws IllegalStateException if the entity has already been spawned.
+     */
     public void spawn(float x, float y) {
         World world = LevelScreen.getInstance().world;
         if (body != null) {
@@ -104,6 +130,13 @@ public abstract class TileEntity implements Disposable, GSONPostRestorable {
         body.setUserData(this);
     }
 
+    /**
+     * Handles the periodic update logic required when this tile entity is in contact with another entity.
+     * This method is called on every tick while the contact persists and is used to perform any
+     * necessary actions or updates during this state.
+     *
+     * @param delta The time elapsed since the last call to this method, in seconds.
+     */
     public void contactTick(float delta) {
     }
 

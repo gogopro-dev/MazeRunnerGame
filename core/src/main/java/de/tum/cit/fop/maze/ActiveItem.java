@@ -20,6 +20,13 @@ import games.rednblack.miniaudio.MASound;
 
 import java.util.ArrayList;
 
+/**
+ * Represents an active item that can be used during gameplay.
+ * This class handles the lifecycle of items such as their usage, animations,
+ * sounds, and interactions with the game world.
+ * It implements the GSONPostRestorable interface to allow restoration
+ * of its state after deserialization.
+ */
 public class ActiveItem implements GSONPostRestorable {
     private final Collectable collectable;
     private final ActiveItemProperties properties;
@@ -28,6 +35,15 @@ public class ActiveItem implements GSONPostRestorable {
     private transient Animation<TextureRegion> projectileDestroyedAnimation;
     private transient MASound soundUse;
     private transient MASound soundDestroy;
+
+    /**
+     * Constructs an ActiveItem object based on the specified ActiveItemType.
+     * Retrieves the corresponding properties of the active item from the Assets singleton
+     * and initializes its associated Collectable.
+     *
+     * @param itemType The type of the active item to be created. Must be of type {@link ActiveItemType}.
+     *                 This is used to filter and retrieve the matching active item properties
+     *                */
     public ActiveItem(ActiveItemType itemType) {
         this.properties = Assets.getInstance().getActiveItems().stream().filter(
             it -> it.type == itemType
@@ -36,6 +52,12 @@ public class ActiveItem implements GSONPostRestorable {
         loadAnimations();
     }
 
+    /**
+     * Loads the necessary animations and sounds for the projectile associated with the active item.
+     * This method initializes the flying and destroyed animations for the projectile using texture regions
+     * retrieved from the texture atlas. Additionally, it loads the corresponding sounds, if specified in the
+     * active item's properties.
+     */
     private void loadAnimations() {
         TextureAtlas textureAtlas = Assets.getInstance().getAssetManager()
             .get("assets/anim/activeItems/activeItems.atlas", TextureAtlas.class);
@@ -70,6 +92,9 @@ public class ActiveItem implements GSONPostRestorable {
         loadAnimations();
     }
 
+    /**
+     * Uses the active item
+     */
     public void use() {
         var temp = new UseRecord();
         temp.isLeft = !LevelScreen.getInstance().player.isFacingRight();
@@ -81,17 +106,24 @@ public class ActiveItem implements GSONPostRestorable {
         }
     }
 
+    /**
+     * Tick the ActiveItem's logic
+     * @param delta elapsed time
+     */
     public void tick(float delta) {
         SpriteBatch batch = LevelScreen.getInstance().batch;
         Player player = LevelScreen.getInstance().player;
         ArrayList<UseRecord> deletions = new ArrayList<>();
         for (UseRecord record : uses) {
             record.useTime += delta;
+            /// If no projectile has ben shot
             if (record.projectile == null) {
                 record.projectile = new Projectile(
                     1, 1, this.properties.projectileSpeed, !record.isLeft
                 );
                 LevelScreen.getInstance().tileEntityManager.createTileEntity(record.projectile, player.getPosition());
+
+            ///  If projectile has hit something
             } else if (!record.projectile.isFoundHit()) {
                 record.flightTime += delta;
                 AbsolutePoint position = record.projectile.getPosition();
@@ -105,7 +137,9 @@ public class ActiveItem implements GSONPostRestorable {
                     this.properties.projectileHeightCells * Globals.CELL_SIZE_METERS
                 );
                 if (record.isLeft) region.flip(true, false);
-            } else {
+            }
+            ///  If projectile is flying
+            else {
                 AbsolutePoint position = record.projectile.getPosition();
                 record.destroyTime += delta;
                 TextureRegion region = projectileDestroyedAnimation.getKeyFrame(record.destroyTime);
@@ -125,7 +159,7 @@ public class ActiveItem implements GSONPostRestorable {
                     record.projectile = null;
                 }
             }
-
+            /// Process light animation
             if (record.light == null) {
                 AbsolutePoint position = record.projectile != null ? record.projectile.getPosition() :
                     player.getPosition();

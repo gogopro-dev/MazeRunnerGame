@@ -5,5 +5,6 @@ package de.tum.cit.fop.maze.entities;
  * Classes implementing this interface must define the behavior for taking damage.
  */
 public interface Attackable {
+    /// Take the {@code damage} amount of damage
     void takeDamage(int damage);
 }

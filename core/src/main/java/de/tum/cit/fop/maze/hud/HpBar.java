@@ -87,10 +87,10 @@ public class HpBar {
             healthImages.clear();
         }
 
-        fillWithHearts(1, health, staticHealthLFull, staticHealthRFull, scaling);
+        fillWithHearts(1, health, staticHealthLFull, staticHealthRFull);
 
         if (maxHealth != health) {
-            fillWithHearts(health + 1, maxHealth, staticHealthLEmpty, staticHealthREmpty, scaling);
+            fillWithHearts(health + 1, maxHealth, staticHealthLEmpty, staticHealthREmpty);
         }
         healthBar.setSize(healthBar.getPrefWidth(), healthBar.getPrefHeight());
         healthBar.setPosition(x, y - healthBar.getPrefHeight());
@@ -141,28 +141,27 @@ public class HpBar {
      * @param end               the end
      * @param staticHealthLFull the static health l full
      * @param staticHealthRFull the static health r full
-     * @param scaling           the scaling
      */
 
 
-    private void fillWithHearts(int start, int end, TextureRegion staticHealthLFull, TextureRegion staticHealthRFull,
-                                float scaling) {
+    private void fillWithHearts(int start, int end, TextureRegion staticHealthLFull, TextureRegion staticHealthRFull) {
 
         int heartsInRow = 20;
-        float spacing = 4 * scaling;
+        /// 1.6 is scaling
+        float spacing = 4 * (float) 1.6;
 
         for (int i = start; i <= end; i++) {
             if (i % 2 == 1) {
                 Drawable heart = new TextureRegionDrawable(staticHealthLFull);
-                heart.setMinWidth(heart.getMinWidth() * scaling);
-                heart.setMinHeight(heart.getMinHeight() * scaling);
+                heart.setMinWidth(heart.getMinWidth() * (float) 1.6);
+                heart.setMinHeight(heart.getMinHeight() * (float) 1.6);
                 Image img = new Image(heart);
                 healthBar.add(img);
                 healthImages.add(img);
             } else {
                 Drawable heart = new TextureRegionDrawable(staticHealthRFull);
-                heart.setMinWidth(heart.getMinWidth() * scaling);
-                heart.setMinHeight(heart.getMinHeight() * scaling);
+                heart.setMinWidth(heart.getMinWidth() * (float) 1.6);
+                heart.setMinHeight(heart.getMinHeight() * (float) 1.6);
                 Image img = new Image(heart);
                 healthBar.add(img).padRight(spacing);
                 healthImages.add(img);

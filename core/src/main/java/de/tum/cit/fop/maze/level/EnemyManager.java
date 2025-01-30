@@ -2,6 +2,7 @@ package de.tum.cit.fop.maze.level;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.Enemy;
 import de.tum.cit.fop.maze.essentials.*;
 
