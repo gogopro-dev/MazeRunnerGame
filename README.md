@@ -50,7 +50,12 @@ For example, `core:clean` removes `build` folder only from the `core` project.
 ## Game mechanics
 
 - The player has to find the key and bring it to the exit of the labyrinth, on his way he fights with monsters and collects items to power up.
-
+- `Darkness Mechanic`: The player has to stay in the light, otherwise he will take damage.
+- `Active items`: In the current state game has one active item: Fireball. It can be picked up like a collectable item, and used by pressing `Q`. It deals damage to the enemies and consumes stamina.
+- `Shop`: The player can buy items from the shop by pressing `SPACE`. The shop is located in the center of the labyrinth. Our game has basic currency that drops from destroyed loot containers.
+- `Stamina Mechanic`: enemies by default are faster than player so to create distance you will need to use your stamina to sprint.
+- `Item drop chance and loot containers`: there are a lot of destroyable vases, barrels and wooden boxes all around the map. They can drop basic currency as well as other different collectables
+- `Unique collectables`: there are currently 3 collectables that give you complicated buffs like vampiric chance, resurrection and sprint boost. *to learn more check configs for these items 
 ## Controls
 
 - `WASD` (and arrows) - movement
@@ -141,3 +146,5 @@ it has the following subclasses:
 ## Configs
 
 In `assets/configs` you can change some attributes (Enemy health, enemy damage) and so on, if ever desired.
+
+## 
