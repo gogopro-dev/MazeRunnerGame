@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze.entities.tile;
+package de.tum.cit.fop.maze.hud;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
