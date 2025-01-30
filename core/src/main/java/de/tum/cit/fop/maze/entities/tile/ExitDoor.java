@@ -73,6 +73,7 @@ public class ExitDoor extends TileEntity {
         };
 
         this.openingSound = Assets.getInstance().getSound("exit_open");
+        this.openingSound.setVolume(1.25f);
         this.openingSound.setLooping(false);
     }
 

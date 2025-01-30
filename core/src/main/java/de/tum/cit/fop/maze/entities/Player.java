@@ -518,7 +518,8 @@ public class Player extends Entity {
         );
         torchLight.setContactFilter(BodyBits.LIGHT, (short) 0, BodyBits.LIGHT_MASK);
         torchLight.setActive(false);
-        torchLight.attachToBody(body);
+        /// Light is coming from the legs to avoid some visual bugs with ray-casting vast walking on LootContainer(s)
+        torchLight.attachToBody(body, 0, -1f);
     }
 
 

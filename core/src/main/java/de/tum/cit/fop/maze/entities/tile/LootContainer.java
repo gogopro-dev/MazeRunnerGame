@@ -143,9 +143,11 @@ public class LootContainer extends TileEntity implements Attackable {
         hasBeenHit = true;
         timeSinceLastHit = 0;
         this.attributes.health -= damage;
-        this.hitSound.stop();
-        this.hitSound.setPosition(this.getPosition().x(), this.getPosition().y(), 0);
-        this.hitSound.play();
+        if (this.hitSound != null) {
+            this.hitSound.stop();
+            this.hitSound.setPosition(this.getPosition().x(), this.getPosition().y(), 0);
+            this.hitSound.play();
+        }
         if (this.attributes.health <= 0) {
             destroyed = true;
         }
