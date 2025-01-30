@@ -18,6 +18,7 @@ import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
+import games.rednblack.miniaudio.MASound;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -59,6 +60,7 @@ public class Collectable extends TileEntity {
     private transient FixtureDef circleFixtureDef = new FixtureDef();
     private transient Light light;
     private transient float lightAnimationElapsedTime = 10f;
+    private transient MASound pickupSound;
 
     private boolean hasBeenDropped = true;
 
@@ -95,6 +97,10 @@ public class Collectable extends TileEntity {
             collectableAttributes.frameDuration, atlas.findRegions(collectableAttributes.textureName)
         );
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        if (this.collectableAttributes.pickupSound != null) {
+            pickupSound = Assets.getInstance().getSound(this.collectableAttributes.pickupSound);
+            pickupSound.setSpatialization(false);
+        }
 
     }
 
@@ -173,6 +179,9 @@ public class Collectable extends TileEntity {
             Globals.COLLECTABLE_PICKUP_RADIUS && this.dropPositions.isEmpty()) {
             toDestroy = true;
             pickedUp = true;
+            this.pickupSound.stop();
+            this.pickupSound.setLooping(false);
+            this.pickupSound.play();
             pickupElapsedTime = 0f;
             ///  Collectable pickup logic is hasBeenDropped in Player class
             LevelScreen.getInstance().player.collect(this);

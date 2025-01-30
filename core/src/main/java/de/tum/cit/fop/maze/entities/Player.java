@@ -61,6 +61,7 @@ public class Player extends Entity {
     private transient float damageFlashTimer = 0f;
     private transient PointLight torchLight;
     private transient float shadowWaitElapsedTime;
+    //private transient MASound attack
 
 
     /**

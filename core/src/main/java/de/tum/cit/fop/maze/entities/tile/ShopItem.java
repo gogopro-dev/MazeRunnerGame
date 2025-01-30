@@ -6,14 +6,17 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.level.LevelScreen;
+import games.rednblack.miniaudio.MASound;
 
 import java.util.Objects;
 
 public class ShopItem extends TileEntity {
     private Collectable item;
+    private transient MASound purchaseSound;
 
     public ShopItem() {
         super(1, 1, new BodyDef(), new FixtureDef());
@@ -37,6 +40,8 @@ public class ShopItem extends TileEntity {
     @Override
     protected void init() {
         this.item.init();
+        purchaseSound = Assets.getInstance().getSound("purchase");
+        purchaseSound.setSpatialization(false);
     }
 
     @Override
@@ -77,6 +82,9 @@ public class ShopItem extends TileEntity {
                 Objects.equals(LevelScreen.getInstance().hud.getItemDescription(),
                         description()) &&
                 LevelScreen.getInstance().player.getGold() >= this.item.getCollectableAttributes().shopPrice) {
+            purchaseSound.stop();
+            purchaseSound.setLooping(false);
+            purchaseSound.play();
             LevelScreen.getInstance().player.collect(this.item);
             LevelScreen.getInstance().player.removeGold(this.item.getCollectableAttributes().shopPrice);
             toDestroy = true;

@@ -15,7 +15,8 @@
     "frameDuration": 0.17,
     "dropChance": 0.25,
     "lootContainerPool": true,
-    "isConsumable": true
+    "isConsumable": true,
+    "pickupSound": "coin_pickup"
   },
   {
     "type": "FIREBALL",
@@ -30,7 +31,8 @@
     "emitsLight": true,
     "_comment": "Spawn priority assumes that the item will be spawned once.",
     "spawnPriority": true,
-    "spawnOnce": true
+    "spawnOnce": true,
+    "pickupSound": "fireball_spawn"
   },
   {
     "type": "DEFENSE_COIN",

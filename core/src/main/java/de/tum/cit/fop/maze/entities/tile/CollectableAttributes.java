@@ -20,7 +20,7 @@ public final class CollectableAttributes extends Attributes {
     public final boolean spawnPriority;
     public final boolean emitsLight;
     public final boolean spawnOnce;
-    //private final String pickupSound;
+    public final String pickupSound;
 
     public CollectableAttributes(
         Collectable.CollectableType type, String textureName, int immediateHealing, int immediateCoins,
@@ -28,7 +28,8 @@ public final class CollectableAttributes extends Attributes {
         int resurrections, float frameDuration, int shopPrice, String name, String description,
         boolean lootContainerPool, boolean treasurePool, boolean shopPool, boolean emitsLight,
         boolean spawnOnce,
-        boolean isConsumable, boolean spawnPriority, ActiveItem.ActiveItemType associatedActiveItem
+        boolean isConsumable, boolean spawnPriority, ActiveItem.ActiveItemType associatedActiveItem,
+        String pickupSound
     ) {
         super(immediateHealing, immediateCoins, damageBoost, resistanceBoost,
             vampirism, resurrections, speedBoost);
@@ -50,6 +51,7 @@ public final class CollectableAttributes extends Attributes {
         this.associatedActiveItem = associatedActiveItem;
         this.emitsLight = emitsLight;
         this.spawnOnce = spawnOnce;
+        this.pickupSound = pickupSound;
     }
 
     public void sum(CollectableAttributes other) {

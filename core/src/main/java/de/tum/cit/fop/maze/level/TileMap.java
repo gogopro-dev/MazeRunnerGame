@@ -654,7 +654,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
                             createRectangularHitbox(
                                 x + 1, y + HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, 3f,
                                 HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, temp);
-                            createRectangularHitbox(x + 1f, y + 2.8f, 3f, hy - 2.8f);
+                            createRectangularHitbox(x + 1f, y + 2.8f, 2.95f, hy - 2.8f);
                         }
                         y = -1;
                         hy = 0;
@@ -693,7 +693,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
                             temp.filter.categoryBits = BodyBits.WALL_TRANSPARENT;
                             temp.filter.maskBits = BodyBits.WALL_TRANSPARENT_MASK;
                             createRectangularHitbox(
-                                x + 0.07f, y + 1 + HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, hx - 0.07f,
+                                x + 0.04f, y + 1 + HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, hx - 0.07f,
                                 HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, temp);
                             createRectangularHitbox(x + 0.12f, y + 3f + 0.6f, hx - 0.24f, 0.3f);
                         }
