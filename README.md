@@ -63,6 +63,11 @@ Being a hatchet man for Italian mafia isn't the most pleasant job, nevertheless,
 ## Save Management
 In our project we fully implemented saving/loading mechanic. This is related to the saves of the level, and the configurations of the settings. All saves Are stored in '.json' files (and also .png file for the minimap of the level, which can be seen in the `PlayGameScreen` when loading a level). The saves are stored in the 'saves' folder, and if the folder does not exist, it will automatically generate itself.
 
+## Configs
+All the properties of collectables, enemies, traps, active items, and loot containers are stored in the `configs` folder. The properties are stored in '.json' files, which allow to easily change the properties.
+
+`Globals` is a class located in the core of the project, which also have some additional properties that are used in the project. The most important properties here are `DEBUG` and `FULLBRIGHT`: First one is used to debug the game, if set to true, the level will be in debug mode which draws all the hitboxes, generated paths, all Box2d AABB queries etc. If `FULLBRIGHT` is set to true, then the whole map will be in fullbright mode (However, you will still get damage if you are technically standing in the shadow!)
+
 ## HUD
 
 `HUD` is the main class that handles the HUD of the game. It manages all thw widget subclasses each dispaying a certain part of HUD. It also interacts with classes such as Player and Collectable in order to update the HUD widgets: `HpBar`, `StaminaBar`, `TimeAndScore`, `Inventory`, `ExitArrow`, `Description`, `AbilityBorder`.
