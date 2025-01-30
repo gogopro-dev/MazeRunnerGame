@@ -18,13 +18,13 @@ import de.tum.cit.fop.maze.essentials.GSONPostRestorable;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelData;
 import de.tum.cit.fop.maze.level.LevelScreen;
+import games.rednblack.miniaudio.MASound;
 
 import java.util.ArrayList;
 
 public class ActiveItem implements GSONPostRestorable {
     private transient Animation<TextureRegion> projectileFlyingAnimation;
     private transient Animation<TextureRegion> projectileDestroyedAnimation;
-    private transient Animation<TextureRegion> useAnimation;
     private static class UseRecord {
         public Projectile projectile;
         public boolean isLeft = false;
@@ -43,6 +43,8 @@ public class ActiveItem implements GSONPostRestorable {
     private boolean projectileFacingRight = true;
     private final Collectable collectable;
     private final ActiveItemProperties properties;
+    private MASound soundUse;
+    private MASound soundDestroy;
     private ArrayList<UseRecord> uses = new ArrayList<>();
 
     public enum ActiveItemType {
@@ -52,12 +54,11 @@ public class ActiveItem implements GSONPostRestorable {
     public record ActiveItemProperties(
             ActiveItemType type,
             Collectable.CollectableType associatedCollectable,
-            String texture,
+            String texture, String soundUse, String soundDestroy,
             float projectileFlyingAnimationDuration,
             float projectileDestroyedAnimationDuration,
             float projectileSpeed, int projectileDamage, float projectileWidthCells, float projectileHeightCells,
             float projectileBlastRadiusCells) {
-
     }
 
     private void loadAnimations() {
@@ -73,11 +74,13 @@ public class ActiveItem implements GSONPostRestorable {
                 textureAtlas.findRegions(properties.texture + "_destroyed"),
                 Animation.PlayMode.NORMAL
         );
-        useAnimation = new Animation<>(
-                Globals.useActiveFrameDuration,
-                textureAtlas.findRegions(properties.texture + "_use"),
-                Animation.PlayMode.NORMAL
-        );
+        if (properties.soundUse != null) {
+            soundUse = Assets.getInstance().getSound(properties.soundUse);
+            soundUse.setSpatialization(false);
+        }
+        if (properties.soundDestroy != null) {
+            soundDestroy = Assets.getInstance().getSound(properties.soundDestroy);
+        }
     }
 
     @Override
@@ -100,16 +103,15 @@ public class ActiveItem implements GSONPostRestorable {
         loadAnimations();
     }
 
-    public void renderIcon(float delta, float x, float y) {
-        animationTimer += delta;
-        this.collectable.render(delta, x, y);
-    }
-
     public void use() {
         var temp = new UseRecord();
         temp.isLeft = !LevelScreen.getInstance().player.isFacingRight();
         uses.add(temp);
-
+        if (soundUse != null) {
+            soundUse.stop();
+            soundUse.setLooping(false);
+            soundUse.play();
+        }
     }
 
     public void tick(float delta) {
@@ -118,7 +120,6 @@ public class ActiveItem implements GSONPostRestorable {
         ArrayList<UseRecord> deletions = new ArrayList<>();
         for (UseRecord record : uses) {
             record.useTime += delta;
-
             if (record.projectile == null) {
                 record.projectile = new Projectile(
                         1, 1, this.properties.projectileSpeed, !record.isLeft
@@ -200,13 +201,18 @@ public class ActiveItem implements GSONPostRestorable {
                                     return true;
                                 },
                                 posX1, posY1, posX2, posY2
-
                         );
                         DebugRenderer.getInstance().spawnRectangle(
                                 new AbsolutePoint(posX1, posY1),
                                 new AbsolutePoint(posX2, posY2),
                                 Color.ORANGE
                         );
+                        if (soundDestroy != null) {
+                            soundDestroy.stop();
+                            soundDestroy.setPosition(position.x(), position.y(), 0);
+                            soundDestroy.setLooping(false);
+                            soundDestroy.play();
+                        }
                     }
                 } else {
                     record.lightTime += delta;

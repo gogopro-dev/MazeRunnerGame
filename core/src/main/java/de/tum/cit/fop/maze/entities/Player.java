@@ -73,7 +73,7 @@ public class Player extends Entity {
         inventory = new ArrayList<>();
         health = 40;
         maxHealth = 40;
-        attributes = new Attributes( 0, 0, 0,
+        attributes = new Attributes(0, 0, 0,
             0, 0, 0, 0);
         /// Player can hit if not holding torch
         canHit = !isHoldingTorch;
@@ -170,6 +170,7 @@ public class Player extends Entity {
      * Loads the player character animations
      * from the asset manager and
      * assigns them to the corresponding fields.
+     *
      * @see Assets
      */
     private void loadAnimations() {
@@ -272,13 +273,6 @@ public class Player extends Entity {
      */
     private void handleInput() {
         isMoving = false;
-        /*if (isBeingChased()) {
-            isHoldingTorch = false;
-            canHit = true;
-            elapsedTorchTime = 0f;
-            torchLight.setDistance(0);
-            torchLight.setActive(isHoldingTorch);
-        }*/
 
         /// If pressed 'R', toggle torch
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
@@ -288,11 +282,14 @@ public class Player extends Entity {
             torchLight.setDistance(0);
             torchLight.setActive(isHoldingTorch);
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Q) && this.activeItem != null && stamina > maxStamina/3) {
+
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Q) && this.activeItem != null && stamina > maxStamina / 3) {
             this.activeItem.use();
-            useStamina(maxStamina/3);
+            useStamina(maxStamina / 3);
 
         }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
             /// Only if the player has more than 1 gold coin
             if (gold > 0) {
@@ -343,18 +340,15 @@ public class Player extends Entity {
             staminaRecoveryElapsedTime = 0;
         }
 
-
-        if (!Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)){
-            if(staminaRecoveryElapsedTime > 2f){
+        if (!Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+            if (staminaRecoveryElapsedTime > 2f) {
                 int staminaRecoveryPerSec = 2;
                 restoreStamina(staminaRecoveryPerSec);
-            }
-            else {
+            } else {
                 staminaRecoveryElapsedTime += Gdx.graphics.getDeltaTime();
             }
         }
 
-        //TODO stamina regen (func in hud is ready)
 
         body.setLinearVelocity(velocityX, velocityY);
 
@@ -397,6 +391,7 @@ public class Player extends Entity {
      * and if so, attack the player</br>
      * If the player is in the shadow for more than 3 seconds,
      * the player will be attacked
+     *
      * @param shadowWaitElapsedTime The time elapsed since the player entered the shadow
      */
     public void checkPlayerInShadow(float shadowWaitElapsedTime) {
@@ -432,7 +427,7 @@ public class Player extends Entity {
         float cameraWidth = camera.viewportWidth;
         float cameraHeight = camera.viewportHeight;
 
-        if (Gdx.graphics.isFullscreen()){
+        if (Gdx.graphics.isFullscreen()) {
             cameraWidth = DEFAULT_CAMERA_VIEWPORT_WIDTH_METERS;
             cameraHeight = DEFAULT_CAMERA_VIEWPORT_HEIGHT_METERS;
         }
@@ -529,15 +524,17 @@ public class Player extends Entity {
 
     @Override
     public void takeDamage(int damage) {
-        damage = Math.max(1, damage - attributes.getResistanceBoost()); /// Damage taken by player is at least 1
+        /// Damage taken by player is at least 1 after applying all resits
+        damage = Math.max(1, damage - attributes.getResistanceBoost());
         if (isDamaged) return;
         super.takeDamage(damage);
         isDamaged = true;
         damageFlashTimer = 0f;
         if (isDead()) {
-            if (removeItem(Collectable.CollectableType.RESURRECTION_AMULET)) { /// if player has resurrection amulet
-                health = maxHealth; /// restore health
-                LevelScreen.getInstance().hud.setHealthBar(health, maxHealth); /// update health bar
+            /// If there was a resurrection amulet in the inventory
+            if (removeItem(Collectable.CollectableType.RESURRECTION_AMULET)) {
+                health = maxHealth;
+                LevelScreen.getInstance().hud.setHealthBar(health, maxHealth);
                 return;
             }
             LevelScreen.getInstance().hud.setHealthBar(0, maxHealth);
@@ -551,10 +548,13 @@ public class Player extends Entity {
         for (Collectable c : inventory) {
             if (c.getType() == type) {
                 inventory.remove(c);
-                if (!LevelScreen.getInstance().hud.removeItemFromInventory(c)){ /// if item is not in inventory or is in single instance
-                    LevelScreen.getInstance().hud.updateInventory(inventory); /// update inventory, else amount will be updated in removeItemFromInventory
-                };
-                attributes.sub(c.getCollectableAttributes()); /// remove attributes
+                /// If item is not in inventory or is in a single instance
+                if (!LevelScreen.getInstance().hud.removeItemFromInventory(c)) {
+                    /// Update inventory, else amount will be updated in removeItemFromInventory
+                    LevelScreen.getInstance().hud.updateInventory(inventory);
+                }
+                /// Remove corresponding attributes
+                attributes.sub(c.getCollectableAttributes());
                 return true;
             }
         }
@@ -574,7 +574,6 @@ public class Player extends Entity {
             return;
         }
         super.useStamina(amount);
-        LevelScreen.getInstance().hud.useStamina(amount);
     }
 
     @Override
@@ -583,9 +582,7 @@ public class Player extends Entity {
             stamina = maxStamina;
             return;
         }
-        super.restoreStamina(amount*Gdx.graphics.getDeltaTime());
-        LevelScreen.getInstance().hud.restoreStamina(amount*Gdx.graphics.getDeltaTime());
-        //hud.restoreStamina(amount);
+        super.restoreStamina(amount * Gdx.graphics.getDeltaTime());
     }
 
     /**

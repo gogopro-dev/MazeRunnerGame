@@ -195,12 +195,6 @@ public class HUD {
         healthBar.takeDmg(receivedDmg);
     }
 
-    public void useStamina(float amount) {
-        staminaBar.setStamina(staminaBar.getStamina() - amount);
-    }
-    public void restoreStamina(float amount) {
-        staminaBar.setStamina(staminaBar.getStamina() + amount);
-    }
     public boolean isDescriptionSet() {
         return description.isDescriptionSet();
     }

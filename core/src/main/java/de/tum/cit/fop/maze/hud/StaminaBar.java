@@ -4,8 +4,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import de.tum.cit.fop.maze.entities.Player;
 import de.tum.cit.fop.maze.essentials.Utils;
 import com.badlogic.gdx.graphics.Color;
+import de.tum.cit.fop.maze.level.LevelScreen;
 
 public class StaminaBar {
     private final float scalingX;
@@ -79,6 +81,7 @@ public class StaminaBar {
     }
 
     public void render(float deltaTime, SpriteBatch batch) {
+        staminaBar.setValue(LevelScreen.getInstance().player.getStamina());
         draw(batch, deltaTime);
     }
 

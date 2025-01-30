@@ -9,6 +9,8 @@
     "projectileHeightCells": 3,
     "projectileSpeed": 13,
     "projectileDamage": 1,
-    "projectileBlastRadiusCells": 1.5
+    "projectileBlastRadiusCells": 1.5,
+    "soundUse": "fireball_spawn",
+    "soundDestroy": "fireball_explode"
   }
 ]

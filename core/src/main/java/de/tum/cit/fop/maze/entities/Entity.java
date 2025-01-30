@@ -50,6 +50,11 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
         this.stamina = 100;
     }
 
+
+    public float getStamina() {
+        return stamina;
+    }
+
     /**
      * Checks if the entity is dead.
      */
