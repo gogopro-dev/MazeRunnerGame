@@ -240,9 +240,15 @@ public class PlayGameScreen implements Screen {
                 clickSound.stop();
                 clickSound.setLooping(false);
                 clickSound.play();
-                Gdx.files.local("saves/" + index + ".png").delete();
-                Gdx.files.local("saves/" + index + ".json").delete();
-                Gdx.files.local("saves/levelData_" + index + ".json").delete();
+                if (Gdx.files.local("saves/" + index + ".png").exists()){
+                    Gdx.files.local("saves/" + index + ".png").delete();
+                }
+                if (Gdx.files.local("saves/" + index + ".json").exists()){
+                    Gdx.files.local("saves/" + index + ".json").delete();
+                }
+                if (Gdx.files.local("saves/levelData_" + index + ".json").exists()){
+                    Gdx.files.local("saves/levelData_" + index + ".json").delete();
+                }
 
                 isNewGame[index] = true;
                 gameTime[index] = "";
