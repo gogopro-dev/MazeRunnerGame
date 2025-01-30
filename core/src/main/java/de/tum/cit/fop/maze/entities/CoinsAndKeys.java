@@ -18,9 +18,9 @@ public class CoinsAndKeys {
     private final Drawable keysIcon;
     private final Drawable coinsIcon;
     public CoinsAndKeys(Stage stage, TextureAtlas inventoryAtlas, Label.LabelStyle coinsAndKeysLabelStyle,
-                        float x, float y) {
+                        float x, float y, int coins, boolean hasKey) {
 
-        coins = new Label(String.format(": " + LevelScreen.getInstance().player.getGold()), coinsAndKeysLabelStyle);
+        this.coins = new Label(String.format(": " + coins), coinsAndKeysLabelStyle);
         this.x = x;
         this.y = y;
         coinsIcon = new TextureRegionDrawable(inventoryAtlas.findRegion("coin"));
@@ -36,11 +36,14 @@ public class CoinsAndKeys {
         keysIcon.setMinWidth(keyWidth);
 
         coinsAndKeysTable.add(new Image(coinsIcon)).width(iconSize).height(iconSize);
-        coinsAndKeysTable.add(coins);
+        coinsAndKeysTable.add(this.coins);
         coinsAndKeysTable.row();
         coinsAndKeysTable.setPosition(x + coinsAndKeysTable.getPrefWidth() / 2,
             y - coinsAndKeysTable.getPrefHeight() / 2);
         stage.addActor(coinsAndKeysTable);
+        if (hasKey){
+            pickUpKey();
+        }
     }
     public void pickUpCoin(int value){
 

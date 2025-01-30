@@ -105,16 +105,14 @@ public class HUD {
 
 
         healthBar = new HpBar(padding, stage.getViewport().getWorldHeight() - padding, atlas, stage);
-        float x = stage.getViewport().getWorldHeight() - padding;
         healthBar.createHpBar(player.getHealth(), player.getMaxHealth());
 
 
         staminaBar = new StaminaBar(player.getMaxStamina(),
             padding, healthBar.getY() - 10, atlas, healthBar.getWidth() - 10, 20);
+        coinsAndKeys = new CoinsAndKeys(stage, inventoryAtlas, coinsAndKeysLabelStyle,
+            padding, staminaBar.getY() - 5, player.getGold(), player.hasKey());
 
-
-        coinsAndKeys = new CoinsAndKeys(stage, inventoryAtlas,
-            coinsAndKeysLabelStyle, padding, staminaBar.getY() - 5);
 
 
         exitArrow = new ExitArrow(atlas, stage);
