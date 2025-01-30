@@ -35,8 +35,22 @@ Useful Gradle tasks and flags:
 Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
 For example, `core:clean` removes `build` folder only from the `core` project.
 
+## Game mechanics
+
+- The player has to find the key and bring it to the exit of the labyrinth, on his way he fights with monsters and collects items to power up.
+
+## Controls
+
+- `WASD` - movement
+- `SHIFT` - sprint
+- `Q` - use active Item
+- `SPACE` - buy items from the shop
+- `ENTER` - attack
+- `ESC` - pause
 
 
+# LORE
+Being a hatchet man for Italian mafia isn't the most pleasant job, nevertheless, it pays your bills (and not just them) and you earn extra for staying loyal. However, even the hardest workers can fall from grace. Don Blues V Acello, his most frequent employer, was quite surprised at the productivity of his freelance worker. However, attempts to lure our hero into the mafia were unsuccessful: too much responsibility and not everyone would like to get a tight collar around his neck. Soon our hero gained fame, he assassinated many people under the leadership of Mr. Acello; and with every body his skills evolved. With each completed order, and latter refusal to join Don's mafia, the boss developed a previously unknown feeling - anxiety. What would happen, if his competitors would have found out that his most successful assassin was off-leash. It was decided: during a mission to kill Don's long-time partner (Robin Banks that is), it was our merc's death. A well-hidden trapdoor by the mansion's entrance, right at stone floor determined our killer's fate. There was a desolate, abandoned dungeon underneath, and many men have gone missing there. There is a belief that there are mysterious forces sealed down there and no one dares no more to go down there.
 
 # CLASS HIERARCHY
 

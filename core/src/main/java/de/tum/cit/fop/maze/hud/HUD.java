@@ -244,19 +244,6 @@ public class HUD {
         return generator.generateFont(parameter);
     }
 
-    /**
-     * Dispose.
-     */
-    public void dispose() {
-
-        stage.dispose();
-        inventory.dispose();
-        description.dispose();
-        healthBar.dispose();
-        staminaBar.dispose();
-        timeAndScore.dispose();
-        coinsAndKeys.dispose();
-    }
 
 
     /**
