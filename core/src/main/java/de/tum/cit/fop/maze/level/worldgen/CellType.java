@@ -1,6 +1,8 @@
 package de.tum.cit.fop.maze.level.worldgen;
 
-/** Represents the type of cell in the maze */
+/**
+ * Represents the type of cell in the maze
+ */
 public enum CellType {
     NONE(-1),
     WALL(0),
@@ -25,6 +27,7 @@ public enum CellType {
 
     /**
      * Deserializes the cell type from an integer value
+     *
      * @param value integer value
      * @return {@link CellType} the cell type
      */

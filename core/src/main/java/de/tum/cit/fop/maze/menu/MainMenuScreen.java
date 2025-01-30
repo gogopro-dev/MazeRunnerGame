@@ -10,12 +10,15 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import de.tum.cit.fop.maze.essentials.Assets;
 import games.rednblack.miniaudio.MASound;
 
 /**
@@ -25,6 +28,9 @@ import games.rednblack.miniaudio.MASound;
  */
 public class MainMenuScreen implements Screen {
     private static MainMenuScreen instance = null;
+    private final Stage stage;
+    private final BitmapFont font;
+    private final MASound clickSound;
     private TextureRegion menuContainerRegion;
     private TextureRegion smallButtonPressedRegion;
     private TextureRegion smallButtonReleasedRegion;
@@ -33,27 +39,15 @@ public class MainMenuScreen implements Screen {
     private TextureRegion creditsIconRegion;
     private TextureRegion settingsIconRegion;
     private TextureRegion exitIconRegion;
-    private final Stage stage;
-    private final BitmapFont font;
     private Container<Table> container;
-    private final MASound clickSound;
-
-    /**
-     * @return The singleton instance of the main menu
-     */
-    public static synchronized MainMenuScreen getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("MainMenuScreen has not been initialized yet.");
-        }
-        return instance;
-    }
 
     /**
      * Creates the stage and sets the input processor.</br>
      * Creates the buttons for the main menu and
      * loads the textures for the buttons.
+     *
      * @param viewport The viewport for the stage
-     * @param batch The sprite batch for the stage
+     * @param batch    The sprite batch for the stage
      */
     public MainMenuScreen(Viewport viewport, SpriteBatch batch) {
         instance = this;
@@ -77,9 +71,19 @@ public class MainMenuScreen implements Screen {
     }
 
     /**
+     * @return The singleton instance of the main menu
+     */
+    public static synchronized MainMenuScreen getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("MainMenuScreen has not been initialized yet.");
+        }
+        return instance;
+    }
+
+    /**
      * Loads the textures for the MainMenuScreen.
      */
-    private void loadTextures(){
+    private void loadTextures() {
         TextureAtlas menuAtlas = Assets.getInstance().getAssetManager().get(
             "assets/menu/menu.atlas", TextureAtlas.class);
         TextureAtlas iconsAtlas = Assets.getInstance().getAssetManager().get(
@@ -120,7 +124,7 @@ public class MainMenuScreen implements Screen {
         playButton.setLabelTopPadding(2f);
         playButton.setImagePadding(12f);
         playButton.setImageTopPadding(2f);
-        playButton.addListener(new ClickListener(){
+        playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 clickSound.stop();
@@ -138,13 +142,13 @@ public class MainMenuScreen implements Screen {
         controlsButton.setLabelTopPadding(2f);
         controlsButton.setImagePadding(10f);
         controlsButton.setImageTopPadding(2f);
-        controlsButton.addListener(new ClickListener(){
+        controlsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-            clickSound.stop();
-            clickSound.setLooping(false);
-            clickSound.play();
-            Menu.getInstance().toggleMenuState(MenuState.CONTROLS);
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
+                Menu.getInstance().toggleMenuState(MenuState.CONTROLS);
             }
         });
 
@@ -156,7 +160,7 @@ public class MainMenuScreen implements Screen {
         creditsButton.setLabelTopPadding(2f);
         creditsButton.setImagePadding(10f);
         creditsButton.setImageTopPadding(2f);
-        creditsButton.addListener(new ClickListener(){
+        creditsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 clickSound.stop();
@@ -173,7 +177,7 @@ public class MainMenuScreen implements Screen {
         settingsButton.setLabelTopPadding(2f);
         settingsButton.setImagePadding(8f);
         settingsButton.setImageTopPadding(2f);
-        settingsButton.addListener(new ClickListener(){
+        settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 clickSound.stop();
@@ -191,7 +195,7 @@ public class MainMenuScreen implements Screen {
         exitButton.setLabelTopPadding(2f);
         exitButton.setImagePadding(10f);
         exitButton.setImageTopPadding(2f);
-        exitButton.addListener(new ClickListener(){
+        exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.exit();
@@ -212,7 +216,7 @@ public class MainMenuScreen implements Screen {
         container.setBackground(new TextureRegionDrawable(menuContainerRegion));
         container.setSize(306, 456);
 
-        container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
+        container.setPosition(stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2, stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2);
 
         /// Add everything to the stage
         stage.addActor(container);
@@ -221,10 +225,10 @@ public class MainMenuScreen implements Screen {
     /**
      * Updates the position of the container to the center of the screen.
      */
-    public void updateContainerPosition(){
+    public void updateContainerPosition() {
         container.setPosition(
-            stage.getViewport().getWorldWidth()/2f - container.getWidth()/2,
-            stage.getViewport().getWorldHeight()/2f - container.getHeight()/2
+            stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2,
+            stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2
         );
 
     }
@@ -236,6 +240,7 @@ public class MainMenuScreen implements Screen {
         stage.act(delta);
         stage.draw();
     }
+
     @Override
     public void dispose() {
         stage.dispose();

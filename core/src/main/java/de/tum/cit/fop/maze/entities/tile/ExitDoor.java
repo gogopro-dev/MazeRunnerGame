@@ -13,7 +13,7 @@ import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import games.rednblack.miniaudio.MASound;
 
-import static de.tum.cit.fop.maze.essentials.Globals.*;
+import static de.tum.cit.fop.maze.essentials.Globals.CELL_SIZE_METERS;
 
 /**
  * ExitDoor class represents the exit door in the game.
@@ -101,7 +101,7 @@ public class ExitDoor extends TileEntity {
         super.contactTick(delta);
 
         if (!isOpen && LevelScreen.getInstance().player.hasKey()) {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                 LevelScreen.getInstance().hud.deleteDescription();
                 /// Delete the prompt fixture
                 body.destroyFixture(promptFixture);
@@ -124,11 +124,11 @@ public class ExitDoor extends TileEntity {
 
     @Override
     protected void onPlayerStartContact(Contact c) {
-        if (isOpen){
+        if (isOpen) {
             return;
         }
         /// If the player does not have a key, create a message to the player
-        if (!LevelScreen.getInstance().player.hasKey()){
+        if (!LevelScreen.getInstance().player.hasKey()) {
             LevelScreen.getInstance().hud.setItemDescription(
                 "You need a key to open the door"
             );

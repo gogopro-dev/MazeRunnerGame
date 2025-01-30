@@ -19,8 +19,9 @@ public final class GenerationCases {
 
     /**
      * Checks if the current cell is located on the edge of the maze
-     * @param i row index
-     * @param j column index
+     *
+     * @param i         row index
+     * @param j         column index
      * @param generator the maze generator
      * @return {@code true} if the current cell is on the edge of the maze
      */
@@ -30,8 +31,9 @@ public final class GenerationCases {
 
     /**
      * Checks if the current cell is a top of a vertical wall
-     * @param i row index
-     * @param j column index
+     *
+     * @param i         row index
+     * @param j         column index
      * @param generator the maze generator
      * @return {@code true} if the current cell is a top of a vertical wall
      */
@@ -41,15 +43,17 @@ public final class GenerationCases {
         }
         return
             generator.grid.get(i).get(j).getCellType().isWall() &&
-            generator.grid.get(i - 1).get(j).getCellType().isWalkable() &&
-            generator.grid.get(i + 1).get(j).getCellType().isWall();
+                generator.grid.get(i - 1).get(j).getCellType().isWalkable() &&
+                generator.grid.get(i + 1).get(j).getCellType().isWall();
 
     }
 
 
-    /** Checks if the current cell is a single wall surrounded by walkable tiles
-     * @param i row index
-     * @param j column index
+    /**
+     * Checks if the current cell is a single wall surrounded by walkable tiles
+     *
+     * @param i         row index
+     * @param j         column index
      * @param generator the maze generator
      * @return {@code true} if the single wall case is satisfied
      */
@@ -66,12 +70,11 @@ public final class GenerationCases {
     }
 
 
-
-
     /**
      * Checks if the current cell is a vertical wall, i.e. the cell is a wall and the cell above and below are walls
-     * @param i row index
-     * @param j column index
+     *
+     * @param i         row index
+     * @param j         column index
      * @param generator the maze generator
      * @return {@code true} if the current cell is a vertical wall
      */
@@ -122,8 +125,9 @@ public final class GenerationCases {
      *     <li>Right wall</li>
      *     <li>Bottom wall</li>
      * </ol>
-     * @param i the row index to begin the search
-     * @param j the column index to begin the search
+     *
+     * @param i         the row index to begin the search
+     * @param j         the column index to begin the search
      * @param generator the maze generator used to define the structure of the maze
      * @return the first wall {@link GeneratorCell} encountered or {@code null} if no wall cell is found
      */

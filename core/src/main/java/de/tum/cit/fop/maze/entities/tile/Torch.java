@@ -4,12 +4,10 @@ import box2dLight.PointLight;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.physics.box2d.*;
-import de.tum.cit.fop.maze.essentials.Assets;
-import de.tum.cit.fop.maze.essentials.BodyBits;
-import de.tum.cit.fop.maze.essentials.Globals;
-import de.tum.cit.fop.maze.essentials.Direction;
-import de.tum.cit.fop.maze.essentials.Utils;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import de.tum.cit.fop.maze.essentials.*;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import games.rednblack.miniaudio.MASound;
 

@@ -7,12 +7,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
-import de.tum.cit.fop.maze.essentials.Assets;
-import de.tum.cit.fop.maze.essentials.BodyBits;
-import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.entities.Attackable;
-import de.tum.cit.fop.maze.essentials.AbsolutePoint;
-import de.tum.cit.fop.maze.essentials.Utils;
+import de.tum.cit.fop.maze.essentials.*;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import games.rednblack.miniaudio.MASound;
 
@@ -20,7 +16,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
-import static de.tum.cit.fop.maze.essentials.Globals.*;
+import static de.tum.cit.fop.maze.essentials.Globals.CELL_SIZE_METERS;
+import static de.tum.cit.fop.maze.essentials.Globals.IMMUNITY_FRAME_DURATION;
 
 /**
  * Represents a loot container entity within the game, which can be attacked, destroyed,
@@ -30,10 +27,9 @@ import static de.tum.cit.fop.maze.essentials.Globals.*;
  * Implements the {@link Attackable} interface.
  */
 public class LootContainer extends TileEntity implements Attackable {
+    private final ArrayList<Collectable> loot = new ArrayList<>();
     private LootContainerAttributes attributes;
     private boolean destroyed = false;
-
-    private final ArrayList<Collectable> loot = new ArrayList<>();
     private float destroyedTime = 0;
     private float idleTime = 0;
     private boolean hasBeenHit = false;
@@ -44,53 +40,6 @@ public class LootContainer extends TileEntity implements Attackable {
     private transient boolean collisionDisabled = false;
     private transient Animation<TextureRegion> idleAnimation;
     private transient Animation<TextureRegion> destroyedAnimation;
-
-    /**
-     * Existing types of LootContainer
-     */
-    public enum LootContainerType {
-        BARREL,
-        CRATE, VASE,
-    }
-
-    /**
-     * <p>Represents the attributes of a loot container {@link LootContainer} within the game.
-     * These attributes determine the behavior, appearance, and sounds associated
-     * with a loot container. </p>
-     * <p>
-     * The class includes data such as:
-     * <ul>
-     *     <li>The maximum loot amount the container can hold.</li>
-     *     <li>The duration of each animation frame for displaying the loot container.</li>
-     *     <li>The container's texture, sounds, and type.</li>
-     *     <li>Additional attributes related to interaction like health.</li>
-     * </ul>
-     *
-     * <p>Instances of this class are typically used for initialization and
-     * functional configuration of {@link LootContainer} objects.</p>
-     */
-    public static class LootContainerAttributes {
-        public int health;
-        public final int maxLootAmount;
-        public final float frameDuration;
-        public final String textureName;
-        public final LootContainerType type;
-        public final String hitSound;
-        public final String destroySound;
-
-        public LootContainerAttributes(
-            int maxLootAmount, float frameDuration, String textureName, LootContainerType type,
-            String hitSound, String destroySound
-        ) {
-            this.maxLootAmount = maxLootAmount;
-            this.frameDuration = frameDuration;
-            this.textureName = textureName;
-            this.type = type;
-            this.hitSound = hitSound;
-            this.destroySound = destroySound;
-        }
-    }
-
 
     /**
      * This constructor will ONLY be used by GSON
@@ -166,7 +115,6 @@ public class LootContainer extends TileEntity implements Attackable {
         }
     }
 
-
     @Override
     public void takeDamage(int damage) {
         if (this.destroyed || hasBeenHit) {
@@ -188,8 +136,8 @@ public class LootContainer extends TileEntity implements Attackable {
     @Override
     AbsolutePoint getSpriteDrawPosition() {
         return new AbsolutePoint(
-                body.getPosition().x - getSpriteDrawWidth() / 2,
-                body.getPosition().y - CELL_SIZE_METERS * 1.8f
+            body.getPosition().x - getSpriteDrawWidth() / 2,
+            body.getPosition().y - CELL_SIZE_METERS * 1.8f
         );
     }
 
@@ -261,24 +209,70 @@ public class LootContainer extends TileEntity implements Attackable {
             }
             destroyedTime += delta;
             batch.draw(
-                    destroyedAnimation.getKeyFrame(destroyedTime),
-                    getSpriteDrawPosition().x(),
-                    getSpriteDrawPosition().y(),
-                    getSpriteDrawWidth(),
-                    getSpriteDrawHeight()
+                destroyedAnimation.getKeyFrame(destroyedTime),
+                getSpriteDrawPosition().x(),
+                getSpriteDrawPosition().y(),
+                getSpriteDrawWidth(),
+                getSpriteDrawHeight()
             );
             return;
         }
 
         idleTime += delta;
         batch.draw(
-                idleAnimation.getKeyFrame(idleTime),
-                getSpriteDrawPosition().x(),
-                getSpriteDrawPosition().y(),
-                getSpriteDrawWidth(),
-                getSpriteDrawHeight()
+            idleAnimation.getKeyFrame(idleTime),
+            getSpriteDrawPosition().x(),
+            getSpriteDrawPosition().y(),
+            getSpriteDrawWidth(),
+            getSpriteDrawHeight()
         );
         batch.setColor(Color.WHITE);
 
+    }
+
+    /**
+     * Existing types of LootContainer
+     */
+    public enum LootContainerType {
+        BARREL,
+        CRATE, VASE,
+    }
+
+    /**
+     * <p>Represents the attributes of a loot container {@link LootContainer} within the game.
+     * These attributes determine the behavior, appearance, and sounds associated
+     * with a loot container. </p>
+     * <p>
+     * The class includes data such as:
+     * <ul>
+     *     <li>The maximum loot amount the container can hold.</li>
+     *     <li>The duration of each animation frame for displaying the loot container.</li>
+     *     <li>The container's texture, sounds, and type.</li>
+     *     <li>Additional attributes related to interaction like health.</li>
+     * </ul>
+     *
+     * <p>Instances of this class are typically used for initialization and
+     * functional configuration of {@link LootContainer} objects.</p>
+     */
+    public static class LootContainerAttributes {
+        public final int maxLootAmount;
+        public final float frameDuration;
+        public final String textureName;
+        public final LootContainerType type;
+        public final String hitSound;
+        public final String destroySound;
+        public int health;
+
+        public LootContainerAttributes(
+            int maxLootAmount, float frameDuration, String textureName, LootContainerType type,
+            String hitSound, String destroySound
+        ) {
+            this.maxLootAmount = maxLootAmount;
+            this.frameDuration = frameDuration;
+            this.textureName = textureName;
+            this.type = type;
+            this.hitSound = hitSound;
+            this.destroySound = destroySound;
+        }
     }
 }

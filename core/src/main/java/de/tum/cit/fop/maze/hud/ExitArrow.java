@@ -23,7 +23,7 @@ public class ExitArrow {
         exitArrow.setOriginCenter();
     }
 
-    public void drawExitArrow(SpriteBatch spriteBatch , float angle) {
+    public void drawExitArrow(SpriteBatch spriteBatch, float angle) {
         exitArrow.setRotation(angle);
         exitArrow.draw(spriteBatch);
     }

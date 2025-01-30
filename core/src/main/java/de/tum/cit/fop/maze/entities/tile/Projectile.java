@@ -9,6 +9,11 @@ import de.tum.cit.fop.maze.essentials.Globals;
 
 import static de.tum.cit.fop.maze.essentials.Globals.TRAP_SAFETY_PADDING;
 
+/**
+ * The Projectile class represents a dynamic entity in the game world that moves
+ * with a specified speed and direction. It extends the TileEntity class and is
+ * designed to interact with other entities in the game upon contact. It does
+ */
 public class Projectile extends TileEntity {
 
     private final float speed;
@@ -16,7 +21,7 @@ public class Projectile extends TileEntity {
     private boolean foundHit = false;
 
     public Projectile(
-            int width, int height, float speed, boolean isFacingRight
+        int width, int height, float speed, boolean isFacingRight
     ) {
         super(width, height, new BodyDef(), new FixtureDef());
         this.speed = speed;
@@ -33,8 +38,8 @@ public class Projectile extends TileEntity {
         bodyDef.bullet = true;
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(
-                width * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING,
-                height * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING
+            width * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING,
+            height * Globals.CELL_SIZE_METERS / 2 - TRAP_SAFETY_PADDING
         );
         fixtureDef.shape = shape;
         fixtureDef.isSensor = true;
@@ -67,6 +72,4 @@ public class Projectile extends TileEntity {
     public boolean isFoundHit() {
         return foundHit;
     }
-
-
 }

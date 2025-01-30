@@ -22,7 +22,7 @@ public class Attributes {
                       float vampirism, int resurrections, float speedBoost
     ) {
         this.immediateHealing = immediateHealing;
-        this.immediateCoins =  immediateCoins;
+        this.immediateCoins = immediateCoins;
         this.damageBoost = damageBoost;
         this.resistanceBoost = resistanceBoost;
         this.vampirism = vampirism;

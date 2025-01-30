@@ -17,15 +17,10 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import de.tum.cit.fop.maze.essentials.Assets;
-import de.tum.cit.fop.maze.essentials.BodyBits;
-import de.tum.cit.fop.maze.essentials.TileTextureHelper;
 import de.tum.cit.fop.maze.entities.Enemy;
 import de.tum.cit.fop.maze.entities.EnemyType;
 import de.tum.cit.fop.maze.entities.tile.*;
-import de.tum.cit.fop.maze.essentials.AbsolutePoint;
-import de.tum.cit.fop.maze.essentials.DebugRenderer;
-import de.tum.cit.fop.maze.essentials.Direction;
+import de.tum.cit.fop.maze.essentials.*;
 import de.tum.cit.fop.maze.gson.GSONPostRestorable;
 import de.tum.cit.fop.maze.level.worldgen.CellType;
 import de.tum.cit.fop.maze.level.worldgen.GeneratorCell;
@@ -41,16 +36,16 @@ import static java.lang.Math.max;
 
 public class TileMap implements Disposable, GSONPostRestorable {
     private final TiledMap map = new TiledMap();
+    private transient final TileEntityManager tileEntityManager;
     public int width;
     public int height;
-    private AbsolutePoint exitPosition;
-    boolean[][] wallMap;
     public AbsolutePoint playerPosition;
     public transient float heightMeters;
     public transient float widthMeters;
     public transient Random random;
+    boolean[][] wallMap;
+    private AbsolutePoint exitPosition;
     private transient MazeGenerator generator;
-    private transient final TileEntityManager tileEntityManager;
     private transient HashSet<Collectable> spawnedItems = new HashSet<>();
 
     /**
@@ -62,27 +57,20 @@ public class TileMap implements Disposable, GSONPostRestorable {
     }
 
 
-    public void restore() {
-        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);
-        this.width = layer.getWidth();
-        this.height = layer.getHeight();
-        this.widthMeters = this.width * CELL_SIZE_METERS;
-        this.heightMeters = this.height * CELL_SIZE_METERS;
-        generateHitboxes();
-    }
-
-
     public TileMap(MazeGenerator generator) {
         this(generator.height, generator.width, generator.getRandom(), generator);
     }
 
+
     public TileMap(int height, int width, Random random) {
         this(height, width, random, null);
     }
+
     /**
      * Create a new TileMap with a given height, width and seed
+     *
      * @param height the height of the map
-     * @param width the width of the map
+     * @param width  the width of the map
      * @param random the random instance to use
      */
     private TileMap(int height, int width, Random random, MazeGenerator generator) {
@@ -100,12 +88,10 @@ public class TileMap implements Disposable, GSONPostRestorable {
         this.width = this.generator.width * 3;
         this.height = this.generator.height * 3;
         this.tileEntityManager = LevelScreen.getInstance().tileEntityManager;
-        System.out.println(generator);
         widthMeters = this.width * CELL_SIZE_METERS;
         heightMeters = this.height * CELL_SIZE_METERS;
         wallMap = new boolean[this.height][this.width];
         createDebugLayer();
-        System.out.println(generator);
 
         ///  Dimensions x3 since we want to have 3x3 tiles for each cell,
         ///  so we create larger environment for fights, etc.
@@ -122,7 +108,6 @@ public class TileMap implements Disposable, GSONPostRestorable {
         @SuppressWarnings("unchecked") List<CollectableAttributes> treasurePool =
             (List<CollectableAttributes>) Assets.getInstance().getTreasurePool().clone();
 
-        // System.out.println(generator);
         // Paddings to account for surrounding walls
         int startI = 2;
         int startJ = 1;
@@ -237,10 +222,32 @@ public class TileMap implements Disposable, GSONPostRestorable {
                 }
 
 
-
             }
         }
         reverseCollisionMapRows(wallMap);
+        generateHitboxes();
+    }
+
+    private static AbsolutePoint getTorchPoint(Direction torchDirection, AbsolutePoint current) {
+        AbsolutePoint torchPoint;
+        switch (
+            torchDirection
+        ) {
+            case UP -> torchPoint = current.addY(CELL_SIZE_METERS * 3);
+            case DOWN -> torchPoint = current.addY(-CELL_SIZE_METERS);
+            case LEFT -> torchPoint = current.addX(-CELL_SIZE_METERS);
+            case RIGHT -> torchPoint = current.addX(CELL_SIZE_METERS);
+            default -> throw new IllegalStateException("Unexpected value: " + torchDirection);
+        }
+        return torchPoint;
+    }
+
+    public void restore() {
+        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);
+        this.width = layer.getWidth();
+        this.height = layer.getHeight();
+        this.widthMeters = this.width * CELL_SIZE_METERS;
+        this.heightMeters = this.height * CELL_SIZE_METERS;
         generateHitboxes();
     }
 
@@ -339,20 +346,6 @@ public class TileMap implements Disposable, GSONPostRestorable {
         }
     }
 
-    private static AbsolutePoint getTorchPoint(Direction torchDirection, AbsolutePoint current) {
-        AbsolutePoint torchPoint;
-        switch (
-            torchDirection
-        ) {
-            case UP -> torchPoint = current.addY(CELL_SIZE_METERS * 3);
-            case DOWN -> torchPoint = current.addY(-CELL_SIZE_METERS);
-            case LEFT -> torchPoint = current.addX(-CELL_SIZE_METERS);
-            case RIGHT -> torchPoint = current.addX(CELL_SIZE_METERS);
-            default -> throw new IllegalStateException("Unexpected value: " + torchDirection);
-        }
-        return torchPoint;
-    }
-
     /**
      *
      */
@@ -362,8 +355,9 @@ public class TileMap implements Disposable, GSONPostRestorable {
 
     /**
      * Spawns a random trap at x y position
-     * @param x the x position <b>(must be 3x3 cell center)</b>
-     * @param y the y position <b>(must be 3x3 cell center)</b>
+     *
+     * @param x        the x position <b>(must be 3x3 cell center)</b>
+     * @param y        the y position <b>(must be 3x3 cell center)</b>
      * @param vertical {@code true} if the passage is vertical
      */
     private void spawnRandomTrap(int x, int y, boolean vertical) {
@@ -468,6 +462,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
 
     /**
      * Sets a vertical wall at x y position
+     *
      * @param x the x position
      * @param y the y position
      */
@@ -478,6 +473,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
 
     /**
      * Sets a default wall at x y position
+     *
      * @param x the x position
      * @param y the y position
      */
@@ -489,9 +485,10 @@ public class TileMap implements Disposable, GSONPostRestorable {
 
     /**
      * Sets square 3x3 at x y position to be {@code cell}
+     *
      * @param textureName the texture to set
-     * @param x the x position
-     * @param y the y position
+     * @param x           the x position
+     * @param y           the y position
      */
     private void setSquare(String textureName, int x, int y) {
         int[][] allSurrounding = {
@@ -512,9 +509,10 @@ public class TileMap implements Disposable, GSONPostRestorable {
 
     /**
      * Sets cell at x y position to be {@code texture}
+     *
      * @param textureName the texture to set
-     * @param x the x position
-     * @param y the y position
+     * @param x           the x position
+     * @param y           the y position
      */
     private void setCell(String textureName, int x, int y) {
         Cell mapCell = new Cell();
@@ -577,14 +575,15 @@ public class TileMap implements Disposable, GSONPostRestorable {
     /**
      * Helper function to create a hitbox at x y position considering the cell size
      * Create a hitbox at x y position with hx hy size
-     * @param x the x position
-     * @param y the y position
-     * @param hx the x size
-     * @param hy the y size
+     *
+     * @param x          the x position
+     * @param y          the y position
+     * @param hx         the x size
+     * @param hy         the y size
      * @param fixtureDef the fixture definition
      */
     private void createRectangularHitbox(float x, float y, float hx, float hy, @Nullable FixtureDef fixtureDef) {
-        // System.out.println("Creating hitbox at " + x + " " + y + " " + hx + " " + hy + " With cell size " + CELL_SIZE_METERS); ;
+
         hx *= CELL_SIZE_METERS / 2;
         hy *= CELL_SIZE_METERS / 2;
         x = x * CELL_SIZE_METERS + hx;
@@ -611,8 +610,8 @@ public class TileMap implements Disposable, GSONPostRestorable {
     /**
      * Check if the cell at i j position is isolated, requires special treatment, since we draw a decoration there
      *
-     * @param x       the x position
-     * @param y       the y position
+     * @param x the x position
+     * @param y the y position
      * @return {@code true} if the cell is isolated
      */
     private boolean isIsolatedCollidable(int x, int y) {
@@ -636,7 +635,6 @@ public class TileMap implements Disposable, GSONPostRestorable {
             int y = -1;
             int hy = 0;
             for (int i = 0; i < height; i += 3) {
-                // System.out.println("Checking " + i + " " + j + " " + wallMap[i][j]);
                 if (wallMap[i][j]) {
                     if (y == -1) {
                         y = i;

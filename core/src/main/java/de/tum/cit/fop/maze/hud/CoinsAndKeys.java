@@ -11,7 +11,9 @@ import de.tum.cit.fop.maze.level.LevelScreen;
 
 
 /**
- * The type Coins and keys.
+ * The CoinsAndKeys class represents a visual component that displays the player's
+ * collected coins and keys in the user interface. This component is constructed using
+ * a table and is added to a stage for rendering.
  */
 public class CoinsAndKeys {
     private final Table coinsAndKeysTable = new Table();
@@ -55,7 +57,7 @@ public class CoinsAndKeys {
         coinsAndKeysTable.setPosition(x + coinsAndKeysTable.getPrefWidth() / 2,
             y - coinsAndKeysTable.getPrefHeight() / 2);
         stage.addActor(coinsAndKeysTable);
-        if (hasKey){
+        if (hasKey) {
             pickUpKey();
         }
     }
@@ -65,7 +67,7 @@ public class CoinsAndKeys {
      *
      * @param value the value
      */
-    public void pickUpCoin(int value){
+    public void pickUpCoin(int value) {
 
         coins.setText(": " + LevelScreen.getInstance().player.getGold());
         coinsAndKeysTable.setPosition(x + coinsAndKeysTable.getPrefWidth() / 2,
@@ -86,7 +88,7 @@ public class CoinsAndKeys {
     /**
      * Dispose.
      */
-    public void dispose(){
+    public void dispose() {
         coinsAndKeysTable.clear();
         coinsAndKeysTable.remove();
     }

@@ -4,9 +4,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Disposable;
+import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.BodyBits;
 import de.tum.cit.fop.maze.essentials.Globals;
-import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.gson.GSONPostRestorable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
@@ -18,10 +18,10 @@ import static de.tum.cit.fop.maze.essentials.Globals.TRAP_SAFETY_PADDING;
  */
 public abstract class TileEntity implements Disposable, GSONPostRestorable {
 
+    public boolean toDestroy = false;
     protected int width;
     protected int height;
     protected boolean isOnPlayer = false;
-    public boolean toDestroy = false;
     protected AbsolutePoint savedPosition;
 
     protected transient Body body;
@@ -30,6 +30,7 @@ public abstract class TileEntity implements Disposable, GSONPostRestorable {
     protected transient BodyDef bodyDef;
     protected transient FixtureDef fixtureDef;
     private transient boolean initialized = false;
+
     /// Queues up tile entity for deletion
 
     private TileEntity() {
@@ -46,6 +47,15 @@ public abstract class TileEntity implements Disposable, GSONPostRestorable {
         createBody();
     }
 
+    public TileEntity(int width, int height, BodyDef bodyDef, FixtureDef fixtureDef) {
+        this.width = width;
+        this.height = height;
+        this.batch = LevelScreen.getInstance().batch;
+        this.camera = LevelScreen.getInstance().camera;
+        this.bodyDef = bodyDef;
+        this.fixtureDef = fixtureDef;
+    }
+
     private void createBody() {
         this.bodyDef = new BodyDef();
         this.fixtureDef = new FixtureDef();
@@ -60,16 +70,6 @@ public abstract class TileEntity implements Disposable, GSONPostRestorable {
         fixtureDef.isSensor = true;
         fixtureDef.filter.categoryBits = BodyBits.TILE_ENTITY;
         fixtureDef.filter.maskBits = BodyBits.TILE_ENTITY_MASK;
-    }
-
-
-    public TileEntity(int width, int height, BodyDef bodyDef, FixtureDef fixtureDef) {
-        this.width = width;
-        this.height = height;
-        this.batch = LevelScreen.getInstance().batch;
-        this.camera = LevelScreen.getInstance().camera;
-        this.bodyDef = bodyDef;
-        this.fixtureDef = fixtureDef;
     }
 
     AbsolutePoint getSpriteDrawPosition() {

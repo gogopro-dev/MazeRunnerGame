@@ -4,19 +4,16 @@ import box2dLight.PointLight;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import de.tum.cit.fop.maze.ActiveItem;
-import de.tum.cit.fop.maze.essentials.Assets;
-import de.tum.cit.fop.maze.essentials.BodyBits;
 import de.tum.cit.fop.maze.entities.tile.Attributes;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
-import de.tum.cit.fop.maze.essentials.Globals;
-import de.tum.cit.fop.maze.essentials.AbsolutePoint;
-import de.tum.cit.fop.maze.essentials.DebugRenderer;
-import de.tum.cit.fop.maze.essentials.Utils;
+import de.tum.cit.fop.maze.essentials.*;
 import de.tum.cit.fop.maze.hud.HUD;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import games.rednblack.miniaudio.MASound;
@@ -35,9 +32,9 @@ public class Player extends Entity {
 
     private final Attributes attributes;
     private final List<Collectable> inventory;
+    private final float maxStamina = 100;
     private int gold = 0;
     private float staminaRecoveryElapsedTime = 0f;
-    private final float maxStamina = 100;
     private boolean hasKey = false;
     private ActiveItem activeItem;
     private transient boolean isMoving = false;
@@ -78,6 +75,7 @@ public class Player extends Entity {
      */
     public Player() {
         super();
+        this.entitySpeed = 6f;
         this.mass = 5f;
         inventory = new ArrayList<>();
         health = 40;
@@ -96,7 +94,6 @@ public class Player extends Entity {
      */
     @Override
     protected void render(float deltaTime) {
-        System.out.println(this.isBeingChased());
         /// TODO Stamina regeneration?
         elapsedTime += deltaTime;
         Assets.getInstance().soundEngine.setListenerPosition(getPosition().x(), getPosition().y(), 0);
@@ -144,22 +141,22 @@ public class Player extends Entity {
         /// If the player is dead, play the die animation and hold for 2 seconds
         /// If the player has resurrection amulet, resurrect the player after being dead,
         /// by playing the die animation backwards
-        if (isDead()){
+        if (isDead()) {
             deadElapsedTime += deltaTime;
             currentFrame = dieAnimation.getKeyFrame(deadElapsedTime, false);
             body.setLinearVelocity(Vector2.Zero);
-            if (deadElapsedTime > dieAnimation.getAnimationDuration() + 2f){
+            if (deadElapsedTime > dieAnimation.getAnimationDuration() + 2f) {
                 if (removeItem(Collectable.CollectableType.RESURRECTION_AMULET) || hasResurrected) {
                     hasResurrected = true;
                 } else {
                     LevelScreen.getInstance().endGame(false);
                 }
             }
-            if (hasResurrected){
+            if (hasResurrected) {
                 resurrectElapsedTime += deltaTime;
                 currentFrame = dieAnimation.getKeyFrame(dieAnimation.getAnimationDuration() - resurrectElapsedTime, false);
             }
-            if (resurrectElapsedTime >= dieAnimation.getAnimationDuration()){
+            if (resurrectElapsedTime >= dieAnimation.getAnimationDuration()) {
                 hasResurrected = false;
                 deadElapsedTime = 0f;
                 resurrectElapsedTime = 0f;
@@ -311,7 +308,6 @@ public class Player extends Entity {
         AtomicBoolean anyAttacked = new AtomicBoolean(false);
         LevelScreen.getInstance().world.QueryAABB(
             fixture -> {
-                System.out.println("Fixture detected: " + fixture);
                 /// Do not permit a self-harm attempt ^_^
                 if (fixture.getBody().getUserData() instanceof Player) {
                     return true;
@@ -332,7 +328,6 @@ public class Player extends Entity {
                         )
                     );
                 }
-                System.out.println("Hit " + fixture.getBody().getUserData());
                 return true;
             },
             rectangleStart.x(), rectangleStart.y(), rectangleEnd.x(), rectangleEnd.y()

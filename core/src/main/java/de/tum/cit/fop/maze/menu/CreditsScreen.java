@@ -15,8 +15,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import de.tum.cit.fop.maze.essentials.Assets;
 import games.rednblack.miniaudio.MASound;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,21 +28,22 @@ import java.util.Arrays;
  * This class is used to display the credits of the game.
  */
 public class CreditsScreen implements Screen {
-    private TextureRegion exitRegion;
-    private TextureRegion containerRegion;
-    private TextureRegion smallButtonPressedRegion;
-    private TextureRegion smallButtonReleasedRegion;
-    private Container<VerticalGroup> container;
     private final Stage stage;
     private final BitmapFont font;
     private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
     private final FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
     private final MASound clickSound;
+    private TextureRegion exitRegion;
+    private TextureRegion containerRegion;
+    private TextureRegion smallButtonPressedRegion;
+    private TextureRegion smallButtonReleasedRegion;
+    private Container<VerticalGroup> container;
 
     /**
      * Loads textures and sets up the menu
+     *
      * @param viewport Viewport
-     * @param batch SpriteBatch
+     * @param batch    SpriteBatch
      */
     public CreditsScreen(Viewport viewport, SpriteBatch batch) {
 
@@ -111,7 +112,6 @@ public class CreditsScreen implements Screen {
         }
 
 
-
         /// Creates the button to exit the settings menu
         Image exitSettingsImage = new Image(exitRegion);
 
@@ -134,7 +134,7 @@ public class CreditsScreen implements Screen {
         AlignableImageTextButton exitSettingsButton = new AlignableImageTextButton("", textButtonStyle, exitSettingsImage, 1.5f);
         exitSettingsButton.setImagePadding(5f);
         exitSettingsButton.setImageTopPadding(2f);
-        exitSettingsButton.addListener(new ClickListener(){
+        exitSettingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 clickSound.stop();
@@ -164,6 +164,7 @@ public class CreditsScreen implements Screen {
 
     /**
      * Creates a container for the settings menu
+     *
      * @param creditsElementGroup {@link VerticalGroup} containing all widgets
      * @return {@link Container<VerticalGroup>}
      */
@@ -173,7 +174,7 @@ public class CreditsScreen implements Screen {
         /// Set the size of the container to the size of the texture
         container.setSize(493f, 612f);
         /// Set container position to center of the screen
-        container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
+        container.setPosition(stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2, stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2);
         container.align(Align.top);
         return container;
     }
@@ -195,8 +196,8 @@ public class CreditsScreen implements Screen {
     /**
      * Updates the position of the container to the center of the screen
      */
-    public void updateContainerPosition(){
-        container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
+    public void updateContainerPosition() {
+        container.setPosition(stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2, stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2);
     }
 
     @Override

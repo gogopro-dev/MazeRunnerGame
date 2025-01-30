@@ -9,9 +9,9 @@ dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
   api "games.rednblack.miniaudio:miniaudio:$miniaudioVersion"
   implementation 'com.google.code.gson:gson:2.11.0'
-    implementation 'org.jetbrains:annotations:24.0.0'
+  implementation 'org.jetbrains:annotations:24.0.0'
 
-    if(enableGraalNative == 'true') {
+  if (enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }
 }

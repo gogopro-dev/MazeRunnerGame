@@ -34,6 +34,11 @@ import java.util.stream.Stream;
  */
 public final class Assets implements Disposable {
     private static Assets instance;
+    public final TileTextureHelper tileTextureHelper;
+    public final Gson gson;
+    public final MAGroup music;
+    public final MAGroup sfx;
+    public final MiniAudio soundEngine;
     private final AssetManager assetManager;
     private final ArrayList<CollectableAttributes> treasurePool = new ArrayList<>();
     private final ArrayList<CollectableAttributes> shopPool = new ArrayList<>();
@@ -43,21 +48,7 @@ public final class Assets implements Disposable {
     private final ArrayList<Trap.TrapAttributes> traps = new ArrayList<>();
     private final ArrayList<Enemy.EnemyConfig> enemies = new ArrayList<>();
     private final ArrayList<ActiveItem.ActiveItemProperties> activeItems = new ArrayList<>();
-    public final TileTextureHelper tileTextureHelper;
-    public final Gson gson;
     private HashMap<String, String> soundMap;
-    public final MAGroup music;
-    public final MAGroup sfx;
-    public final MiniAudio soundEngine;
-    /**
-     * @return the singleton instance of the {@link Assets} class
-     */
-    public static Assets getInstance() {
-        if (instance == null) {
-            instance = new Assets();
-        }
-        return instance;
-    }
 
     /**
      * Private constructor to prevent instantiation from outside the class</br>
@@ -105,6 +96,16 @@ public final class Assets implements Disposable {
         sfx.setVolume(SettingsConfiguration.getInstance().getSfxVolume());
 
         gson = gsonBuilder.create();
+    }
+
+    /**
+     * @return the singleton instance of the {@link Assets} class
+     */
+    public static Assets getInstance() {
+        if (instance == null) {
+            instance = new Assets();
+        }
+        return instance;
     }
 
     /**
@@ -172,7 +173,7 @@ public final class Assets implements Disposable {
         traps.addAll(
             List.of(gson.fromJson(Gdx.files.local("assets/configs/trapConfig.json").readString(),
                 Trap.TrapAttributes[].class)
-        ));
+            ));
 
         lootContainerConfig.addAll(
             List.of(gson.fromJson(Gdx.files.local("assets/configs/lootContainers.json").readString(),

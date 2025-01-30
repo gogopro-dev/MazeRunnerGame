@@ -21,14 +21,9 @@ public class HpBar {
     private final List<Image> healthImages;
     private final float x;
     private final float y;
-    private int health;
-    private int maxHealth;
-    private int receivedDamage;
     private final Animation<TextureRegion> healthLNoDMG;
     private final Animation<TextureRegion> healthRDMG;
     private final Animation<TextureRegion> healthLDMG;
-    private boolean gotHit;
-    private float hitElapsedTime = 0;
     private final Table healthBar = new Table();
     private final TextureRegion staticHealthRFull;
     private final TextureRegion staticHealthLFull;
@@ -36,6 +31,11 @@ public class HpBar {
     private final TextureRegion staticHealthLEmpty;
     private final Stage stage;
     private final float scaling = 1.6f;
+    private int health;
+    private int maxHealth;
+    private int receivedDamage;
+    private boolean gotHit;
+    private float hitElapsedTime = 0;
 
 
     /**
@@ -105,14 +105,14 @@ public class HpBar {
      * @param isDamage  the is damage
      * @param value     the value
      */
-    public void updateHpBar(int health, int maxHealth, Boolean isDamage, int value){
+    public void updateHpBar(int health, int maxHealth, Boolean isDamage, int value) {
 
-        if (isDamage == null){
+        if (isDamage == null) {
             createHpBar(health, maxHealth);
             return;
         }
 
-        if (value == 0){
+        if (value == 0) {
             return;
         }
 
@@ -179,8 +179,8 @@ public class HpBar {
      *
      * @param value the value
      */
-    public void heal(int value){
-        if (health + value > maxHealth){
+    public void heal(int value) {
+        if (health + value > maxHealth) {
             value = maxHealth - health;
         }
         updateHpBar(health, maxHealth, false, value);
@@ -195,8 +195,7 @@ public class HpBar {
     public void takeDmg(int damage) {
         if (health - damage < 0) {
             receivedDamage = health;
-        }
-        else {
+        } else {
             receivedDamage = damage;
         }
         health -= receivedDamage;
@@ -217,7 +216,7 @@ public class HpBar {
             currentFrame = healthLNoDMG.getKeyFrame(hitElapsedTime);
             heart = (Image) healthBar.getChildren().get(health);
             batch.draw(currentFrame, startX + heart.getX(),
-                    startY + heart.getY(), heart.getWidth(), heart.getHeight());
+                startY + heart.getY(), heart.getWidth(), heart.getHeight());
         }
 
         for (int i = health; i < receivedDamage + health; i++) {
@@ -228,13 +227,13 @@ public class HpBar {
             }
             heart = (Image) healthBar.getChild(i);
             batch.draw(currentFrame, startX + heart.getX(),
-                    startY + heart.getY(), heart.getWidth(), heart.getHeight());
+                startY + heart.getY(), heart.getWidth(), heart.getHeight());
         }
     }
 
     private boolean getAllAnimationsFinished() {
         return healthLDMG.isAnimationFinished(hitElapsedTime) && healthRDMG.isAnimationFinished(hitElapsedTime)
-                && healthLNoDMG.isAnimationFinished(hitElapsedTime);
+            && healthLNoDMG.isAnimationFinished(hitElapsedTime);
     }
 
     /**
@@ -340,7 +339,7 @@ public class HpBar {
     /**
      * Dispose.
      */
-    public void dispose(){
+    public void dispose() {
 
         healthBar.clear();
         healthImages.clear();

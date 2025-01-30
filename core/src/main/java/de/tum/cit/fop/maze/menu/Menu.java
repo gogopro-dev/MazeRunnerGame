@@ -7,9 +7,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.*;
-import de.tum.cit.fop.maze.essentials.Assets;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.LoadMenu;
+import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.essentials.FadeOverlay;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
@@ -24,37 +25,26 @@ import games.rednblack.miniaudio.MiniAudio;
  * When switching between {@link LevelScreen} and {@link MainMenuScreen}, it fades in and out.
  */
 public class Menu implements Screen {
-    public int SCREEN_WIDTH = 1024;
-    public int SCREEN_HEIGHT = 768;
-    private MenuState menuState = MenuState.MAIN_MENU;
+    private static final float FRAME_DURATION = 1 / 10f;
+    private static Menu instance = null;
     private final MainMenuScreen mainMenuScreen;
     private final SettingsScreen settingsScreen;
     private final CreditsScreen creditsScreen;
     private final PlayGameScreen playGameScreen;
     private final ControlsScreen controlsScreen;
-    private static Menu instance = null;
     private final OrthographicCamera camera;
     private final Viewport viewport;
     private final Array<TextureAtlas.AtlasRegion> backgroundRegions;
     private final SpriteBatch batch;
-    private float stateTime = 0f;
-    private int currentFrameIndex = 0;
-    private static final float FRAME_DURATION = 1/10f;
     private final FadeOverlay fadeOverlay;
     private final MiniAudio miniAudio;
     private final MASound mainMenuMusic;
     private final MASound creditsMusic;
-
-    /**
-     * Returns the singleton instance of the menu.
-     * @return The singleton instance of the menu.
-     */
-    public static synchronized Menu getInstance(){
-        if (instance == null){
-            return new Menu();
-        }
-        return instance;
-    }
+    public int SCREEN_WIDTH = 1024;
+    public int SCREEN_HEIGHT = 768;
+    private MenuState menuState = MenuState.MAIN_MENU;
+    private float stateTime = 0f;
+    private int currentFrameIndex = 0;
 
     /**
      * Constructor for the main menu.</br>
@@ -90,6 +80,18 @@ public class Menu implements Screen {
     }
 
     /**
+     * Returns the singleton instance of the menu.
+     *
+     * @return The singleton instance of the menu.
+     */
+    public static synchronized Menu getInstance() {
+        if (instance == null) {
+            return new Menu();
+        }
+        return instance;
+    }
+
+    /**
      * @return The current menu state.
      */
     public MenuState getMenuState() {
@@ -98,24 +100,25 @@ public class Menu implements Screen {
 
     /**
      * Calls the {@link #toggleMenuState(MenuState, boolean)} method with the given state.
+     *
      * @param state The state to toggle to.
      */
-    public void toggleMenuState(MenuState state){
+    public void toggleMenuState(MenuState state) {
         toggleMenuState(state, false);
     }
 
     /**
      * Toggles the menu state.
-     * @param state The state to toggle to.
+     *
+     * @param state  The state to toggle to.
      * @param fadeIn True if the fade in should be started.
      */
-    public void toggleMenuState(MenuState state, boolean fadeIn){
+    public void toggleMenuState(MenuState state, boolean fadeIn) {
         menuState = state;
 
         Gdx.input.setInputProcessor(null);
-        System.out.println("Switching to " + menuState);
 
-        switch (menuState){
+        switch (menuState) {
             case GAME_SCREEN:
                 if (creditsMusic.isPlaying()) {
                     creditsMusic.stop();
@@ -176,84 +179,84 @@ public class Menu implements Screen {
 
     @Override
     public void render(float delta) {
-            /// Clear the screen
-            Gdx.gl.glClearColor(0, 0, 0, 1);
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        /// Clear the screen
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-            /// Update animation state time
-            stateTime += delta;
+        /// Update animation state time
+        stateTime += delta;
 
-            /// Determine current frame
-            if (stateTime >= FRAME_DURATION) {
-                currentFrameIndex = (currentFrameIndex + 1) % backgroundRegions.size;
-                stateTime = 0f;
-            }
-            /// Draw current background frame
-            batch.setProjectionMatrix(camera.combined);
-            batch.begin();
-            batch.draw(
-                backgroundRegions.get(currentFrameIndex),
-                0, 0,
-                viewport.getWorldWidth(),
-                viewport.getWorldHeight()
-            );
-            batch.end();
+        /// Determine current frame
+        if (stateTime >= FRAME_DURATION) {
+            currentFrameIndex = (currentFrameIndex + 1) % backgroundRegions.size;
+            stateTime = 0f;
+        }
+        /// Draw current background frame
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        batch.draw(
+            backgroundRegions.get(currentFrameIndex),
+            0, 0,
+            viewport.getWorldWidth(),
+            viewport.getWorldHeight()
+        );
+        batch.end();
 
-            switch (menuState){
-                case GAME_SCREEN:
-                    /// Check if fade in/out is finished
-                    if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
+        switch (menuState) {
+            case GAME_SCREEN:
+                /// Check if fade in/out is finished
+                if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
                     /// Switch to rendering level screen
-                        LevelScreen.getInstance().render(delta);
-                    } else {
-                        /// Continue rendering menu while fading
-                        playGameScreen.render(delta);
-                        Gdx.input.setInputProcessor(null);
-                    }
-
-                    /// if fading out is not finished, render overlay
-                    if (!fadeOverlay.isFinishedOut()) {
-                        fadeOverlay.render(delta);
-                    }
-                    break;
-                case PLAY:
+                    LevelScreen.getInstance().render(delta);
+                } else {
+                    /// Continue rendering menu while fading
                     playGameScreen.render(delta);
-                    break;
-                case MAIN_MENU:
-                    if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
-                        if (menuState != MenuState.GAME_SCREEN && LevelScreen.getInstance() != null) {
-                            LevelScreen.getInstance().saveGame();
-                            LevelScreen.getInstance().dispose();
-                        }
+                    Gdx.input.setInputProcessor(null);
+                }
 
-                        /// Switch to rendering menu screen
-                        mainMenuScreen.render(delta);
-                        if (!fadeOverlay.isFinishedOut()){
-                            Gdx.input.setInputProcessor(null);
-                        }
-                    } else {
-                        /// Continue rendering level screen fading
-                        if (LevelScreen.getInstance() != null){
-                            LevelScreen.getInstance().render(delta);
-                        }
+                /// if fading out is not finished, render overlay
+                if (!fadeOverlay.isFinishedOut()) {
+                    fadeOverlay.render(delta);
+                }
+                break;
+            case PLAY:
+                playGameScreen.render(delta);
+                break;
+            case MAIN_MENU:
+                if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
+                    if (menuState != MenuState.GAME_SCREEN && LevelScreen.getInstance() != null) {
+                        LevelScreen.getInstance().saveGame();
+                        LevelScreen.getInstance().dispose();
+                    }
+
+                    /// Switch to rendering menu screen
+                    mainMenuScreen.render(delta);
+                    if (!fadeOverlay.isFinishedOut()) {
                         Gdx.input.setInputProcessor(null);
                     }
-
-                    /// if fading out is not finished, render overlay
-                    if (!fadeOverlay.isFinishedOut()) {
-                        fadeOverlay.render(delta);
+                } else {
+                    /// Continue rendering level screen fading
+                    if (LevelScreen.getInstance() != null) {
+                        LevelScreen.getInstance().render(delta);
                     }
-                    break;
-                case CONTROLS:
+                    Gdx.input.setInputProcessor(null);
+                }
 
-                    controlsScreen.render(delta);
-                    break;
-                case CREDITS:
-                    creditsScreen.render(delta);
-                    break;
-                case SETTINGS:
-                    settingsScreen.render(delta);
-                    break;
+                /// if fading out is not finished, render overlay
+                if (!fadeOverlay.isFinishedOut()) {
+                    fadeOverlay.render(delta);
+                }
+                break;
+            case CONTROLS:
+
+                controlsScreen.render(delta);
+                break;
+            case CREDITS:
+                creditsScreen.render(delta);
+                break;
+            case SETTINGS:
+                settingsScreen.render(delta);
+                break;
         }
     }
 

@@ -16,15 +16,6 @@ import java.util.Map;
  * Inventory where all picked up Items are shown.
  */
 public class Inventory {
-    private final int inventoryRows = 2;
-    private final int inventoryCols = 5;
-    private final int sizeOfInvIcon = 40;
-    private final int spacingBetweenIcons = 10;
-    private final float inventoryWidth = inventoryCols * sizeOfInvIcon +
-            (inventoryCols - 1) * spacingBetweenIcons;
-    private final float inventoryHeight = inventoryRows * sizeOfInvIcon +
-            (inventoryRows - 1) * spacingBetweenIcons;
-    private final TextureAtlas inventoryAtlas;
     /**
      * The Sprite inventory.
      */
@@ -41,6 +32,15 @@ public class Inventory {
      * The Stage.
      */
     public final Stage stage;
+    private final int inventoryRows = 2;
+    private final int inventoryCols = 5;
+    private final int sizeOfInvIcon = 40;
+    private final int spacingBetweenIcons = 10;
+    private final float inventoryWidth = inventoryCols * sizeOfInvIcon +
+        (inventoryCols - 1) * spacingBetweenIcons;
+    private final float inventoryHeight = inventoryRows * sizeOfInvIcon +
+        (inventoryRows - 1) * spacingBetweenIcons;
+    private final TextureAtlas inventoryAtlas;
     private final Map<String, Label> labelInfo = new HashMap<>();
     private final Map<String, Image> imageInfo = new HashMap<>();
 
@@ -77,11 +77,11 @@ public class Inventory {
             Image image = new Image(drawable);
 
             spriteInventory.add(image).width(sizeOfInvIcon).height(sizeOfInvIcon).center()
-                    .padRight(spacingBetweenIcons);
+                .padRight(spacingBetweenIcons);
 
             Label label = new Label("x1", labelStyle);
             textInventory.add(label).width(sizeOfInvIcon).height(sizeOfInvIcon).center()
-                    .padRight(spacingBetweenIcons);
+                .padRight(spacingBetweenIcons);
 
 
             labelInfo.put(collectableType.name(), label);
@@ -90,7 +90,8 @@ public class Inventory {
             if (spriteInventory.getChildren().size % inventoryCols == 0) {
                 spriteInventory.row().padTop(spacingBetweenIcons);
                 textInventory.row().padTop(spacingBetweenIcons);
-            };
+            }
+            ;
             return;
         }
         Label label = labelInfo.get(collectableType.name());
@@ -112,10 +113,10 @@ public class Inventory {
         float padding = 10;
 
         spriteInventory.setPosition(stage.getViewport().getWorldWidth() - inventoryWidth - tableOffsetX - padding,
-                stage.getViewport().getWorldHeight() - inventoryHeight - padding);
+            stage.getViewport().getWorldHeight() - inventoryHeight - padding);
         stage.addActor(spriteInventory);
         textInventory.setPosition(stage.getViewport().getWorldWidth() - inventoryWidth - padding,
-                stage.getViewport().getWorldHeight() - inventoryHeight - tableOffsetY - padding);
+            stage.getViewport().getWorldHeight() - inventoryHeight - tableOffsetY - padding);
         stage.addActor(textInventory);
     }
 

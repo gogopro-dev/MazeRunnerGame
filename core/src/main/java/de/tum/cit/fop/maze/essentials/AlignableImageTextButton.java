@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton.*;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton.ImageTextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Null;
@@ -28,8 +28,9 @@ public class AlignableImageTextButton extends Button {
 
     /**
      * Creates a new button with the provided text, style and image scale.
-     * @param text The text to display on the button.
-     * @param style The style of the image on the button.
+     *
+     * @param text       The text to display on the button.
+     * @param style      The style of the image on the button.
      * @param imageScale The scale of the image on the button.
      */
     public AlignableImageTextButton(@Null String text, @NotNull ImageTextButtonStyle style, Image image, @Null float imageScale) {
@@ -41,8 +42,8 @@ public class AlignableImageTextButton extends Button {
         this.image = image;
         label = new Label(text, new Label.LabelStyle(style.font, style.fontColor));
 
-        this.image.setPosition(imagePadding, (getHeight() - image.getHeight())/2 + imageTopPadding);
-        label.setPosition(getWidth()/2 + labelPadding, (getHeight() - label.getHeight())/2 + labelTopPadding);
+        this.image.setPosition(imagePadding, (getHeight() - image.getHeight()) / 2 + imageTopPadding);
+        label.setPosition(getWidth() / 2 + labelPadding, (getHeight() - label.getHeight()) / 2 + labelTopPadding);
 
         add(this.image);
         add(label);
@@ -53,15 +54,16 @@ public class AlignableImageTextButton extends Button {
     }
 
     @Override
-    public void setStyle(ButtonStyle style){
-        if (!(style instanceof ImageTextButtonStyle)) throw new IllegalArgumentException("style must be a ImageTextButtonStyle.");
-        this.style = (ImageTextButtonStyle)style;
+    public void setStyle(ButtonStyle style) {
+        if (!(style instanceof ImageTextButtonStyle))
+            throw new IllegalArgumentException("style must be a ImageTextButtonStyle.");
+        this.style = (ImageTextButtonStyle) style;
         super.setStyle(style);
 
         if (image != null) updateImage();
 
         if (label != null) {
-            ImageTextButtonStyle textButtonStyle = (ImageTextButtonStyle)style;
+            ImageTextButtonStyle textButtonStyle = (ImageTextButtonStyle) style;
             Label.LabelStyle labelStyle = label.getStyle();
             labelStyle.font = textButtonStyle.font;
             labelStyle.fontColor = getFontColor();
@@ -71,8 +73,8 @@ public class AlignableImageTextButton extends Button {
 
 
     @Override
-    public void draw (Batch batch, float parentAlpha) {
-        if (imageHeight != 0 && imageWidth != 0){
+    public void draw(Batch batch, float parentAlpha) {
+        if (imageHeight != 0 && imageWidth != 0) {
             updateImage(imageWidth, imageHeight);
         } else {
             updateImage();
@@ -86,50 +88,50 @@ public class AlignableImageTextButton extends Button {
      * Sets the image drawable based on the provided image in the {@code style} attribute.
      * Sets the image height and width based on the {@code imageScale} attribute.
      */
-    protected void updateImage(){
+    protected void updateImage() {
         image.setHeight(image.getDrawable().getMinHeight() * imageScale);
         image.setWidth(image.getDrawable().getMinWidth() * imageScale);
-        image.setPosition(imagePadding, (getHeight() - image.getHeight())/2 + imageTopPadding);
+        image.setPosition(imagePadding, (getHeight() - image.getHeight()) / 2 + imageTopPadding);
     }
 
-    public void updateImage(float width, float height){
+    public void updateImage(float width, float height) {
         imageHeight = height;
         imageWidth = width;
         image.setHeight(height);
         image.setWidth(width);
-        image.setPosition(imagePadding, (getHeight() - image.getHeight())/2 + imageTopPadding);
+        image.setPosition(imagePadding, (getHeight() - image.getHeight()) / 2 + imageTopPadding);
     }
 
     /**
      * Updates the label position based on the {@code labelPadding} attribute.
      */
-    protected void updateLabel(){
+    protected void updateLabel() {
         //label.getPrefWidth() returns the width of the label text, which allows to center the label in the button
-        label.setPosition((getWidth() - label.getPrefWidth())/2 + labelPadding, (getHeight() - label.getHeight())/2 + labelTopPadding);
+        label.setPosition((getWidth() - label.getPrefWidth()) / 2 + labelPadding, (getHeight() - label.getHeight()) / 2 + labelTopPadding);
     }
 
-    public void setImagePadding(float imagePadding){
+    public void setImagePadding(float imagePadding) {
         this.imagePadding = imagePadding;
     }
 
-    public void setImageTopPadding(float imagePadding){
+    public void setImageTopPadding(float imagePadding) {
         this.imageTopPadding = imagePadding;
     }
 
-    public void setLabelPadding(float labelPadding){
+    public void setLabelPadding(float labelPadding) {
         this.labelPadding = labelPadding;
     }
 
-    public void setLabelTopPadding(float labelPadding){
+    public void setLabelTopPadding(float labelPadding) {
         this.labelTopPadding = labelPadding;
     }
 
-    public void setText (CharSequence text) {
-        label.setText(text);
+    public CharSequence getText() {
+        return label.getText();
     }
 
-    public CharSequence getText () {
-        return label.getText();
+    public void setText(CharSequence text) {
+        label.setText(text);
     }
 
     public Image getImage() {
@@ -140,10 +142,11 @@ public class AlignableImageTextButton extends Button {
         return label;
     }
 
-    protected @Null Color getFontColor(){
+    protected @Null Color getFontColor() {
         return style.fontColor;
     }
-    protected @Null Drawable getImageDrawable(){
+
+    protected @Null Drawable getImageDrawable() {
         return image.getDrawable();
     }
 }

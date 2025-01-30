@@ -57,21 +57,21 @@ public class ShopItem extends TileEntity {
 
     private String description() {
         return item.getCollectableAttributes().toItemDescription() +
-                "\n Price " + item.getCollectableAttributes().shopPrice + " coins";
+            "\n Price " + item.getCollectableAttributes().shopPrice + " coins";
     }
 
     @Override
     public void onPlayerStartContact(Contact c) {
         /// Raycast isn't necessary here, since in the shop you won't be able to see a collectable through the wall
         LevelScreen.getInstance().hud.setItemDescription(
-                description()
+            description()
         );
     }
 
     @Override
     public void onPlayerEndContact(Contact c) {
         if (Objects.equals(LevelScreen.getInstance().hud.getItemDescription(),
-                description())) {
+            description())) {
             LevelScreen.getInstance().hud.deleteDescription();
         }
     }
@@ -79,9 +79,9 @@ public class ShopItem extends TileEntity {
     @Override
     public void contactTick(float delta) {
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) &&
-                Objects.equals(LevelScreen.getInstance().hud.getItemDescription(),
-                        description()) &&
-                LevelScreen.getInstance().player.getGold() >= this.item.getCollectableAttributes().shopPrice) {
+            Objects.equals(LevelScreen.getInstance().hud.getItemDescription(),
+                description()) &&
+            LevelScreen.getInstance().player.getGold() >= this.item.getCollectableAttributes().shopPrice) {
             purchaseSound.stop();
             purchaseSound.setLooping(false);
             purchaseSound.play();

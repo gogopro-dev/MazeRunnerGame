@@ -19,6 +19,7 @@ public class DSU {
 
     /**
      * Check if two nodes are in the same connected component
+     *
      * @param x node 1
      * @param y node 2
      * @return {@code true} if the nodes are in the same CC
@@ -29,6 +30,7 @@ public class DSU {
 
     /**
      * Find the root of the connected component
+     *
      * @param node node to find
      * @return {@link Integer} the root of the connected component
      */
@@ -41,6 +43,7 @@ public class DSU {
 
     /**
      * Unite two disjoint components
+     *
      * @param x node 1
      * @param y node 2
      */

@@ -17,15 +17,6 @@ public class FadeOverlay implements Disposable {
     private float fadeOutSpeed;
 
     /**
-     * Enum for the state of the fade overlay
-     */
-    public enum State {
-        NONE,
-        FADING_IN,
-        FADING_OUT
-    }
-
-    /**
      * Constructor for the fade overlay
      * Creates a new shape renderer
      */
@@ -69,6 +60,7 @@ public class FadeOverlay implements Disposable {
 
     /**
      * Renders the overlay
+     *
      * @param delta The time since last render in seconds
      */
     public void render(float delta) {
@@ -104,5 +96,14 @@ public class FadeOverlay implements Disposable {
     @Override
     public void dispose() {
         shapeRenderer.dispose();
+    }
+
+    /**
+     * Enum for the state of the fade overlay
+     */
+    public enum State {
+        NONE,
+        FADING_IN,
+        FADING_OUT
     }
 }

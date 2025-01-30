@@ -30,10 +30,10 @@ public class TimeAndScore {
 
     public void updateLabelTablePosition() {
         timeAndScoreTable.setSize(time.getWidth(),
-                time.getHeight() + scoreLabel.getHeight());
+            time.getHeight() + scoreLabel.getHeight());
         float labelPadding = 15f;
         timeAndScoreTable.setPosition((stage.getViewport().getWorldWidth() - timeAndScoreTable.getWidth()) / 2,
-                stage.getViewport().getWorldHeight() - timeAndScoreTable.getHeight() - labelPadding);
+            stage.getViewport().getWorldHeight() - timeAndScoreTable.getHeight() - labelPadding);
         timeAndScoreTable.align(Align.center);
     }
 
@@ -42,7 +42,7 @@ public class TimeAndScore {
         long minutes = seconds / 60;
         long hours = minutes / 60;
         return String.format(
-                Locale.getDefault(), "Time: %02d:%02d:%02d", hours, minutes % 60, seconds % 60
+            Locale.getDefault(), "Time: %02d:%02d:%02d", hours, minutes % 60, seconds % 60
         );
     }
 

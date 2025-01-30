@@ -2,14 +2,13 @@ package de.tum.cit.fop.maze.level;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
-import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.entities.Enemy;
-import de.tum.cit.fop.maze.essentials.AbsolutePoint;
-import de.tum.cit.fop.maze.essentials.BoundingRectangle;
-import de.tum.cit.fop.maze.essentials.DebugRenderer;
-import de.tum.cit.fop.maze.essentials.Utils;
+import de.tum.cit.fop.maze.essentials.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -31,11 +30,11 @@ public class EnemyManager {
     private transient final LevelScreen levelScreen;
     ///  The Libgdx executor for asynchronous tasks
     private transient final AsyncExecutor asyncExecutor;
-    private ArrayList<Enemy> enemies;
-    private transient float accumulator = 0;
     ///  The number of launched tasks, used so that no new tasks are launched if there are already some running
     ///  (mainly for low-end devices)
     private final transient AtomicInteger launchedTasks = new AtomicInteger(0);
+    private ArrayList<Enemy> enemies;
+    private transient float accumulator = 0;
 
     public EnemyManager() {
         this.enemies = new ArrayList<>();
@@ -101,6 +100,7 @@ public class EnemyManager {
 
     /**
      * Remove an enemy from the game
+     *
      * @param enemy The enemy to remove
      */
     private void removeEnemy(Enemy enemy) {
@@ -154,6 +154,7 @@ public class EnemyManager {
 
     /**
      * Tick the enemies
+     *
      * @param delta The time since the last frame
      */
     public void tickEnemies(float delta) {
@@ -201,8 +202,8 @@ public class EnemyManager {
         for (Enemy enemy : enemies) {
             enemy.restore();
             enemy.spawn(
-                    enemy.getSavedPosition().x(),
-                    enemy.getSavedPosition().y()
+                enemy.getSavedPosition().x(),
+                enemy.getSavedPosition().y()
             );
         }
     }

@@ -18,8 +18,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import de.tum.cit.fop.maze.essentials.Assets;
 import games.rednblack.miniaudio.MASound;
 
 /**
@@ -27,22 +27,23 @@ import games.rednblack.miniaudio.MASound;
  * Displays the controls of the game.
  */
 public class ControlsScreen implements Screen {
-    private TextureRegion smallButtonReleasedRegion;
-    private TextureRegion smallButtonPressedRegion;
-    private TextureRegion exitIconRegion;
-    private TextureRegion containerRegion;
-    private Container<Table> container;
     private final Stage stage;
     private final Table controlsElementTable = new Table();
     private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
     private final FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
     private final MASound clickSound;
+    private TextureRegion smallButtonReleasedRegion;
+    private TextureRegion smallButtonPressedRegion;
+    private TextureRegion exitIconRegion;
+    private TextureRegion containerRegion;
+    private Container<Table> container;
 
 
     /**
      * Constructor for the {@link ControlsScreen}
+     *
      * @param viewport Viewport
-     * @param batch SpriteBatch
+     * @param batch    SpriteBatch
      */
     public ControlsScreen(Viewport viewport, SpriteBatch batch) {
         stage = new Stage(viewport, batch);
@@ -58,7 +59,7 @@ public class ControlsScreen implements Screen {
      * Loads the textures for the menu from the asset manager
      * and assigns them to the corresponding variables
      */
-    private void loadTextures(){
+    private void loadTextures() {
         TextureAtlas menuAtlas = Assets.getInstance().getAssetManager().get("assets/menu/menu.atlas", TextureAtlas.class);
         TextureAtlas menuIconsAtlas = Assets.getInstance().getAssetManager().get("assets/menu/menu_icons.atlas", TextureAtlas.class);
 
@@ -164,7 +165,7 @@ public class ControlsScreen implements Screen {
         AlignableImageTextButton exitButton = new AlignableImageTextButton("", textButtonStyle, new Image(exitIconRegion), 1.5f);
         exitButton.setImagePadding(5f);
         exitButton.setImageTopPadding(2f);
-        exitButton.addListener(new ClickListener(){
+        exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 clickSound.stop();
@@ -188,7 +189,7 @@ public class ControlsScreen implements Screen {
         /// Set the size of the container to the size of the texture
         container.setSize(665.6f, 728f);
         /// Set container position to center of the screen
-        container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
+        container.setPosition(stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2, stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2);
         container.align(Align.top);
 
         stage.addActor(container);
@@ -198,7 +199,7 @@ public class ControlsScreen implements Screen {
      * Updates the position of the container to the center of the screen
      */
     public void updateContainerPosition() {
-        container.setPosition(stage.getViewport().getWorldWidth()/2f - container.getWidth()/2, stage.getViewport().getWorldHeight()/2f - container.getHeight()/2);
+        container.setPosition(stage.getViewport().getWorldWidth() / 2f - container.getWidth() / 2, stage.getViewport().getWorldHeight() / 2f - container.getHeight() / 2);
     }
 
     @Override

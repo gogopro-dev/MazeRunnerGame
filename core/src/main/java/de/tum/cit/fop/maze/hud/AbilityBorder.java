@@ -17,9 +17,9 @@ public class AbilityBorder {
     private final float x;
     private final float y;
     private final TextureRegion border;
+    private final float borderPadding = 4;
     private Animation<TextureRegion> abilityAnimation;
     private float elapsedTime = 0;
-    private final float borderPadding = 4;
     private boolean withAbility = false;
 
     /**
@@ -46,6 +46,7 @@ public class AbilityBorder {
 
     /**
      * Render active item animation.
+     *
      * @param batch     the batch used for rendering
      * @param deltaTime the delta time
      */
@@ -55,7 +56,7 @@ public class AbilityBorder {
         batch.draw(border, x, y, width, height);
         if (withAbility) {
             batch.draw(abilityAnimation.getKeyFrame(elapsedTime), x + borderPadding, y + borderPadding,
-                    width - borderPadding * 2, height - borderPadding*2);
+                width - borderPadding * 2, height - borderPadding * 2);
         }
     }
 }
