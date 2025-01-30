@@ -44,6 +44,7 @@ public class Player extends Entity {
     private transient Animation<TextureRegion> idleAnimation;
     private transient Animation<TextureRegion> movementAnimation;
     private transient Animation<TextureRegion> attackAnimation;
+    private transient Animation<TextureRegion> dieAnimation;
     private transient Animation<TextureRegion> idleTorchAnimation;
     private transient Animation<TextureRegion> movementTorchAnimation;
     private transient Animation<TextureRegion> currentAnimation;
@@ -62,6 +63,7 @@ public class Player extends Entity {
     private transient PointLight torchLight;
     private transient float shadowWaitElapsedTime;
     //private transient MASound attack
+    private transient float deadElapsedTime = 0f;
 
 
     /**
@@ -131,6 +133,16 @@ public class Player extends Entity {
         TextureRegion currentFrame = (isAttacking ? attackAnimation : currentAnimation)
             .getKeyFrame(isAttacking ? attackElapsedTime : elapsedTime, true);
 
+        /// If the player is dead, play the die animation and hold for 2 seconds
+        if (isDead()){
+            deadElapsedTime += deltaTime;
+            if (deadElapsedTime > dieAnimation.getAnimationDuration() + 2f){
+                LevelScreen.getInstance().hud.setHealthBar(0, maxHealth);
+                LevelScreen.getInstance().endGame(false);
+            }
+            currentFrame = dieAnimation.getKeyFrame(deadElapsedTime, false);
+        }
+
         /// Flip the frame if needed
         if (facingRight && currentFrame.isFlipX()) {
             currentFrame.flip(true, false); // Flip horizontally if facing right
@@ -185,6 +197,10 @@ public class Player extends Entity {
         /// Load hit animation
         attackAnimation = new Animation<>(1f / 30f, animAtlas.findRegions("Character_hit"));
         attackAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        /// Load die animation
+        dieAnimation = new Animation<>(1f / 10f, animAtlas.findRegions("character_die"));
+        dieAnimation.setPlayMode(Animation.PlayMode.NORMAL);
 
         /// Load idle torch animation
         idleTorchAnimation = new Animation<>(1f / 8f, animAtlas.findRegions("Character_idle_torch"));
@@ -337,8 +353,8 @@ public class Player extends Entity {
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) && stamina > 0) {
-            velocityX *= 1.3f + attributes.getSpeedBoost();
-            velocityY *= 1.3f + attributes.getSpeedBoost();
+            velocityX *= 1.2f + attributes.getSpeedBoost();
+            velocityY *= 1.2f + attributes.getSpeedBoost();
             useStamina(2 * Gdx.graphics.getDeltaTime()); // amount of stamina drained per second of running
             staminaRecoveryElapsedTime = 0;
         }
@@ -540,9 +556,6 @@ public class Player extends Entity {
                 LevelScreen.getInstance().hud.setHealthBar(health, maxHealth); /// update health bar
                 return;
             }
-            LevelScreen.getInstance().hud.setHealthBar(0, maxHealth);
-            LevelScreen.getInstance().endGame(false);
-            return;
         }
         LevelScreen.getInstance().hud.takeDmg(damage);
     }

@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import games.rednblack.miniaudio.MASound;
 
 /**
  * Class for the UI of the main menu.</br>
@@ -35,6 +36,7 @@ public class MainMenuScreen implements Screen {
     private final Stage stage;
     private final BitmapFont font;
     private Container<Table> container;
+    private final MASound clickSound;
 
     /**
      * @return The singleton instance of the main menu
@@ -61,6 +63,9 @@ public class MainMenuScreen implements Screen {
         parameter.color = new Color(0xE0E0E0FF);
         font = generator.generateFont(parameter);
         generator.dispose();
+        clickSound = Assets.getInstance().getSound("gui_click");
+        clickSound.setSpatialization(false);
+
 
         /// Create stage for actors
         stage = new Stage(viewport, batch);
@@ -118,6 +123,9 @@ public class MainMenuScreen implements Screen {
         playButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 Menu.getInstance().toggleMenuState(MenuState.PLAY);
             }
         });
@@ -133,7 +141,10 @@ public class MainMenuScreen implements Screen {
         controlsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Menu.getInstance().toggleMenuState(MenuState.CONTROLS);
+            clickSound.stop();
+            clickSound.setLooping(false);
+            clickSound.play();
+            Menu.getInstance().toggleMenuState(MenuState.CONTROLS);
             }
         });
 
@@ -148,6 +159,9 @@ public class MainMenuScreen implements Screen {
         creditsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 Menu.getInstance().toggleMenuState(MenuState.CREDITS);
             }
         });
@@ -162,6 +176,9 @@ public class MainMenuScreen implements Screen {
         settingsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 Menu.getInstance().toggleMenuState(MenuState.SETTINGS);
             }
         });
@@ -180,7 +197,6 @@ public class MainMenuScreen implements Screen {
                 Gdx.app.exit();
             }
         });
-
         mainTable.add(playButton).width(224).height(48).pad(10);
         mainTable.row();
         mainTable.add(creditsButton).width(224).height(48).pad(10);

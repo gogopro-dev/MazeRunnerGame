@@ -17,6 +17,7 @@ import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
+import games.rednblack.miniaudio.MASound;
 
 /**
  * Class for the UI of the game over screen.
@@ -36,6 +37,7 @@ public class GameOverScreen implements Screen {
     private final ShapeRenderer shapeRenderer;
     private final Table screenTable;
     private static GameOverScreen instance;
+    private final MASound clickSound;
 
     /**
      * @return the singleton instance of the {@link GameOverScreen} class
@@ -59,6 +61,9 @@ public class GameOverScreen implements Screen {
         this.inventoryTable = inventoryTable;
         this.textInventoryTable = textInventoryTable;
         stage = new Stage(new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+
+        clickSound = Assets.getInstance().getSound("gui_click");
+        clickSound.setSpatialization(false);
 
         shapeRenderer = new ShapeRenderer();
         screenTable = new Table();
@@ -126,6 +131,9 @@ public class GameOverScreen implements Screen {
         exitButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU, true);
             }
         });
