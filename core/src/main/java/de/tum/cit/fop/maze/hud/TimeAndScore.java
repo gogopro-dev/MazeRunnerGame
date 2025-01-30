@@ -60,4 +60,8 @@ public class TimeAndScore {
         System.out.println(currentScore + " " + elapsedTime);
     }
 
+    public void dispose() {
+        timeAndScoreTable.clear();
+        timeAndScoreTable.remove();
+    }
 }

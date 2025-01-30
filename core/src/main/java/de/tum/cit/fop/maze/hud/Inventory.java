@@ -135,4 +135,10 @@ public class Inventory {
         labelInfo.clear();
         imageInfo.clear();
     }
+
+    public void dispose() {
+        clearInventory();
+        spriteInventory.remove();
+        textInventory.remove();
+    }
 }

@@ -23,21 +23,21 @@ import java.util.List;
 
 import static de.tum.cit.fop.maze.Globals.*;
 
+/**
+ * The UI manager for the game.
+ */
 public class HUD {
     private final Stage stage;
     private final SpriteBatch spriteBatch;
-    private TextureAtlas atlas;
-    private Label.LabelStyle descriptionStyle;
-    public final Table spriteInventory = new Table();
-    public final Table textInventory = new Table();
-    public final Table descriptionTable = new Table();
-    public final Container<Table> descriptionContainer = new Container<>(descriptionTable);
+    private final TextureAtlas atlas;
+    private final Label.LabelStyle descriptionStyle;
     private int invFontSize = 17;
+    final float padding = 10f;
     private final TextureAtlas inventoryAtlas;
     private final ExitArrow exitArrow;
-    private Map<String, Animation<TextureRegion>> animations;
-    float hitElapsedTime = 0;
-    final float padding = 10f;
+    /**
+     * The Hit elapsed time.
+     */
     private final CoinsAndKeys coinsAndKeys;
     private final HpBar healthBar;
     private final StaminaBar staminaBar;
@@ -48,6 +48,11 @@ public class HUD {
     private final AbilityBorder abilityBorder;
 
 
+    /**
+     * Instantiates a new Hud.
+     *
+     * @param player the player
+     */
     public HUD(Player player) {
         this.spriteBatch = LevelScreen.getInstance().batch;
         this.stage =
@@ -93,6 +98,7 @@ public class HUD {
         inventoryStyle.font = createFont(invFontSize, Color.WHITE);
         inventoryAtlas = new TextureAtlas(Gdx.files.local("assets/temporary/collectables/collectables.atlas"));
         inventory = new Inventory(inventoryAtlas, inventoryStyle, stage);
+        setInventory(player.getInventory());
 
 
         atlas = new TextureAtlas(Gdx.files.local("assets/temporary/HUDv2/HUDv2.atlas"));
@@ -116,19 +122,35 @@ public class HUD {
         abilityBorder = new AbilityBorder(stage.getViewport().getWorldWidth()/2, padding, atlas);
     }
 
+    /**
+     * Hide inventory.
+     */
     public void hideInventory() {
         inventory.hideInventory();
     }
 
+    /**
+     * Show inventory.
+     */
     public void showInventory() {
         inventory.showInventory();
     }
 
 
+    /**
+     * Sets item description.
+     *
+     * @param description the description
+     */
     public void setItemDescription(String description) {
         this.description.setItemDescription(description, stage);
     }
 
+    /**
+     * Gets item description.
+     *
+     * @return the item description
+     */
     public String getItemDescription() {
         return description.getItemDescription();
     }
@@ -138,10 +160,18 @@ public class HUD {
         description.updateDescriptionPosition(stage);
     }
 
+    /**
+     * Delete description.
+     */
     public void deleteDescription() {
         description.deleteDescription();
     }
 
+    /**
+     * Heal.
+     *
+     * @param value the value
+     */
     public void heal(int value) {
         healthBar.heal(value);
     }
@@ -150,48 +180,51 @@ public class HUD {
         inventory.updateInventoryPosition();
     }
 
+    /**
+     * Add key.
+     */
     public void addKey() {
         coinsAndKeys.pickUpKey();
     }
 
+    /**
+     * Add coin.
+     *
+     * @param amount the amount
+     */
     public void addCoin(int amount) {
         coinsAndKeys.pickUpCoin(amount);
     }
 
+    /**
+     * Add active item.
+     */
     public void addActiveItem() {
         abilityBorder.addActiveItem();
     }
 
 
+    /**
+     * Add item to inventory.
+     *
+     * @param collectable the collectable
+     */
     public void addItemToInventory(Collectable collectable) {
-//        Collectable.CollectableType collectableType = collectable.getType();
-//        switch (collectableType) {
-//            case HEART:
-//                heal(collectable.getCollectableAttributes().getImmediateHealing());
-//                break;
-//            case KEY:
-//                coinsAndKeys.pickUpKey();
-//                break;
-//            case GOLD_COIN:
-//                coinsAndKeys.pickUpCoin(collectable.getCollectableAttributes().getImmediateCoins());
-//                break;
-//            default:
         inventory.addItemToInventory(collectable);
-//                break;
-
-//        }
-
-
     }
     private void updateTimeAndScorePosition() {
         timeAndScore.updateLabelTablePosition();
     }
 
+    /**
+     * Take dmg.
+     *
+     * @param receivedDmg the received dmg
+     */
     public void takeDmg(int receivedDmg) {
         if (receivedDmg <= 0) {
             return;
         }
-        hitElapsedTime = 0f;
         healthBar.takeDmg(receivedDmg);
     }
 
@@ -217,12 +250,28 @@ public class HUD {
         return generator.generateFont(parameter);
     }
 
+    /**
+     * Dispose.
+     */
     public void dispose() {
+
         atlas.dispose();
         stage.dispose();
+        inventory.dispose();
+        inventoryAtlas.dispose();
+        description.dispose();
+        healthBar.dispose();
+        staminaBar.dispose();
+        timeAndScore.dispose();
+        coinsAndKeys.dispose();
     }
 
 
+    /**
+     * Render.
+     *
+     * @param deltaTime the delta time
+     */
     public void render(float deltaTime) {
         updateLabels();
         stage.act();
@@ -239,10 +288,16 @@ public class HUD {
     }
 
 
+    /**
+     * Show.
+     */
     public void show() {
         Gdx.input.setInputProcessor(this.stage);
     }
 
+    /**
+     * Resize.
+     */
     public void resize() {
         stage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
         updateTimeAndScorePosition();
@@ -251,22 +306,49 @@ public class HUD {
         exitArrow.updateArrowPosition(stage);
     }
 
+    /**
+     * Gets formatted time.
+     *
+     * @return the formatted time
+     */
     public String getFormattedTime() {
         return timeAndScore.formatedTime().replace("Time: ", "");
     }
 
+    /**
+     * Sets health bar.
+     *
+     * @param health    the health
+     * @param maxHealth the max health
+     */
     public void setHealthBar(int health, int maxHealth) {
         healthBar.setHealthBar(health, maxHealth);
     }
 
+    /**
+     * Gets health.
+     *
+     * @return the health
+     */
     public int getHealth() {
         return healthBar.getHealth();
     }
 
+    /**
+     * Remove item from inventory boolean.
+     *
+     * @param collectable the collectable
+     * @return the boolean
+     */
     public boolean removeItemFromInventory(Collectable collectable) {
         return inventory.removeItemFromInventory(collectable);
     }
 
+    /**
+     * Update inventory.
+     *
+     * @param inventory the inventory
+     */
     public void updateInventory(List<Collectable> inventory) {
         this.inventory.clearInventory();
         for (Collectable collectable : inventory) {
@@ -274,8 +356,16 @@ public class HUD {
         }
     }
 
+
     public Inventory getInventory() {
         return inventory;
+    }
+
+    public void setInventory(List<Collectable> inventory) {
+        this.inventory.clearInventory();
+        for (Collectable collectable : inventory) {
+            addItemToInventory(collectable);
+        }
     }
 }
 

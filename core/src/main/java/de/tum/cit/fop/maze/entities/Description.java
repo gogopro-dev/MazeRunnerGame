@@ -71,4 +71,12 @@ public class Description {
     public boolean isDescriptionSet() {
         return !descriptionTable.getChildren().isEmpty();
     }
+
+    public void dispose() {
+
+        descriptionContainer.clear();
+        descriptionTable.clear();
+        descriptionTable.remove();
+        descriptionContainer.remove();
+    }
 }

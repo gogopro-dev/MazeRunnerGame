@@ -85,4 +85,8 @@ public class StaminaBar {
         draw(batch, deltaTime);
     }
 
+    public void dispose() {
+        staminaBarBorder.getTexture().dispose();
+    }
+
 }

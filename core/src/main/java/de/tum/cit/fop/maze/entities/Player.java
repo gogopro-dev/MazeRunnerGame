@@ -298,11 +298,9 @@ public class Player extends Entity {
             torchLight.setDistance(0);
             torchLight.setActive(isHoldingTorch);
         }
-
-
         if (Gdx.input.isKeyJustPressed(Input.Keys.Q) && this.activeItem != null && stamina > maxStamina / 3) {
             this.activeItem.use();
-            useStamina(maxStamina / 3);
+            useStamina(maxStamina / 2);
 
         }
 
@@ -352,14 +350,13 @@ public class Player extends Entity {
         if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) && stamina > 0) {
             velocityX *= 1.2f + attributes.getSpeedBoost();
             velocityY *= 1.2f + attributes.getSpeedBoost();
-            useStamina(2 * Gdx.graphics.getDeltaTime()); // amount of stamina drained per second of running
+            useStamina(14 * Gdx.graphics.getDeltaTime()); // amount of stamina drained per second of running
             staminaRecoveryElapsedTime = 0;
         }
 
         if (!Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
             if (staminaRecoveryElapsedTime > 2f) {
-                int staminaRecoveryPerSec = 2;
-                restoreStamina(staminaRecoveryPerSec);
+                restoreStamina(14 * Gdx.graphics.getDeltaTime());
             } else {
                 staminaRecoveryElapsedTime += Gdx.graphics.getDeltaTime();
             }
@@ -595,7 +592,7 @@ public class Player extends Entity {
             stamina = maxStamina;
             return;
         }
-        super.restoreStamina(amount * Gdx.graphics.getDeltaTime());
+        super.restoreStamina(amount);
     }
 
     /**
