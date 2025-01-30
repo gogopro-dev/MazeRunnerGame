@@ -225,6 +225,9 @@ public class Menu implements Screen {
             case MAIN_MENU:
                 if (fadeOverlay.isFinishedIn() || fadeOverlay.isFinishedOut()) {
                     if (menuState != MenuState.GAME_SCREEN && LevelScreen.getInstance() != null) {
+                        mainMenuMusic.stop();
+                        mainMenuMusic.fadeIn(1000);
+                        mainMenuMusic.play();
                         LevelScreen.getInstance().fadeOutMusic();
                         LevelScreen.getInstance().saveGame();
                         LevelScreen.getInstance().dispose();
