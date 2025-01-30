@@ -148,4 +148,7 @@ it has the following subclasses:
 
 In `assets/configs` you can change some attributes (Enemy health, enemy damage) and so on, if ever desired.
 
-## 
+## Music
+
+It doesn't start RIGHT away when you start playing the came and won't be always playing. It only does so when you
+face a danger (enemy) and with some cooldown after the first music track has been played.
