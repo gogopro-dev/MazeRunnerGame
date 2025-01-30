@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-import static de.tum.cit.fop.maze.essentials.Globals.*;
+import static de.tum.cit.fop.maze.Globals.*;
 
 /**
  * Creates the Settings screen.</br>

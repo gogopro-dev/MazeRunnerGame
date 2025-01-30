@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.Array;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
-import de.tum.cit.fop.maze.essentials.Globals;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,8 +68,7 @@ public class Enemy extends Entity implements Attackable {
     }
 
     /**
-     * Renders enemy
-     *
+     * Renders the enemy
      * @param deltaTime delta time
      */
     @Override

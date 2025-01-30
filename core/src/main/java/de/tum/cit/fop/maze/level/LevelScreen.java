@@ -14,6 +14,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FillViewport;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.Enemy;
 import de.tum.cit.fop.maze.entities.EnemyType;
 import de.tum.cit.fop.maze.entities.EntityPathfinder;
@@ -36,7 +37,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static de.tum.cit.fop.maze.essentials.Globals.*;
+import static de.tum.cit.fop.maze.Globals.*;
 
 /**
  * The main game screen

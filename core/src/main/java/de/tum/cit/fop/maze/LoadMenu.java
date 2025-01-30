@@ -12,7 +12,7 @@ import games.rednblack.miniaudio.MiniAudio;
 
 import java.io.IOException;
 
-import static de.tum.cit.fop.maze.essentials.Globals.*;
+import static de.tum.cit.fop.maze.Globals.*;
 
 /**
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.

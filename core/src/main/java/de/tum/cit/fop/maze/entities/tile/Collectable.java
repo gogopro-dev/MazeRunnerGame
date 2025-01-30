@@ -14,6 +14,7 @@ import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.utils.Array;
 import com.google.gson.JsonSyntaxException;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.*;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import games.rednblack.miniaudio.MASound;
@@ -38,6 +39,8 @@ public class Collectable extends TileEntity {
     private transient Animation<TextureRegion> idleAnimation;
     private transient float dropPathLength = 0f;
     private transient float dropElapsedTime = 0f;
+    /// Joint used to push the collectable on its drop path
+    /// (required to be joint because body.setPosition ignores all collisions)
     private transient PrismaticJoint joint;
     private transient boolean descriptionIsShown = false;
     private final transient CircleShape circleShape;

@@ -28,8 +28,8 @@ import games.rednblack.miniaudio.MASound;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static de.tum.cit.fop.maze.essentials.Globals.DEFAULT_SCREEN_HEIGHT_WINDOWED;
-import static de.tum.cit.fop.maze.essentials.Globals.DEFAULT_SCREEN_WIDTH_WINDOWED;
+import static de.tum.cit.fop.maze.Globals.DEFAULT_SCREEN_HEIGHT_WINDOWED;
+import static de.tum.cit.fop.maze.Globals.DEFAULT_SCREEN_WIDTH_WINDOWED;
 
 /**
  * Class for the pause screen.</br>

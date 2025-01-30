@@ -7,11 +7,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.essentials.*;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import games.rednblack.miniaudio.MASound;
 
-import static de.tum.cit.fop.maze.essentials.Globals.*;
+import static de.tum.cit.fop.maze.Globals.*;
 
 /**
  * Torch tile entity.

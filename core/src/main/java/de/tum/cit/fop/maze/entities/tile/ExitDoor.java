@@ -13,7 +13,7 @@ import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import games.rednblack.miniaudio.MASound;
 
-import static de.tum.cit.fop.maze.essentials.Globals.CELL_SIZE_METERS;
+import static de.tum.cit.fop.maze.Globals.CELL_SIZE_METERS;
 
 /**
  * ExitDoor class represents the exit door in the game.

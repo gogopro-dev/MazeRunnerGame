@@ -63,23 +63,9 @@ public class CoinsAndKeys {
     }
 
     /**
-     * Pick up coin.
-     *
-     * @param value the value
-     */
-    public void pickUpCoin(int value) {
-
-        coins.setText(": " + LevelScreen.getInstance().player.getGold());
-        coinsAndKeysTable.setPosition(x + coinsAndKeysTable.getPrefWidth() / 2,
-            y - coinsAndKeysTable.getPrefHeight() / 2);
-
-    }
-
-    /**
      * Pick up key.
      */
     public void pickUpKey() {
-//  .width(keyWidth).height(keyHeight)
         coinsAndKeysTable.add(new Image(keysIcon)).width(keysIcon.getMinWidth()).height(keysIcon.getMinHeight());
         coinsAndKeysTable.setPosition(x + coinsAndKeysTable.getPrefWidth() / 2,
             y - coinsAndKeysTable.getPrefHeight() / 2);

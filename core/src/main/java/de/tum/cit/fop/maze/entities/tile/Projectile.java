@@ -5,9 +5,9 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import de.tum.cit.fop.maze.essentials.BodyBits;
-import de.tum.cit.fop.maze.essentials.Globals;
+import de.tum.cit.fop.maze.Globals;
 
-import static de.tum.cit.fop.maze.essentials.Globals.TRAP_SAFETY_PADDING;
+import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
 
 /**
  * The Projectile class represents a dynamic entity in the game world that moves
