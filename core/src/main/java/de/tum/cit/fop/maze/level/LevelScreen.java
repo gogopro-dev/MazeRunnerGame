@@ -261,9 +261,6 @@ public class LevelScreen implements Screen {
         /// Check if the game should end
         if (endGame) {
             pauseScreen.takeScreenshot();
-            GameOverScreen.getInstance().drawInventory(
-                hud.getInventory().spriteInventory, hud.getInventory().textInventory
-            );
             GameOverScreen.getInstance().setTimePlayed(hud.getFormattedTime());
             GameOverScreen.getInstance().setScore(levelData.getScore());
             gameOver = true;
@@ -349,7 +346,6 @@ public class LevelScreen implements Screen {
         enemyManager.dispose();
         tileEntityManager.dispose();
         pauseScreen.dispose();
-        hud.dispose();
         rayHandler.dispose();
         world.dispose();
         debugRenderer.dispose();

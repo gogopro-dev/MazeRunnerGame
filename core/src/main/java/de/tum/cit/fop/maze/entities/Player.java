@@ -94,7 +94,6 @@ public class Player extends Entity {
      */
     @Override
     protected void render(float deltaTime) {
-        /// TODO Stamina regeneration?
         elapsedTime += deltaTime;
         Assets.getInstance().soundEngine.setListenerPosition(getPosition().x(), getPosition().y(), 0);
         if (isHoldingTorch) {

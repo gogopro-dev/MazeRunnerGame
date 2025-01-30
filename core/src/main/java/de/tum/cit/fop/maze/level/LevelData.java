@@ -1,5 +1,9 @@
 package de.tum.cit.fop.maze.level;
 
+/**
+ * Represents the data of a level.
+ * The data includes the score and the playtime.
+ */
 public class LevelData {
     private int score = 1000;
     private float playtime = 0f;

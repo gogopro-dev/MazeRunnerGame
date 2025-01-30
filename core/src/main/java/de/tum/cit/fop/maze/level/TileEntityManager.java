@@ -17,20 +17,38 @@ public class TileEntityManager implements Disposable {
     private transient boolean loaded = false;
     private ArrayList<TileEntity> tileEntities = new ArrayList<TileEntity>();
 
+    /**
+     * Create a new tile entity manager.
+     * @param tileEntity The tile entity to create
+     * @param position The position to create the tile entity at
+     */
     public void createTileEntity(TileEntity tileEntity, AbsolutePoint position) {
         createTileEntity(tileEntity, position.x(), position.y());
     }
 
+    /**
+     * Create a new tile entity.
+     * @param tileEntity The tile entity to create
+     * @param x The x position to create the tile entity at
+     * @param y The y position to create the tile entity at
+     */
     public void createTileEntity(TileEntity tileEntity, float x, float y) {
         tileEntities.add(tileEntity);
         tileEntity.spawn(x, y);
     }
 
+    /**
+     * Destroy a tile entity.
+     * @param tileEntity The tile entity to destroy
+     */
     private void destroyTileEntity(TileEntity tileEntity) {
         tileEntity.dispose();
     }
 
-
+    /**
+     * Render the tile entities.
+     * @param delta The time since the last frame
+     */
     public void render(float delta) {
         boolean isAnyActiveTraps = false;
         TileEntity[] tileEntityPrimitive = tileEntities.toArray(new TileEntity[0]);

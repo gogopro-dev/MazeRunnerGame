@@ -38,21 +38,13 @@ public class GameOverScreen implements Screen {
     private Label timePlayedLabel;
     private Label scoreLabel;
     private Label gameOverLabel;
-    private Table inventoryTable;
-    private Table textInventoryTable;
-    private Stack inventoryStack;
 
     /**
      * Private constructor to prevent instantiation from outside the class</br>
      * This constructor initializes the {@link Stage} object and the {@link ShapeRenderer} object.
-     *
-     * @param inventoryTable     Table
-     * @param textInventoryTable Table
      */
-    private GameOverScreen(Table inventoryTable, Table textInventoryTable) {
+    private GameOverScreen() {
         instance = this;
-        this.inventoryTable = inventoryTable;
-        this.textInventoryTable = textInventoryTable;
         stage = new Stage(new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
 
         clickSound = Assets.getInstance().getSound("gui_click");
@@ -71,7 +63,7 @@ public class GameOverScreen implements Screen {
      */
     public static synchronized GameOverScreen getInstance() {
         if (instance == null) {
-            return new GameOverScreen(new Table(), new Table());
+            return new GameOverScreen();
         }
         return instance;
     }
@@ -141,21 +133,10 @@ public class GameOverScreen implements Screen {
             }
         });
 
-        /// Create label for inventory
-        labelStyle = new Label.LabelStyle();
-        parameter.size = 22;
-        parameter.color = new Color(0xE0E0E077);
-        labelStyle.font = generator.generateFont(parameter);
-        Label inventoryLabel = new Label("Your game ended\nwith these items:", labelStyle);
-
-        inventoryStack = new Stack();
-
         screenTable.add(gameOverLabel).padTop(10f).row();
-        screenTable.add(timePlayedLabel).padTop(20f).row();
-        screenTable.add(scoreLabel).padTop(20f).row();
-        screenTable.add(inventoryLabel).padTop(20f).row();
-        screenTable.add(inventoryStack).padTop(10f).row();
-        screenTable.add(exitButton).padTop(20f).width(224f * 1.2f).height(48f * 1.2f).row();
+        screenTable.add(timePlayedLabel).padTop(30f).row();
+        screenTable.add(scoreLabel).padTop(30f).row();
+        screenTable.add(exitButton).padTop(40f).width(224f * 1.2f).height(48f * 1.2f).row();
 
 
         stage.addActor(screenTable);
@@ -196,22 +177,6 @@ public class GameOverScreen implements Screen {
         );
         // Update shapeRenderer projection matrix
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
-    }
-
-    /**
-     * Draws the inventory of the player
-     * on the game over screen
-     *
-     * @param inventoryTable     Table that contains the inventory images
-     * @param textInventoryTable Table that contains the inventory text (how many items of each type)
-     */
-    public void drawInventory(Table inventoryTable, Table textInventoryTable) {
-        inventoryTable.setVisible(true);
-        textInventoryTable.setVisible(true);
-        this.inventoryTable = inventoryTable;
-        this.textInventoryTable = textInventoryTable;
-        inventoryStack.add(this.inventoryTable);
-        inventoryStack.add(this.textInventoryTable);
     }
 
     /**
