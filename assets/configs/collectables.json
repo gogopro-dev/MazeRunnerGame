@@ -61,7 +61,8 @@
     "resurrections": 1,
     "frameDuration": 0.1,
     "description": "A magical amulet that can bring you back from the dead.\n It's a one-time use item, so use it wisely.",
-    "shopPool": true
+    "shopPool": true,
+    "shopPrice": 200
   },
   {
     "type": "VAMPIRE_AMULET",
@@ -69,7 +70,8 @@
     "vampirism": 0.15,
     "frameDuration": 0.1,
     "description": "A mysterious amulet that gives you the chance to heal yourself by dealing damage to your enemies.",
-    "shopPool": true
+    "shopPool": true,
+    "shopPrice": 250
   },
   {
     "type": "SPEED_BOOTS",
@@ -77,7 +79,8 @@
     "speedBoost": 0.15,
     "frameDuration": 0.1,
     "description": "A pair of boots that make you feel like you're walking on air, giving you a speed boost.",
-    "shopPool": true
+    "shopPool": true,
+    "shopPrice": 150
   },
   {
     "type": "KEY",
