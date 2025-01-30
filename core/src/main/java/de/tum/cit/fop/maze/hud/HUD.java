@@ -248,10 +248,8 @@ public class HUD {
      */
     public void dispose() {
 
-        atlas.dispose();
         stage.dispose();
         inventory.dispose();
-        inventoryAtlas.dispose();
         description.dispose();
         healthBar.dispose();
         staminaBar.dispose();

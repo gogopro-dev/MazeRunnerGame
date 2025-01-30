@@ -34,3 +34,20 @@ Useful Gradle tasks and flags:
 
 Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
 For example, `core:clean` removes `build` folder only from the `core` project.
+
+
+
+
+# CLASS HIERARCHY
+
+## HUD
+`HUD` is the main class that handles the HUD of the game. It manages all thw widget subclasses each dispaying a certain part of HUD. It also interacts with outer classes such as Player and Collectable in order to update the HUD widgets.
+- health `HpBar`
+- stamina `StaminaBar`
+- time spent in a run and score `TimeAndScore`
+- collected keys and coins `Inventory`
+- direction arrow that points to the exit from the labyrinth `ExitArrow` 
+- inventory of the player `Inventory`
+- descriptions of items on floor near player `Description`
+- slots for active items `AbilityBorder`
+- methods that update the HUD widgets positions and draw them on the screen in `HUD`
