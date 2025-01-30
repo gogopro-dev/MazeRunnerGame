@@ -39,13 +39,11 @@ public class ActiveItem implements GSONPostRestorable {
     }
 
 
-    float animationTimer = 0;
-    private boolean projectileFacingRight = true;
     private final Collectable collectable;
     private final ActiveItemProperties properties;
-    private MASound soundUse;
-    private MASound soundDestroy;
-    private ArrayList<UseRecord> uses = new ArrayList<>();
+    private transient MASound soundUse;
+    private transient MASound soundDestroy;
+    private final ArrayList<UseRecord> uses = new ArrayList<>();
 
     public enum ActiveItemType {
         FIREBALL
