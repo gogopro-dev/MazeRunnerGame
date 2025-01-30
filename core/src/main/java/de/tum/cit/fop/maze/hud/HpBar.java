@@ -13,6 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Health bar class for the player.
+ */
 public class HpBar {
 
     private List<Image> healthImages;
@@ -40,6 +43,14 @@ public class HpBar {
     private float spacing = 4 * scaling;
 
 
+    /**
+     * Instantiates a new Hp bar.
+     *
+     * @param x            the x coordinate
+     * @param y            the y coordinate
+     * @param textureAtlas the texture atlas
+     * @param stage        the stage
+     */
     public HpBar(float x, float y, TextureAtlas textureAtlas, Stage stage) {
 
         this.x = x + staminaIconWidth;
@@ -63,6 +74,12 @@ public class HpBar {
         stage.addActor(healthBar);
     }
 
+    /**
+     * Create hp bar.
+     *
+     * @param health    the health
+     * @param maxHealth the max health
+     */
     public void createHpBar(int health, int maxHealth) {
         this.health = health;
         this.maxHealth = maxHealth;
@@ -82,43 +99,14 @@ public class HpBar {
         stage.addActor(healthBar);
     }
 
-//    public void updateHpBar(int health, int maxHealth, boolean isDamaged) {
-//        this.health = health;
-//        this.maxHealth = maxHealth;
-//
-//        if (isDamaged) {
-//            for (int i = health; i < health + receivedDamage; i++) {
-//                if (i % 2 == 0) {
-//                    Drawable drawable = new TextureRegionDrawable(staticHealthLEmpty);
-//                    drawable.setMinWidth(healthImages.get(i).getWidth());
-//                    drawable.setMinHeight(healthImages.get(i).getHeight());
-//                    healthImages.get(i).setDrawable(drawable);
-//                } else {
-//                    Drawable drawable = new TextureRegionDrawable(staticHealthREmpty);
-//                    drawable.setMinWidth(healthImages.get(i).getWidth());
-//                    drawable.setMinHeight(healthImages.get(i).getHeight());
-//                    healthImages.get(i).setDrawable(drawable);
-//                }
-//            }
-//        }
-//
-//        else{
-//            for (int i = health - receivedDamage; i < health; i++) {
-//                if (i % 2 == 0) {
-//                    Drawable drawable = new TextureRegionDrawable(staticHealthLFull);
-//                    drawable.setMinWidth(healthImages.get(i).getWidth());
-//                    drawable.setMinHeight(healthImages.get(i).getHeight());
-//                    healthImages.get(i).setDrawable(drawable);
-//                } else {
-//                    Drawable drawable = new TextureRegionDrawable(staticHealthRFull);
-//                    drawable.setMinWidth(healthImages.get(i).getWidth());
-//                    drawable.setMinHeight(healthImages.get(i).getHeight());
-//                    healthImages.get(i).setDrawable(drawable);
-//                }
-//            }
-//        }
-//    }
-
+    /**
+     * Update existing hp bar.
+     *
+     * @param health    the health
+     * @param maxHealth the max health
+     * @param isDamage  the is damage
+     * @param value     the value
+     */
     public void updateHpBar(int health, int maxHealth, Boolean isDamage, int value){
 
         if (isDamage == null){
@@ -174,6 +162,11 @@ public class HpBar {
         }
     }
 
+    /**
+     * Heal.
+     *
+     * @param value the value
+     */
     public void heal(int value){
         if (health + value > maxHealth){
             value = maxHealth - health;
@@ -182,6 +175,11 @@ public class HpBar {
         health += value;
     }
 
+    /**
+     * Take dmg.
+     *
+     * @param damage the damage
+     */
     public void takeDmg(int damage) {
         if (health - damage < 0) {
             receivedDamage = health;
@@ -227,6 +225,12 @@ public class HpBar {
                 && healthLNoDMG.isAnimationFinished(hitElapsedTime);
     }
 
+    /**
+     * Render.
+     *
+     * @param deltaTime the delta time
+     * @param batch     the batch
+     */
     public void render(float deltaTime, SpriteBatch batch) {
         elapsedTime += deltaTime;
         if (gotHit) {
@@ -237,40 +241,83 @@ public class HpBar {
             }
         }
     }
+
+    /**
+     * Gets health.
+     *
+     * @return the health
+     */
     public int getHealth() {
         return health;
     }
 
+    /**
+     * Gets size.
+     *
+     * @return the size
+     */
     public int getSize() {
         return healthBar.getChildren().size;
     }
 
+    /**
+     * Coordinates list.
+     *
+     * @return the list
+     */
     public List<Integer> coordinates() {
         return List.of((int) x, (int) y);
     }
 
+    /**
+     * Remove hp bar.
+     */
     public void removeHpBar() {
         healthBar.clear();
     }
 
+    /**
+     * Gets x coordinate.
+     *
+     * @return the x
+     */
     public float getX() {
         return x;
     }
 
+    /**
+     * Gets y coordinate.
+     *
+     * @return the y
+     */
     public float getY() {
         return y - healthBar.getPrefHeight();
     }
-    public void setScaling(float scaling) {
-        this.scaling = scaling;
-        spacing = 5 * scaling;
-    }
+
+    /**
+     * Gets width.
+     *
+     * @return the width
+     */
     public float getWidth() {
         return healthBar.getPrefWidth();
     }
+
+    /**
+     * Gets height.
+     *
+     * @return the height
+     */
     public float getHeight() {
         return healthBar.getPrefHeight();
     }
 
+    /**
+     * Sets health bar.
+     *
+     * @param health    the health
+     * @param maxHealth the max health
+     */
     public void setHealthBar(int health, int maxHealth) {
 
         this.maxHealth = maxHealth;
@@ -278,5 +325,15 @@ public class HpBar {
         this.gotHit = false;
         this.elapsedTime = 0;
         createHpBar(health, maxHealth);
+    }
+
+    /**
+     * Dispose.
+     */
+    public void dispose(){
+
+        healthBar.clear();
+        healthImages.clear();
+        healthBar.remove();
     }
 }
