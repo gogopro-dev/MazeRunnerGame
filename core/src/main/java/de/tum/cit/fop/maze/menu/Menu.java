@@ -113,7 +113,6 @@ public class Menu implements Screen {
         menuState = state;
 
         Gdx.input.setInputProcessor(null);
-        System.out.println("Switching to " + menuState);
 
         switch (menuState){
             case GAME_SCREEN:

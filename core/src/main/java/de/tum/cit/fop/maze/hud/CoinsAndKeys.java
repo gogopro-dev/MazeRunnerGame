@@ -11,7 +11,9 @@ import de.tum.cit.fop.maze.level.LevelScreen;
 
 
 /**
- * The type Coins and keys.
+ * The CoinsAndKeys class represents a visual component that displays the player's
+ * collected coins and keys in the user interface. This component is constructed using
+ * a table and is added to a stage for rendering.
  */
 public class CoinsAndKeys {
     private final Table coinsAndKeysTable = new Table();

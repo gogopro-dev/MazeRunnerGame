@@ -23,7 +23,7 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
 
     protected AbsolutePoint savedPosition;
     protected transient final float scale = 4 * Globals.MPP;
-    /// Entity movement speed (in chicken per second)
+    /// Entity movement speed
     protected transient float entitySpeed = 7f;
     protected transient Body body;
     protected transient BodyDef.BodyType bodyType = BodyDef.BodyType.DynamicBody;

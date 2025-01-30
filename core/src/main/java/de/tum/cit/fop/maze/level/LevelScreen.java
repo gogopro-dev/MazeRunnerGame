@@ -84,7 +84,7 @@ public class LevelScreen implements Screen {
     public transient final MiniAudio sound;
     private transient ArrayList<MASound> gameplayMusic;
     private transient int currentMusicIndex = 0;
-    private transient float musicDelayActive = 30;
+    private transient float musicDelayActive = 0;
     private transient MASound currentMusic = null;
     private transient boolean isMusicPaused = false;
     private transient boolean allMusicStopped = false;

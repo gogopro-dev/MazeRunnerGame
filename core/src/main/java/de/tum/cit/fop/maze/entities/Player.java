@@ -78,6 +78,7 @@ public class Player extends Entity {
      */
     public Player() {
         super();
+        this.entitySpeed = 6f;
         this.mass = 5f;
         inventory = new ArrayList<>();
         health = 40;
@@ -96,7 +97,6 @@ public class Player extends Entity {
      */
     @Override
     protected void render(float deltaTime) {
-        System.out.println(this.isBeingChased());
         /// TODO Stamina regeneration?
         elapsedTime += deltaTime;
         Assets.getInstance().soundEngine.setListenerPosition(getPosition().x(), getPosition().y(), 0);
@@ -311,7 +311,6 @@ public class Player extends Entity {
         AtomicBoolean anyAttacked = new AtomicBoolean(false);
         LevelScreen.getInstance().world.QueryAABB(
             fixture -> {
-                System.out.println("Fixture detected: " + fixture);
                 /// Do not permit a self-harm attempt ^_^
                 if (fixture.getBody().getUserData() instanceof Player) {
                     return true;
@@ -332,7 +331,6 @@ public class Player extends Entity {
                         )
                     );
                 }
-                System.out.println("Hit " + fixture.getBody().getUserData());
                 return true;
             },
             rectangleStart.x(), rectangleStart.y(), rectangleEnd.x(), rectangleEnd.y()

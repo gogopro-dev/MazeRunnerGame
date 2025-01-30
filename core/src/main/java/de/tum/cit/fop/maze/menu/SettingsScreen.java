@@ -157,7 +157,6 @@ public class SettingsScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Assets.getInstance().music.setVolume(sliderMusic.getValue());
-                System.out.println("MUSIC value: " + sliderMusic.getValue());
                 SettingsConfiguration.getInstance().setMusicVolume(sliderMusic.getValue());
             }
         });
@@ -190,7 +189,6 @@ public class SettingsScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Assets.getInstance().sfx.setVolume(sliderSFX.getValue());
-                System.out.println("SFX value: " + sliderSFX.getValue());
                 SettingsConfiguration.getInstance().setSfxVolume(sliderSFX.getValue());
             }
         });

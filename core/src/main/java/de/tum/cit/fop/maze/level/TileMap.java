@@ -100,12 +100,10 @@ public class TileMap implements Disposable, GSONPostRestorable {
         this.width = this.generator.width * 3;
         this.height = this.generator.height * 3;
         this.tileEntityManager = LevelScreen.getInstance().tileEntityManager;
-        System.out.println(generator);
         widthMeters = this.width * CELL_SIZE_METERS;
         heightMeters = this.height * CELL_SIZE_METERS;
         wallMap = new boolean[this.height][this.width];
         createDebugLayer();
-        System.out.println(generator);
 
         ///  Dimensions x3 since we want to have 3x3 tiles for each cell,
         ///  so we create larger environment for fights, etc.
@@ -122,7 +120,6 @@ public class TileMap implements Disposable, GSONPostRestorable {
         @SuppressWarnings("unchecked") List<CollectableAttributes> treasurePool =
             (List<CollectableAttributes>) Assets.getInstance().getTreasurePool().clone();
 
-        // System.out.println(generator);
         // Paddings to account for surrounding walls
         int startI = 2;
         int startJ = 1;
@@ -584,7 +581,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
      * @param fixtureDef the fixture definition
      */
     private void createRectangularHitbox(float x, float y, float hx, float hy, @Nullable FixtureDef fixtureDef) {
-        // System.out.println("Creating hitbox at " + x + " " + y + " " + hx + " " + hy + " With cell size " + CELL_SIZE_METERS); ;
+
         hx *= CELL_SIZE_METERS / 2;
         hy *= CELL_SIZE_METERS / 2;
         x = x * CELL_SIZE_METERS + hx;
@@ -636,7 +633,6 @@ public class TileMap implements Disposable, GSONPostRestorable {
             int y = -1;
             int hy = 0;
             for (int i = 0; i < height; i += 3) {
-                // System.out.println("Checking " + i + " " + j + " " + wallMap[i][j]);
                 if (wallMap[i][j]) {
                     if (y == -1) {
                         y = i;

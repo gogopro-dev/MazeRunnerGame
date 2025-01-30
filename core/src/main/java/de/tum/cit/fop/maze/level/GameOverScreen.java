@@ -44,7 +44,6 @@ public class GameOverScreen implements Screen {
      */
     public static synchronized GameOverScreen getInstance() {
         if (instance == null) {
-            System.out.println("Creating new GameOverScreen");
             return new GameOverScreen(new Table(), new Table());
         }
         return instance;

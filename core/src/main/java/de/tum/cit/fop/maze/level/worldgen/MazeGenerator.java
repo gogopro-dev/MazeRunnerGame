@@ -223,7 +223,6 @@ public final class MazeGenerator {
         }
         generateTraps();
         generateExit();
-        System.out.println(this);
     }
 
     private void generateTraps() {
@@ -521,7 +520,6 @@ public final class MazeGenerator {
                     } else {
                         grid.get(i - 1).get(j).setCellType(CellType.PATH);
                     }
-                    System.out.println("Fixing double walls");
                 }
 
             }
