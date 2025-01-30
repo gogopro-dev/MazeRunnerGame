@@ -18,7 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import de.tum.cit.fop.maze.Assets;
+import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import games.rednblack.miniaudio.MASound;
 

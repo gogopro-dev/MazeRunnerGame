@@ -4,12 +4,10 @@ package de.tum.cit.fop.maze.essentials;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
-import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.util.function.Function;
 
 /**

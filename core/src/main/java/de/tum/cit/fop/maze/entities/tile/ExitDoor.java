@@ -7,13 +7,13 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
-import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.BodyBits;
+import de.tum.cit.fop.maze.essentials.Assets;
+import de.tum.cit.fop.maze.essentials.BodyBits;
 import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import games.rednblack.miniaudio.MASound;
 
-import static de.tum.cit.fop.maze.Globals.*;
+import static de.tum.cit.fop.maze.essentials.Globals.*;
 
 /**
  * ExitDoor class represents the exit door in the game.

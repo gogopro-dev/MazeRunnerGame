@@ -8,14 +8,14 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import de.tum.cit.fop.maze.Assets;
+import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.entities.Player;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 import java.util.List;
 
-import static de.tum.cit.fop.maze.Globals.*;
+import static de.tum.cit.fop.maze.essentials.Globals.*;
 
 /**
  * The UI manager for the game.

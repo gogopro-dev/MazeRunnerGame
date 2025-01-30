@@ -3,12 +3,11 @@ package de.tum.cit.fop.maze.level;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.PixmapIO;
 import com.google.gson.Gson;
-import de.tum.cit.fop.maze.Assets;
+import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Watchable;
 
 /**
  * Singleton class for saving the game state and settings to a .json file

@@ -4,13 +4,13 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Disposable;
-import de.tum.cit.fop.maze.BodyBits;
-import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.BodyBits;
+import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
-import de.tum.cit.fop.maze.essentials.GSONPostRestorable;
+import de.tum.cit.fop.maze.gson.GSONPostRestorable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
-import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
+import static de.tum.cit.fop.maze.essentials.Globals.TRAP_SAFETY_PADDING;
 
 /**
  * This class represents a tile entity in the game.

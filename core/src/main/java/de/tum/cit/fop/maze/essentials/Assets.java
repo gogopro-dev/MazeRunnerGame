@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze;
+package de.tum.cit.fop.maze.essentials;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
@@ -8,9 +8,10 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.Disposable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import de.tum.cit.fop.maze.ActiveItem;
+import de.tum.cit.fop.maze.LoadMenu;
 import de.tum.cit.fop.maze.entities.Enemy;
 import de.tum.cit.fop.maze.entities.tile.*;
-import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 import de.tum.cit.fop.maze.gson.RuntimeTypeAdapterFactory;
 import de.tum.cit.fop.maze.level.TileMap;
 import games.rednblack.miniaudio.MAGroup;

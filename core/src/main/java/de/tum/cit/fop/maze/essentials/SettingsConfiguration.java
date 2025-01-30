@@ -1,7 +1,7 @@
 package de.tum.cit.fop.maze.essentials;
 
-import static de.tum.cit.fop.maze.Globals.CURRENT_SCREEN_HEIGHT_WINDOWED;
-import static de.tum.cit.fop.maze.Globals.CURRENT_SCREEN_WIDTH_WINDOWED;
+import static de.tum.cit.fop.maze.essentials.Globals.CURRENT_SCREEN_HEIGHT_WINDOWED;
+import static de.tum.cit.fop.maze.essentials.Globals.CURRENT_SCREEN_WIDTH_WINDOWED;
 
 /**
  * Singleton class that holds the settings configuration of the game.

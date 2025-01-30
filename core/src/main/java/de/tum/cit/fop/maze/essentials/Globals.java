@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze;
+package de.tum.cit.fop.maze.essentials;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -11,7 +11,7 @@ import java.util.List;
  * global variables and constants
  */
 public final class Globals {
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     public static final boolean FULLBRIGHT = false;
 
     /// Pixel per Meter

@@ -5,14 +5,14 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.BodyBits;
-import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.Assets;
+import de.tum.cit.fop.maze.essentials.BodyBits;
+import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import org.jetbrains.annotations.Nullable;
 
-import static de.tum.cit.fop.maze.Globals.*;
+import static de.tum.cit.fop.maze.essentials.Globals.*;
 
 /**
  * Represents a trap in the game

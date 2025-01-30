@@ -3,15 +3,15 @@ package de.tum.cit.fop.maze.entities;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.*;
-import de.tum.cit.fop.maze.BodyBits;
-import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.BodyBits;
+import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.BoundingRectangle;
-import de.tum.cit.fop.maze.essentials.GSONPostRestorable;
+import de.tum.cit.fop.maze.gson.GSONPostRestorable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
-import static de.tum.cit.fop.maze.Globals.CELL_SIZE_METERS;
-import static de.tum.cit.fop.maze.Globals.PPM;
+import static de.tum.cit.fop.maze.essentials.Globals.CELL_SIZE_METERS;
+import static de.tum.cit.fop.maze.essentials.Globals.PPM;
 
 /**
  * Represents an entity in the game world.

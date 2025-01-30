@@ -13,9 +13,9 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.*;
-import de.tum.cit.fop.maze.Assets;
+import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.entities.*;
-import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.entities.tile.*;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Direction;
@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static de.tum.cit.fop.maze.Globals.*;
+import static de.tum.cit.fop.maze.essentials.Globals.*;
 
 /**
  * The main game screen
@@ -348,7 +348,7 @@ public class LevelScreen implements Screen {
     }
 
     private void generate() {
-        map = new TileMap(15, 15, random);
+        map = new TileMap(35, 35, random);
     }
 
     private void generate(MazeGenerator generator) {

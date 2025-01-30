@@ -6,9 +6,9 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.BodyBits;
-import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.Assets;
+import de.tum.cit.fop.maze.essentials.BodyBits;
+import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import games.rednblack.miniaudio.MASound;
 

@@ -7,10 +7,9 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
-import com.google.gson.Gson;
-import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.BodyBits;
-import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.Assets;
+import de.tum.cit.fop.maze.essentials.BodyBits;
+import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.entities.Attackable;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.Utils;
@@ -18,11 +17,10 @@ import de.tum.cit.fop.maze.level.LevelScreen;
 import games.rednblack.miniaudio.MASound;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
-import static de.tum.cit.fop.maze.Globals.*;
+import static de.tum.cit.fop.maze.essentials.Globals.*;
 
 public class LootContainer extends TileEntity implements Attackable {
     private LootContainerAttributes attributes;

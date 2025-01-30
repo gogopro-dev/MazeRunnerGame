@@ -6,16 +6,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.entities.Enemy;
 import de.tum.cit.fop.maze.entities.Entity;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.function.Function;
-
-import static de.tum.cit.fop.maze.Globals.IMMUNITY_FRAME_DURATION;
 
 public class Utils {
     public static Drawable getColoredDrawable(int width, int height, Color color) {
