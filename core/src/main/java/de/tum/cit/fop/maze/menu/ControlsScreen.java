@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import games.rednblack.miniaudio.MASound;
 
 /**
  * Class for the UI of the controls screen.</br>
@@ -35,6 +36,7 @@ public class ControlsScreen implements Screen {
     private final Table controlsElementTable = new Table();
     private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
     private final FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+    private final MASound clickSound;
 
 
     /**
@@ -44,6 +46,9 @@ public class ControlsScreen implements Screen {
      */
     public ControlsScreen(Viewport viewport, SpriteBatch batch) {
         stage = new Stage(viewport, batch);
+
+        clickSound = Assets.getInstance().getSound("gui_click");
+        clickSound.setSpatialization(false);
 
         loadTextures();
         setupMenu();
@@ -162,6 +167,9 @@ public class ControlsScreen implements Screen {
         exitButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU);
             }
         });

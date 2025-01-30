@@ -24,12 +24,10 @@ import de.tum.cit.fop.maze.level.GameOverScreen;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import de.tum.cit.fop.maze.level.PauseScreen;
 import de.tum.cit.fop.maze.level.SaveManager;
+import games.rednblack.miniaudio.MASound;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import static de.tum.cit.fop.maze.Globals.*;
 
 /**
@@ -67,7 +65,7 @@ public class SettingsScreen implements Screen {
     private Container<VerticalGroup> container;
     private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
     private final FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
+    private final MASound clickSound;
 
     /**
      * @return The singleton instance of the settings menu
@@ -91,6 +89,9 @@ public class SettingsScreen implements Screen {
         parameter.size = 27;
         parameter.color = new Color(0xE0E0E0FF);
         font = generator.generateFont(parameter);
+
+        clickSound = Assets.getInstance().getSound("gui_click");
+        clickSound.setSpatialization(false);
 
         /// Create stage for actors
         stage = new Stage(viewport, batch);
@@ -242,6 +243,9 @@ public class SettingsScreen implements Screen {
         toggleVSYNCButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 SettingsConfiguration.getInstance().setVsync(!SettingsConfiguration.getInstance().isVsync());
                 if (SettingsConfiguration.getInstance().isVsync()) {
                     toggleVSYNCButton.setImagePadding(10f);
@@ -328,6 +332,9 @@ public class SettingsScreen implements Screen {
         selectBox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 String[] resolution = selectBox.getSelected().split("x");
                 Gdx.graphics.setWindowedMode(Integer.parseInt(resolution[0]), Integer.parseInt(resolution[1]));
                 Menu.getInstance().SCREEN_HEIGHT = Integer.parseInt(resolution[1]);
@@ -371,6 +378,9 @@ public class SettingsScreen implements Screen {
         exitSettingsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 /// If player exits the settings menu, save the configurations
                 try {
                     SaveManager.saveConfigurations();
@@ -424,6 +434,9 @@ public class SettingsScreen implements Screen {
         toggleFullButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 boolean isFullScreen = !SettingsConfiguration.getInstance().isFullScreen();
                 SettingsConfiguration.getInstance().setFullScreen(isFullScreen);
                 /// Disable the resolution select box if full screen is on

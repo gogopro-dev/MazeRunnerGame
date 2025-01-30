@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
+import games.rednblack.miniaudio.MASound;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class CreditsScreen implements Screen {
     private final BitmapFont font;
     private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
     private final FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
+    private final MASound clickSound;
 
     /**
      * Loads textures and sets up the menu
@@ -48,6 +49,9 @@ public class CreditsScreen implements Screen {
         fontParameter.size = 27;
         fontParameter.color = new Color(0xE0E0E0FF);
         font = generator.generateFont(fontParameter);
+
+        clickSound = Assets.getInstance().getSound("gui_click");
+        clickSound.setSpatialization(false);
 
         /// Create stage for actors
         stage = new Stage(viewport, batch);
@@ -133,6 +137,9 @@ public class CreditsScreen implements Screen {
         exitSettingsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU);
             }
         });

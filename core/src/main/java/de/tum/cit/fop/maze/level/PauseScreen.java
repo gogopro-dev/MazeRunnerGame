@@ -20,6 +20,7 @@ import de.tum.cit.fop.maze.menu.Menu;
 import de.tum.cit.fop.maze.menu.MenuState;
 import de.tum.cit.fop.maze.menu.PlayGameScreen;
 import de.tum.cit.fop.maze.menu.SettingsScreen;
+import games.rednblack.miniaudio.MASound;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -47,6 +48,7 @@ public class PauseScreen {
     private boolean isSettings = false;
     private static PauseScreen instance = null;
     private static Pixmap pauseTexturePixmap;
+    private final MASound clickSound;
 
     /**
      * @return The singleton instance of the pause screen
@@ -68,6 +70,9 @@ public class PauseScreen {
         isPaused = false;
         wasEscapePressed = false;
         screenTable = new Table();
+
+        clickSound = Assets.getInstance().getSound("gui_click");
+        clickSound.setSpatialization(false);
 
         settingsScreen = SettingsScreen.getInstance();
 
@@ -141,6 +146,9 @@ public class PauseScreen {
         resumeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 togglePause();
             }
         });
@@ -156,6 +164,9 @@ public class PauseScreen {
         settingsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 isSettings = true;
             }
         });
@@ -172,6 +183,9 @@ public class PauseScreen {
         exitButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 togglePause();
                 PlayGameScreen.getInstance().updateScreen();
                 Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU, true);

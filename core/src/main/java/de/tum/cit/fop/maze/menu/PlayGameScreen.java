@@ -26,11 +26,10 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
-import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
-import de.tum.cit.fop.maze.hud.HUD;
 import de.tum.cit.fop.maze.level.LevelData;
 import de.tum.cit.fop.maze.level.LevelScreen;
 import de.tum.cit.fop.maze.level.worldgen.MazeGenerator;
+import games.rednblack.miniaudio.MASound;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileNotFoundException;
@@ -72,6 +71,7 @@ public class PlayGameScreen implements Screen {
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
     private final FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.local("assets/font/YosterIslandRegular-VqMe.ttf"));
     private final FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+    private final MASound clickSound;
     private static PlayGameScreen instance = null;
 
     /**
@@ -96,6 +96,9 @@ public class PlayGameScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
 
         loadTextures();
+
+        clickSound = Assets.getInstance().getSound("gui_click");
+        clickSound.setSpatialization(false);
 
         isNewGame = new boolean[3];
         setupMenu();
@@ -235,6 +238,9 @@ public class PlayGameScreen implements Screen {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 Gdx.files.local("saves/" + index + ".png").delete();
                 Gdx.files.local("saves/" + index + ".json").delete();
                 Gdx.files.local("saves/levelData_" + index + ".json").delete();
@@ -269,6 +275,9 @@ public class PlayGameScreen implements Screen {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 if (isNewGame[index]){
                     isCreateNewGameDialogOpen = true;
                     createNewGameScreen = new CreateNewGameScreen(stage.getViewport(), (SpriteBatch) stage.getBatch(), index);
@@ -379,6 +388,9 @@ public class PlayGameScreen implements Screen {
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                clickSound.stop();
+                clickSound.setLooping(false);
+                clickSound.play();
                 Menu.getInstance().toggleMenuState(MenuState.MAIN_MENU);
             }
         });
@@ -623,6 +635,9 @@ public class PlayGameScreen implements Screen {
             selectBox.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
+                    PlayGameScreen.getInstance().clickSound.stop();
+                    PlayGameScreen.getInstance().clickSound.setLooping(false);
+                    PlayGameScreen.getInstance().clickSound.play();
                     if (selectBox.getSelected().equals("Select file")){
                         textField.setDisabled(false);
                         textField.setText(textField.getText().isEmpty() ? "" : textField.getText());
@@ -651,6 +666,9 @@ public class PlayGameScreen implements Screen {
             createButton.addListener(new ClickListener(){
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
+                    PlayGameScreen.getInstance().clickSound.stop();
+                    PlayGameScreen.getInstance().clickSound.setLooping(false);
+                    PlayGameScreen.getInstance().clickSound.play();
                     if (selectBox.getSelected().equals("Select file")){
                         /// Load maze from seed
                         if (!textField.getText().isEmpty()){
@@ -710,6 +728,9 @@ public class PlayGameScreen implements Screen {
             exitButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
+                    PlayGameScreen.getInstance().clickSound.stop();
+                    PlayGameScreen.getInstance().clickSound.setLooping(false);
+                    PlayGameScreen.getInstance().clickSound.play();
                     PlayGameScreen.getInstance().isCreateNewGameDialogOpen = false;
                 }
             });
