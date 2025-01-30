@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import de.tum.cit.fop.maze.entities.Player;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
+import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
@@ -257,9 +258,20 @@ public class HUD {
         stage.getBatch().begin();
         healthBar.render(deltaTime, spriteBatch);
         staminaBar.render(deltaTime, spriteBatch);
-        exitArrow.drawExitArrow(spriteBatch, LevelScreen.getInstance().player.getPosition().angle(
-            LevelScreen.getInstance().map.getExitPosition()
-        ));
+
+        /// find closest exit
+        AbsolutePoint playerPos = LevelScreen.getInstance().player.getPosition();
+        AbsolutePoint closest = null;
+        for (AbsolutePoint exitPoint : LevelScreen.getInstance().map.getExitPositions()) {
+            if (closest == null) closest = exitPoint;
+            if (closest.distance(playerPos) > exitPoint.distance(playerPos)) {
+                closest = exitPoint;
+            }
+        }
+        if (closest == null) {
+            throw new IllegalStateException("There is no exit on the map");
+        }
+        exitArrow.drawExitArrow(spriteBatch, playerPos.angle(closest));
         abilityBorder.render(spriteBatch, deltaTime);
         stage.getBatch().end();
     }

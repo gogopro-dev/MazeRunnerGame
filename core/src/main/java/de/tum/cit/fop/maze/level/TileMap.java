@@ -44,7 +44,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
     public transient float widthMeters;
     public final transient Random random;
     boolean[][] wallMap;
-    private AbsolutePoint exitPosition;
+    private final ArrayList<AbsolutePoint> exitPositions = new ArrayList<>();
     private transient MazeGenerator generator;
 
     /**
@@ -196,7 +196,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
                     tileEntityManager.createTileEntity(
                         new ExitDoor(pathCell.getDirection(cell)), currentCellCenter
                     );
-                    this.exitPosition = currentCellCenter;
+                    exitPositions.add(currentCellCenter);
                 }
                 if (cell.getCellType() == CellType.SHOP_ITEM) {
                     CollectableAttributes item = shopPool.get(random.nextInt(shopPool.size()));
@@ -651,8 +651,8 @@ public class TileMap implements Disposable, GSONPostRestorable {
                             temp.filter.categoryBits = BodyBits.WALL_TRANSPARENT;
                             temp.filter.maskBits = BodyBits.WALL_TRANSPARENT_MASK;
                             createRectangularHitbox(
-                                x + 1, y + HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, 3f,
-                                HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, temp);
+                                x + 1, y + HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS + 0.1f, 3f,
+                                HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS - 0.1f, temp);
                             createRectangularHitbox(x + 1f, y + 2.8f, 2.95f, hy - 2.8f);
                         }
                         y = -1;
@@ -665,8 +665,8 @@ public class TileMap implements Disposable, GSONPostRestorable {
                 temp.filter.categoryBits = BodyBits.WALL_TRANSPARENT;
                 temp.filter.maskBits = BodyBits.WALL_TRANSPARENT_MASK;
                 createRectangularHitbox(
-                    x + 1, y + HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, 3f,
-                    HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS, temp);
+                    x + 1, y + HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS + 0.1f, 3f,
+                    HORIZONTAL_WALL_HITBOX_HEIGHT_CELLS - 0.1f, temp);
                 createRectangularHitbox(x + 1, y + 3f, 3, hy - 2.8f);
             }
         }
@@ -714,8 +714,8 @@ public class TileMap implements Disposable, GSONPostRestorable {
         }
     }
 
-    public AbsolutePoint getExitPosition() {
-        return exitPosition;
+    public List<AbsolutePoint> getExitPositions() {
+        return exitPositions;
     }
 
     public TiledMap getMap() {
