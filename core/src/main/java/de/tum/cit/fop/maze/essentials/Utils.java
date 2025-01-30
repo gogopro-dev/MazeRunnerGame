@@ -122,27 +122,6 @@ public class Utils {
         return isPlayerExposed(sourcePoint);
     }
 
-    public static Texture getColoredTexture(int width, int height, Color color) {
-        // create simple font for Stamina Bar
-        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
-        pixmap.setColor(color);
-        pixmap.fill();
-        Texture texture = new Texture(pixmap);
-        pixmap.dispose();
-
-        return texture;
-    }
-
-    public static Drawable turnPixmapToDrawable(Pixmap pixmap) {
-        TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture(pixmap)));
-        return drawable;
-    }
-
-    public static Texture turnPixmapToTexture(Pixmap pixmap) {
-        Texture texture = new Texture(pixmap);
-        return texture;
-    }
-
     /**
      * Easing easeInOutQuart for smooth transitions between states, based on the x value 0 to 1
      *

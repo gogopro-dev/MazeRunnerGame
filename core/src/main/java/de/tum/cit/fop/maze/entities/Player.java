@@ -712,10 +712,6 @@ public class Player extends Entity {
     }
 
 
-    public boolean isOnActiveTrap() {
-        return onActiveTrap;
-    }
-
     public void setOnActiveTrap(boolean onActiveTrap) {
         this.onActiveTrap = onActiveTrap;
     }

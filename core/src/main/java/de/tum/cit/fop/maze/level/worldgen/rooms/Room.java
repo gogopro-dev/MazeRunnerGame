@@ -34,10 +34,6 @@ public abstract class Room {
         this.generatorStrategy = generatorStrategy;
     }
 
-    public List<GeneratorCell> getRoomCells() {
-        return roomCells;
-    }
-
     /**
      * Sets the list of cells that are part of the room
      *
@@ -56,10 +52,6 @@ public abstract class Room {
     public void setLocation(int i, int j) {
         this.i = i;
         this.j = j;
-    }
-
-    public void generateInsides() {
-
     }
 
     /**
@@ -150,7 +142,6 @@ public abstract class Room {
             }
         }
         this.generateDoor(mazeCells, random);
-        this.generateInsides();
     }
 
     /**

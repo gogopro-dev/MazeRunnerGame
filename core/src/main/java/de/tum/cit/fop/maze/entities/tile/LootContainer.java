@@ -70,7 +70,7 @@ public class LootContainer extends TileEntity implements Attackable {
     public LootContainer(LootContainerType type) {
         this();
         this.attributes = Assets.getInstance().getLootContainerConfig().stream()
-            .filter(attribute -> attribute.type.equals(type)).findFirst().get();
+            .filter(attribute -> attribute.type.equals(type)).findFirst().orElseThrow();
         init();
         int passes = 0;
         Random random = LevelScreen.getInstance().getRandom();

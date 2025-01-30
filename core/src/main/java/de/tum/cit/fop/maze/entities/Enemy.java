@@ -51,8 +51,8 @@ public class Enemy extends Entity implements Attackable {
     private float damageFlashTimer = 0f;
 
     /**
-     * Instantiates a new Enemy.
-     * @param enemyType the enemy type
+     * Constructs an Enemy object with the specified enemy type.
+     * @param enemyType The type of this enemy (e.g., SKELETON, ZOMBIE).
      */
     public Enemy(EnemyType enemyType) {
         this();
@@ -67,6 +67,11 @@ public class Enemy extends Entity implements Attackable {
         this.path = Collections.synchronizedList(new LinkedList<>());
     }
 
+    /**
+     * Renders enemy
+     *
+     * @param deltaTime delta time
+     */
     @Override
     public void render(float deltaTime) {
         elapsedTime += deltaTime;
@@ -232,6 +237,9 @@ public class Enemy extends Entity implements Attackable {
         );
     }
 
+    /**
+     * @param damage The amount of damage to take.
+     */
     @Override
     public void takeDamage(int damage) {
         if (isDamaged) return;
@@ -327,6 +335,15 @@ public class Enemy extends Entity implements Attackable {
         isMovingToPlayer = b;
     }
 
+    /**
+     * Updates the current path for the enemy with the provided list of absolute points.
+     * The method synchronizes on the existing path to ensure thread safety, clears
+     * the current path, and replaces it with the provided path. Additionally, it sets
+     * the first point of the path as the current path point, or null if the path is empty.
+     *
+     * @param path The new path represented as a list of AbsolutePoint objects.
+     *             If the list is empty, the current path point will be set to null.
+     */
     public void updatePath(List<AbsolutePoint> path) {
         synchronized (this.path) {
             this.path.clear();
@@ -354,6 +371,13 @@ public class Enemy extends Entity implements Attackable {
         }
     }
 
+    /**
+     * Retrieves the AbsolutePoint at the specified index from the path.
+     * The method is thread-safe, ensuring consistent access to the path.
+     *
+     * @param index The index of the AbsolutePoint to retrieve. Must be within the bounds of the path.
+     * @return The AbsolutePoint at the specified index, or {@code null} if the index is out of bounds.
+     */
     public AbsolutePoint getPathElement(int index) {
         synchronized (this.path) {
             if (index < 0 || index >= this.path.size()) {
@@ -363,6 +387,28 @@ public class Enemy extends Entity implements Attackable {
         }
     }
 
+    /**
+     * <p>Controls the movement of the entity along a predefined path. The method checks if the entity
+     * has reached its current target point within the path and updates the target point accordingly.
+     * If no points remain in the path, the entity's movement will stop. Otherwise, the entity continues
+     * to move towards the next point using its configured speed.</p>
+     *
+     * <p>The method is thread-safe, ensuring synchronized access to the path to avoid conflicts with
+     * concurrent updates or modifications to the path.</p>
+     *
+     * <p>Mechanism:
+     * <ol>
+     *     <li>If the current path point is null and the path is non-empty,
+     *     the next point from the path is assigned.</li>
+     *     <li>If the entity's position is within a close distance to the current target point,
+     *     the method checks for the next point in the path or sets the current target point to null if the
+     *     path is empty.</li>
+     *     <li>When a target point is set, the entity's linear velocity is
+     *     calculated and updated to move towards the target point.
+     *     If no target point exists, the entity's velocity is set to zero.</li>
+     * </ol>
+     * </p>
+     */
     public synchronized void followPath() {
         synchronized (path) {
             if (currentPathPoint == null) {
@@ -392,6 +438,9 @@ public class Enemy extends Entity implements Attackable {
         }
     }
 
+    /**
+     * Sets the knockback vector for the enemy, which determines the direction and
+     * magnitude of the knockback effect applied to it.*/
     public void setKnockbackVector(@Nullable Vector2 knockbackVector) {
         this.knockbackVector = knockbackVector;
         this.knockbackActivationElapsedTime = 0;

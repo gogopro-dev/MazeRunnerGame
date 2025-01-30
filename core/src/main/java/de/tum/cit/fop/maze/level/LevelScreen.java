@@ -71,7 +71,7 @@ public class LevelScreen implements Screen {
     public transient float w, h;
     public transient FillViewport viewport;
     public transient HUD hud;
-    public transient ReentrantLock worldLock = new ReentrantLock();
+    public final transient ReentrantLock worldLock = new ReentrantLock();
     transient Random random = new Random();
     private transient TiledMapRenderer tiledMapRenderer;
     private transient boolean gameOver;

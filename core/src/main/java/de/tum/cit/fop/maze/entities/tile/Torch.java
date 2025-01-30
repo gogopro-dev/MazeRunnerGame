@@ -30,7 +30,7 @@ public class Torch extends TileEntity {
     private transient float elapsedLitTime = 0f;
     private transient Animation<TextureAtlas.AtlasRegion> torchAnimation;
     private transient TextureRegion standTexture;
-    private transient MASound litSound;
+    private final transient MASound litSound;
 
     /**
      * Instantiates a new Torch.

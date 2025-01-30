@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.Random;
 
 /**
- * Represents a collectable item in the game that can be picked up by the player. I
+ * Represents a collectable item in the game that can be picked up by the player.
  * The item can have various types and attributes defining its behavior, visual
  * representation, and interaction with the player.
  */
@@ -40,8 +40,8 @@ public class Collectable extends TileEntity {
     private transient float dropElapsedTime = 0f;
     private transient PrismaticJoint joint;
     private transient boolean descriptionIsShown = false;
-    private transient CircleShape circleShape;
-    private transient FixtureDef circleFixtureDef = new FixtureDef();
+    private final transient CircleShape circleShape;
+    private final transient FixtureDef circleFixtureDef = new FixtureDef();
     private transient Light light;
     private transient float lightAnimationElapsedTime = 10f;
     private transient MASound pickupSound;

@@ -15,7 +15,7 @@ import java.util.Iterator;
  */
 public class TileEntityManager implements Disposable {
     private transient boolean loaded = false;
-    private ArrayList<TileEntity> tileEntities = new ArrayList<TileEntity>();
+    private ArrayList<TileEntity> tileEntities = new ArrayList<>();
 
     /**
      * Create a new tile entity manager.

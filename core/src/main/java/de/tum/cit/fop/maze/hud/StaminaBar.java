@@ -19,8 +19,8 @@ public class StaminaBar {
     private final ProgressBar staminaBar;
     private final float maxStamina;
     private final TextureRegion staminaBarBorder;
-    private float x;
-    private float y;
+    private final float x;
+    private final float y;
 
     /**
      * Instantiates a new Stamina bar.
@@ -60,7 +60,7 @@ public class StaminaBar {
         staminaBar.setAnimateDuration(0.25f);
 
         /// +1 due to problems with converting float to int in Utils.getColoredDrawable. The +1 is a workaround
-        /// to prevent the bar from being cut off on the left side. Magic numbers)
+        /// to prevent the bar from being cut off on the left side.
         staminaBar.setBounds(this.x + staminaBarAlignmentX + 1, this.y + staminaBarAlignmentY, width, height);
 
     }

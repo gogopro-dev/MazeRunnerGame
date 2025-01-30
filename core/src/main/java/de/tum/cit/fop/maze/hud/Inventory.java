@@ -39,7 +39,7 @@ public class Inventory {
     private final float inventoryWidth = inventoryCols * sizeOfInvIcon +
         (inventoryCols - 1) * spacingBetweenIcons;
     private final float inventoryHeight = inventoryRows * sizeOfInvIcon +
-        (inventoryRows - 1) * spacingBetweenIcons;
+        spacingBetweenIcons;
     private final TextureAtlas inventoryAtlas;
     private final Map<String, Label> labelInfo = new HashMap<>();
     private final Map<String, Image> imageInfo = new HashMap<>();
@@ -91,7 +91,6 @@ public class Inventory {
                 spriteInventory.row().padTop(spacingBetweenIcons);
                 textInventory.row().padTop(spacingBetweenIcons);
             }
-            ;
             return;
         }
         Label label = labelInfo.get(collectableType.name());

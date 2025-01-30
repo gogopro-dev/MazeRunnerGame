@@ -27,8 +27,6 @@ public class HUD {
     final float padding = 10f;
     private final Stage stage;
     private final SpriteBatch spriteBatch;
-    private final TextureAtlas atlas;
-    private final TextureAtlas inventoryAtlas;
     private final ExitArrow exitArrow;
     /**
      * The Hit elapsed time.
@@ -40,7 +38,6 @@ public class HUD {
     private final Inventory inventory;
     private final Description description;
     private final AbilityBorder abilityBorder;
-    private int invFontSize = 17;
 
 
     /**
@@ -90,14 +87,15 @@ public class HUD {
 
 
         Label.LabelStyle inventoryStyle = new Label.LabelStyle();
+        int invFontSize = 17;
         inventoryStyle.font = createFont(invFontSize);
-        inventoryAtlas = Assets.getInstance().getAssetManager()
+        TextureAtlas inventoryAtlas = Assets.getInstance().getAssetManager()
             .get("assets/collectables/collectables.atlas", TextureAtlas.class);
         inventory = new Inventory(inventoryAtlas, inventoryStyle, stage);
         setInventory(player.getInventory());
 
 
-        atlas = Assets.getInstance().getAssetManager().get("assets/hud/hud.atlas", TextureAtlas.class);
+        TextureAtlas atlas = Assets.getInstance().getAssetManager().get("assets/hud/hud.atlas", TextureAtlas.class);
 
 
         healthBar = new HpBar(padding, stage.getViewport().getWorldHeight() - padding, atlas, stage);

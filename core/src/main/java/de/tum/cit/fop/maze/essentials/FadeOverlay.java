@@ -11,7 +11,6 @@ import com.badlogic.gdx.utils.Disposable;
  */
 public class FadeOverlay implements Disposable {
     private final ShapeRenderer shapeRenderer;
-    private final float fadeSpeed = 0.5f; // Adjust this to control fade speed
     private float alpha = 0;
     private State state = State.NONE;
     private float fadeOutSpeed;
@@ -67,6 +66,8 @@ public class FadeOverlay implements Disposable {
         if (state == State.NONE) return;
 
         /// Update alpha based on state
+        // Adjust this to control fade speed
+        float fadeSpeed = 0.5f;
         if (state == State.FADING_IN) {
             alpha += delta * fadeSpeed;
             if (alpha >= 1) {

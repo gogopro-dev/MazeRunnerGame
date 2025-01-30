@@ -27,11 +27,13 @@ public enum TrapType {
      * @return a random horizontal trap
      */
     public static TrapType pickRandomHorizontalTrap(Random random) {
-        List<TrapType> candidtaes = Arrays.stream(TrapType.values()).filter(
+        /// Asks for .toList() which would not compile on Android target
+        @SuppressWarnings("SimplifyStreamApiCallChains")
+        List<TrapType> candidates = Arrays.stream(TrapType.values()).filter(
             (trap) -> !trap.name().contains("_V")
         ).collect(Collectors.toUnmodifiableList());
 
-        return candidtaes.get(random.nextInt(candidtaes.size()));
+        return candidates.get(random.nextInt(candidates.size()));
     }
 
     /**
@@ -40,10 +42,13 @@ public enum TrapType {
      * @return a random vertical trap
      */
     public static TrapType pickRandomVerticalTrap(Random random) {
-        List<TrapType> candidtaes = Arrays.stream(TrapType.values()).filter(
+
+        /// Asks for .toList() which would not compile on Android target
+        @SuppressWarnings("SimplifyStreamApiCallChains")
+        List<TrapType> candidates = Arrays.stream(TrapType.values()).filter(
             (trap) -> !trap.name().contains("_H")
         ).collect(Collectors.toUnmodifiableList());
 
-        return candidtaes.get(random.nextInt(candidtaes.size()));
+        return candidates.get(random.nextInt(candidates.size()));
     }
 }
