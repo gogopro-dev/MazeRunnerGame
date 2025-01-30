@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import de.tum.cit.fop.maze.entities.Player;
 import de.tum.cit.fop.maze.essentials.Utils;
 import com.badlogic.gdx.graphics.Color;
 import de.tum.cit.fop.maze.level.LevelScreen;
@@ -13,14 +12,10 @@ public class StaminaBar {
     private final float scalingX;
     private final float scalingY;
     private final ProgressBar staminaBar;
-    private float currentStamina;
     private final float maxStamina;
     private final TextureRegion staminaBarBorder;
     private float x;
     private float y;
-    /// alignment of the bar with respect to the border
-    private int staminaBarAlignmentY;
-    private int staminaBarAlignmentX;
 
 
     public StaminaBar(float maxStamina, float x, float y,
@@ -28,9 +23,9 @@ public class StaminaBar {
         scalingX = width/129;
         scalingY = height/8;
         this.maxStamina = maxStamina;
-        this.currentStamina = maxStamina;
-        staminaBarAlignmentY = (int) (4 * scalingY);
-        staminaBarAlignmentX = (int) (15 * scalingX);
+        /// alignment of the bar with respect to the border
+        int staminaBarAlignmentY = (int) (4 * scalingY);
+        int staminaBarAlignmentX = (int) (15 * scalingX);
         this.x = x;
         this.y = y - height - staminaBarAlignmentY;
 

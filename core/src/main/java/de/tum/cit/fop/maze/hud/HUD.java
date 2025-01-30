@@ -8,17 +8,14 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import de.tum.cit.fop.maze.ActiveItem;
 import de.tum.cit.fop.maze.entities.CoinsAndKeys;
 import de.tum.cit.fop.maze.entities.Description;
 import de.tum.cit.fop.maze.entities.ExitArrow;
 import de.tum.cit.fop.maze.entities.Player;
 import de.tum.cit.fop.maze.entities.tile.AbilityBorder;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
-import de.tum.cit.fop.maze.entities.tile.CollectableAttributes;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
-import java.util.*;
 import java.util.List;
 
 import static de.tum.cit.fop.maze.Globals.*;
@@ -30,7 +27,6 @@ public class HUD {
     private final Stage stage;
     private final SpriteBatch spriteBatch;
     private final TextureAtlas atlas;
-    private final Label.LabelStyle descriptionStyle;
     private int invFontSize = 17;
     final float padding = 10f;
     private final TextureAtlas inventoryAtlas;
@@ -43,7 +39,6 @@ public class HUD {
     private final StaminaBar staminaBar;
     private final TimeAndScore timeAndScore;
     private final Inventory inventory;
-    private final Label.LabelStyle inventoryStyle;
     private final Description description;
     private final AbilityBorder abilityBorder;
 
@@ -80,7 +75,9 @@ public class HUD {
         coinsAndKeysLabelStyle.font = generator.generateFont(parameter);
         FreeTypeFontGenerator labelFontGenerator = new FreeTypeFontGenerator(
             Gdx.files.internal("font/VT323-Regular.ttf"));
-        descriptionStyle = new Label.LabelStyle();
+
+
+        Label.LabelStyle descriptionStyle = new Label.LabelStyle();
         parameter.size = 25; // font size
         parameter.borderWidth = 0;
         parameter.color = new Color(1, 1, 1, 0.7f);
@@ -94,8 +91,8 @@ public class HUD {
         timeAndScore = new TimeAndScore(LevelScreen.getInstance().getLevelData(), timeAndScoreStyle, stage);
 
 
-        inventoryStyle = new Label.LabelStyle();
-        inventoryStyle.font = createFont(invFontSize, Color.WHITE);
+        Label.LabelStyle inventoryStyle = new Label.LabelStyle();
+        inventoryStyle.font = createFont(invFontSize);
         inventoryAtlas = new TextureAtlas(Gdx.files.local("assets/temporary/collectables/collectables.atlas"));
         inventory = new Inventory(inventoryAtlas, inventoryStyle, stage);
         setInventory(player.getInventory());
@@ -236,16 +233,14 @@ public class HUD {
     private void updateLabels() {
         timeAndScore.updateLabels();
     }
-//        time.setText(getLabelTime(elapsedTime));
-//        scoreLabel.setText(getLabelScore(currentScore - (int) elapsedTime));
 
-    private BitmapFont createFont(int size, Color color) {
+    private BitmapFont createFont(int size) {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
             Gdx.files.local("font/YosterIslandRegular-VqMe.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter =
             new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = size;
-        parameter.color = color;
+        parameter.color = Color.WHITE;
         parameter.borderWidth = 1;
         parameter.borderColor = new Color(0x000000FF);
         return generator.generateFont(parameter);

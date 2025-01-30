@@ -9,13 +9,11 @@ import de.tum.cit.fop.maze.level.LevelData;
 import java.util.Locale;
 
 public class TimeAndScore {
-    private Table timeAndScoreTable = new Table();
-    private Label time;
-    private Label scoreLabel;
-    private float currentScore;
-    private float elapsedTime = 0;
-    private Stage stage;
-    private LevelData data;
+    private final Table timeAndScoreTable = new Table();
+    private final Label time;
+    private final Label scoreLabel;
+    private final Stage stage;
+    private final LevelData data;
 
     public TimeAndScore(LevelData data, Label.LabelStyle labelStyle, Stage stage) {
         this.data = data;
@@ -57,7 +55,6 @@ public class TimeAndScore {
     public void updateLabels() {
         time.setText(formatedTime());
         scoreLabel.setText(formatedScore());
-        System.out.println(currentScore + " " + elapsedTime);
     }
 
     public void dispose() {

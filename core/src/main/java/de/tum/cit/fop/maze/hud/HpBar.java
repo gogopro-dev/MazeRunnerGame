@@ -18,29 +18,24 @@ import java.util.List;
  */
 public class HpBar {
 
-    private List<Image> healthImages;
+    private final List<Image> healthImages;
     private final float x;
     private final float y;
     private int health;
     private int maxHealth;
-    private final int heartsInRow = 20;
     private int receivedDamage;
     private final Animation<TextureRegion> healthLNoDMG;
     private final Animation<TextureRegion> healthRDMG;
     private final Animation<TextureRegion> healthLDMG;
     private boolean gotHit;
-    private float elapsedTime = 0;
     private float hitElapsedTime = 0;
-    private final float animationDuration = 1 / 5f;
     private final Table healthBar = new Table();
-    private TextureRegion staticHealthRFull;
-    private TextureRegion staticHealthLFull;
-    private TextureRegion staticHealthREmpty;
-    private TextureRegion staticHealthLEmpty;
+    private final TextureRegion staticHealthRFull;
+    private final TextureRegion staticHealthLFull;
+    private final TextureRegion staticHealthREmpty;
+    private final TextureRegion staticHealthLEmpty;
     private final Stage stage;
-    private float scaling = 1.6f;
-    private float staminaIconWidth = 35;
-    private float spacing = 4 * scaling;
+    private final float scaling = 1.6f;
 
 
     /**
@@ -53,10 +48,13 @@ public class HpBar {
      */
     public HpBar(float x, float y, TextureAtlas textureAtlas, Stage stage) {
 
+        float staminaIconWidth = 35;
         this.x = x + staminaIconWidth;
         this.y = y;
         this.stage = stage;
         healthImages = new ArrayList<>();
+
+        float animationDuration = 1 / 5f;
 
         healthLDMG = new Animation<>(animationDuration, textureAtlas.findRegions("HealthL_DMG"));
         healthLDMG.setPlayMode(Animation.PlayMode.NORMAL);
@@ -136,9 +134,23 @@ public class HpBar {
 
     }
 
+    /**
+     * Fills healthBar with Actors (Images) and healthImages with Images of Hearts.
+     *
+     * @param start             the start
+     * @param end               the end
+     * @param staticHealthLFull the static health l full
+     * @param staticHealthRFull the static health r full
+     * @param scaling           the scaling
+     */
+
 
     private void fillWithHearts(int start, int end, TextureRegion staticHealthLFull, TextureRegion staticHealthRFull,
                                 float scaling) {
+
+        int heartsInRow = 20;
+        float spacing = 4 * scaling;
+
         for (int i = start; i <= end; i++) {
             if (i % 2 == 1) {
                 Drawable heart = new TextureRegionDrawable(staticHealthLFull);
@@ -232,7 +244,6 @@ public class HpBar {
      * @param batch     the batch
      */
     public void render(float deltaTime, SpriteBatch batch) {
-        elapsedTime += deltaTime;
         if (gotHit) {
             damageAnimation(deltaTime, batch);
             if (getAllAnimationsFinished()) {
@@ -313,7 +324,7 @@ public class HpBar {
     }
 
     /**
-     * Sets health bar.
+     * Creates new hp bar.
      *
      * @param health    the health
      * @param maxHealth the max health
@@ -323,7 +334,6 @@ public class HpBar {
         this.maxHealth = maxHealth;
         this.health = health;
         this.gotHit = false;
-        this.elapsedTime = 0;
         createHpBar(health, maxHealth);
     }
 

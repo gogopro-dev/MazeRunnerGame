@@ -10,20 +10,34 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 
+/**
+ * The type Coins and keys.
+ */
 public class CoinsAndKeys {
     private final Table coinsAndKeysTable = new Table();
     private final Label coins;
     private final float x;
     private final float y;
     private final Drawable keysIcon;
-    private final Drawable coinsIcon;
+
+    /**
+     * Instantiates a new Coins and keys.
+     *
+     * @param stage                  the stage
+     * @param inventoryAtlas         the inventory atlas
+     * @param coinsAndKeysLabelStyle the coins and keys label style
+     * @param x                      the x
+     * @param y                      the y
+     * @param coins                  the coins
+     * @param hasKey                 the has key
+     */
     public CoinsAndKeys(Stage stage, TextureAtlas inventoryAtlas, Label.LabelStyle coinsAndKeysLabelStyle,
                         float x, float y, int coins, boolean hasKey) {
 
         this.coins = new Label(String.format(": " + coins), coinsAndKeysLabelStyle);
         this.x = x;
         this.y = y;
-        coinsIcon = new TextureRegionDrawable(inventoryAtlas.findRegion("coin"));
+        Drawable coinsIcon = new TextureRegionDrawable(inventoryAtlas.findRegion("coin"));
         float iconSize = 40;
         coinsIcon.setMinWidth(iconSize);
         coinsIcon.setMinHeight(iconSize);
@@ -45,6 +59,12 @@ public class CoinsAndKeys {
             pickUpKey();
         }
     }
+
+    /**
+     * Pick up coin.
+     *
+     * @param value the value
+     */
     public void pickUpCoin(int value){
 
         coins.setText(": " + LevelScreen.getInstance().player.getGold());
@@ -53,6 +73,9 @@ public class CoinsAndKeys {
 
     }
 
+    /**
+     * Pick up key.
+     */
     public void pickUpKey() {
 //  .width(keyWidth).height(keyHeight)
         coinsAndKeysTable.add(new Image(keysIcon)).width(keysIcon.getMinWidth()).height(keysIcon.getMinHeight());
@@ -60,6 +83,9 @@ public class CoinsAndKeys {
             y - coinsAndKeysTable.getPrefHeight() / 2);
     }
 
+    /**
+     * Dispose.
+     */
     public void dispose(){
         coinsAndKeysTable.clear();
         coinsAndKeysTable.remove();

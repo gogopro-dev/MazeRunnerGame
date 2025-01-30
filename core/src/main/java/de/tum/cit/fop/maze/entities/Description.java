@@ -9,13 +9,22 @@ import com.badlogic.gdx.utils.Align;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
+/**
+ * The type Description.
+ */
 public class Description {
 
-    private Table descriptionTable = new Table();
-    private Container<Table> descriptionContainer = new Container<>(descriptionTable);
-    private Label itemDescription;
-    private float padding = 10;
+    private final Table descriptionTable = new Table();
+    private final Container<Table> descriptionContainer = new Container<>(descriptionTable);
+    private final Label itemDescription;
+    private final float padding = 10;
 
+    /**
+     * Instantiates a new Description.
+     *
+     * @param labelStyle the label style
+     * @param stage      the stage
+     */
     public Description(Label.LabelStyle labelStyle, Stage stage) {
         itemDescription = new Label("", labelStyle);
         descriptionContainer.align(Align.center);
@@ -24,6 +33,13 @@ public class Description {
         stage.addActor(descriptionContainer);
         descriptionContainer.setVisible(false);
     }
+
+    /**
+     * Sets item description.
+     *
+     * @param description the description
+     * @param stage       the stage
+     */
     public void setItemDescription(String description, Stage stage) {
 
         if (descriptionTable.getChildren().size > 0) {
@@ -47,10 +63,20 @@ public class Description {
 //        stage.addActor(descriptionContainer);
     }
 
+    /**
+     * Gets item description.
+     *
+     * @return the item description
+     */
     public String getItemDescription() {
         return itemDescription.getText().toString();
     }
 
+    /**
+     * Update description position.
+     *
+     * @param stage the stage
+     */
     public void updateDescriptionPosition(Stage stage) {
 
         float containerWidth = descriptionTable.getWidth() + 15;
@@ -62,16 +88,27 @@ public class Description {
         descriptionContainer.setPosition(containerX, containerY);
     }
 
+    /**
+     * Delete description.
+     */
     public void deleteDescription() {
         descriptionTable.clear();
         descriptionContainer.setVisible(false);
         LevelScreen.getInstance().hud.showInventory();
     }
 
+    /**
+     * Is description set boolean.
+     *
+     * @return the boolean
+     */
     public boolean isDescriptionSet() {
         return !descriptionTable.getChildren().isEmpty();
     }
 
+    /**
+     * Dispose.
+     */
     public void dispose() {
 
         descriptionContainer.clear();

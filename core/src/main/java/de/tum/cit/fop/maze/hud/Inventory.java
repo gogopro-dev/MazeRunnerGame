@@ -10,31 +10,47 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+/**
+ * Inventory where all picked up Items are shown.
+ */
 public class Inventory {
-    private Label itemDescription;
-    private int inventoryRows = 2;
-    private int inventoryCols = 5;
-    private int sizeOfInvIcon = 40;
-    private int invFontSize = 17;
-    private int spacingBetweenIcons = 10;
-    private float tableOffsetX = 20;
-    private float tableOffsetY = 10;
+    private final int inventoryRows = 2;
+    private final int inventoryCols = 5;
+    private final int sizeOfInvIcon = 40;
+    private final int spacingBetweenIcons = 10;
     private final float inventoryWidth = inventoryCols * sizeOfInvIcon +
             (inventoryCols - 1) * spacingBetweenIcons;
     private final float inventoryHeight = inventoryRows * sizeOfInvIcon +
             (inventoryRows - 1) * spacingBetweenIcons;
     private final TextureAtlas inventoryAtlas;
+    /**
+     * The Sprite inventory.
+     */
     public final Table spriteInventory = new Table();
+    /**
+     * The Text inventory.
+     */
     public final Table textInventory = new Table();
+    /**
+     * The Label style.
+     */
     public final Label.LabelStyle labelStyle;
+    /**
+     * The Stage.
+     */
     public final Stage stage;
-    private Map<String, Label> labelInfo = new HashMap<>();
-    private Map<String, Image> imageInfo = new HashMap<>();
-    private float padding = 10;
+    private final Map<String, Label> labelInfo = new HashMap<>();
+    private final Map<String, Image> imageInfo = new HashMap<>();
 
+    /**
+     * Instantiates a new Inventory.
+     *
+     * @param inventoryAtlas the inventory atlas
+     * @param labelStyle     the label style
+     * @param stage          the stage
+     */
     public Inventory(TextureAtlas inventoryAtlas, Label.LabelStyle labelStyle, Stage stage) {
 
         this.inventoryAtlas = inventoryAtlas;
@@ -46,6 +62,11 @@ public class Inventory {
 
     }
 
+    /**
+     * Add item to inventory.
+     *
+     * @param collectable the collectable
+     */
     public void addItemToInventory(Collectable collectable) {
         Collectable.CollectableType collectableType = collectable.getType();
         String textureName = collectable.getCollectableAttributes().textureName;
@@ -81,7 +102,15 @@ public class Inventory {
 
     }
 
+    /**
+     * Update inventory position in regard to new World Width and Height.
+     */
     public void updateInventoryPosition() {
+
+        float tableOffsetX = 20;
+        float tableOffsetY = 10;
+        float padding = 10;
+
         spriteInventory.setPosition(stage.getViewport().getWorldWidth() - inventoryWidth - tableOffsetX - padding,
                 stage.getViewport().getWorldHeight() - inventoryHeight - padding);
         stage.addActor(spriteInventory);
@@ -90,21 +119,38 @@ public class Inventory {
         stage.addActor(textInventory);
     }
 
+    /**
+     * Hide inventory.
+     */
     public void hideInventory() {
         spriteInventory.setVisible(false);
         textInventory.setVisible(false);
     }
 
+    /**
+     * Render.
+     *
+     * @param deltaTime the delta time
+     */
     public void render(float deltaTime) {
         spriteInventory.act(deltaTime);
         textInventory.act(deltaTime);
     }
 
+    /**
+     * Show inventory.
+     */
     public void showInventory() {
         spriteInventory.setVisible(true);
         textInventory.setVisible(true);
     }
 
+    /**
+     * Remove item from inventory boolean.
+     *
+     * @param collectable the collectable
+     * @return the boolean
+     */
     public boolean removeItemFromInventory(Collectable collectable) {
         Collectable.CollectableType collectableType = collectable.getType();
         if (labelInfo.get(collectableType.name()) == null) {
@@ -124,11 +170,9 @@ public class Inventory {
         return true;
     }
 
-    private void updateTablesSize() {
-        spriteInventory.setSize(spriteInventory.getPrefWidth(), spriteInventory.getPrefHeight());
-        textInventory.setSize(textInventory.getPrefWidth(), textInventory.getPrefHeight());
-    }
-
+    /**
+     * Clear inventory.
+     */
     public void clearInventory() {
         spriteInventory.clear();
         textInventory.clear();
@@ -136,6 +180,9 @@ public class Inventory {
         imageInfo.clear();
     }
 
+    /**
+     * Dispose.
+     */
     public void dispose() {
         clearInventory();
         spriteInventory.remove();
