@@ -11,7 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
  * The arrow is rotated based on the player's position in the maze.
  */
 public class ExitArrow {
-    final Sprite exitArrow;
+    private final Sprite exitArrow;
 
     /**
      * Instantiates a new Exit arrow.

@@ -352,6 +352,5 @@ public class HpBar {
 
         healthBar.clear();
         healthImages.clear();
-        healthBar.remove();
     }
 }

@@ -24,7 +24,6 @@ import static de.tum.cit.fop.maze.essentials.Globals.DEFAULT_SCREEN_WIDTH_WINDOW
  * The UI manager for the game.
  */
 public class HUD {
-    final float padding = 10f;
     private final Stage stage;
     private final SpriteBatch spriteBatch;
     private final ExitArrow exitArrow;
@@ -98,6 +97,7 @@ public class HUD {
         TextureAtlas atlas = Assets.getInstance().getAssetManager().get("assets/hud/hud.atlas", TextureAtlas.class);
 
 
+        float padding = 10f;
         healthBar = new HpBar(padding, stage.getViewport().getWorldHeight() - padding, atlas, stage);
         healthBar.createHpBar(player.getHealth(), player.getMaxHealth());
 
