@@ -177,6 +177,14 @@ public class LevelScreen implements Screen {
 
     }
 
+    /**
+     * Updates the state of the audio engine during gameplay.
+     * This method checks if any gameplay music is currently playing,
+     * decreases the music delay timer if no music is playing,
+     * and starts the next music track when conditions are met.
+     *
+     * @param deltaTime The time in seconds since the last update.
+     */
     public void tickAudioEngine(float deltaTime) {
         boolean isAnythingPlaying = false;
         for (MASound sound : gameplayMusic) {
