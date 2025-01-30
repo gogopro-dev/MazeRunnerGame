@@ -120,6 +120,9 @@ layout of the dungeon, including walls, paths, rooms, and special points of inte
 collectible item placements. This class ensures the maze is procedurally generated to offer a unique experience for each
 game session.
 
+### Maze Generation with the seed:
+In our game, we implemented a fully functional random maze generation using procedural world generation algorithm. To create a random maze using this algorithm, we need to provide a seed value. The seed value is used to initialize the random number generator, which ensures that the same maze is generated every time the same seed is used. This allows us to create a consistent experience for players who want to replay the game with the same maze layout.
+
 ### Responsibilities:
 
 - Implementing a procedural generation algorithm to create a maze.
