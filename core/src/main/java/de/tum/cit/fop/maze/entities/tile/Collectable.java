@@ -11,9 +11,9 @@ import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.utils.Array;
 import com.google.gson.*;
-import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.BodyBits;
-import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.Assets;
+import de.tum.cit.fop.maze.essentials.BodyBits;
+import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.DebugRenderer;
 import de.tum.cit.fop.maze.essentials.Utils;
@@ -27,17 +27,12 @@ import java.util.Random;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 
+/**
+ * Represents a collectable item in the game that can be picked up by the player. I
+ * The item can have various types and attributes defining its behavior, visual
+ * representation, and interaction with the player.
+ */
 public class Collectable extends TileEntity {
-
-    /*Итак мои предложения к коллектблам:
-Сердечки = выпадают с каким то шансом с убитых мобов. Восстанавливают 1(?) фулл сердце
-Монетки = выпадают с мобов в количестве от 1 до 4(рандом). За них можно купить бафы в магазе
-"Монетка дэмэджа" = могут выпасть с бочки с шансом 1%. +15% к общему дамагу по врагам
-"Монетка Защиты" = могут выпасть с бочки с шансом 1%. -15% к получаемому урону от врагов
-Магазин:
-"Амулет воскресения": если вы умерли и есть амулет, то вы воскресните с фулл хп и станете неуязвимым на 3 секунды. После испольщования пропадает. Стоимость: 75 монет
-"Амулет вампира": после каждого убитого врага есть шанс 10% восстановить себе здоровье (рандом от 1 сердца до 3, включая половинчатые значения). Стоимость 100 монет
-"Сапоги скорохода": Увеличивает вашу скорость на 10%. Стоимость: 50 монет */
 
     /// Enum for Collectable types
     public enum CollectableType {
@@ -190,7 +185,7 @@ public class Collectable extends TileEntity {
         if (!this.collectableAttributes.isConsumable && !descriptionIsShown && Utils.isPlayerExposed(getPosition())) {
             descriptionIsShown = true;
             LevelScreen.getInstance().hud.setItemDescription(
-                this.collectableAttributes.toPrettyDescription()
+                this.collectableAttributes.toItemDescription()
             );
         }
     }
@@ -200,7 +195,7 @@ public class Collectable extends TileEntity {
         descriptionIsShown = false;
         if (!this.collectableAttributes.isConsumable &&
             Objects.equals(LevelScreen.getInstance().hud.getItemDescription(),
-                this.collectableAttributes.toPrettyDescription())) {
+                this.collectableAttributes.toItemDescription())) {
             lightAnimationElapsedTime = 0f;
             LevelScreen.getInstance().hud.deleteDescription();
         }

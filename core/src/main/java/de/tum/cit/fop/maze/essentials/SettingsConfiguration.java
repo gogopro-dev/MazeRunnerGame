@@ -1,7 +1,7 @@
 package de.tum.cit.fop.maze.essentials;
 
-import static de.tum.cit.fop.maze.Globals.CURRENT_SCREEN_HEIGHT_WINDOWED;
-import static de.tum.cit.fop.maze.Globals.CURRENT_SCREEN_WIDTH_WINDOWED;
+import static de.tum.cit.fop.maze.essentials.Globals.CURRENT_SCREEN_HEIGHT_WINDOWED;
+import static de.tum.cit.fop.maze.essentials.Globals.CURRENT_SCREEN_WIDTH_WINDOWED;
 
 /**
  * Singleton class that holds the settings configuration of the game.
@@ -16,8 +16,8 @@ import static de.tum.cit.fop.maze.Globals.CURRENT_SCREEN_WIDTH_WINDOWED;
  * The settings configuration can be accessed from any class in the game.
  */
 public class SettingsConfiguration {
-    private float musicVolume = 0.5f;
-    private float sfxVolume = 0.5f;
+    private float musicVolume = 0.1f;
+    private float sfxVolume = 0.1f;
     private String resolution = CURRENT_SCREEN_WIDTH_WINDOWED + "x" + CURRENT_SCREEN_HEIGHT_WINDOWED;
     private boolean fullScreen = true;
     private boolean vsync = true;

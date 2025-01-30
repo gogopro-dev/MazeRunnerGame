@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze;
+package de.tum.cit.fop.maze.essentials;
 
 public final class BodyBits {
     public static final short DECORATION = 0b0;

@@ -4,10 +4,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import de.tum.cit.fop.maze.BodyBits;
-import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.BodyBits;
+import de.tum.cit.fop.maze.essentials.Globals;
 
-import static de.tum.cit.fop.maze.Globals.TRAP_SAFETY_PADDING;
+import static de.tum.cit.fop.maze.essentials.Globals.TRAP_SAFETY_PADDING;
 
 public class Projectile extends TileEntity {
 

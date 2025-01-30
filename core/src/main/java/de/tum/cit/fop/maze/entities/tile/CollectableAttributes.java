@@ -80,7 +80,7 @@ public final class CollectableAttributes extends Attributes {
     }
 
     @Override
-    public String toPrettyDescription() {
+    public String toItemDescription() {
         StringBuilder sb = new StringBuilder();
         if (name != null) {
             sb.append(name).append(":\n");
@@ -88,7 +88,7 @@ public final class CollectableAttributes extends Attributes {
         if (description != null) {
             sb.append(description).append("\n");
         }
-        sb.append(super.toPrettyDescription());
+        sb.append(super.toItemDescription());
         return sb.toString();
     }
 

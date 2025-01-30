@@ -16,8 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import de.tum.cit.fop.maze.Assets;
-import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.Assets;
 import de.tum.cit.fop.maze.essentials.AlignableImageTextButton;
 import de.tum.cit.fop.maze.essentials.SettingsConfiguration;
 import de.tum.cit.fop.maze.level.GameOverScreen;
@@ -28,7 +27,7 @@ import games.rednblack.miniaudio.MASound;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import static de.tum.cit.fop.maze.Globals.*;
+import static de.tum.cit.fop.maze.essentials.Globals.*;
 
 /**
  * Creates the Settings screen.</br>
@@ -555,7 +554,7 @@ public class SettingsScreen implements Screen {
         knob_selected.setMinSize(knob_selected.getMinWidth()*2f, knob_selected.getMinHeight()*2f);
         sliderStyle.knobDown = knob_selected;
 
-        return new Slider(0f, 1f, 0.01f, false, sliderStyle);
+        return new Slider(0f, 0.5f, 0.005f, false, sliderStyle);
     }
 
     /**

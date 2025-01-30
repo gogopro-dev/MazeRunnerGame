@@ -1,14 +1,11 @@
 package de.tum.cit.fop.maze.level.worldgen;
 
 
-import de.tum.cit.fop.maze.Globals;
+import de.tum.cit.fop.maze.essentials.Globals;
 import de.tum.cit.fop.maze.level.worldgen.rooms.*;
 
-import java.io.File;
 import java.io.FileReader;
-import java.nio.charset.StandardCharsets;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
