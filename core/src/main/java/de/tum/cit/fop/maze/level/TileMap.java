@@ -31,10 +31,19 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.*;
 
-import static de.tum.cit.fop.maze.essentials.Globals.*;
+import static de.tum.cit.fop.maze.Globals.*;
 import static java.lang.Math.max;
 
+/**
+ * The TileMap class represents the structure and behavior of a tile-based map.
+ * It provides functionalities related to map creation, manipulation, and the addition of various entities such as walls,
+ * traps, loot containers, and torches. It also handles the generation of hitboxes and manages player interaction with
+ * its elements.
+ * This class supports deserialization using Gson and interfaces with a MazeGenerator to create procedural maps.
+ */
 public class TileMap implements Disposable, GSONPostRestorable {
+
+    /// Tiled map class to render map
     private final TiledMap map = new TiledMap();
     private transient final TileEntityManager tileEntityManager;
     public int width;
@@ -84,7 +93,6 @@ public class TileMap implements Disposable, GSONPostRestorable {
 
         ArrayList<AbsolutePoint> torches = new ArrayList<>();
         // Always get width and height from the generator, because it always makes the parameters odd
-
         this.random = random;
         this.width = this.generator.width * 3;
         this.height = this.generator.height * 3;
@@ -109,7 +117,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
         @SuppressWarnings("unchecked") List<CollectableAttributes> treasurePool =
             (List<CollectableAttributes>) Assets.getInstance().getTreasurePool().clone();
 
-        // Paddings to account for surrounding walls
+        /// Paddings to account for surrounding walls
         int startI = 2;
         int startJ = 1;
         for (int i = this.generator.height - 1; i >= 0; --i) {
@@ -229,6 +237,14 @@ public class TileMap implements Disposable, GSONPostRestorable {
         generateHitboxes();
     }
 
+    /**
+     * Determines the torch's absolute position based on its direction and the current absolute position.
+     *
+     * @param torchDirection the direction in which the torch should be placed (UP, DOWN, LEFT, or RIGHT)
+     * @param current the current absolute position
+     * @return the calculated absolute position of the torch
+     * @throws IllegalStateException if the provided torch direction is unexpected or invalid
+     */
     private static AbsolutePoint getTorchPoint(Direction torchDirection, AbsolutePoint current) {
         AbsolutePoint torchPoint;
         switch (
@@ -242,6 +258,7 @@ public class TileMap implements Disposable, GSONPostRestorable {
         }
         return torchPoint;
     }
+
 
     public void restore() {
         TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);

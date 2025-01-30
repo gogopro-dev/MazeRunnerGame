@@ -1,4 +1,4 @@
-package de.tum.cit.fop.maze.essentials;
+package de.tum.cit.fop.maze;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -11,17 +11,14 @@ import java.util.List;
  * global variables and constants
  */
 public final class Globals {
-    public static final boolean DEBUG = true;
-    public static final boolean FULLBRIGHT = true;
+    public static final boolean DEBUG = false;
+    public static final boolean FULLBRIGHT = false;
 
     /// Pixel per Meter
     public static final float PPM = 64f;
     /// Meter per Pixel
     public static final float MPP = 1 / PPM;
     public static final int CELL_SIZE = 16;
-
-    public static final float useActiveFrameDuration = 0.1f;
-    public static final float useActiveAnimationDuration = 1f;
 
     public static final float ENTITY_PATHFINDING_RANGE = 6 * 3;
     public static final float ENEMY_PATHFINDING_INTERVAL = 0.1f;
@@ -69,6 +66,9 @@ public final class Globals {
     public static int CURRENT_SCREEN_HEIGHT_WINDOWED = DEFAULT_SCREEN_HEIGHT_WINDOWED;
     public static final float DEFAULT_CAMERA_VIEWPORT_WIDTH_METERS = 16.0f;
     public static final float DEFAULT_CAMERA_VIEWPORT_HEIGHT_METERS = 12.0f;
-    public static final List<String> WINDOWED_RESOLUTIONS = new ArrayList<>(Arrays.asList("640x480", "800x600", "1024x768", "1280x720", "1280x800", "1280x960", "1400x1050", "1600x1200", "1680x1050", "1920x1080", "1920x1200", "2048x1536", "2560x1440", "2560x1600", "3840x2160", "3840x2400", "7680x4320"));
+    public static final List<String> WINDOWED_RESOLUTIONS = new ArrayList<>(
+        Arrays.asList("640x480", "800x600", "1024x768", "1280x720", "1280x800", "1280x960", "1400x1050", "1600x1200",
+            "1680x1050", "1920x1080", "1920x1200", "2048x1536", "2560x1440", "2560x1600", "3840x2160", "3840x2400",
+            "7680x4320"));
 
 }

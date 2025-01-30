@@ -1,7 +1,7 @@
 package de.tum.cit.fop.maze.level.worldgen;
 
 
-import de.tum.cit.fop.maze.essentials.Globals;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.level.worldgen.rooms.*;
 
 import java.io.BufferedReader;

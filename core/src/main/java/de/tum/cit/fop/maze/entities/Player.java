@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import de.tum.cit.fop.maze.ActiveItem;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.tile.Attributes;
 import de.tum.cit.fop.maze.entities.tile.Collectable;
 import de.tum.cit.fop.maze.essentials.*;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static de.tum.cit.fop.maze.essentials.Globals.*;
+import static de.tum.cit.fop.maze.Globals.*;
 
 /**
  * Represents the player character in the game.
@@ -650,6 +651,10 @@ public class Player extends Entity {
         return false;
     }
 
+    /**
+     * Heals the player by a specified amount and updates the HUD health bar.
+     * @param amount The amount of health points to restore.
+     */
     @Override
     public void heal(int amount) {
         super.heal(amount);
@@ -676,7 +681,6 @@ public class Player extends Entity {
 
     /**
      * Collects a collectable activeItem.
-     *
      * @param collectable The collectable activeItem to collect
      */
     public void collect(Collectable collectable) {
@@ -734,14 +738,24 @@ public class Player extends Entity {
         return gold;
     }
 
+    /**
+     * Adds a specified amount of gold to the player's total gold.
+     * This method also updates the HUD to reflect the new gold amount.
+     *
+     * @param gold The amount of gold to be added to the player's total gold.
+     */
     public void addGold(int gold) {
         this.gold += gold;
-        LevelScreen.getInstance().hud.addCoin(gold);
     }
 
+    /**
+     * Reduces the player's gold by a specified amount.
+     * This method also updates the HUD to reflect the change in gold.
+     *
+     * @param gold The amount of gold to be deducted from the player's total gold.
+     */
     public void removeGold(int gold) {
         this.gold -= gold;
-        LevelScreen.getInstance().hud.addCoin(-gold);
     }
 
     public float getMaxStamina() {

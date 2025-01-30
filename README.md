@@ -76,4 +76,16 @@ In our project we fully implemented saving/loading mechanic. This is related to 
 - slots for active items `AbilityBorder`
 - methods that update the HUD widgets positions and draw them on the screen in `HUD`
 
-#
+## TileEntity
+
+## Collectable
+
+`Collectable` is the class that handles the items that can be picked up by Player. It enherits from `TileEntity`.
+it has following subclasses:
+- `CollectableAttributes` - enum that stores the attributes of the collectable items
+- `Collectable` - constructor that sets the position of the item and the type of the item
+- `fixtureDef` - fixture definition of the item
+- `TileEntity` - 
+- `MASOUND` - sound that is played when the item is picked up
+- `Light` - light that is attached to the item
+- `PrismaticJoint` - for drop path of the item

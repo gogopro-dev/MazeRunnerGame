@@ -11,7 +11,7 @@ import de.tum.cit.fop.maze.level.LevelScreen;
  * along with a border. It supports rendering of the border and ability animation
  * on a given position within a game.
  */
-public class AbilityBorder {
+public class ItemFrame {
     private final float width = 60;
     private final float x;
     private final float y;
@@ -27,7 +27,7 @@ public class AbilityBorder {
      * @param y     the y coordinate
      * @param atlas the HUD atlas instance
      */
-    public AbilityBorder(float x, float y, TextureAtlas atlas) {
+    public ItemFrame(float x, float y, TextureAtlas atlas) {
         this.x = x - width / 2;
         this.y = y;
         this.border = atlas.findRegion("border");

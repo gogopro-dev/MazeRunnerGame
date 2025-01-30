@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.entities.Attackable;
 import de.tum.cit.fop.maze.essentials.*;
 import de.tum.cit.fop.maze.level.LevelScreen;
@@ -16,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
-import static de.tum.cit.fop.maze.essentials.Globals.CELL_SIZE_METERS;
-import static de.tum.cit.fop.maze.essentials.Globals.IMMUNITY_FRAME_DURATION;
+import static de.tum.cit.fop.maze.Globals.CELL_SIZE_METERS;
+import static de.tum.cit.fop.maze.Globals.IMMUNITY_FRAME_DURATION;
 
 /**
  * Represents a loot container entity within the game, which can be attacked, destroyed,

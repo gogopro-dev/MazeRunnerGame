@@ -6,13 +6,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Disposable;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
 /**
  * The type Description.
  */
-public class Description {
+public class Description implements Disposable {
 
     private final Table descriptionTable = new Table();
     private final Container<Table> descriptionContainer = new Container<>(descriptionTable);
@@ -36,7 +37,6 @@ public class Description {
 
     /**
      * Sets item description.
-     *
      * @param description the description
      * @param stage       the stage
      */
@@ -65,7 +65,6 @@ public class Description {
 
     /**
      * Gets item description.
-     *
      * @return the item description
      */
     public String getItemDescription() {
@@ -106,9 +105,6 @@ public class Description {
         return !descriptionTable.getChildren().isEmpty();
     }
 
-    /**
-     * Dispose.
-     */
     public void dispose() {
 
         descriptionContainer.clear();

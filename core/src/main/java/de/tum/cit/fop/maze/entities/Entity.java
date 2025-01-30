@@ -9,12 +9,12 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.BodyBits;
 import de.tum.cit.fop.maze.essentials.BoundingRectangle;
-import de.tum.cit.fop.maze.essentials.Globals;
+import de.tum.cit.fop.maze.Globals;
 import de.tum.cit.fop.maze.gson.GSONPostRestorable;
 import de.tum.cit.fop.maze.level.LevelScreen;
 
-import static de.tum.cit.fop.maze.essentials.Globals.CELL_SIZE_METERS;
-import static de.tum.cit.fop.maze.essentials.Globals.PPM;
+import static de.tum.cit.fop.maze.Globals.CELL_SIZE_METERS;
+import static de.tum.cit.fop.maze.Globals.PPM;
 
 /**
  * Represents an entity in the game world.
@@ -111,18 +111,20 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
     }
 
 
-    public float getSpriteWidth() {
-        return boundingRectangle.width();
-    }
-
-    public float getSpriteHeight() {
-        return boundingRectangle.height();
-    }
-
     public Body getBody() {
         return body;
     }
 
+
+    /**
+     * Spawns the entity in the game world at a specific location.
+     * Creates a physical body for the entity, sets its properties,
+     * and initializes its inner hitbox for collision management.
+     *
+     * @param x The x-coordinate where the entity will be spawned.
+     * @param y The y-coordinate where the entity will be spawned.
+     * @throws IllegalStateException If the entity is already spawned.
+     */
     public void spawn(float x, float y) {
         if (body != null) {
             throw new IllegalStateException("Entity already spawned");
@@ -192,7 +194,4 @@ public abstract class Entity implements Attackable, GSONPostRestorable {
         return maxHealth;
     }
 
-    public float getScale() {
-        return scale;
-    }
 }
