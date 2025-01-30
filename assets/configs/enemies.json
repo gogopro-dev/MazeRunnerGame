@@ -1,7 +1,7 @@
 [
   {
     "enemyType": "ZOMBIE",
-    "pathToAnim": "anim/enemies/zombie/zombie.atlas",
+    "animationCategory": "zombie",
     "attributes": {
       "speed": 7.1,
       "maxHealth": 1,
@@ -12,7 +12,7 @@
   },
   {
     "enemyType": "SKELETON",
-    "pathToAnim": "anim/enemies/skeleton/skeleton.atlas",
+    "animationCategory": "skeleton",
     "attributes": {
       "speed": 7.1,
       "maxHealth": 1,
