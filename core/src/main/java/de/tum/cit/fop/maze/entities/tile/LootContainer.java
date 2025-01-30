@@ -15,6 +15,7 @@ import de.tum.cit.fop.maze.entities.Attackable;
 import de.tum.cit.fop.maze.essentials.AbsolutePoint;
 import de.tum.cit.fop.maze.essentials.Utils;
 import de.tum.cit.fop.maze.level.LevelScreen;
+import games.rednblack.miniaudio.MASound;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +34,8 @@ public class LootContainer extends TileEntity implements Attackable {
     private boolean hasBeenHit = false;
     private float timeSinceLastHit = 0;
     private transient Body lightBlockingBody;
+    private transient MASound hitSound;
+    private transient MASound destroySound;
 
 
     public enum LootContainerType {
@@ -49,14 +52,19 @@ public class LootContainer extends TileEntity implements Attackable {
         public final float frameDuration;
         public final String textureName;
         public final LootContainerType type;
+        public final String hitSound;
+        public final String destroySound;
 
         public LootContainerAttributes(
-            int maxLootAmount, float frameDuration, String textureName, LootContainerType type
+            int maxLootAmount, float frameDuration, String textureName, LootContainerType type,
+            String hitSound, String destroySound
         ) {
             this.maxLootAmount = maxLootAmount;
             this.frameDuration = frameDuration;
             this.textureName = textureName;
             this.type = type;
+            this.hitSound = hitSound;
+            this.destroySound = destroySound;
         }
     }
 
@@ -118,6 +126,12 @@ public class LootContainer extends TileEntity implements Attackable {
         for (Collectable collectable : loot) {
             collectable.init();
         }
+        if (this.attributes.hitSound != null) {
+            this.hitSound = Assets.getInstance().getSound(this.attributes.hitSound);
+        }
+        if (this.attributes.destroySound != null) {
+            this.destroySound = Assets.getInstance().getSound(this.attributes.destroySound);
+        }
     }
 
 
@@ -129,6 +143,9 @@ public class LootContainer extends TileEntity implements Attackable {
         hasBeenHit = true;
         timeSinceLastHit = 0;
         this.attributes.health -= damage;
+        this.hitSound.stop();
+        this.hitSound.setPosition(this.getPosition().x(), this.getPosition().y(), 0);
+        this.hitSound.play();
         if (this.attributes.health <= 0) {
             destroyed = true;
         }
@@ -202,6 +219,11 @@ public class LootContainer extends TileEntity implements Attackable {
                     }
                     this.loot.clear();
                 });
+                if (this.attributes.destroySound != null) {
+                    this.destroySound.stop();
+                    this.destroySound.setPosition(this.getPosition().x(), this.getPosition().y(), 0);
+                    this.destroySound.play();
+                }
             }
             destroyedTime += delta;
             batch.draw(

@@ -11,6 +11,7 @@ import de.tum.cit.fop.maze.Assets;
 import de.tum.cit.fop.maze.BodyBits;
 import de.tum.cit.fop.maze.essentials.Direction;
 import de.tum.cit.fop.maze.level.LevelScreen;
+import games.rednblack.miniaudio.MASound;
 
 import static de.tum.cit.fop.maze.Globals.*;
 
@@ -30,6 +31,7 @@ public class ExitDoor extends TileEntity {
     private transient TextureRegion texture;
     private transient Body wallBody;
     private transient Fixture promptFixture;
+    private transient MASound openingSound;
 
 
     private ExitDoor() {
@@ -69,6 +71,9 @@ public class ExitDoor extends TileEntity {
             case UP -> atlas.findRegion("door_front_locked");
             case DOWN -> atlas.findRegion("door_back_locked");
         };
+
+        this.openingSound = Assets.getInstance().getSound("exit_open");
+        this.openingSound.setLooping(false);
     }
 
     @Override
@@ -101,7 +106,8 @@ public class ExitDoor extends TileEntity {
                 body.getWorld().destroyBody(wallBody);
                 /// Open the door
                 isOpen = true;
-
+                this.openingSound.setPosition(getPosition().x(), getPosition().y(), 0);
+                this.openingSound.play();
                 spawnExitTrigger();
                 return;
             }
