@@ -473,6 +473,9 @@ public class LevelScreen implements Screen {
         tileEntityManager.createTileEntity(collectable9,
             map.widthMeters / 2 + 14, map.heightMeters / 2 - 8
         );
+        tileEntityManager.createTileEntity(new Collectable(Collectable.CollectableType.FIREBALL),
+            map.widthMeters / 2 + 16, map.heightMeters / 2 - 8
+        );
         tileEntityManager.createTileEntity(
             new Torch(Direction.UP),
             map.widthMeters / 2, map.heightMeters / 2

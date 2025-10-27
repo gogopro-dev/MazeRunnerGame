@@ -13,9 +13,8 @@ Just run DesktopLauncher with -XstartOnFirstThread jvm arguments
 ## Platforms
 
 - `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
-- `android`: Android mobile platform. Needs Android SDK.
-- `ios-moe`: iOS mobile backend using Multi-OS Engine.
+- `desktop`: Primary desktop platform using LWJGL3
+- `android`: Android mobile platform. Needs Android SDK. Is still not supported.
 
 ## Gradle
 
@@ -60,7 +59,7 @@ For example, `core:clean` removes `build` folder only from the `core` project.
 - `SPACE` - buy items from the shop
 - `ENTER` - attack
 - `ESC` - pause
-- `R` - take / put away torch
+- `R` - pull out / put away torch
 
 
 # LORE

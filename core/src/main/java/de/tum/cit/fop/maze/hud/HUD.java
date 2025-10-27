@@ -236,7 +236,9 @@ public class HUD {
     }
 
 
-
+    public void updateCoins(int coins) {
+        this.coinsAndKeys.updateCoins(coins);
+    }
     /**
      * Render.
      *

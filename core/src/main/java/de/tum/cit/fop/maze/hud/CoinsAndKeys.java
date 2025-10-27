@@ -71,6 +71,10 @@ public class CoinsAndKeys {
             y - coinsAndKeysTable.getPrefHeight() / 2);
     }
 
+    public void updateCoins(int coins) {
+        this.coins.setText(": " + coins);
+    }
+
     /**
      * Dispose.
      */

@@ -2,7 +2,7 @@ package de.tum.cit.fop.maze.essentials;
 
 /**
  * The {@code BodyBits} class provides a set of predefined short constants that represent different category bits
- * and masks typically used in physics or collision systems within a game or simulation environment.
+ * and masks used in Box2d physics engine.
  */
 public final class BodyBits {
     public static final short DECORATION = 0b0;

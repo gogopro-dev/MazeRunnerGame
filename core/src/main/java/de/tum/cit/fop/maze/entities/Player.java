@@ -746,6 +746,7 @@ public class Player extends Entity {
      */
     public void addGold(int gold) {
         this.gold += gold;
+        LevelScreen.getInstance().hud.updateCoins(this.gold);
     }
 
     /**
